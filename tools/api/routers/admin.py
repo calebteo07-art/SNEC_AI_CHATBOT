@@ -14,6 +14,7 @@ from tools.cases.topic_sets import SET_LABELS
 from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
 from tools.profile.get_profile import get_profile
 from tools.shared import db
+from tools.shared.audit_log import log as audit_log
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.clock import app_today
 from tools.shared.gemini_client import MOCK_MODE, MODEL, ask
@@ -742,26 +743,51 @@ async def admin_student_detail(student_id: str, request: Request,
 
     # Mastery vs cohort (P2b, §6.2). Best-effort: this is an ADDITION to a page that
     # already works, so a failure here emits `mastery: null` and leaves the sessions,
-    # cases and findings intact. Deliberately the opposite of /cohort-analytics, where
-    # the aggregation IS the payload and a read failure must 500.
+    # cases and findings intact. /cohort-analytics is fail-closed on the population and
+    # OSCE reads because there the aggregation IS the payload — but it degrades its
+    # flashcard read exactly as below, so this is a narrower version of that split, not
+    # its opposite.
+    mastery = None
     try:
+        # `complete` is dropped on both: _fetch_all caps at 50 x 1000 rows, ~2000x the
+        # current tables, and the block has no completeness field to surface it through.
         cohort_profiles, _staff_excluded = await db.get_active_student_profiles()
         cohort_cases, _cases_complete = await db.get_all_case_scores()
-        cohort_cards, _cards_complete = await db.get_all_flashcard_attempts()
+        try:
+            cohort_cards, _cards_complete = await db.get_all_flashcard_attempts()
+        except Exception:
+            # Isolated on purpose: get_all_flashcard_attempts RAISES by design on a
+            # missing table (db.py:566), which is the NORMAL pre-migration-010 state. A
+            # shared try would let that expected failure null the OSCE and retention
+            # scales too, both of which are fully computable without it.
+            cohort_cards = []
         osce_per_student = osce_by_student(cohort_cases)
         cards_per_student = flashcard_by_student(cohort_cards)
-        per_student = {
-            str(p.get("student_id") or ""): {
-                "osce": (osce_per_student.get(str(p.get("student_id") or "")) or {}).get("avg_score"),
-                "flashcard": (cards_per_student.get(str(p.get("student_id") or "")) or {}).get("accuracy"),
+        per_student = {}
+        for p in cohort_profiles:
+            sid = str(p.get("student_id") or "")
+            if not sid:
+                continue
+            per_student[sid] = {
+                "osce": (osce_per_student.get(sid) or {}).get("avg_score"),
+                "flashcard": (cards_per_student.get(sid) or {}).get("accuracy"),
                 "retention": retention_mastery(p.get("retention_scores"),
                                                role=str(p.get("role") or "")),
             }
-            for p in cohort_profiles
-            if p.get("student_id")
-        }
-        mastery = mastery_block(student_id, per_student)
-    except Exception:
+        # Only compare a student against a cohort they are IN. /api/admin/students is not
+        # staff-free (db.py:293), so a promoted trainer is on the roster and clickable
+        # while get_active_student_profiles correctly excludes them here. Scoring them
+        # anyway renders "— vs cohort 60 (3 peers)" two panels above their own OSCE
+        # score: "no data" is not what is true, "not in this population" is.
+        if student_id in per_student:
+            mastery = mastery_block(student_id, per_student)
+    except Exception as exc:
+        # Broad on purpose — narrowing it would let a bug in the pure scorers blank the
+        # page this block is only decorating. But an unlogged swallow means a permanent
+        # `mastery: null` for every student has no detector but a human reading a raw
+        # response, so record it the way get_profile.py records the same shape.
+        audit_log("mastery_block_failed", student_id=student_id,
+                  feature="admin", detail=str(exc))
         mastery = None
 
     sessions = [
