@@ -23,10 +23,13 @@ from tools.supervisor.case_index import get_case_index
 from tools.supervisor.cohort_analytics import (
     WEIGHT_RUBRIC,
     flashcard_by_group,
+    flashcard_by_student,
     osce_by_group,
+    osce_by_student,
     weakness_scores,
 )
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
+from tools.supervisor.mastery import mastery_block, retention_mastery
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 
 router = APIRouter()
@@ -714,7 +717,12 @@ async def admin_student_insights(student_id: str, request: Request, current_user
 
 
 @router.get("/api/admin/student/{student_id}/detail")
-async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_staff)):
+# shared_limit (fixed scope), NOT limit: slowapi's default key_style="url" keys on the
+# ASGI path, so {student_id} would land in the bucket key and a caller could dodge the
+# cap by walking ids. Same rationale as admin_student_insights above.
+@limiter.shared_limit("30/minute", scope="admin_student_detail")
+async def admin_student_detail(student_id: str, request: Request,
+                               current_user: CurrentUser = Depends(require_staff)):
     import json as _json
 
     try:
@@ -731,6 +739,30 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         flashcard_acc = await db.get_topic_accuracy(student_id)
     except Exception:
         flashcard_acc = {}
+
+    # Mastery vs cohort (P2b, §6.2). Best-effort: this is an ADDITION to a page that
+    # already works, so a failure here emits `mastery: null` and leaves the sessions,
+    # cases and findings intact. Deliberately the opposite of /cohort-analytics, where
+    # the aggregation IS the payload and a read failure must 500.
+    try:
+        cohort_profiles, _staff_excluded = await db.get_active_student_profiles()
+        cohort_cases, _cases_complete = await db.get_all_case_scores()
+        cohort_cards, _cards_complete = await db.get_all_flashcard_attempts()
+        osce_per_student = osce_by_student(cohort_cases)
+        cards_per_student = flashcard_by_student(cohort_cards)
+        per_student = {
+            str(p.get("student_id") or ""): {
+                "osce": (osce_per_student.get(str(p.get("student_id") or "")) or {}).get("avg_score"),
+                "flashcard": (cards_per_student.get(str(p.get("student_id") or "")) or {}).get("accuracy"),
+                "retention": retention_mastery(p.get("retention_scores"),
+                                               role=str(p.get("role") or "")),
+            }
+            for p in cohort_profiles
+            if p.get("student_id")
+        }
+        mastery = mastery_block(student_id, per_student)
+    except Exception:
+        mastery = None
 
     sessions = [
         {
@@ -787,6 +819,7 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         "missed_findings": missed_findings,
         "retention_scores": retention_scores,
         "flashcard_accuracy": flashcard_acc,
+        "mastery": mastery,
         "supervisor_note": profile.get("supervisor_note", ""),
         "sessions": sessions,
         "cases": cases,
