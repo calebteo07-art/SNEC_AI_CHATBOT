@@ -7,6 +7,21 @@ import pytest
 from tools.supervisor import at_risk as mod
 
 
+@pytest.fixture(autouse=True)
+def _no_shared_read_cache():
+    """Disable the cohort READ cache for this file.
+
+    These tests pin at_risk's own derived cache (`_CACHE_TTL_S`), and several make two
+    calls under different stubs. With the read cache live underneath, `await_count`
+    assertions would measure the wrong layer and the second call would be served the
+    first's rows — a test passing for a reason it does not claim.
+    """
+    from tools.supervisor import cohort_reads
+
+    with patch.object(cohort_reads, "_READ_TTL_S", 0):
+        yield
+
+
 def _profile(sid, weak_topics, last_active, streak=5, role="OA"):
     return {"student_id": sid, "weak_topics": weak_topics, "last_active": last_active,
             "streak": streak, "role": role}
@@ -253,4 +268,30 @@ async def test_an_entry_older_than_the_ttl_is_not_served():
          patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
         result = await mod.get_at_risk()
     assert cases_read.await_count == 1, "a stale entry must not be served"
+    assert [r["student_id"] for r in result] == ["s1"]
+
+
+@pytest.mark.asyncio
+async def test_reads_go_through_the_shared_cohort_read_module():
+    """at_risk must not read the three tables directly any more.
+
+    /at-risk, /cohort-analytics and every student-detail page read the same three whole
+    tables; sharing one read is the only thing that stops a trainer's review session
+    costing dozens of scans on Render's single worker. Asserted at the seam rather than
+    by counting reads, because at_risk's own derived cache would hide a duplicate scan
+    from a call-count test.
+    """
+    from datetime import date as _date
+
+    from tools.supervisor import cohort_reads
+
+    profiles = [_profile("s1", ["a", "b", "c", "d", "e"], "2026-04-20", streak=0)]
+    shared = AsyncMock(return_value=cohort_reads.CohortReads(
+        profiles=profiles, staff_excluded=0, case_rows=[], card_rows=[], flashcard_ok=True,
+    ))
+    with patch.object(mod, "get_cohort_reads", new=shared), \
+         patch.object(mod, "_CACHE_TTL_S", 0), \
+         patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
+        result = await mod.get_at_risk()
+    assert shared.await_count == 1
     assert [r["student_id"] for r in result] == ["s1"]
