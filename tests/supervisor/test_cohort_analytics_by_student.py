@@ -113,3 +113,45 @@ def test_group_and_student_projections_agree_on_the_same_rows():
     assert group["avg_score"] == student["avg_score"]
     assert group["pass_rate"] == student["pass_rate"]
     assert group["safety_fail_rate"] == student["safety_fail_rate"]
+
+
+def test_flashcard_accuracy_is_the_whole_bank_figure():
+    from tools.supervisor.cohort_analytics import flashcard_accuracy
+
+    # db.get_topic_accuracy's shape: {topic_tag: {"correct", "total", "pct"}}.
+    topics = {"red_eye": {"correct": 3, "total": 4, "pct": 75.0},
+              "glaucoma": {"correct": 1, "total": 6, "pct": 16.7}}
+    # 4 of 10 attempts, NOT the mean of 75.0 and 16.7 (45.9) — averaging the per-topic
+    # percentages would weight a 4-card topic the same as a 40-card one.
+    assert flashcard_accuracy(topics) == 40.0
+
+
+def test_flashcard_accuracy_agrees_with_the_cohort_definition():
+    from tools.supervisor.cohort_analytics import flashcard_accuracy
+
+    # The student's own value and their peers' MUST be one definition, or the delta on
+    # the detail page compares two different measurements.
+    rows = [{"student_id": "s1", "topic_tag": "red_eye", "correct": True},
+            {"student_id": "s1", "topic_tag": "red_eye", "correct": False},
+            {"student_id": "s1", "topic_tag": "glaucoma", "correct": True}]
+    from_cohort = flashcard_by_student(rows)["s1"]["accuracy"]
+    from_topics = flashcard_accuracy({"red_eye": {"correct": 1, "total": 2},
+                                      "glaucoma": {"correct": 1, "total": 1}})
+    assert from_topics == from_cohort == 66.7
+
+
+def test_flashcard_accuracy_is_none_not_zero_without_attempts():
+    from tools.supervisor.cohort_analytics import flashcard_accuracy
+
+    # A thin flashcard_attempts table is the norm. 0.0 reads as total recall failure and
+    # would drag the cohort average down as if the student had answered everything wrong.
+    assert flashcard_accuracy({}) is None
+    assert flashcard_accuracy({"red_eye": {"correct": 0, "total": 0}}) is None
+
+
+def test_flashcard_accuracy_keeps_a_genuine_zero():
+    from tools.supervisor.cohort_analytics import flashcard_accuracy
+
+    # The opposite error: a student who really did get every card wrong scores 0.0, and
+    # that is a real reading, not missing data.
+    assert flashcard_accuracy({"red_eye": {"correct": 0, "total": 5}}) == 0.0
