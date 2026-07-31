@@ -2189,8 +2189,34 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 }
 
 /* ─────────────────── Admin + Supervisor ─────────────────── */
-.aurora-admin { max-width: none; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
+/* `width: 100%` is load-bearing, not tidying. .aurora-page-enter:has(.aurora-admin) is a
+   COLUMN flex container (see the rule near the mastery block), so .aurora-admin is a
+   cross-axis flex item that would normally stretch to the container's width — except its
+   own `margin: 0 auto` sets auto cross-axis margins, and auto margins DISABLE stretch:
+   the item falls back to fit-content. Its widest child is the four-tab .console-segment
+   (353px on the console-dark ramp), so at a 360px viewport the wrapper sized itself to 385
+   and .aurora-main-scroll (overflow-x: hidden) CLIPPED the difference — the Audit tab and
+   the intro paragraph hung off the right edge with no way to reach them.
+   `min-width: 0` alone does NOT fix this: a fit-content item is never being shrunk, so
+   there is no automatic minimum to relax. Measured, not assumed — it stayed 385 with
+   min-width: 0 applied. border-box keeps the padding inside the 100%. */
+.aurora-admin { width: 100%; box-sizing: border-box; min-width: 0; max-width: none; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
 .aurora-admin-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+/* Four tabs on the console-dark ramp measure 353px, wider than a 360px phone's content box
+   however far the wrapper shrinks. Scroll the strip instead of shrinking the labels — the
+   overflow harnesses accept a scroller that itself fits (frontend/tests/_layout.mjs), and
+   a squashed "Accounts" would be the worse trade. flex-shrink must be off or the buttons
+   compress to fit and the strip never scrolls. */
+@media (pointer: coarse), (max-width: 560px) {
+  /* The head's children are flex items wrapping a second flex row (tabs + Refresh). Both
+     levels need `min-width: 0`, or the strip's `max-width: 100%` just resolves against a
+     parent that is already too wide — measured at 353 in a 328px content box. */
+  .aurora-admin .aurora-admin-head > *,
+  .aurora-admin .aurora-admin-head > * > * { min-width: 0; max-width: 100%; }
+  .aurora-admin .console-segment { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .aurora-admin .console-segment::-webkit-scrollbar { display: none; }
+  .aurora-admin .console-segment button { flex: 0 0 auto; }
+}
 .aurora-admin-link { background: none; border: none; color: var(--ink-3); font-size: 13.4px; cursor: pointer; padding-bottom: 2px; }
 .aurora-admin-link:hover { color: var(--ink); }
 
@@ -3617,6 +3643,11 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
   transition: background .15s var(--st-ease, ease), color .15s var(--st-ease, ease);
 }
 .aurora-help-btn:hover { background: rgba(155,114,203,.12); color: var(--ink); }
+/* 32px is a comfortable mouse target and a poor fingertip one. Coarse-gated, never
+   width-gated — a 15 Pro Max is 932px wide in landscape (see breakpoints.css). */
+@media (pointer: coarse) {
+  .aurora-help-btn { width: 44px; height: 44px; font-size: 17px; }
+}
 /* Narrower than it was (620px) on purpose: four one-liners in a wide card look like a
    document with the text deleted. The tighter measure is what makes it read as a glance. */
 .aurora-help-card { max-width: 440px; text-align: left; }
