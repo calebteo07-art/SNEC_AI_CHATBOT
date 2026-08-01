@@ -226,3 +226,47 @@ def test_rank_entries_masks_email_names():
     profiles = [_p("s1", 300, checkin_history=[])]
     entries = rank_entries(profiles, {"s1": "coach@snec.com.sg"}, viewer_id="s1")
     assert "@" not in entries[0]["name"]
+
+
+# ── Promotion league (division-scoped ranking + rank delta) ─────────────────────
+
+def test_ranks_within_the_viewers_division():
+    profiles = [
+        _p("a", 100, division=2, xp_week=900, xp_week_start=WEEK.isoformat()),
+        _p("b", 100, division=3, xp_week=999, xp_week_start=WEEK.isoformat()),
+        _p("c", 100, division=2, xp_week=700, xp_week_start=WEEK.isoformat()),
+    ]
+    names = {"a": "Ann Aa", "b": "Bob Bb", "c": "Cy Cc"}
+    out = rank_entries(profiles, names, viewer_id="a", week_start=WEEK, division=2)
+    assert [e["name"] for e in out] == ["Ann Aa", "Cy Cc"]   # Bob is in another division
+    assert [e["rank"] for e in out] == [1, 2]
+
+
+def test_entries_carry_division_and_rank_delta():
+    profiles = [
+        _p("a", 100, division=2, xp_week=900, xp_week_start=WEEK.isoformat(), rank_prev=4),
+        _p("c", 100, division=2, xp_week=700, xp_week_start=WEEK.isoformat()),
+    ]
+    names = {"a": "Ann Aa", "c": "Cy Cc"}
+    out = rank_entries(profiles, names, viewer_id="a", week_start=WEEK, division=2)
+    assert out[0]["division"] == 2
+    assert out[0]["rank_delta"] == 3          # was 4th, now 1st
+    assert out[1]["rank_delta"] is None       # no prior snapshot -> dash, not a fake 0
+
+
+def test_division_none_ranks_everyone_as_before():
+    """Pre-migration: no division column anywhere => one board, unchanged behaviour."""
+    profiles = [_p("a", 300), _p("b", 500)]
+    names = {"a": "Ann Aa", "b": "Bob Bb"}
+    out = rank_entries(profiles, names, viewer_id="a", division=None)
+    assert [e["rank"] for e in out] == [1, 2]
+    assert out[0]["division"] == 1
+
+
+def test_entries_carry_student_id_for_server_side_joins():
+    """The router needs to map an entry back to its profile without matching on display
+    name — two students can resolve to the same name. Never exposed in the API response."""
+    profiles = [_p("a", 300), _p("b", 500)]
+    names = {"a": "Ann Aa", "b": "Bob Bb"}
+    out = rank_entries(profiles, names, viewer_id="a")
+    assert [e["student_id"] for e in out] == ["b", "a"]
