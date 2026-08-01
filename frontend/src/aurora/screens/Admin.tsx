@@ -29,7 +29,13 @@ export function Admin() {
   };
 
   return (
-    <main className="aurora-admin">
+    // A DIV, not a <main>. /admin lives in the (shell) route group, so AppShell already
+    // renders `<main id="main">` around this — a second one nested inside it gave the page
+    // TWO main landmarks, which is invalid and hands a screen-reader user two "main"
+    // regions to choose between on the densest screen in the app. Caught the day /admin
+    // was added to the a11y landmark sweep. Purely semantic: every .aurora-admin rule is
+    // class-based, and main and div are both display:block.
+    <div className="aurora-admin">
       <div className="aurora-admin-head">
         <div className="console-section-head">
           <span className="console-tick" data-hue="blue" />
@@ -57,6 +63,6 @@ export function Admin() {
       {tab === "roster" && <AdminRoster />}
       {tab === "accounts" && isAdmin && <AdminProvisioning />}
       {tab === "audit" && isAdmin && <AdminAudit />}
-    </main>
+    </div>
   );
 }
