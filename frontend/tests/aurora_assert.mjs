@@ -801,9 +801,15 @@ const LB_ROWS = [
 await navCtx.route("**/api/leaderboard**", (r) => {
   const role = new URL(r.request().url()).searchParams.get("role");
   const rows = role ? LB_ROWS.filter((e) => e.role === role) : LB_ROWS;
-  const entries = rows.map((e, i) => ({ ...e, rank: i + 1 }));
-  return r.fulfill(JSON_OK({ entries, you_hidden: false, display_name: null, roles: ["OA", "OT"] }));
+  const entries = rows.map((e, i) => ({ ...e, rank: i + 1, division: 2, rank_delta: i % 3 === 0 ? null : 1 }));
+  return r.fulfill(JSON_OK({
+    entries, you_hidden: false, display_name: null, roles: ["OA", "OT"],
+    division: 2, division_name: "Silver", pool_size: 7, promote_count: 3,
+  }));
 });
+// No Monday ceremony here: it is a full-screen overlay mounted from AppShell, and it would
+// swallow every click below. Its own gate is league_assert.mjs.
+await navCtx.route("**/api/league/result", (r) => r.fulfill(JSON_OK({ result: null })));
 await np.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="podium-slot"]', { timeout: 15000 });
 const lbH1 = await np.locator("main h1").count();
@@ -820,17 +826,22 @@ const youRow = np.locator('[data-testid="lb-row"][data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);
 }
-const lbSub = np.locator('[data-testid="leaderboard-root"] .lb-sub');
-if ((await lbSub.count()) !== 1 || !/#4|podium|overtake/i.test(await lbSub.innerText())) {
-  console.error("FAIL: leaderboard header hook not showing the viewer's chase (rank/gap derived from the payload)"); process.exit(1);
+// The chase — the viewer is rank 4 with the top 3 promoting, so it must state the climb.
+const lbChase = np.locator('[data-testid="chase"]');
+if ((await lbChase.count()) !== 1 || !/promotion zone/i.test(await lbChase.innerText())) {
+  console.error("FAIL: leaderboard chase stat not showing the gap to the promotion zone"); process.exit(1);
 }
-// Weekly board: the reset cue tells students the race refreshes every Monday.
+// Weekly league: the countdown tells students when the race closes (Monday, SGT).
 const lbReset = np.locator('[data-testid="lb-reset"]');
-if ((await lbReset.count()) !== 1 || !/resets/i.test(await lbReset.innerText())) {
-  console.error("FAIL: leaderboard weekly-reset cue (.lb-reset) missing"); process.exit(1);
+if ((await lbReset.count()) !== 1 || !/closes in/i.test(await lbReset.innerText())) {
+  console.error("FAIL: leaderboard week-close countdown ([data-testid=lb-reset]) missing"); process.exit(1);
+}
+// The privacy opt-out must be reachable — it was exported and imported by nothing for weeks.
+if ((await np.locator('[data-testid="lb-hide-switch"]').count()) !== 1) {
+  console.error("FAIL: the leaderboard hide-me switch is missing (privacy opt-out unreachable)"); process.exit(1);
 }
 if ((await np.locator('[data-testid="edit-selena"]').count()) !== 0) { console.error("FAIL: a legacy Edit-Eyecon control still exists on the leaderboard"); process.exit(1); }
-console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, composited Eyecon (portrait_url ignored), no edit-eyecon");
+console.log("PASS: Leaderboard — Beam, league list, chase stat, you-row highlight, composited Eyecon (portrait_url ignored), privacy switch reachable");
 
 // role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();

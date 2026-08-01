@@ -11,7 +11,14 @@ import { useReducedMotion } from "@/aurora/motion";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { AtlasRail } from "./components/AtlasRail";
 import { CommandPalette, type Destination } from "./components/CommandPalette";
+import { LeagueResult } from "./components/leaderboard/LeagueResult";
 import { RouteReveal } from "@/fx/Reveal";
+
+/* Where the Monday league ceremony may interrupt. An ALLOWLIST, not an exclude-list: a
+   full-screen celebration landing mid-OSCE-station or mid-deck would cost a student real
+   marks, and an exclude-list rots the moment someone adds a timed route. These two are
+   where a celebration belongs, and a student who studies daily hits /homepage constantly. */
+const CEREMONY_ROUTES = ["/homepage", "/leaderboard"];
 
 const STUDY: Destination[] = [
   { href: "/homepage", label: "Homepage" },
@@ -90,6 +97,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="aurora-main-scroll">{immersive ? children : <RouteReveal>{children}</RouteReveal>}</div>
       </main>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
+      <LeagueResult enabled={!!user && CEREMONY_ROUTES.includes(pathname)} />
     </div>
   );
 }

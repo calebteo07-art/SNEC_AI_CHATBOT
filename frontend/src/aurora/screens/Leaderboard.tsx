@@ -1,76 +1,149 @@
 "use client";
-/* Leaderboard — vibrant & seamless (supersedes "The Climb" D7). One continuous board:
-   header → podium (top 3) → one color-graded ranked list.
-   Everyone-by-default, ranked by total Lumens. All gamification derives client-side from
-   the existing /api/leaderboard payload — no backend change. */
-import { useEffect, useMemo, useState } from "react";
-import { confetti } from "@/fx/confetti";
+/* The League — a promotion-only weekly ladder on a black stage.
+
+   Supersedes the "vibrant & seamless" board (locked 2026-07-13). That board ranked everyone
+   by Lumens and stopped there, so 27 of 30 students were reading a list they could not act
+   on. Here the division is earned, the week ends on a clock, and a labelled promotion line
+   cuts across the list: everything above it moves up on Monday, and nobody is ever demoted.
+
+   Layout, top to bottom: division ladder + countdown → the chase → the Beam (top three) →
+   the ranked league with the promotion line → the privacy controls.
+
+   Backend: GET /api/leaderboard (tools/api/routers/student.py). `pool_size`/`promote_count`
+   describe the REAL division and ignore the role filter, which is why the promotion line is
+   only drawn on the unfiltered view — see the note where it's computed. */
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
-import { computeRivals, splitPodium } from "@/aurora/leaderboard/tiers";
-import { LeaderboardHeader } from "@/aurora/components/leaderboard/LeaderboardHeader";
-import { Podium } from "@/aurora/components/leaderboard/Podium";
-import { LeaderboardRow } from "@/aurora/components/leaderboard/LeaderboardRow";
+import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
+import {
+  splitPodium, computeChase, promotionLineIndex, nextDivisionName, TOP_DIVISION,
+} from "@/aurora/leaderboard/league";
+import { Beam } from "@/aurora/components/leaderboard/Beam";
+import { DivisionStrip } from "@/aurora/components/leaderboard/DivisionStrip";
+import { ChaseStat } from "@/aurora/components/leaderboard/ChaseStat";
+import { LeagueRow, PromotionLine } from "@/aurora/components/leaderboard/LeagueRow";
+import { RowSheet } from "@/aurora/components/leaderboard/RowSheet";
+import { YouBar } from "@/aurora/components/leaderboard/YouBar";
+import { BoardSettings } from "@/aurora/components/leaderboard/BoardSettings";
 
 export function Leaderboard() {
   const [role, setRole] = useState<string | null>(null);
+  const [peek, setPeek] = useState<LeaderboardEntry | null>(null);
+  const [youVisible, setYouVisible] = useState(true);
+  const youRef = useRef<HTMLLIElement | null>(null);
   const { data, isLoading } = useLeaderboard(role);
 
   const entries = data?.entries ?? [];
   const roles = data?.roles ?? [];
+  const division = data?.division ?? 1;
+  const promoteCount = data?.promote_count ?? 0;
   const you = entries.find((e) => e.is_you);
 
-  const rivals = useMemo(() => computeRivals(entries, you), [entries, you]);
   const { podium, rest } = useMemo(() => splitPodium(entries), [entries]);
+  const chase = useMemo(
+    () => computeChase(entries, promoteCount, division >= TOP_DIVISION),
+    [entries, promoteCount, division],
+  );
 
-  // A short, personal, addictive one-liner — the chase, folded into the header instead of a
-  // separate spotlight card. Framed for the *weekly* race (the board resets every Monday).
-  const hook = useMemo(() => {
-    if (you && you.rank === 1) return "You're #1 this week — everyone's chasing you. Hold the crown.";
-    if (you && rivals?.above && rivals.above.rank <= 3) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens from this week's podium.`;
-    if (you && rivals?.above) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens to overtake #${rivals.above.rank}.`;
-    return "This week's cohort race, ranked by Lumens earned. Study daily to climb.";
-  }, [you, rivals]);
+  /* The promotion line is drawn ONLY on the unfiltered board. `promote_count` counts the
+     whole division, so overlaying it on a role-filtered view would put the line at the wrong
+     student and promise promotions that view can't award. Better no line than a false one. */
+  const lineAt = useMemo(
+    () => (role ? null : promotionLineIndex(podium.length, rest.length, promoteCount)),
+    [role, podium.length, rest.length, promoteCount],
+  );
 
-  // Countdown to the Monday reset (approx, viewer-local — a friendly cue, not the hard
-  // SGT boundary). getDay(): Sun=0 … Sat=6; days until the next Monday (7 on Monday itself).
-  const resetHint = useMemo(() => {
-    const d = ((1 - new Date().getDay() + 7) % 7) || 7;
-    return d === 1 ? "🗓️ Resets tomorrow — last push!" : `🗓️ Resets Monday · ${d} days left`;
+  const jumpToYou = useCallback(() => {
+    youRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
 
-  // One-time celebration when the viewer is on the podium. Reduced-motion + once per browser
-  // session; never fires for the (common) off-podium case. We check data-motion ourselves
-  // because the confetti library only honours the OS media query, not the in-app toggle.
+  /* Auto-scroll to your row, but only after the Beam has played — the podium is the payoff
+     of the page and yanking past it on load would throw it away. Podium finishers are left
+     where they are: they're already looking at themselves. */
+  const scrolled = useRef(false);
   useEffect(() => {
-    if (!you || you.rank > 3) return;
-    const reduce = document.documentElement.dataset.motion === "reduce" || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || sessionStorage.getItem("eyebot_lb_podium_celebrated") === "1") return;
-    sessionStorage.setItem("eyebot_lb_podium_celebrated", "1");
-    confetti({ particleCount: 110, spread: 78, origin: { y: 0.32 }, colors: ["#F59E0B", "#FCD34D", "#E11D48", "#FB7185", "#F0431F"] });
+    if (scrolled.current || !you || you.rank <= 3 || !youRef.current) return;
+    scrolled.current = true;
+    const reduce = document.documentElement.dataset.motion === "reduce" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { youRef.current.scrollIntoView({ block: "center" }); return; }
+    const id = setTimeout(
+      () => youRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      900,
+    );
+    return () => clearTimeout(id);
   }, [you]);
+
+  // The sticky bar exists only while your row is off-screen.
+  useEffect(() => {
+    const el = youRef.current;
+    if (!el) { setYouVisible(true); return; }
+    const io = new IntersectionObserver(
+      ([entry]) => setYouVisible(entry.isIntersecting),
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [rest.length, role]);
 
   return (
     <div className="lb-climb" data-testid="leaderboard-root">
-      <LeaderboardHeader roles={roles} role={role} onRole={setRole} hook={hook} reset={resetHint} />
+      <header className="lb-head">
+        <p className="lb-eyebrow">Weekly league</p>
+        <h1 className="lb-title">The League</h1>
+        <DivisionStrip division={division} divisionName={data?.division_name ?? "Bronze"} />
+      </header>
 
       {isLoading && !data ? (
-        <p className="lb-empty">Loading the board…</p>
+        <p className="lb-empty">Lighting the stage…</p>
       ) : (
         <>
-          <Podium podium={podium} />
-          <ol className="lb-list">
+          <ChaseStat chase={chase} />
+          <Beam podium={podium} />
+
+          {roles.length > 1 && (
+            <div className="lb-filter" role="tablist" aria-label="Filter by role">
+              <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
+                      data-on={role === null} onClick={() => setRole(null)}>All</button>
+              {roles.map((r) => (
+                <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
+                        data-on={role === r} onClick={() => setRole(r)}>{r}</button>
+              ))}
+            </div>
+          )}
+
+          <ol className="lg-list">
             {rest.length > 0 ? (
-              rest.map((e) => <LeaderboardRow key={`${e.rank}-${e.name}`} e={e} />)
+              rest.map((e, i) => (
+                <Fragment key={`${e.rank}-${e.name}`}>
+                  {lineAt === i && (
+                    <PromotionLine count={promoteCount} to={nextDivisionName(division)} />
+                  )}
+                  <LeagueRow
+                    e={e}
+                    promo={lineAt !== null && i < lineAt}
+                    onPeek={setPeek}
+                    ref={e.is_you ? youRef : undefined}
+                  />
+                </Fragment>
+              ))
             ) : (
-              <li className="lb-open-row" data-testid="lb-open-row">
+              <li className="lg-open" data-testid="lb-open-row">
                 {entries.length === 0
                   ? "No one's on the board yet — earn Lumens to claim the first spot."
                   : "These ranks are open — keep studying to climb into them."}
               </li>
             )}
           </ol>
+
+          <BoardSettings hidden={data?.you_hidden ?? false} displayName={data?.display_name ?? null} />
         </>
       )}
+
+      {you && !youVisible && (
+        <YouBar you={you} promo={lineAt !== null && you.rank <= promoteCount} onJump={jumpToYou} />
+      )}
+      {peek && <RowSheet e={peek} onClose={() => setPeek(null)} />}
     </div>
   );
 }
