@@ -110,6 +110,36 @@ async def test_rollover_is_a_noop_when_another_worker_holds_the_seal(seal, upser
 
 
 @pytest.mark.asyncio
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=False)
+async def test_an_unmigrated_league_is_silent_not_audited(seal, upsert, release, audit):
+    """A missing `league_seal` table produces the SAME False as losing the race, and writes
+    nothing anywhere. Pinned because the silence is a diagnostic trap, not a bug.
+
+    `take_seal` swallows the missing-table error and returns False (tools/shared/db.py), and
+    run_rollover returns on that False *before* the try block holding the
+    `league_rollover_error` audit write. So a production database with migration 016 unapplied
+    logs exactly nothing: no exception, no audit event, no 500 — the rollover just never runs
+    and no week ever closes.
+
+    That is the correct design (the league ships dark so main stays deployable pre-migration),
+    but it means an empty `GET /api/admin/audit` is NOT evidence of a healthy rollover — it is
+    equally consistent with the tables not existing at all. 016 shipped unapplied and unledgered
+    on 2026-08-01 and this is precisely how it stayed invisible; only the schema can tell the
+    two apart. Assert the silence explicitly so nobody re-reads a quiet audit trail as health.
+
+    `release_seal` must also stay untouched: a caller that never took the seal releasing one
+    would delete the seal held by the worker that *did* win, letting a second rollover run."""
+    from tools.gamification.league_rollover import run_rollover
+    assert await run_rollover(PROFILES, LAST_WEEK) is False
+    upsert.assert_not_awaited()
+    audit.assert_not_awaited()
+    release.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 @patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)   # the failure path audits
 @patch("tools.shared.db.release_seal", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
