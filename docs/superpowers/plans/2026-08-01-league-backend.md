@@ -16,11 +16,26 @@ Phase 1 of `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md` — 
 The frontend rebuild ("The Beam") is Phase 2 and gets its own plan once this is green, per the
 standing rule that the backend works fully first.
 
+## Amendment A — pool splitting is out of the live mechanic (2026-08-01)
+
+**Post-implementation.** This plan was executed as written, then Task 7's rollover was corrected
+in `30133af` / `6bcaf9a`: it no longer calls `split_pools`. The tasks below are kept as the
+executed record; the two that diverged (Task 3, Task 7) carry inline notes at the point of
+divergence.
+
+A division is ranked as **one pool, always**, on both sides of the mechanic. Splitting only the
+rollover — while `GET /api/leaderboard` ranked the whole division unsplit — meant that above
+`POOL_MAX` (30) a student raced one population all week and was judged against another at the
+close, and migration 016 puts everyone in division 1, so that was the launch-day state, not a
+future risk. `split_pools` stays in `league.py`, pure and tested, called by nothing. An
+oversized division now trips a `league_pool_max_exceeded` audit event instead. Full reasoning:
+§10 of the spec and the module docstring of `tools/gamification/league_rollover.py`.
+
 ## File Structure
 
 | File | Responsibility |
 |---|---|
-| `tools/gamification/league.py` | **Create.** Pure rules: divisions, promote counts, pool splitting, week closing, rank deltas. No imports from `db`, no I/O. |
+| `tools/gamification/league.py` | **Create.** Pure rules: divisions, promote counts, week closing, rank deltas — plus `split_pools`, which per Amendment A ends up reserved and uncalled. No imports from `db`, no I/O. |
 | `tools/gamification/leaderboard.py` | **Modify.** `rank_entries` gains division scoping and emits `division` + `rank_delta` per entry. |
 | `tools/db/migrations/016_leagues.sql` | **Create.** Columns + `league_week` + `league_seal`. |
 | `tools/shared/db.py` | **Modify.** `take_seal`, `upsert_league_week`, `get_league_week`, `get_league_week_all`, `set_rank_prev_bulk`. |
@@ -247,6 +262,10 @@ git commit -m "feat(league): close_week outcomes — promoted/held/placed"
 ---
 
 ## Task 3: Pool splitting and rank deltas
+
+> **Amendment A (2026-08-01):** `split_pools` is still built here and still tested here, but
+> nothing in the shipped system calls it — see Task 7. Keep it as a reserved primitive; do not
+> wire it into the rollover or the board.
 
 **Files:**
 - Modify: `tools/gamification/league.py`
@@ -723,6 +742,30 @@ Run: `python -m pytest tests/gamification/test_league_rollover.py -q`
 Expected: FAIL — `ModuleNotFoundError: No module named 'tools.gamification.league_rollover'`
 
 - [ ] **Step 3: Write minimal implementation**
+
+> **Amendment A (2026-08-01) — do not copy the `split_pools` loop out of the snippet below.**
+> It shipped that way and was reverted in `30133af`: the live board never split, so above
+> `POOL_MAX` the rollover and the board ranked different populations, and migration 016 puts
+> the whole cohort in division 1. Rank each division as one list, and trip an audit event if
+> it outgrows `POOL_MAX`:
+>
+> ```python
+> from tools.gamification.league import POOL_MAX, close_week   # no split_pools
+>
+>     for division, members in by_division.items():
+>         if len(members) > POOL_MAX:
+>             await db.insert_audit_event(...)   # league_pool_max_exceeded, best-effort
+>         standings = sorted(
+>             ({"student_id": p["student_id"], "xp_final": scores.get(p["student_id"], 0)}
+>              for p in members),
+>             key=lambda s: (-s["xp_final"], s["student_id"]),
+>         )
+>         all_rows.extend(close_week(standings, division))
+> ```
+>
+> `tools/gamification/league_rollover.py` is the source of truth — its module docstring carries
+> the full reasoning, and the seal-release error handling it grew later is not in this snippet
+> either.
 
 ```python
 """Close the previous league week — lazily, on the first board read of a new week.
@@ -1407,6 +1450,9 @@ Phase 2 (the "Beam" frontend) gets its own plan, written against this working ba
 
 ## Self-review notes
 
+- **Amendment A (2026-08-01):** §3's pool-splitting bullet was superseded *after* this plan ran
+  — the rollover ranks each division as one pool and `split_pools` is now uncalled. See the
+  Amendment A section above and §10 of the spec before trusting the coverage map below.
 - **Spec coverage:** §3 mechanics → Tasks 1-3, 7. §4.1 migration → Task 4 (revised to a
   single `league_seal(key TEXT)` serving both the weekly rollover and the daily snapshot;
   the spec's §4.1 should be updated to match). §4.2 degradation → Tasks 9, 12. §4.3 the
