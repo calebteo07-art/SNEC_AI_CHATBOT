@@ -1008,6 +1008,28 @@ const staffMocks = async (c) => {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
+  // P2 §7 quality trend. Trailing `*` for the same reason as below. Answers from the
+  // request so the window toggle really flips day→week bucketing and a discipline switch
+  // is served a different series. The middle bucket is null across every metric on
+  // purpose: that is the D13 gap the chart must draw as a BREAK in the line, not as a
+  // cliff to the floor, so the harness loads the gap path rather than only a dense one.
+  await c.route("**/api/admin/performance-trend*", (r) => {
+    const url = new URL(r.request().url());
+    const discipline = url.searchParams.get("discipline") ?? "all";
+    const days = Number(url.searchParams.get("days") ?? 30);
+    const period = days <= 31 ? "day" : "week";
+    const base = discipline === "ot" ? 55 : discipline === "oa_psa" ? 70 : 64;
+    const dates = period === "week"
+      ? ["2026-07-13", "2026-07-20", "2026-07-27"]
+      : ["2026-07-29", "2026-07-30", "2026-07-31"];
+    return r.fulfill(JSON_OK({
+      discipline, period, complete: true, points: [
+        { date: dates[0], n: 3, avg_score: base - 4, pass_rate: 60, safety_fail_rate: 30 },
+        { date: dates[1], n: 0, avg_score: null, pass_rate: null, safety_fail_rate: null },
+        { date: dates[2], n: 5, avg_score: base + 6, pass_rate: 80, safety_fail_rate: 20 },
+      ],
+    }));
+  });
   // Trailing `*` is mandatory — the hook always sends ?discipline=&days=, and a route
   // without it never matches a query string. Answers from the request so a discipline
   // switch is served a genuinely different ROW SET, the way the endpoint does.
@@ -1115,6 +1137,39 @@ await tp.waitForFunction(() => {
   return !!el && el.textContent.trim().startsWith("2 topic groups");
 }, null, { timeout: 8000 });
 console.log("PASS: Admin — panel-local discipline switcher states its scope and re-queries the server with the new discipline");
+
+// P2 §7 / D13: the quality trend. The one thing worth pinning in a BROWSER is that a null
+// bucket survives all the way to pixels as a BREAK in the line. Every other line on this
+// board touches the floor when it means zero, so the cheap bug — mapping null to 0 in the
+// view layer — would look completely normal and would draw a cliff to the floor on any
+// quiet day, i.e. exactly the cohort collapse the endpoint refuses to report. The fixture
+// nulls the middle bucket of three, so every series must render as two subpaths.
+const trendPanel = tp.locator('[data-testid="performance-trend"]');
+if ((await trendPanel.count()) !== 1) { console.error("FAIL: /admin is missing the performance-trend panel"); process.exit(1); }
+await trendPanel.locator("svg.aurora-trend").waitFor({ timeout: 15000 });
+const trendSubpaths = await trendPanel.locator("svg.aurora-trend path").evaluateAll(
+  (els) => els.map((e) => ((e.getAttribute("d") || "").match(/M/g) || []).length));
+if (trendSubpaths.length !== 3) { console.error(`FAIL: expected one line per metric (avg score, pass rate, safety failures), got ${trendSubpaths.length}`); process.exit(1); }
+if (!trendSubpaths.every((n) => n === 2)) { console.error(`FAIL: a null bucket was drawn THROUGH instead of as a gap — subpath counts ${JSON.stringify(trendSubpaths)}, want [2,2,2]`); process.exit(1); }
+// The legend readout and the summary must read the payload, not a placeholder: the
+// fixture is 3 + 0 + 5 attempts, newest real average 70.
+const trendLegend = (await trendPanel.locator('[data-testid="trend-legend"]').innerText()).trim();
+if (!trendLegend.includes("70%")) { console.error(`FAIL: trend legend did not read the newest real average from the payload (got '${trendLegend}')`); process.exit(1); }
+const trendSummaryText = (await trendPanel.locator('[data-testid="trend-summary"]').innerText()).trim();
+if (!trendSummaryText.startsWith("8 station attempts")) { console.error(`FAIL: trend summary did not total the payload's attempts (got '${trendSummaryText}')`); process.exit(1); }
+// Above 31 days the server rolls up to weeks, so the window toggle changes the MEANING of
+// a point, not just its span — the caption has to follow it or the axis silently lies.
+const trendWeekReq = tp.waitForRequest(
+  (r) => r.url().includes("/api/admin/performance-trend") && new URL(r.url()).searchParams.get("days") === "90",
+  { timeout: 8000 },
+).catch(() => null);
+await trendPanel.locator('[data-testid="trend-window"] button[data-days="90"]').click();
+if (!(await trendWeekReq)) { console.error("FAIL: the trend window toggle issued no /api/admin/performance-trend request with days=90"); process.exit(1); }
+await tp.waitForFunction(() => {
+  const el = document.querySelector('[data-testid="trend-caption"]');
+  return !!el && el.textContent.includes("Per week");
+}, null, { timeout: 8000 });
+console.log("PASS: Admin — performance trend breaks the line at empty buckets, reads the payload, and follows day→week rollup");
 
 // P2 §5.5: the panels derived from /api/admin/activity are retired. That feed is capped
 // at 80 items server-side, so every cohort aggregate built on it described only the most

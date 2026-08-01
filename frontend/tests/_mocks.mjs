@@ -200,6 +200,16 @@ export async function mockApis(ctx, user) {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
+  // P2 §7 quality trend. The middle bucket is deliberately null-across-the-board: that is
+  // the D13 gap the chart must draw as a BREAK in the line, so every harness that loads
+  // /admin exercises the gap path rather than only the happy dense one.
+  await ctx.route("**/api/admin/performance-trend*", (r) => r.fulfill(J({
+    discipline: "all", period: "day", complete: true, points: [
+      { date: "2026-07-29", n: 3, avg_score: 61.5, pass_rate: 66.7, safety_fail_rate: 33.3 },
+      { date: "2026-07-30", n: 0, avg_score: null, pass_rate: null, safety_fail_rate: null },
+      { date: "2026-07-31", n: 5, avg_score: 74.2, pass_rate: 80, safety_fail_rate: 20 },
+    ],
+  })));
   // P2 cohort aggregation. Trailing `*` — the hook always sends ?discipline=&days=, and a
   // route without it never matches a query string. This is the static `all` slice of the
   // SAME fixture aurora_assert.mjs builds from CA_CLINICAL/CA_OT/CA_TOTALS: same rows,

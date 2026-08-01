@@ -27,6 +27,29 @@ const ap = areaPath(p, 36);
 assert.ok(ap.endsWith("Z"), "area path closes");
 assert.ok(ap.includes("L4.0 36.0"), "area drops to baseline at the first x");
 
+// A null is a HOLE, not a zero. /api/admin/performance-trend emits null for a bucket
+// with no attempts (D13); plotting it as 0 draws a cliff to the floor and reads as a
+// cohort collapse — the exact misreading the null exists to prevent.
+const g = points([10, null, 5], 100, 40, 4, 10);
+assert.strictEqual(g.length, 3, "a gap still occupies its x slot");
+assert.strictEqual(g[1], null, "null in, null out");
+assert.ok(Math.abs(g[0][0] - 4) < 1e-6 && Math.abs(g[2][0] - 96) < 1e-6,
+  "x spacing counts the gap, so parallel series stay aligned on one x-grid");
+assert.strictEqual(points([null, 5], 100, 40, 4, 10)[0], null, "a leading null is a gap too");
+
+// linePath breaks at the gap rather than drawing a segment through it.
+const gl = linePath(g);
+assert.strictEqual((gl.match(/M/g) || []).length, 2, "a gap starts a new subpath");
+assert.ok(!gl.includes("L"), "no segment is drawn across the gap");
+
+// areaPath closes each run on its own — one trailing Z would leave the earlier runs
+// open and let the browser fill from the wrong corner.
+assert.strictEqual((areaPath(g, 36).match(/Z/g) || []).length, 2, "each run closes on its own");
+
+// An all-null series is empty, not a flat line on the floor.
+assert.strictEqual(linePath(points([null, null], 100, 40, 4, 10)), "");
+assert.strictEqual(areaPath(points([null, null], 100, 40, 4, 10), 36), "");
+
 // polar: 0° = 12 o'clock (straight up).
 const [tx, ty] = polar(50, 50, 10, 0);
 assert.ok(Math.abs(tx - 50) < 1e-6 && Math.abs(ty - 40) < 1e-6, "0deg is straight up");

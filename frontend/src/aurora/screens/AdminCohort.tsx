@@ -22,6 +22,7 @@ import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState"
 import { safetyPanel, missedPanel } from "@/aurora/components/admin/cohortAnalyticsView";
 import { riskRows } from "@/aurora/components/admin/riskRowView";
 import { AdminTopicAnalytics } from "@/aurora/screens/AdminTopicAnalytics";
+import { AdminPerformanceTrend } from "@/aurora/screens/AdminPerformanceTrend";
 
 export function AdminCohort() {
   const cohort = useCohort();
@@ -140,6 +141,8 @@ export function AdminCohort() {
       </section>
 
       <AdminTopicAnalytics />
+
+      <AdminPerformanceTrend />
 
       <div className="aurora-admin-grid">
         <section className="aurora-panel">
