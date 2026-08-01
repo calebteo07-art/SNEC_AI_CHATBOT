@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from starlette.background import BackgroundTask
 
 from tools.ai.guardrails.input_filter import filter_input
 from tools.ai.guardrails.output_validator import validate_output
@@ -158,6 +159,23 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
         ):
             yield chunk
 
+    # Durable twin of the output_flagged line below, deferred. It cannot be written from
+    # inside sse_stream(): that generator is SYNC — which is exactly what keeps the blocking
+    # Gemini stream off the event loop, since Starlette iterates a sync generator in a
+    # threadpool — so there is nowhere in it to await. Starlette runs a response's background
+    # task after the stream is exhausted, so the generator just records the issues here and
+    # the write happens on the event loop afterwards, with no student waiting on it.
+    # Unlike input_blocked the detail needs no scrubbing: validate_output returns only rule
+    # labels and the offending number (`suspect_IOP_mmHg:85.0`), never the reply's prose.
+    flagged: list[str] = []
+
+    async def _audit_flagged_output():
+        if flagged:
+            # No guard: insert_audit_event swallows everything internally by design.
+            await db.insert_audit_event(action="output_flagged", actor=student_id,
+                                        feature="guardrail", detail=flagged[0],
+                                        ip=_client_ip(request))
+
     def sse_stream():
         full_response: list[str] = []
         try:
@@ -183,6 +201,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
             if result["issues"]:
                 audit_log("output_flagged", student_id=student_id, feature="guardrail",
                           detail=str(result["issues"]))
+                flagged.append(str(result["issues"]))
             # Append disclaimer as a trailing SSE chunk if one was added
             full_text = "".join(full_response)
             validated = result["response"]
@@ -196,7 +215,8 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
 
     # SSE flush headers: stop Render's proxy (and any gzip layer) from coalescing the
     # stream so live tokens actually reach the client chunk-by-chunk (see becky §8).
-    return StreamingResponse(sse_stream(), media_type="text/event-stream", headers={
+    return StreamingResponse(sse_stream(), media_type="text/event-stream",
+                             background=BackgroundTask(_audit_flagged_output), headers={
         "Cache-Control": "no-cache",
         "X-Accel-Buffering": "no",
         "Connection": "keep-alive",
