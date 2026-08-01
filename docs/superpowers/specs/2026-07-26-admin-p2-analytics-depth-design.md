@@ -378,8 +378,13 @@ the junctioned `node_modules`). Harness routes must be added to **both**
 (query strings), reconciling the pre-existing cohort-fixture drift at the same time. The
 "mocked 500 renders an error state" assertion has no precedent in the repo: register the 500
 route *after* the catch-all (last match wins) and select on `.aurora-panel-error` /
-`[role="alert"]`. A new pure-logic `.mjs` harness must be appended to `.github/workflows/ci.yml`
-by hand — nothing auto-discovers.
+`[role="alert"]`. A new pure-logic `.mjs` harness is **auto-discovered** — drop it in
+`frontend/tests/` and `npm run test:logic` picks it up; do NOT hand-add it to
+`.github/workflows/ci.yml`. (Corrected 2026-08-01: this line said the opposite, which was
+true when the spec was written. `804acbe` replaced the hand-maintained list after it had
+drifted to 16 of 29 — thirteen harnesses existed, passed, and gated nothing — and `632c22e`
+did the same for the browser half via `gated_harnesses()` in `scripts/start-harness.sh`.
+Exclusions are now opt-OUT, and `NOT_GATED` is `visual_sweep.mjs` alone.)
 
 **Behavioral verify before push** (per `/ship-check`, each plan): load `/admin` against the
 running app and confirm the switcher changes the numbers below it, weakest topics reflect real

@@ -254,6 +254,42 @@ export function useCohortAnalytics(discipline: Discipline, days: number) {
   });
 }
 
+export interface TrendPoint {
+  date: string;
+  // Attempts in the bucket — counted whether or not they carry grades.
+  n: number;
+  // null at a zero denominator, NEVER 0 (D13), and each metric holds its own: grade
+  // columns are still NULL on pre-Tier-2 rows, so a bucket can have n > 0 and a null
+  // avg_score. Rendering those as 0 draws a cliff to the floor and reads as a cohort
+  // collapse — the chart plots them as gaps instead.
+  avg_score: number | null;
+  pass_rate: number | null;
+  safety_fail_rate: number | null;
+}
+export interface PerformanceTrend {
+  discipline: Discipline;
+  // "week" above a 31-day window — 90 daily points in a 320px chart is 3.5px each.
+  period: "day" | "week";
+  points: TrendPoint[];
+  // False when the server's paged read hit its cap, i.e. the OLDEST buckets are missing.
+  // A trend is read for its shape, so a silently truncated window is worse than a
+  // missing one; the panel says so rather than letting a partial read pass as the record.
+  complete: boolean;
+}
+/** Cohort OSCE quality over time — the sibling of useActivityTrend, which counts volume.
+    Bucketed on the SGT calendar server-side (tools/supervisor/trend.py) at both ends;
+    /api/admin/activity-trend still buckets on the UTC date, so the two disagree by eight
+    hours by design — see the endpoint docstring. Trailing key elements keep it under the
+    ["admin"] prefix that Refresh invalidates. */
+export function usePerformanceTrend(days: number, discipline: Discipline) {
+  return useQuery<PerformanceTrend>({
+    queryKey: ["admin", "performance-trend", discipline, days],
+    queryFn: () =>
+      getJSON<PerformanceTrend>(`/api/admin/performance-trend?days=${days}&discipline=${discipline}`),
+    ...LIVE,
+  });
+}
+
 export interface AuditEvent {
   audit_id?: string; ts: string; actor: string; action: string;
   target: string; feature: string; detail: string; ip?: string | null;

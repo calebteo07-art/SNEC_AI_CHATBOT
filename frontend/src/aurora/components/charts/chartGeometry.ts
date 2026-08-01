@@ -12,9 +12,17 @@ export function niceCeil(value: number, min = 1): number {
   return Math.max(min, nice * base);
 }
 
+/** A plotted point, or `null` for a slot the series has no value for. */
+export type Pt = [number, number];
+
 /** Map values to (x,y) points in a [pad..w-pad] × [pad..h-pad] box. x is evenly
-    spaced (a single point centres); y is inverted for SVG. Empty ⇒ []. */
-export function points(values: number[], w: number, h: number, pad: number, max: number): [number, number][] {
+    spaced (a single point centres); y is inverted for SVG. Empty ⇒ [].
+
+    A `null` value is a HOLE, not a zero: it keeps its x slot — so parallel series stay
+    on one x-grid — but plots nothing. /api/admin/performance-trend returns null for a
+    bucket with no attempts precisely so the chart does not draw a cliff to the floor
+    where a quiet day was. NaN is treated the same rather than emitting "MNaN NaN". */
+export function points(values: (number | null)[], w: number, h: number, pad: number, max: number): (Pt | null)[] {
   const n = values.length;
   if (n === 0) return [];
   const span = Math.max(1e-6, max);
@@ -22,24 +30,45 @@ export function points(values: number[], w: number, h: number, pad: number, max:
   const innerH = h - pad * 2;
   const step = n === 1 ? 0 : innerW / (n - 1);
   return values.map((v, i) => {
+    if (v === null || !Number.isFinite(v)) return null;
     const x = pad + (n === 1 ? innerW / 2 : step * i);
     const y = pad + innerH * (1 - Math.max(0, Math.min(1, v / span)));
-    return [x, y];
+    return [x, y] as Pt;
   });
 }
 
-/** SVG `d` for the polyline through the points (straight segments). */
-export function linePath(pts: [number, number][]): string {
-  if (pts.length === 0) return "";
-  return pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+/** Runs of consecutive plotted points; each gap ends a run. */
+function runs(pts: (Pt | null)[]): Pt[][] {
+  const out: Pt[][] = [];
+  let cur: Pt[] = [];
+  for (const p of pts) {
+    if (p) cur.push(p);
+    else if (cur.length) { out.push(cur); cur = []; }
+  }
+  if (cur.length) out.push(cur);
+  return out;
 }
 
-/** Closed area `d`: the line, dropped to `baselineY` and back to the first x. */
-export function areaPath(pts: [number, number][], baselineY: number): string {
-  if (pts.length === 0) return "";
-  const first = pts[0][0].toFixed(1);
-  const last = pts[pts.length - 1][0].toFixed(1);
-  return `${linePath(pts)} L${last} ${baselineY.toFixed(1)} L${first} ${baselineY.toFixed(1)} Z`;
+function runPath(run: Pt[]): string {
+  return run.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+}
+
+/** SVG `d` for the polyline through the points (straight segments), one subpath per
+    run — a gap breaks the line instead of interpolating across missing days. */
+export function linePath(pts: (Pt | null)[]): string {
+  return runs(pts).map(runPath).join(" ");
+}
+
+/** Closed area `d`: each run dropped to `baselineY` and back to its own first x.
+    Closing per run matters — one trailing Z would leave every earlier run open and the
+    browser would fill it from the wrong corner. */
+export function areaPath(pts: (Pt | null)[], baselineY: number): string {
+  const b = baselineY.toFixed(1);
+  return runs(pts).map((run) => {
+    const first = run[0][0].toFixed(1);
+    const last = run[run.length - 1][0].toFixed(1);
+    return `${runPath(run)} L${last} ${b} L${first} ${b} Z`;
+  }).join(" ");
 }
 
 /** Point on a circle of radius r about (cx,cy) at `deg` (0° = 12 o'clock, clockwise). */

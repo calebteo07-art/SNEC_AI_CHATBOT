@@ -2,9 +2,10 @@
 /* Admin — cohort topic performance (P2 §5.4). Per-topic-group figures aggregated from real
    OSCE + flashcard events, sliced by discipline.
 
-   The switcher is PANEL-LOCAL by decision D11: /api/admin/cohort-analytics is the only
-   endpoint in the console that accepts `discipline`, so a console-top control would re-scope
-   this one panel and leave the KPI tiles, benchmarks and token usage untouched — the exact
+   The switcher is PANEL-LOCAL by decision D11: only the P2 endpoints accept `discipline`
+   (/api/admin/cohort-analytics here, /api/admin/performance-trend in the panel below, which
+   carries its own switcher for the same reason), so a console-top control would re-scope
+   those two and leave the KPI tiles, benchmarks and token usage untouched — the exact
    false promise P1 deleted from the Admin shell. The caption states that scope out loud
    instead of leaving a trainer to infer it from numbers that don't move. */
 import { useState } from "react";
