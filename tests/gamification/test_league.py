@@ -1,8 +1,11 @@
 """League rules — pure, deterministic. No I/O, no DB, no clock."""
+from datetime import date
+
 import pytest
 
 from tools.gamification.league import (
-    DIVISIONS, TOP_DIVISION, division_name, promote_count,
+    DIVISIONS, POOL_MAX, TOP_DIVISION, close_week, division_name,
+    promote_count, rank_delta, split_pools,
 )
 
 
@@ -36,9 +39,6 @@ def test_promote_count_always_leaves_someone_behind():
         assert promote_count(pool) < pool
 
 
-from tools.gamification.league import close_week
-
-
 def _standings(*pairs):
     """Ranked rows as close_week takes them: already ordered, hidden already dropped."""
     return [{"student_id": sid, "xp_final": xp} for sid, xp in pairs]
@@ -70,10 +70,6 @@ def test_close_week_missing_xp_reads_zero():
     rows = close_week([{"student_id": "a"}], division=1)
     assert rows[0]["xp_final"] == 0
 
-
-from datetime import date
-
-from tools.gamification.league import POOL_MAX, rank_delta, split_pools
 
 WEEK = date(2026, 8, 3)  # a Monday
 
