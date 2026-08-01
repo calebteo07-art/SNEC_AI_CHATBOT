@@ -19,6 +19,7 @@ from tools.flashcards.static_cards import (
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 from tools.gamification.leaderboard import rank_entries
+from tools.gamification.league import division_name, promote_count
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
@@ -606,6 +607,10 @@ class LbEntry(BaseModel):
     streak_days: int
     avatar_config: dict | None = None
     is_you: bool
+    division: int = 1
+    rank_delta: int | None = None   # places gained since the last daily snapshot
+    # NOTE: `student_id` is deliberately absent. rank_entries attaches it as a server-side
+    # join key; declaring it here would hand every viewer the id of every other student.
 
 
 class LbResponse(BaseModel):
@@ -613,6 +618,10 @@ class LbResponse(BaseModel):
     you_hidden: bool
     display_name: str | None = None
     roles: list[str]
+    division: int = 1
+    division_name: str = "Bronze"
+    pool_size: int = 0        # the real pool, unaffected by the role view filter
+    promote_count: int = 0
 
 
 class LbPrefs(BaseModel):
@@ -622,10 +631,13 @@ class LbPrefs(BaseModel):
 
 @router.get("/api/leaderboard", response_model=LbResponse)
 async def leaderboard(role: str | None = None, current_user: CurrentUser = Depends(get_current_user)):
-    """The cohort leaderboard (D7): everyone is ranked by XP unless they've hidden
-    themselves. An optional `role` filter ranks within a single role. The viewer's own
-    row is flagged; their current hidden state + display name come back for the form.
-    Degrades to an empty board (never 500) until migration 008 lands."""
+    """The weekly league board: the viewer's own division, ranked by XP earned this week,
+    with the promotion line (`pool_size` / `promote_count`) it is racing for. An optional
+    `role` filter narrows the *view* only. The viewer's own row is flagged; their current
+    hidden state + display name come back for the form.
+
+    Degrades to an empty board (never 500) until migration 008 lands, and to a single
+    undivided ladder until 016 lands."""
     student_id = current_user["sub"]
     try:
         # get_active_leaderboard_profiles = active students (access revoked → dropped
@@ -643,15 +655,31 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
     # shows an all-zero week. Auto-cuts over to weekly the moment the columns are added.
     weekly_ready = any("xp_week_start" in p for p in profiles)
     week_start = app_week_start() if weekly_ready else None
-    entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
-                           today=app_today(), week_start=week_start)
+    # Same shape for the league: until migration 016 adds `division`/`rank_prev`, no row
+    # carries the column, so the board stays one undivided ladder with no arrows.
+    league_ready = any("division" in p for p in profiles)
+
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
+    my_division = int(me.get("division") or 1) if league_ready else None
+    entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
+                           today=app_today(), week_start=week_start, division=my_division)
+
+    # The pool is derived from the profiles, NOT from `entries`: the `role` filter is a
+    # view, and letting it shrink the pool would quietly move the promotion line — a
+    # filtered board would promise promotions the real division never awards.
+    pool = [p for p in profiles
+            if not p.get("leaderboard_hidden")                       # holds no slot
+            and (my_division is None or int(p.get("division") or 1) == my_division)]
     roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
     return LbResponse(
-        entries=[LbEntry(**e) for e in entries],
+        entries=[LbEntry(**{k: v for k, v in e.items() if k != "student_id"}) for e in entries],
         you_hidden=bool(me.get("leaderboard_hidden")),
         display_name=(me.get("display_name") or None),
         roles=roles,
+        division=my_division or 1,
+        division_name=division_name(my_division or 1),
+        pool_size=len(pool),
+        promote_count=promote_count(len(pool)),
     )
 
 
