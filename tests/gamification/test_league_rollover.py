@@ -154,3 +154,68 @@ async def test_rollover_failure_returns_false_and_is_logged_not_raised(seal, get
     did = await run_rollover(PROFILES, LAST_WEEK)
     assert did is False
     log.assert_called_once_with("league_rollover_error", feature="gamification", detail="boom")
+
+
+# A division bigger than league.POOL_MAX (30) — migration 016 defaults everyone to
+# division 1, so this is not a hypothetical, it is the whole cohort on day one.
+BIG_DIVISION = [
+    {"student_id": f"s{i:02d}", "division": 1, "xp_week": 1000 - i,
+     "xp_week_start": LAST_WEEK.isoformat()}
+    for i in range(35)
+]
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=[])
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_a_division_over_pool_max_is_still_ranked_as_one_pool(seal, getall, upsert, upd):
+    """35 > POOL_MAX (30). Under the old split_pools behaviour this division would break
+    into two hash-bucketed sub-pools, each producing its own rank 1 — while the live board
+    (which never splits) kept showing all 35 as one race. That divergence is exactly what
+    dropping the split removes: one division must close as one ranked list, 1..35, with
+    nobody sharing a rank."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(BIG_DIVISION, LAST_WEEK)
+    assert did is True
+    rows = {r["student_id"]: r for r in upsert.await_args.args[0]}
+    assert len(rows) == 35
+    ranks = sorted(r["rank_final"] for r in rows.values())
+    assert ranks == list(range(1, 36))                                  # one contiguous ladder
+    assert sum(1 for r in rows.values() if r["rank_final"] == 1) == 1   # exactly one #1
+
+
+@pytest.mark.asyncio
+@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=[])
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_an_oversized_division_trips_the_audit_tripwire(seal, getall, upsert, upd, log):
+    """A documented threshold nobody is watching is how this bug shipped in the first
+    place — an oversized division must leave a trace in the audit log, not just a comment
+    in the source, so it surfaces before a student notices their rank stopped meaning
+    anything."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(BIG_DIVISION, LAST_WEEK)
+    assert did is True
+    log.assert_called_once_with(
+        "league_pool_max_exceeded", feature="gamification",
+        detail="division 1 has 35 members (max 30)",
+    )
+
+
+@pytest.mark.asyncio
+@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_a_normal_division_does_not_trip_the_tripwire(seal, getall, upsert, upd, log):
+    """The common case (a division at or under POOL_MAX) must stay silent — the tripwire
+    is for the exceptional case only, not noise on every rollover."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(PROFILES, LAST_WEEK)
+    assert did is True
+    log.assert_not_called()
