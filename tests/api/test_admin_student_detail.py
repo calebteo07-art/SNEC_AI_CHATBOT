@@ -53,7 +53,11 @@ def _detail_patches():
     conftest's global `_forbid_real_supabase`, which patches `db._get_client` to raise —
     so an unstubbed call cannot actually reach production, but it does abort the read it
     was part of, and the handler's degrade would otherwise hide that as `mastery: null`.
-    Of the eight, only get_profile would WRITE (it creates a default row on a miss).
+    Of the nine, only get_profile would WRITE (it creates a default row on a miss).
+
+    insert_audit_event is in the shared set rather than in the one test that asserts on it,
+    because it fires on the DEGRADE path: every test that makes a mastery read fail reaches
+    it, so stubbing it per-test means each new degrade test starts by leaking a write.
 
     get_profile patches on the ROUTER's namespace, not tools.profile: admin.py binds it
     with `from tools.profile.get_profile import get_profile` at import time, so patching
@@ -83,6 +87,7 @@ def _detail_patches():
               new=AsyncMock(return_value=(_CASES, True))),
         patch("tools.shared.db.get_all_flashcard_attempts",
               new=AsyncMock(return_value=(_CARDS, True))),
+        patch("tools.shared.db.insert_audit_event", new=AsyncMock()),
     ]
 
 
@@ -136,6 +141,34 @@ def test_mastery_degrades_to_null_without_taking_out_the_page():
     assert r.status_code == 200
     assert r.json()["mastery"] is None
     assert "sessions" in r.json() and "cases" in r.json()
+
+
+def test_a_failed_mastery_block_leaves_a_durable_record():
+    """...and the degrade has to be *detectable*, which is a different requirement.
+
+    `mastery: null` is ALSO the correct, healthy answer for a student outside the cohort
+    (test_a_student_outside_the_cohort_is_not_scored_against_it below), so a lecturer
+    reading a null cannot tell "the scorer crashed" from "not in this population" — and
+    only one of those needs fixing. The swallow's own comment says it is there so a
+    permanent null has a detector other than a human reading a raw response; writing it to
+    .tmp/audit_log.jsonl, which nothing in this app reads and Render's ephemeral disk drops
+    on the next restart, gave it no detector at all. audit_events is the one staff can query.
+
+    Attributed like every other admin event: actor is the staff member who loaded the page,
+    target is the student whose page it was."""
+    audit = AsyncMock()
+    extra = [patch("tools.shared.db.get_all_case_scores",
+                   new=AsyncMock(side_effect=RuntimeError("supabase down"))),
+             patch("tools.shared.db.insert_audit_event", new=audit)]
+    r = _get(extra=extra)
+    assert r.status_code == 200
+    assert r.json()["mastery"] is None
+    audit.assert_awaited_once()
+    kw = audit.call_args.kwargs
+    assert kw["action"] == "mastery_block_failed"
+    assert kw["actor"] == "user_001"
+    assert kw["target"] == "s1"
+    assert "supabase down" in kw["detail"]
 
 
 def test_an_unavailable_flashcard_table_does_not_null_the_other_two_scales():

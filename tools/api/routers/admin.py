@@ -870,6 +870,13 @@ async def admin_student_detail(student_id: str, request: Request,
         # response, so record it the way get_profile.py records the same shape.
         audit_log("mastery_block_failed", student_id=student_id,
                   feature="admin", detail=str(exc))
+        # ...and durably, because "record it" only counts if a human can read it back:
+        # `mastery: null` is equally the healthy answer for a student outside the cohort,
+        # so the null alone cannot tell a crashed scorer from a correct abstention, and
+        # .tmp/audit_log.jsonl has no reader and does not survive a restart.
+        await db.insert_audit_event(action="mastery_block_failed", actor=current_user["sub"],
+                                    target=student_id, feature="admin", detail=str(exc),
+                                    ip=_client_ip(request))
         mastery = None
 
     sessions = [
