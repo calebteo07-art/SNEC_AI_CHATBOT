@@ -49,3 +49,61 @@ async def test_no_seal_for_a_zero_score_or_a_missing_stamp(mock_seal):
         {"student_id": "u1", "xp_week": 0, "xp_week_start": LAST_WEEK.isoformat()}, THIS_WEEK)
     await seal_outgoing_week({"student_id": "u1", "xp_week": 900}, THIS_WEEK)
     mock_seal.assert_not_awaited()
+
+
+PROFILES = [
+    # sealed by the earn path (already earning in the new week)
+    {"student_id": "a", "division": 2, "xp_week": 40, "xp_week_start": THIS_WEEK.isoformat()},
+    # still carrying the old stamp — the sweep must read these directly
+    {"student_id": "b", "division": 2, "xp_week": 800, "xp_week_start": LAST_WEEK.isoformat()},
+    {"student_id": "c", "division": 2, "xp_week": 600, "xp_week_start": LAST_WEEK.isoformat()},
+    {"student_id": "d", "division": 2, "xp_week": 400, "xp_week_start": LAST_WEEK.isoformat()},
+    {"student_id": "e", "division": 2, "xp_week": 200, "xp_week_start": LAST_WEEK.isoformat()},
+    # hidden: must not rank and must not consume a promotion slot
+    {"student_id": "h", "division": 2, "xp_week": 9999,
+     "xp_week_start": LAST_WEEK.isoformat(), "leaderboard_hidden": True},
+]
+SEALED = [{"student_id": "a", "week_start": LAST_WEEK.isoformat(),
+           "division": 2, "xp_final": 900}]
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_rollover_merges_sealed_and_swept_scores(seal, getall, upsert, upd):
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(PROFILES, LAST_WEEK)
+    assert did is True
+    rows = {r["student_id"]: r for r in upsert.await_args.args[0]}
+    # 'a' comes from the sealed row (900), not from its reset live column (40)
+    assert rows["a"]["xp_final"] == 900
+    assert rows["a"]["rank_final"] == 1
+    assert rows["b"]["rank_final"] == 2
+    assert "h" not in rows                                   # hidden never ranks
+    assert rows["a"]["outcome"] == "promoted"
+    promoted = [sid for sid, r in rows.items() if r["outcome"] == "promoted"]
+    assert len(promoted) == 3                                # pool of 5 -> 3 promote
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_rollover_bumps_division_only_for_the_promoted(seal, getall, upsert, upd):
+    from tools.gamification.league_rollover import run_rollover
+    await run_rollover(PROFILES, LAST_WEEK)
+    bumped = {c.args[0]: c.kwargs.get("division") for c in upd.await_args_list}
+    assert bumped == {"a": 3, "b": 3, "c": 3}                # exactly the promoted three
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=False)
+async def test_rollover_is_a_noop_when_another_worker_holds_the_seal(seal, upsert):
+    """Idempotency is the headline: a second caller must write nothing at all."""
+    from tools.gamification.league_rollover import run_rollover
+    assert await run_rollover(PROFILES, LAST_WEEK) is False
+    upsert.assert_not_awaited()
