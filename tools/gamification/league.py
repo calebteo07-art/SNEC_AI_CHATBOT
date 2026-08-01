@@ -71,3 +71,29 @@ def close_week(standings: list[dict], division: int) -> list[dict]:
             "next_division": nxt,
         })
     return rows
+
+
+def split_pools(student_ids: list[str], week_start: date) -> list[list[str]]:
+    """Split one division into balanced pools of at most POOL_MAX.
+
+    Sorting by a hash of (id, week) rather than bucketing by hash-modulo keeps the pools
+    balanced *and* deterministic: the same inputs always give the same pools, so membership
+    can't churn mid-week, but it reshuffles every Monday so students meet new rivals.
+    Inert below the cap — most cohorts will only ever see one pool."""
+    ids = sorted(student_ids)
+    if len(ids) <= POOL_MAX:
+        return [ids]
+    n_pools = math.ceil(len(ids) / POOL_MAX)
+    stamp = week_start.isoformat()
+    keyed = sorted(ids, key=lambda sid: hashlib.sha1(f"{sid}|{stamp}".encode()).hexdigest())
+    size = math.ceil(len(keyed) / n_pools)
+    return [keyed[i:i + size] for i in range(0, len(keyed), size)]
+
+
+def rank_delta(live_rank, rank_prev):
+    """Places gained since the last daily snapshot — positive means climbed.
+    None when there is no prior snapshot, so the UI can show a dash instead of a
+    misleading "no change"."""
+    if live_rank is None or rank_prev is None:
+        return None
+    return int(rank_prev) - int(live_rank)
