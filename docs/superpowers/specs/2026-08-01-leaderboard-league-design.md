@@ -85,7 +85,12 @@ On `student_profiles`:
 New tables:
 - `league_week(student_id TEXT, week_start DATE, division SMALLINT, xp_final INT,
   rank_final SMALLINT, outcome TEXT, PRIMARY KEY (student_id, week_start))`
-- `league_seal(week_start DATE PRIMARY KEY, sealed_at TIMESTAMPTZ NOT NULL DEFAULT now())`
+- `league_seal(key TEXT PRIMARY KEY, sealed_at TIMESTAMPTZ NOT NULL DEFAULT now())`
+
+`league_seal.key` is `'week:YYYY-MM-DD'` for a rollover or `'day:YYYY-MM-DD'` for the daily
+rank snapshot — one guard serving both lazy jobs rather than two mechanisms. The primary key
+*is* the lock: the first writer wins and does the work, everyone else gets a duplicate-key
+error and skips. Both jobs then run in `BackgroundTasks`, so no student ever waits for them.
 
 `outcome ∈ {'promoted', 'held', 'placed'}`. No `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY
 IF NOT EXISTS` — Postgres rejects both (42601).
@@ -154,7 +159,10 @@ means the following are requirements, not embellishments.
 - Division strip + current division + countdown to the Monday close.
 - **A promotion line** across the list — the mechanic. Rows above it are tinted; the line is
   labelled and legible.
-- **Movement arrows** per row (▲n / ▼n / —), from `rank_delta`.
+- **Movement arrows** per row (▲n / ▼n / —), from `rank_delta`. The reference point is a
+  once-daily snapshot of the whole division, not each student's last visit, so every arrow
+  on the board is measured from the same moment. No prior snapshot renders a dash, never a
+  fake zero.
 - **The chase hook gets real hierarchy**: "340 Lumens to the promotion line" as a prominent
   stat, not 16px body text. Below the line it's the distance up; above it, the distance to the
   student chasing you — which finally uses `computeRivals().below`.
