@@ -69,3 +69,46 @@ def test_close_week_empty_pool_is_no_rows_not_a_crash():
 def test_close_week_missing_xp_reads_zero():
     rows = close_week([{"student_id": "a"}], division=1)
     assert rows[0]["xp_final"] == 0
+
+
+from datetime import date
+
+from tools.gamification.league import POOL_MAX, rank_delta, split_pools
+
+WEEK = date(2026, 8, 3)  # a Monday
+
+
+def test_small_division_is_one_pool():
+    ids = [f"u{i}" for i in range(12)]
+    assert split_pools(ids, WEEK) == [sorted(ids)]
+
+
+def test_large_division_splits_into_balanced_pools_under_the_cap():
+    ids = [f"u{i:03d}" for i in range(71)]
+    pools = split_pools(ids, WEEK)
+    assert len(pools) == 3
+    assert all(len(p) <= POOL_MAX for p in pools)
+    assert sorted(x for p in pools for x in p) == sorted(ids)   # nobody lost or duplicated
+    assert max(len(p) for p in pools) - min(len(p) for p in pools) <= 1
+
+
+def test_pool_membership_is_stable_within_a_week():
+    ids = [f"u{i:03d}" for i in range(71)]
+    assert split_pools(ids, WEEK) == split_pools(ids, WEEK)
+
+
+def test_pool_membership_reshuffles_across_weeks():
+    ids = [f"u{i:03d}" for i in range(71)]
+    assert split_pools(ids, WEEK) != split_pools(ids, date(2026, 8, 10))
+
+
+def test_rank_delta_is_positive_when_climbing():
+    assert rank_delta(live_rank=4, rank_prev=7) == 3     # 7th -> 4th = climbed 3
+    assert rank_delta(live_rank=9, rank_prev=6) == -3
+    assert rank_delta(live_rank=4, rank_prev=4) == 0
+
+
+def test_rank_delta_is_none_without_a_prior_snapshot():
+    """New this week, or pre-migration — the UI must show a dash, not a fake zero."""
+    assert rank_delta(live_rank=4, rank_prev=None) is None
+    assert rank_delta(live_rank=None, rank_prev=4) is None
