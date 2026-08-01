@@ -6,13 +6,20 @@ on:
   pull_request:
     branches: [main]
 
-# A newer push to the same ref cancels the in-flight run — but NEVER on main, where every
-# commit must get a completed gate. main auto-deploys to Render prod, and cancelling means a
-# commit lands with no verdict at all: on 2026-08-01 three consecutive main commits reported
-# "cancelled" (frontend job killed by the next push) while backend and supply-chain passed,
-# which reads as harmless on the dashboard and is indistinguishable from a real gate.
+# Feature branches: a newer push cancels the in-flight run, which is where the CI-minute
+# saving is worth having.
+#
+# main: NEVER cancel. Every commit must get a completed gate, because main auto-deploys to
+# Render prod and a cancelled run reads as harmless while meaning "no verdict at all" — on
+# 2026-08-01 three consecutive main commits reported "cancelled" with the frontend job killed
+# mid-flight. That needs BOTH halves below, which is why the group is keyed by SHA:
+#   - cancel-in-progress: false  stops a RUNNING job being killed by the next push.
+#   - a per-SHA group           stops a QUEUED run being evicted by the next push. GitHub
+#     keeps only one pending run per group regardless of cancel-in-progress, and that alone
+#     cancelled 0d06c52's own run 46s after it shipped — the first attempt at this fix.
+# Per-SHA means concurrent main runs, which costs minutes; that is the price of the gate.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'ref' }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
