@@ -427,7 +427,8 @@ async def get_staff_roster() -> list[dict]:
 
 
 async def _fetch_all(table: str, columns: str, *, order_by: str, page: int = 1000,
-                     max_pages: int = 50, budget: float = 25.0) -> tuple[list[dict], bool]:
+                     max_pages: int = 50, budget: float = 25.0,
+                     gte: tuple[str, str] | None = None) -> tuple[list[dict], bool]:
     """Read a whole table in `page`-sized `.order().range()` pages → (rows, complete).
 
     PostgREST caps rows server-side and a bare `.select()` cannot tell a complete result
@@ -459,6 +460,11 @@ async def _fetch_all(table: str, columns: str, *, order_by: str, page: int = 100
     if that itself can't complete, the exception propagates so the caller fails closed —
     degrading to `([], False)` instead would render as "≥ 0", a real measurement of zero
     for a read that never actually happened.
+
+    `gte` optionally windows the read as `(column, value)`, with the same paging
+    guarantees applied to the slice. A windowed bulk read still needs paging: "only 90
+    days" is not a row bound, and the cohort that first outgrows 1000 rows in a window is
+    exactly the one whose trend a trainer most wants to see.
     """
     client = await _get_client()
     rows: list[dict] = []
@@ -469,9 +475,14 @@ async def _fetch_all(table: str, columns: str, *, order_by: str, page: int = 100
         if remaining <= 0 and rows:
             break
         start = i * page
+        query = client.table(table).select(columns)
+        # Rebuilt per page, like the rest of the chain: postgrest-py builders accumulate
+        # query params on a mutable object, so a filter hoisted out of the loop would be
+        # re-applied to a builder that already carries the previous page's `.range()`.
+        if gte is not None:
+            query = query.gte(gte[0], gte[1])
         result = await asyncio.wait_for(
-            client.table(table).select(columns).order(order_by)
-            .range(start, start + page - 1).execute(),
+            query.order(order_by).range(start, start + page - 1).execute(),
             timeout=min(10.0, max(remaining, 1.0)),
         )
         batch = result.data or []
@@ -552,6 +563,29 @@ async def get_case_progress_since(since_iso: str) -> list[dict]:
         .execute()
     )
     return result.data or []
+
+
+async def get_case_scores_since(since_iso: str) -> tuple[list[dict], bool]:
+    """Graded case attempts at/after `since_iso`, all students, paged: (rows, complete).
+
+    A SIBLING of get_case_progress_since, deliberately not a widening of it: that read's
+    two-column projection exists so /api/admin/activity-trend "never pulls the full table
+    onto the single prod worker", and adding grade columns there would change the cost of
+    a shipped endpoint that does not read them.
+
+    Windowed AND paged. The window is not a row bound — 90 days of a growing cohort can
+    exceed PostgREST's cap, and an unpaged read cannot tell a full result from a truncated
+    one, so the trend would quietly lose its oldest days and redraw its own shape.
+
+    Grade columns stay NULL on pre-Tier-2 rows; passed through untouched so the caller can
+    hold each metric to its own denominator rather than averaging invented zeros.
+    """
+    return await _fetch_all(
+        "case_progress",
+        "student_id, completed_at, case_id, score_100, safe, passed",
+        order_by="id",
+        gte=("completed_at", since_iso),
+    )
 
 
 async def get_all_flashcard_attempts() -> tuple[list[dict], bool]:

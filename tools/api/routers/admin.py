@@ -33,6 +33,7 @@ from tools.supervisor.cohort_analytics import (
 from tools.supervisor.cohort_reads import get_cohort_reads
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
 from tools.supervisor.mastery import mastery_block, retention_mastery
+from tools.supervisor.trend import build_points, period_for, window_start_utc
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 
 router = APIRouter()
@@ -303,6 +304,63 @@ async def admin_activity_trend(request: Request, days: int = 21,
          "total": v["sessions"] + v["cases"]}
         for d, v in sorted(buckets.items())
     ]}
+
+@router.get("/api/admin/performance-trend")
+# Plain limit(), not shared_limit: no {path_param} here, and slowapi's default
+# key_style="url" buckets on the path, so ?days=/?discipline= cannot split the bucket.
+@limiter.limit("60/minute")
+async def admin_performance_trend(request: Request, days: int = 30, discipline: str = "all",
+                                  current_user: CurrentUser = Depends(require_staff)):
+    """Cohort OSCE performance over time — score, pass rate and safety-failure rate.
+
+    A SIBLING of /activity-trend, which counts volume. This one measures quality, so it
+    reads the grade columns through the windowed get_case_scores_since() rather than that
+    endpoint's deliberate two-column projection.
+
+    Bucketed on the SGT calendar at BOTH ends (tools/supervisor/trend.py): the window
+    opens at SGT midnight — 16:00 UTC the previous day — and each attempt is filed by its
+    SGT date. /activity-trend still uses `str(ts)[:10]`, the UTC date, which starts every
+    day at 08:00 SGT; that endpoint is left alone here rather than silently re-shaped
+    under a console that already ships, but the discrepancy is real and deliberate.
+
+    `days` clamps to [1, 90] and rolls up to weeks past 31 — 90 daily points in a 320px
+    chart is 3.5px each. Population is STAFF-FREE (D10) and `discipline` filters on the
+    STUDENT's pool, matching /cohort-analytics. Empty buckets carry nulls, never zeros
+    (D13): a 0.0 average draws a cliff to the floor and reads as a cohort collapse.
+    """
+    try:
+        pool = discipline_to_pool(discipline)
+    except ValueError:
+        raise HTTPException(status_code=400,
+                            detail="discipline must be one of " + ", ".join(DISCIPLINES))
+
+    days = max(1, min(days, 90))
+    today = app_today()
+    try:
+        profiles, _staff_excluded = await db.get_active_student_profiles()
+        rows, complete = await db.get_case_scores_since(window_start_utc(today, days))
+    except Exception:
+        # Never fall through to an empty series: "the DB is down" and "nobody attempted
+        # anything" must not render identically. That is the P1 defect class.
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+
+    pools = pool_by_student(profiles)
+    rows = [
+        r for r in rows
+        if (sid := str(r.get("student_id") or "")) in pools
+        and (pool is None or pools[sid] == pool)
+    ]
+
+    period = period_for(days)
+    return {
+        "discipline": discipline,
+        "period": period,
+        "points": build_points(rows, days=days, today=today, period=period),
+        # A truncated window would redraw the chart's own shape, so say so rather than
+        # letting a partial read pass as the record.
+        "complete": complete,
+    }
+
 
 # ── Cohort analytics (P2) ──────────────────────────────────────────────────
 

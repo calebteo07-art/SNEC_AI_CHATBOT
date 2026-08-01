@@ -151,3 +151,57 @@ async def test_get_all_sessions_stays_capped_at_500():
     assert len(rows) == 500
     assert ("limit", 500) in fake.log
     assert not [c for c in fake.log if c[0] == "range"]
+
+
+# ── windowed bulk reads (spec §7.1) ──────────────────────────────────────────
+
+def _cases(n: int, day: str) -> list[dict]:
+    """n graded attempts on one SGT-irrelevant calendar day, distinguishable by id."""
+    return [{"id": f"{day}-{i:04d}", "student_id": "s1", "completed_at": f"{day}T02:00:00Z",
+             "case_id": "C001", "score_100": 70.0, "safe": True, "passed": True}
+            for i in range(n)]
+
+
+@pytest.mark.asyncio
+async def test_a_windowed_read_still_pages():
+    """The window is not a row bound. 90 days of a growing cohort can exceed the server
+    cap, and an unpaged read cannot tell a full result from a truncated one — the trend
+    would quietly lose its oldest days and redraw its own shape."""
+    fake = FakeClient({"case_progress": _cases(2500, "2026-07-30")})
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=fake)):
+        rows, complete = await db.get_case_scores_since("2026-07-01")
+
+    assert len(rows) == 2500
+    assert complete is True
+    assert len([c for c in fake.log if c[0] == "range"]) == 3
+
+
+@pytest.mark.asyncio
+async def test_the_window_is_applied_on_every_page_not_just_the_first():
+    """postgrest-py builders accumulate params on a mutable object, so a filter hoisted
+    out of the paging loop would be re-applied to a builder still carrying the previous
+    page's .range(). Every page must carry its own gte."""
+    fake = FakeClient({"case_progress": _cases(1500, "2026-07-30") + _cases(400, "2026-06-01")})
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=fake)):
+        rows, _ = await db.get_case_scores_since("2026-07-01")
+
+    assert len(rows) == 1500, "the June rows are outside the window"
+    gtes = [c for c in fake.log if c[0] == "gte"]
+    assert len(gtes) == 2, f"expected one gte per page, saw {gtes}"
+    assert all(c == ("gte", "completed_at", "2026-07-01") for c in gtes)
+
+
+@pytest.mark.asyncio
+async def test_the_windowed_read_projects_only_what_the_trend_reads():
+    """A sibling of get_case_progress_since, not a widening of it: that read's two-column
+    projection exists so activity-trend never pulls the full table onto the one prod
+    worker. This one adds the grade columns and NOTHING else — no coaching JSONB."""
+    fake = FakeClient({"case_progress": _cases(2, "2026-07-30")})
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=fake)):
+        await db.get_case_scores_since("2026-07-01")
+
+    selects = [c for c in fake.log if c[0] == "select"]
+    assert selects[0] == (
+        "select", "student_id, completed_at, case_id, score_100, safe, passed"
+    )
+    assert ("order", "id", False) in fake.log, "paging needs the primary key for a stable order"

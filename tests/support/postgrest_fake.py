@@ -41,6 +41,15 @@ class FakeQuery:
         self._rows = [r for r in self._rows if r.get(column) == value]
         return self
 
+    def gte(self, column: str, value):
+        """Windowing filter. Compared as strings, which is faithful for the ISO-8601
+        timestamps this is used with (lexicographic order == chronological order at a
+        fixed format) and would not be for numerics — pass ISO strings only. A NULL in
+        the column sorts below any bound, so such a row is outside every window."""
+        self._log.append(("gte", column, value))
+        self._rows = [r for r in self._rows if (r.get(column) or "") >= value]
+        return self
+
     def order(self, column: str, desc: bool = False):
         self._log.append(("order", column, desc))
         self._rows.sort(key=lambda r: r.get(column) or "", reverse=desc)
