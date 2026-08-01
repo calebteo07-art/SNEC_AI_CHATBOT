@@ -79,10 +79,19 @@ async def run_rollover(profiles: list[dict], week_start: date) -> bool:
             if len(members) > POOL_MAX:
                 # A documented threshold nobody is watching is how this bug shipped in
                 # the first place — surface it in the audit trail, not just a comment.
-                log(
-                    "league_pool_max_exceeded", feature="gamification",
-                    detail=f"division {division} has {len(members)} members (max {POOL_MAX})",
-                )
+                # audit_events, not audit_log.log(): the .tmp/audit_log.jsonl file has no
+                # reader in this app and lives on Render's ephemeral disk, so the record
+                # would be gone by the next restart. audit_events is what the staff-facing
+                # GET /api/admin/audit serves. Best-effort: the tripwire is an observer,
+                # and it fires inside the block that releases the seal on error, so an
+                # unguarded raise here would leave the week unclosed and nobody promoted.
+                try:
+                    await db.insert_audit_event(
+                        action="league_pool_max_exceeded", feature="gamification",
+                        detail=f"division {division} has {len(members)} members (max {POOL_MAX})",
+                    )
+                except Exception:
+                    pass
             standings = sorted(
                 ({"student_id": p["student_id"], "xp_final": scores.get(p["student_id"], 0)}
                  for p in members),
