@@ -49,14 +49,21 @@ def _streak_cols_kwargs(mock_update):
 async def _run(profile, today, **kwargs):
     """Invoke update_profile with get_profile + db.update_profile mocked and the
     app clock pinned to `today` (and the weekly boundary to that week's Monday).
-    Returns the db.update_profile mock."""
+    Returns the db.update_profile mock (with the seal_week_score mock attached at
+    .seal_week_score, for the one test that crosses a week boundary and checks it)."""
     week_start = today - timedelta(days=today.weekday())  # Monday of `today`'s week
+    # The earn path now seals the outgoing week's score (seal_outgoing_week, called from
+    # update_profile) before weekly_tally discards it, so any test here that crosses a
+    # Monday boundary with a non-zero xp_week reaches db.seal_week_score too — stub it or
+    # it trips the global _forbid_real_supabase guard.
     with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
+         patch("tools.shared.db.seal_week_score", new=AsyncMock()) as mock_seal, \
          patch("tools.profile.update_profile.app_today", return_value=today), \
          patch("tools.profile.update_profile.app_week_start", return_value=week_start):
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001", **kwargs)
+    mock_update.seal_week_score = mock_seal
     return mock_update
 
 
@@ -292,9 +299,13 @@ async def test_xp_week_accumulates_within_the_week():
 async def test_xp_week_resets_on_a_new_week():
     # Last week's tally (start 04-27) is stale; the first earn of the new week starts fresh.
     profile = _profile(xp=999, xp_week=800, xp_week_start="2026-04-27", hearts=5)
-    kw = _xp_week_kwargs(await _run(profile, NEXT_MON, xp_delta=40))  # NEXT_MON = 2026-05-11 (Mon)
+    mock_update = await _run(profile, NEXT_MON, xp_delta=40)  # NEXT_MON = 2026-05-11 (Mon)
+    kw = _xp_week_kwargs(mock_update)
     assert kw["xp_week"] == 40
     assert kw["xp_week_start"] == "2026-05-11"
+    # The outgoing week (04-27) still held a non-zero score, so this boundary-crossing earn
+    # must seal it before the tally above discards it — the regression this fix closes.
+    mock_update.seal_week_score.assert_awaited_once_with("stu-001", "2026-04-27", 1, 800)
 
 
 @pytest.mark.asyncio

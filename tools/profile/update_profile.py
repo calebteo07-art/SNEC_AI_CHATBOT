@@ -60,6 +60,25 @@ def _parse_date(value):
         return None
 
 
+async def seal_outgoing_week(profile: dict, week_start) -> None:
+    """Preserve last week's final score before `weekly_tally` overwrites it.
+
+    xp_week is never cleared at the Monday boundary — it is ignored once xp_week_start goes
+    stale. So the closed week's score is still readable right up until this student's next
+    earn, and that earn destroys it. Sealing here (idempotent on the composite PK) means a
+    00:00 Monday earn can no longer erase a week of work. Best-effort: a failure here must
+    never block the student's XP award."""
+    stamp = str(profile.get("xp_week_start") or "")
+    score = int(profile.get("xp_week") or 0)
+    if not stamp or stamp == week_start.isoformat() or score <= 0:
+        return
+    try:
+        await db.seal_week_score(profile.get("student_id"), stamp,
+                                 int(profile.get("division") or 1), score)
+    except Exception:
+        pass
+
+
 async def update_profile(
     student_id: str,
     topic: str | None = None,
@@ -211,6 +230,10 @@ async def update_profile(
 
             # xp_week (the weekly-leaderboard tally) — resets each SGT week (Monday).
             week_start = app_week_start()
+            # Seal the OUTGOING week before the tally below discards it: xp_week is ignored
+            # at the boundary, not cleared, so this is the last moment last week's score
+            # exists anywhere. No-ops (no I/O) except on the one earn that crosses a Monday.
+            await seal_outgoing_week(profile, week_start)
             new_xp_week = weekly_tally(profile.get("xp_week"), profile.get("xp_week_start"),
                                        week_start, xp_delta + streak_bonus)
             writes.append(_write(
