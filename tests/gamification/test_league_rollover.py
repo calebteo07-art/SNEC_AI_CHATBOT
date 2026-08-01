@@ -110,11 +110,12 @@ async def test_rollover_is_a_noop_when_another_worker_holds_the_seal(seal, upser
 
 
 @pytest.mark.asyncio
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)   # the failure path audits
 @patch("tools.shared.db.release_seal", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
 @patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
 @patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
-async def test_rollover_releases_the_seal_when_the_write_fails(seal, getall, upsert, release):
+async def test_rollover_releases_the_seal_when_the_write_fails(seal, getall, upsert, release, audit):
     """A transient write failure must not leave the week permanently sealed-but-empty: the
     seal has to come back off so the next board read retries the whole rollover instead of
     finding the week already "closed" with no outcomes ever written."""
@@ -139,21 +140,50 @@ async def test_rollover_success_does_not_release_the_seal(seal, getall, upsert, 
 
 
 @pytest.mark.asyncio
-@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)
 @patch("tools.shared.db.release_seal", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
 @patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
 @patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
-async def test_rollover_failure_returns_false_and_is_logged_not_raised(seal, getall, upsert, release, log):
+async def test_rollover_failure_returns_false_and_is_logged_not_raised(seal, getall, upsert, release, audit):
     """The caller is a fire-and-forget BackgroundTask with no way to usefully handle an
     exception, so a failed rollover must resolve to False rather than raise. But it still
     has to leave a trace — otherwise a real outage looks identical to the ordinary
     'someone else already holds the seal' case, and nobody would ever notice the retries
-    are failing every time."""
+    are failing every time.
+
+    Same durability argument as the oversized-division tripwire below: the trace only
+    counts if a human can find it. A rollover that fails on every retry means no week ever
+    closes and nobody is ever promoted, with nothing else in the system recording why — so
+    of all the events here this is the one that least tolerates being written to a file
+    with no reader that Render's ephemeral disk drops on the next restart."""
     from tools.gamification.league_rollover import run_rollover
     did = await run_rollover(PROFILES, LAST_WEEK)
     assert did is False
-    log.assert_called_once_with("league_rollover_error", feature="gamification", detail="boom")
+    audit.assert_awaited_once_with(
+        action="league_rollover_error", feature="gamification", detail="boom",
+    )
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock,
+       side_effect=RuntimeError("audit table missing"))
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_a_failing_error_audit_write_still_returns_false_rather_than_raising(
+    seal, getall, upsert, release, audit,
+):
+    """The whole point of the failure path is that run_rollover resolves to False instead
+    of raising, because the BackgroundTask above it has no one to catch anything. An audit
+    write that raised from inside that path would defeat exactly that — the record of the
+    failure becoming a second, louder failure. The seal must still come back, too, or the
+    week stays permanently "closed" with no outcomes ever written."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(PROFILES, LAST_WEEK)
+    assert did is False
+    release.assert_awaited_once()
 
 
 # A division bigger than league.POOL_MAX (30) — migration 016 defaults everyone to
