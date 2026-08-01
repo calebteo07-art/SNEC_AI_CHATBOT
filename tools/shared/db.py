@@ -100,6 +100,89 @@ async def update_profile(student_id: str, **fields) -> None:
     await client.table("student_profiles").update(fields).eq("student_id", student_id).execute()
 
 
+# ── leagues (migration 016) ───────────────────────────────────────────────────
+# Every helper here tolerates the tables being absent: the league ships dark and lights
+# up when 016 is applied, so main is deployable at every commit.
+
+async def take_seal(key: str) -> bool:
+    """Claim a once-per-period job. True means this caller won the race and must do the
+    work; False means someone else already has it, or the table isn't there yet.
+
+    A transient failure also returns False and leaves no seal row, so the next request
+    simply retries — the guard is self-healing rather than a one-shot."""
+    try:
+        client = await _get_client()
+        await client.table("league_seal").insert({"key": key}).execute()
+        return True
+    except Exception:
+        return False
+
+
+async def upsert_league_week(rows: list[dict]) -> None:
+    """Persist closed-week rows. Idempotent on (student_id, week_start): replaying a
+    rollover overwrites with identical values instead of duplicating history."""
+    if not rows:
+        return
+    client = await _get_client()
+    await client.table("league_week").upsert(
+        rows, on_conflict="student_id,week_start",
+    ).execute()
+
+
+async def seal_week_score(student_id: str, week_start: str, division: int, xp_final: int) -> None:
+    """Record one student's final score for a week that just closed, without clobbering a
+    row the rollover already completed (`ignore_duplicates`) — this is the earn-path writer
+    racing the read-path sweep, and the first correct answer wins."""
+    try:
+        client = await _get_client()
+        await client.table("league_week").upsert(
+            {"student_id": student_id, "week_start": week_start,
+             "division": int(division or 1), "xp_final": int(xp_final or 0)},
+            ignore_duplicates=True,
+        ).execute()
+    except Exception:
+        pass
+
+
+async def get_league_week(student_id: str, week_start: str) -> dict | None:
+    """One student's closed-week row, or None (including pre-migration)."""
+    client = await _get_client()
+    try:
+        result = (
+            await client.table("league_week").select("*")
+            .eq("student_id", student_id).eq("week_start", week_start)
+            .limit(1).execute()
+        )
+    except Exception:
+        return None
+    rows = result.data or []
+    return rows[0] if rows else None
+
+
+async def get_league_week_all(week_start: str) -> list[dict]:
+    """Every stored row for a week — the rollover reads this to find who was already
+    sealed by the earn path. Empty pre-migration."""
+    client = await _get_client()
+    try:
+        result = (
+            await client.table("league_week").select("*")
+            .eq("week_start", week_start).execute()
+        )
+    except Exception:
+        return []
+    return result.data or []
+
+
+async def set_rank_prev_bulk(ranks: dict[str, int], day: str) -> None:
+    """Stamp today's rank onto each profile so tomorrow's board can show movement arrows.
+    Runs once per day behind a seal, in a background task — never on the request path."""
+    for student_id, rank in ranks.items():
+        try:
+            await update_profile(student_id, rank_prev=int(rank), rank_prev_day=day)
+        except Exception:
+            continue  # one bad row must not abandon the rest of the snapshot
+
+
 # ── chat_sessions ─────────────────────────────────────────────────────────────
 
 async def insert_session(
