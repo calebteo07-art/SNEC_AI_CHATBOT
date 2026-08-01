@@ -189,8 +189,11 @@ means the following are requirements, not embellishments.
 ### 6.4 The privacy restoration
 
 Wire `useSetLeaderboardPrefs` back in: the hide-me toggle and the optional display-name field
-return to the board. A hidden student sees their own board but appears to no one, and holds no
+return to the board. ~~A hidden student sees their own board but appears to no one~~, and holds no
 promotion slot.
+
+**Struck text superseded by Amendment B** — a hidden student does *not* see their own board;
+they are dropped from it like everyone else, and are shown their standing separately.
 
 ## 7. Testing
 
@@ -274,3 +277,39 @@ writes a `league_pool_max_exceeded` audit event to `audit_events` — the table
 app opens and Render's disk discards on restart. A documented threshold nobody is watching is
 how this shipped in the first place, so growth past the assumption now surfaces in the audit
 trail before a student notices their rank stopped meaning anything.
+
+### Amendment B — "sees their own board" was not buildable as written (2026-08-01)
+
+**Supersedes** the struck clause in §6.4. Phase 2 (`eb72a9a`) restored the control itself; this
+covers the half of §6.4 that the restoration could not honour.
+
+**What was wrong.** §6.4 promised a hidden student "sees their own board", and `BoardSettings`
+shipped copy saying so — but `rank_entries` filters `leaderboard_hidden` unconditionally, so a
+hidden student is dropped from their *own* board too. There is no `is_you` row left, and
+therefore no rank to read. The UI was making a promise the data could not keep.
+
+**Why the filter was not relaxed.** The obvious fix — "drop hidden rows unless it's the
+viewer" — was rejected. The consent guarantee rests on that filter having *no exceptions*: one
+unconditional line is provable by inspection, whereas a conditional is something a later
+refactor gets wrong, and the failure mode is a student appearing on a supervisor-visible board
+they opted out of. The alternative of inserting the viewer into their own view was also
+rejected: it shifts every rank below them, so the board they read would disagree with the board
+everyone else reads.
+
+**What shipped instead.** A separate `you_would_be_rank` on the payload, computed by
+`leaderboard.would_be_rank` against the *visible* ladder using the identical
+`(-xp, name.lower())` sort key — so the number a hidden student sees is exactly the rank they
+would get by un-hiding, while nobody is ever inserted into any ladder. That equivalence is
+pinned by a test that checks the prediction against the real ranker rather than restating it.
+Rendered in `BoardSettings`, the one surface that can honour the promise, and the copy is now
+"you'll still see **where you stand**" rather than "your own board". The payload gained a field,
+so `PERSIST_SCHEMA_VERSION` → "10" (see [[project_persist_cache_buster]]).
+
+**Testing note (extends §7).** `tests/api/test_leaderboard_prefs.py` landed as §7 specifies —
+but 5 of its 8 tests passed *before* any fix, because the API was never broken, only
+unreachable. Worth recording: a spec-named test file is not automatically a regression test.
+The behavioural coverage is split — `league_assert.mjs` proves the switch is reachable and
+POSTs; `leaderboard_privacy_assert.mjs` proves the states after the flip (standing shown,
+failed save reported, hidden survives a reload, 44px touch targets). The reachability
+assertion was verified to fail against the pre-fix build by reverting and rebuilding, not by
+inspection.

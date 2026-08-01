@@ -28,6 +28,11 @@ export interface LeaderboardData {
   entries: LeaderboardEntry[];
   you_hidden: boolean;
   display_name: string | null;
+  /** Where a hidden viewer would stand if they un-hid. A hidden student has no row in
+   *  `entries` — not even their own copy — so this is the only thing that can tell them
+   *  their standing. Server-set for the hidden viewer alone; null for everyone else,
+   *  who have a real ranked row instead. */
+  you_would_be_rank: number | null;
   roles: string[];
   division: number;
   division_name: string;
@@ -36,7 +41,7 @@ export interface LeaderboardData {
 }
 
 const EMPTY: LeaderboardData = {
-  entries: [], you_hidden: false, display_name: null, roles: [],
+  entries: [], you_hidden: false, display_name: null, you_would_be_rank: null, roles: [],
   division: 1, division_name: "Bronze", pool_size: 0, promote_count: 0,
 };
 

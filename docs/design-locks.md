@@ -936,6 +936,21 @@ regression, not a restyle:
   the whole division, so a role-filtered line points at the wrong student.
 - **"No snapshot" ≠ "no change".** A student with no prior daily snapshot gets `·`, never `—`.
 - **The privacy opt-out is reachable** (`[data-testid="lb-hide-switch"]`).
+- **A hidden student is told where they stand** (refine 2026-08-01). Hiding drops the row for
+  *everyone including the student themselves* — `rank_entries` filters `leaderboard_hidden`
+  with no exceptions, and that lack of exceptions is what makes the opt-out provable — so
+  there is no `is_you` row left to read a rank from, and this panel's own promise ("you'll
+  still see where you stand") was false as written. The server now sends `you_would_be_rank`
+  and `BoardSettings` renders it (`[data-testid="lb-would-be-rank"]`). Computed by
+  `leaderboard.would_be_rank` against the *visible* ladder with the identical
+  `(-xp, name.lower())` key, so the number equals the rank they would get by un-hiding, and
+  **nobody else's rank moves** — a hidden student is never inserted into any ladder.
+  **When refining**: the opt-out must stay reachable *and* keep the student's own standing
+  visible; a failed save must say so rather than silently snapping the switch back. Guarded
+  by `frontend/tests/leaderboard_privacy_assert.mjs` (the after-the-flip states — standing,
+  failed save, reload, touch targets) on top of `league_assert.mjs` (reachability + POST),
+  and `tests/api/test_leaderboard_prefs.py` (a hidden student is absent from every other
+  viewer's board).
 - **Two type families** (Bricolage display + `--font-body`), tabular numerals on every number.
   Bungee/`--font-arcade` is gone — an arcade face was the loudest reason it read like a
   placeholder.

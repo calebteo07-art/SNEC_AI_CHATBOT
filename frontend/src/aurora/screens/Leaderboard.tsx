@@ -136,7 +136,11 @@ export function Leaderboard() {
             )}
           </ol>
 
-          <BoardSettings hidden={data?.you_hidden ?? false} displayName={data?.display_name ?? null} />
+          <BoardSettings
+            hidden={data?.you_hidden ?? false}
+            displayName={data?.display_name ?? null}
+            wouldBeRank={data?.you_would_be_rank ?? null}
+          />
         </>
       )}
 

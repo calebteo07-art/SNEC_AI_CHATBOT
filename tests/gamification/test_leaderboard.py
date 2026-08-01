@@ -7,7 +7,9 @@ display_name only fills in for identities with no roster row (staff).
 """
 from datetime import date
 
-from tools.gamification.leaderboard import rank_entries, full_name, weekly_tally, _resolved_name
+from tools.gamification.leaderboard import (
+    rank_entries, full_name, weekly_tally, would_be_rank, _resolved_name,
+)
 
 WEEK = date(2026, 5, 4)  # a Monday — the weekly-leaderboard boundary (SGT)
 
@@ -270,3 +272,56 @@ def test_entries_carry_student_id_for_server_side_joins():
     names = {"a": "Ann Aa", "b": "Bob Bb"}
     out = rank_entries(profiles, names, viewer_id="a")
     assert [e["student_id"] for e in out] == ["b", "a"]
+
+
+# ── would_be_rank: where a hidden student would stand ────────────────────────
+# A hidden student is off the ladder for everyone (that is the consent guarantee), but
+# still needs to see their own standing. This computes that position *against* the
+# visible ladder without ever inserting them into it.
+
+def test_would_be_rank_places_viewer_between_neighbours():
+    entries = [{"xp": 300, "name": "Ann Aa"}, {"xp": 100, "name": "Bob Bb"}]
+    assert would_be_rank(entries, 200, "Cy Cc") == 2
+
+
+def test_would_be_rank_tops_the_board_and_bottoms_it():
+    entries = [{"xp": 300, "name": "Ann Aa"}, {"xp": 100, "name": "Bob Bb"}]
+    assert would_be_rank(entries, 999, "Cy Cc") == 1     # would be champion
+    assert would_be_rank(entries, 0, "Cy Cc") == 3       # would be last
+
+
+def test_would_be_rank_on_an_empty_board_is_first():
+    assert would_be_rank([], 0, "Cy Cc") == 1
+
+
+def test_would_be_rank_breaks_ties_the_same_way_rank_entries_does():
+    """The number a hidden student sees must agree with the ladder everyone else sees,
+    so the tie-break has to be the identical (-xp, name.lower()) key. On equal XP the
+    earlier name ranks higher: 'Ada' beats 'Cy' beats 'Zoe'."""
+    entries = [{"xp": 200, "name": "Ada Aa"}, {"xp": 200, "name": "Zoe Zz"}]
+    assert would_be_rank(entries, 200, "Cy Cc") == 2
+    assert would_be_rank(entries, 200, "Aaa Aa") == 1
+    assert would_be_rank(entries, 200, "Zzz Zz") == 3
+
+
+def test_would_be_rank_tie_break_is_case_insensitive():
+    """rank_entries lowercases before comparing; an uppercase name must not sort ahead
+    of every lowercase one (ASCII 'Z' < 'a')."""
+    entries = [{"xp": 200, "name": "adam Aa"}]
+    assert would_be_rank(entries, 200, "ZOE Zz") == 2
+
+
+def test_would_be_rank_agrees_with_rank_entries_when_the_student_is_unhidden():
+    """The property that matters: the rank a hidden student is shown is exactly the rank
+    they would get by un-hiding. Verified against the real ranker rather than restated."""
+    hidden = _p("h", 250, leaderboard_hidden=True)
+    others = [_p("a", 300), _p("b", 200), _p("c", 100)]
+    names = {"a": "Ann Aa", "b": "Bob Bb", "c": "Cy Cc", "h": "Hal Hh"}
+
+    visible = rank_entries(others + [hidden], names, viewer_id="h")
+    predicted = would_be_rank(visible, 250, "Hal Hh")
+
+    unhidden = dict(hidden, leaderboard_hidden=False)
+    actual = next(e["rank"] for e in rank_entries(others + [unhidden], names, viewer_id="h")
+                  if e["student_id"] == "h")
+    assert predicted == actual == 2

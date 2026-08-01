@@ -1,7 +1,11 @@
 """D7 leaderboard ranking — pure, deterministic (RICOE v2).
 
 The leaderboard shows *everyone by default*; a student opts out with a hide toggle
-(`leaderboard_hidden`) and then never appears — not even to themselves. Ranking is by
+(`leaderboard_hidden`) and then never appears on the ladder — not even their own copy of
+it, because `rank_entries` filters hidden rows unconditionally and that lack of exceptions
+is what makes the opt-out provable. They are told their standing separately, via
+`would_be_rank` (the router serves it as `you_would_be_rank`), which computes a position
+against the visible ladder without inserting anyone into it. Ranking is by
 **XP earned in the current week** (the board refreshes every Monday, SGT): the router
 passes `week_start` and only a profile's `xp_week` counts, and only while its stored
 `xp_week_start` still matches — a stale/absent stamp reads as 0, so inactive students
@@ -73,6 +77,30 @@ def _entry_streak(p: dict, today: date | None) -> int:
         return resolve_streak(p.get("streak"), p.get("streak_freezes"),
                               p.get("checkin_history") or [], today)["current"]
     return int(p.get("streak") or 0)
+
+
+def would_be_rank(entries: list[dict], xp: int, name: str) -> int:
+    """Where a hidden viewer *would* sit on the visible ladder, without joining it.
+
+    A hidden student is dropped by `rank_entries` for everyone including themselves —
+    that single unconditional filter is what makes the opt-out airtight — but they
+    still need to see their own standing. This answers that separately: their rank is
+    one more than the number of visible rows that outrank them, using the **identical**
+    `(-xp, name.lower())` key `rank_entries` sorts by, so the number they are shown is
+    exactly the rank they would get by un-hiding. Callers pass their weekly score and
+    resolved name; nobody else's rank moves.
+    """
+    key = (-int(xp or 0), (name or "").lower())
+    return 1 + sum(1 for e in entries
+                   if (-int(e.get("xp") or 0), (e.get("name") or "").lower()) < key)
+
+
+def would_be_rank_for(entries: list[dict], profile: dict, names: dict[str, str],
+                      week_start: date | None = None) -> int:
+    """`would_be_rank` for a profile row — resolves that profile's weekly score and
+    display name the same way the ranker does, so the router doesn't reach for the
+    module's private helpers."""
+    return would_be_rank(entries, _weekly_xp(profile, week_start), _resolved_name(profile, names))
 
 
 def rank_entries(
