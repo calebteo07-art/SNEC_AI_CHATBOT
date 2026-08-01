@@ -4,10 +4,26 @@ There is no cron and no Celery beat in this app (the one existing queue has a kn
 silent-drop bug), so the rollover is triggered by traffic and made safe by a database
 seal rather than by a scheduler or an in-process lock. That also satisfies the
 no-shared-in-process-state invariant: any worker can win the seal, and only one will.
+
+No pool splitting here, by design. `league.split_pools` exists (and stays tested) for a
+Duolingo-scale cohort that has to shard hundreds of millions of users into 30-person
+races — EyeBot serves one eye centre's students, tens at a time, so a division never
+needs to shard. It used to be called here anyway: each division was split into
+sub-pools and each sub-pool ranked separately, while `GET /api/leaderboard` ranked the
+whole division with no splitting at all. Above `league.POOL_MAX` (30) those two
+disagreed — a student raced one board all week and was judged against a different,
+hash-bucketed population at the close. Migration 016 defaults every student into
+division 1, so above 30 signups this was not a future risk, it was the launch-day
+state. One division is one race: rank it as a single list, and the rollover and the
+live board agree by construction at any cohort size. If a future cohort outgrows a
+single pool, split *both* sides of this at once, in the same change — splitting only
+the rollover is exactly how this divergence happened. Until then, a division that
+crosses `POOL_MAX` only trips an audit event, so growth past that assumption surfaces
+in the audit trail before a student notices their rank stopped meaning anything.
 """
 from datetime import date
 
-from tools.gamification.league import close_week, split_pools
+from tools.gamification.league import POOL_MAX, close_week
 from tools.shared import db
 from tools.shared.audit_log import log
 
@@ -60,13 +76,19 @@ async def run_rollover(profiles: list[dict], week_start: date) -> bool:
 
         all_rows: list[dict] = []
         for division, members in by_division.items():
-            pools = split_pools([p["student_id"] for p in members], week_start)
-            for pool in pools:
-                standings = sorted(
-                    ({"student_id": sid, "xp_final": scores.get(sid, 0)} for sid in pool),
-                    key=lambda s: (-s["xp_final"], s["student_id"]),
+            if len(members) > POOL_MAX:
+                # A documented threshold nobody is watching is how this bug shipped in
+                # the first place — surface it in the audit trail, not just a comment.
+                log(
+                    "league_pool_max_exceeded", feature="gamification",
+                    detail=f"division {division} has {len(members)} members (max {POOL_MAX})",
                 )
-                all_rows.extend(close_week(standings, division))
+            standings = sorted(
+                ({"student_id": p["student_id"], "xp_final": scores.get(p["student_id"], 0)}
+                 for p in members),
+                key=lambda s: (-s["xp_final"], s["student_id"]),
+            )
+            all_rows.extend(close_week(standings, division))
 
         persisted = [{k: v for k, v in r.items() if k != "next_division"}
                      | {"week_start": week_start.isoformat()} for r in all_rows]
