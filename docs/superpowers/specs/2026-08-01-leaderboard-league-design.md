@@ -69,9 +69,14 @@ persist history, we do not build a UI for it). Milestone rewards. Diamond tourna
   division still has something to win.
 - **Hidden students are excluded from ranking *and* from promotion counting.** A hidden student
   must not silently occupy a promotion slot.
-- **Pool splitting**: if a division exceeds 30 members, split into balanced pools of ≤30, keyed
+- ~~**Pool splitting**: if a division exceeds 30 members, split into balanced pools of ≤30, keyed
   by a stable hash of `(student_id, week_start)` so membership is deterministic and doesn't
-  churn mid-week. Inert below 30 — spec'd now so the threshold isn't discovered in production.
+  churn mid-week. Inert below 30 — spec'd now so the threshold isn't discovered in production.~~
+  **Superseded 2026-08-01 — see §10, Amendment A.**
+- **One division is one pool, at any size.** The live board and the weekly close both rank a
+  division as a single list, so they agree by construction. A division that crosses `POOL_MAX`
+  (30) is still ranked whole and instead trips a `league_pool_max_exceeded` audit event, so the
+  growth surfaces in the staff audit trail rather than in a silently divergent rank.
 
 ## 4. Data
 
@@ -125,8 +130,10 @@ matters on a single Render worker that scales horizontally.
 ## 5. Backend shape
 
 - **`tools/gamification/league.py`** — new, pure, no I/O (the `leaderboard.py` convention):
-  `division_for`, `promote_count(pool_size)`, `split_pools`, `close_week(...) -> outcomes`,
+  `division_name`, `promote_count(pool_size)`, `close_week(...) -> outcomes`,
   `rank_delta(live_rank, rank_prev)`. Fully unit-testable without a DB.
+  `split_pools` also lives in this module but **nothing calls it** — a tested, reserved
+  primitive for a future scale-up, not part of the live mechanic (§10, Amendment A).
 - **`tools/gamification/leaderboard.py`** — `rank_entries` gains a `division` scope and returns
   `division`, `rank_delta` per entry. Existing ordering and name resolution untouched.
 - **`GET /api/leaderboard`** returns, in addition to today's payload: `division`,
@@ -191,10 +198,13 @@ TDD throughout — failing test first, watch it fail, minimal pass.
 
 - `tests/gamification/test_league.py` — pure core: promote counts across pool sizes 1…40,
   Diamond has no promotion, hidden students excluded from both ranking and slot counting,
-  pool splitting is stable across calls within a week.
+  pool splitting is stable across calls within a week (now covering `split_pools` as a
+  reserved primitive rather than a live rule — §10).
 - `tests/gamification/test_league_rollover.py` — **idempotency is the headline**: sealing twice
   produces one set of outcomes; the earn-path seal and the read-path sweep agree; a student who
-  earns at 00:00 Monday keeps their closed-week score.
+  earns at 00:00 Monday keeps their closed-week score. Per §10 it also proves a 35-member
+  division closes as one contiguous 1…35 ladder with exactly one rank 1, and trips the
+  `league_pool_max_exceeded` audit event.
 - `tests/api/test_league_endpoints.py` — payload shape, rate-limit keying, and the
   pre-migration degradation path (absent columns ⇒ a correct, boring board).
 - `tests/api/test_leaderboard_prefs.py` — the hide toggle round-trips and a hidden student is
@@ -226,3 +236,41 @@ Migration 016 must be applied via `/db-migrate` for divisions, arrows and the ce
 activate. Because §4.2 requires graceful degradation, the code can ship to `main` before the
 migration is run — the board simply behaves like today's (single division, no arrows) until
 it lands. Nothing about this change can boot `main` broken.
+
+## 10. Amendments
+
+Decisions reversed after this spec was approved are recorded here rather than by rewriting the
+sections above, so the history stays legible — the same convention as the **Supersedes** line
+at the top of this file. The superseded text is struck through in place and points here.
+
+### Amendment A — pool splitting is out of the live mechanic (2026-08-01)
+
+**Supersedes** the *Pool splitting* bullet in §3 and the `split_pools` entry in §5. Shipped in
+`30133af` (*one division is one race — drop pool splitting from the rollover*) and `6bcaf9a`
+(the audit tripwire). The full reasoning lives in the module docstring of
+`tools/gamification/league_rollover.py`; the summary:
+
+**What was wrong.** The two halves of the mechanic were built to different rules. The rollover
+split each division into ≤`POOL_MAX` sub-pools and ranked each separately, while
+`GET /api/leaderboard` ranked the whole division with no splitting at all. Above 30 members
+those disagree — a student raced the whole division on the live board all week, then was judged
+at the close against a different, hash-bucketed population. Migration 016 defaults every student
+into division 1, so this was not a threshold waiting in the future: past 30 signups it was the
+launch-day state.
+
+**The decision.** *One division is one race.* Rank a division as a single list on both sides and
+the live board and the weekly close agree by construction, at any cohort size. `split_pools`
+solves a Duolingo problem — sharding hundreds of millions of users into 30-person races — that
+an app serving one eye centre's students, tens at a time, does not have.
+
+**Where the primitive went.** `league.split_pools` stays in `league.py`: pure, still unit
+tested, called by nothing. It is a reserved primitive for a future scale-up, not part of the
+live mechanic. If a cohort ever does outgrow a single pool, **split both sides in the same
+change** — splitting only the rollover is exactly how this divergence happened.
+
+**What replaced the threshold.** A division over `POOL_MAX` is still ranked whole, and now
+writes a `league_pool_max_exceeded` audit event to `audit_events` — the table
+`GET /api/admin/audit` serves, not the ephemeral `.tmp/audit_log.jsonl` that no reader in this
+app opens and Render's disk discards on restart. A documented threshold nobody is watching is
+how this shipped in the first place, so growth past the assumption now surfaces in the audit
+trail before a student notices their rank stopped meaning anything.
