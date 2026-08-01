@@ -1,0 +1,43 @@
+"""League rules — pure and deterministic (the `leaderboard.py` convention: no I/O here).
+
+The board is a promotion-only weekly ladder. A student sits in a division; each SGT week
+the top slice of their division moves up on Monday and nobody is ever demoted. Every rule
+that decides *who* moves lives in this module so it can be tested without a database.
+"""
+import hashlib
+import math
+from datetime import date
+
+# (level, display name). Reuses the colours/names students already see on the board, so the
+# rename from "lifetime XP tier" to "earned division" needs no new art or vocabulary.
+DIVISIONS: list[tuple[int, str]] = [
+    (1, "Bronze"), (2, "Silver"), (3, "Gold"), (4, "Platinum"), (5, "Diamond"),
+]
+TOP_DIVISION = 5
+POOL_MAX = 30  # Duolingo's pool size; above this a division splits into balanced pools
+
+
+def division_name(division) -> str:
+    """Display name for a division level. Clamps rather than raising: a null column
+    (pre-migration) or a bad value must never 500 the board."""
+    try:
+        d = int(division)
+    except (TypeError, ValueError):
+        d = 1
+    d = max(1, min(TOP_DIVISION, d))
+    return DIVISIONS[d - 1][1]
+
+
+def promote_count(pool_size: int) -> int:
+    """How many of a pool of `pool_size` move up on Monday.
+
+    ~25% (Duolingo promotes 7 of 30), floored at 3 and capped at 7 so the rule reads the
+    same to a cohort of 12 and a cohort of 30. Two guards matter: a pool of 1 has no race,
+    and the count is always strictly less than the pool — if everyone promotes, the
+    promotion line stops meaning anything, which is the entire mechanic."""
+    n = int(pool_size or 0)
+    if n <= 1:
+        return 0
+    if n < 4:
+        return 1
+    return min(n - 1, max(3, min(7, math.ceil(n * 0.25))))
