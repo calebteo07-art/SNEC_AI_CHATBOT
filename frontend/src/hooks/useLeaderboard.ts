@@ -9,23 +9,36 @@ export interface LeaderboardEntry {
   name: string;
   role: string;
   xp: number;        // XP earned THIS week — the weekly-board score + ranking key
-  xp_total: number;  // lifetime XP — drives the tier ring
+  xp_total: number;  // lifetime XP
   level: number;
   streak_days: number;
   avatar_config: Partial<AvatarConfig> | null;
   is_you: boolean;
+  division: number;
+  /** Places gained since the last daily snapshot. null = no prior snapshot, which the board
+   *  must render as "new", never as a flat "no change" (see league.ts::arrowFor). */
+  rank_delta: number | null;
 }
 
-/** The D7 leaderboard payload: everyone is ranked by XP unless hidden. `you_hidden`
- *  + `display_name` prime the viewer's own controls; `roles` seeds the filter tabs. */
+/** The league payload: the viewer's own division, ranked by XP earned this week, plus the
+ *  promotion line it is racing for. `you_hidden` + `display_name` prime the privacy controls;
+ *  `roles` seeds the filter tabs. `pool_size`/`promote_count` describe the REAL division and
+ *  are deliberately unaffected by the `role` view filter — see the router note. */
 export interface LeaderboardData {
   entries: LeaderboardEntry[];
   you_hidden: boolean;
   display_name: string | null;
   roles: string[];
+  division: number;
+  division_name: string;
+  pool_size: number;
+  promote_count: number;
 }
 
-const EMPTY: LeaderboardData = { entries: [], you_hidden: false, display_name: null, roles: [] };
+const EMPTY: LeaderboardData = {
+  entries: [], you_hidden: false, display_name: null, roles: [],
+  division: 1, division_name: "Bronze", pool_size: 0, promote_count: 0,
+};
 
 /** The cohort leaderboard (D7): everyone by default, ranked by XP. An optional role
  *  filter ranks within a single role. Degrades to an empty board (never throws) so the
@@ -61,5 +74,57 @@ export function useSetLeaderboardPrefs() {
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["leaderboard"] }),
+  });
+}
+
+/** The viewer's outcome for the week that just closed — or nothing. */
+export interface LeagueResult {
+  week_start: string;
+  outcome: "promoted" | "held" | "placed";
+  rank_final: number | null;
+  xp_final: number;
+  from_division_name: string;
+  to_division_name: string;
+}
+
+/** The Monday ceremony. The server decides whether there is anything to show — it returns
+ *  `{result: null}` once the student has seen this week's — so the show-once rule holds
+ *  across every device they log in from, which localStorage could never do.
+ *
+ *  Deliberately NOT persisted-cache-friendly: `gcTime: 0` and no refetch, so a stale
+ *  rehydrated copy can't re-fire a ceremony the server has already retired. */
+export function useLeagueResult(enabled = true) {
+  return useQuery<LeagueResult | null>({
+    queryKey: ["league-result"],
+    queryFn: async () => {
+      const res = await fetch("/api/league/result", { credentials: "include" });
+      if (!res.ok) return null;
+      const body = await res.json();
+      return body?.outcome ? (body as LeagueResult) : null;
+    },
+    enabled,
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+}
+
+/** Burn the ceremony for this week. Fire-and-forget by design: the celebration has already
+ *  been shown, so a failed write must not trap the student behind a modal — the worst case
+ *  is seeing it once more on the next load. */
+export function useMarkResultSeen() {
+  const qc = useQueryClient();
+  return useMutation<unknown, Error, string>({
+    mutationFn: async (week_start) => {
+      const res = await fetch("/api/league/result/seen", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ week_start }),
+      });
+      return res.ok ? res.json() : null;
+    },
+    onSettled: () => qc.setQueryData(["league-result"], null),
   });
 }

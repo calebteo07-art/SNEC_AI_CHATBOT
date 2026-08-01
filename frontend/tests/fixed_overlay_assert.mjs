@@ -10,8 +10,8 @@
 
    1. A still-running INFINITE animation (decorative drift: .aurora-mesh span,
       hm-flame-flicker, badge-float, aurora-readout-nudge). That is live motion.
-   2. A STATIC BASE transform authored in the stylesheet (e.g. .lb-ped.p1 raises the
-      gold pedestal with `transform:translateY(-12px)`). That element is a containing
+   2. A STATIC BASE transform authored in the stylesheet (e.g. .bm-ray centres the
+      league's light shaft with `transform:translateX(-50%)`). That element is a containing
       block by intent, at every moment, with or without its animation — fill-mode has
       nothing to do with it. We detect this by re-reading the computed transform with
       the animation disabled: if the transform survives, it came from base CSS.

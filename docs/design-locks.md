@@ -902,7 +902,63 @@ staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, 
 sleeves); user confirms before any paid generation; approved prompts get recorded in
 the feature's brief here.
 
-## Leaderboard "vibrant & seamless" — LOCKED 2026-07-13 (supersedes "The Climb" D7)
+## The League — LOCKED 2026-08-02 (supersedes "vibrant & seamless" 2026-07-13)
+User: the board "does not look good at all compared to world class and award winning games…
+feels just like a stale and boring placeholder game feature". The audit found the failure is
+**structural, not cosmetic**: nothing was at stake below rank 3 (27 of 30 students read a list
+they could not act on), there was no time axis, the podium raised #1 by twelve pixels, and the
+privacy opt-out was **unreachable** (`useSetLeaderboardPrefs` exported, imported by nothing).
+Direction chosen from mockups: a **Duolingo-style weekly league, PROMOTION-ONLY** — never
+demote, because the cohort is named and supervisor-visible — with a **"Beam" podium**.
+
+**The stage.** Black (`--stage #07070A`), lit by exactly ONE source: a clipped, blurred gold
+shaft (`.bm-ray`) onto the champion plus a floor pool (`.bm-pool`). Top→bottom: division ladder
++ SGT countdown · the chase · the Beam · role filter · the league list with the promotion line ·
+the privacy controls. Backend: migration 016 + `tools/gamification/league.py`.
+
+**The three rules. Name which one you are changing before refining:**
+1. **ONE LIGHT SOURCE.** Only `.bm-ray`/`.bm-pool` emit. Everything else is lit or dark.
+2. **ONE ACCENT — gold** (`#F5C542`). Division is carried by **luminance** (lit / dim /
+   outline), never hue, so five metals never fight one accent. The only other hue on the board
+   is the green climb arrow, and it is semantic. The old board had four accents.
+3. **SCALE IS THE ARGUMENT.** Champion portrait **1.7×** (108px vs 64px), champion plinth
+   **2×** (132 vs 66; 112 vs 56 on phones). Both are asserted numerically by the harness.
+
+**Also locked** — each of these is a defect this rebuild fixed, so re-breaking one is a
+regression, not a restyle:
+- **ZERO baked raster on the stage.** Pure CSS + inline SVG; `bg.webp` + `ped-{gold,silver,
+  bronze}.webp` are DELETED. Their overlays were pinned to the art by percentage, so every
+  regeneration drifted names and score chips off their plinths. The harness fails on any
+  `background-image: url(…)` under `.lb-climb` or on `.aurora-main`.
+- **Podium DOM order is 1 → 2 → 3**, painted 2-1-3 by CSS `order`. The old DOM was literally
+  2-1-3, so screen readers announced second place first.
+- **The promotion line** is drawn only on the **unfiltered** board — `promote_count` describes
+  the whole division, so a role-filtered line points at the wrong student.
+- **"No snapshot" ≠ "no change".** A student with no prior daily snapshot gets `·`, never `—`.
+- **The privacy opt-out is reachable** (`[data-testid="lb-hide-switch"]`).
+- **Two type families** (Bricolage display + `--font-body`), tabular numerals on every number.
+  Bungee/`--font-arcade` is gone — an arcade face was the loudest reason it read like a
+  placeholder.
+- **No `background-attachment: fixed`** (mobile-Safari scroll jank); the star field is a
+  composited `position: fixed` layer instead.
+- Motion frozen under BOTH `prefers-reduced-motion` and `html[data-motion="reduce"]`.
+  390px-safe, phone-landscape tier, all touch targets ≥44px.
+- **The Monday ceremony** shows **once per closed week, server-side**
+  (`student_profiles.league_result_seen_week`), mounted from `AppShell` on an **allowlist**
+  (`/homepage`, `/leaderboard`) so it can never interrupt a timed station or deck.
+
+**Deleted**: `Podium.tsx`, `LeaderboardHeader.tsx`, `LeaderboardRow.tsx`, `crests.tsx`,
+`leaderboard/tiers.ts` (lifetime XP tiers/rings — division carries prestige now; `splitPodium`
+moved into `league.ts`), `leaderboard_logic.mjs`, `leaderboard_mobile_assert.mjs` (every one of
+its assertions was registered to the deleted art; `league_assert.mjs` covers the same device
+matrix). `public/brand/tiers/*.webp` is paid art orphaned by this change — **flagged, not
+deleted**. Gates: `league_logic.mjs`, `league_assert.mjs`, `aurora_assert.mjs`.
+Spec `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md`, plans
+`2026-08-01-league-backend.md` + `2026-08-02-league-frontend.md`.
+
+## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
+> Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
+> exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
 panels (header card · podium · rivalry-spotlight card · tier-band headers · rows · settings
 card) and read "messy". Rebuilt as **one continuous board** on a richer warm candy canvas,

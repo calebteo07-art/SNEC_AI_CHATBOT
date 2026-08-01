@@ -1,259 +1,528 @@
-/* Leaderboard — "warm arena". A PURE-CSS warm competitive hall (golden champion spotlight
-   pouring over a light warm-sand arena, drifting warm motes), an obsidian hero card
-   that also carries the board settings, and three Nano-Banana metal podium cards
-   (gold/silver/bronze) with the portrait dropped onto the drawn plinth and the name on a solid
-   dark nameplate chip. Bright ranked cards float on the light arena. Scoped under `.lb-climb`,
-   mobile-first, 390px-safe. Motion is entrance + hover + a slow mote drift (frozen). */
+/* The League — a black stage lit by one gold source.
+   Supersedes the "warm arena" board (design lock 2026-07-13).
 
-/* Full-bleed arena canvas — a Nano-Banana webp, viewport-locked so rows scroll over it. Hosted
-   here (globally loaded via src/styles/index.css so :has() reaches .aurora-main). The art is
-   deliberately NOT a scene: a tone-on-tone antique-gold + espresso surface with a very subtle
-   DEBOSSED laurel-wreath + sunburst motif (echoing the podium frames + hero trophy) and a soft
-   champagne glow in the centre, in the exact component palette (gold --gold #F59E0B, vignette =
-   the hero's #33210f, floor #ECD9BC). Centred (50% 50%) so the symmetric wreath lands in the
-   desktop side-gutters where the canvas is actually visible. A faint warm wash + slight espresso
-   floor-tint seat the light ranked rows and unify image → UI; the warm-sand solid backs it while
-   the image loads. Everything textual sits on opaque cards. */
+   Everything here is CSS + inline SVG. The four baked rasters this replaces
+   (bg.webp + ped-gold/silver/bronze.webp) are deleted: their overlays were registered to the
+   art by percentage, so every regeneration drifted the names and score chips off their
+   plinths. Nothing can drift from art that doesn't exist.
+
+   THREE RULES, and every value below answers to one of them:
+   1. ONE LIGHT SOURCE. Only .bm-ray and .bm-pool emit. Everything else is lit or it is dark.
+   2. ONE ACCENT — gold. Division is carried by luminance (lit / dim / outline), never by hue,
+      so the five metals never fight the one accent. The old board had four accents.
+   3. SCALE IS THE ARGUMENT. The champion's portrait is 1.7x and their plinth 2x the
+      runners-up. The board this replaces raised #1 by twelve pixels, which is why it read flat.
+
+   Contrast against --stage is computed, not eyeballed: ink 18.9:1 · ink-2 7.1:1 · ink-3 5.3:1
+   · gold 12.4:1. All AA or better at the sizes used. Scoped under .lb-climb, mobile-first,
+   390px-safe, with a phone-landscape tier (width alone cannot identify a phone). */
+
+/* Deep space. A PURE gradient — no image, and deliberately no `background-attachment: fixed`,
+   which repaints the whole backdrop every scroll frame and janks on mobile Safari (that is
+   what the old board did). The drifting star field below is a composited fixed LAYER instead,
+   which is the standard way to get the same effect without the repaint. */
 .aurora-main:has(.lb-climb) {
   background:
-    linear-gradient(180deg, rgba(255,246,224,.05) 0%, rgba(51,33,15,.14) 100%),
-    url(/brand/leaderboard/bg.webp) 50% 50% / cover,
-    #ECD9BC;
-  background-attachment: fixed;
+    radial-gradient(120% 70% at 50% -10%, rgba(245, 197, 66, .10) 0%, transparent 60%),
+    linear-gradient(180deg, #0B0B11 0%, #07070A 42%, #050508 100%);
   background-repeat: no-repeat;
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 .lb-climb {
-  --card:#FFFDF9; --line:#F0E7D6;
-  --hink:#241D2B; --hink2:#655C6E; --hink3:#A99FAB;
-  --accent:#E11D48; --accent-d:#A0143C; --teal:#12B5A0;
-  --gold:#F59E0B;
-  --sh:0 1px 2px rgba(0,0,0,.14), 0 14px 30px -16px rgba(0,0,0,.55);
-  --sh-lg:0 2px 10px rgba(0,0,0,.2), 0 36px 66px -26px rgba(0,0,0,.7);
-  --hr:20px; --rr:16px;
-  --disp:var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
-  --arcade:var(--font-arcade), "Bungee", var(--disp);
-  position:relative;
-  max-width:960px; margin:0 auto; padding:22px 20px 72px; color:var(--hink);
-  display:flex; flex-direction:column; gap:14px;
-}
-.lb-climb .lb-ped-nm, .lb-climb .lb-ped-xp, .lb-climb .lb-rk,
-.lb-climb .lb-nm, .lb-climb .lb-lum { font-family:var(--disp); letter-spacing:-.01em; }
+  --stage: #07070A;
+  --stage-2: #101016;
+  --stage-3: #17171F;
+  --ink: #F5F3EF;
+  --ink-2: rgba(245, 243, 239, .62);
+  --ink-3: rgba(245, 243, 239, .52);
+  --gold: #F5C542;
+  --gold-hi: #FFE9A8;
+  --gold-deep: #B07D12;
+  --hair: rgba(245, 243, 239, .10);
+  --rr: 14px;
 
-/* rising embers over the arena — a seamlessly tiled spark field (loops on one tile height) */
+  /* TWO families. The outgoing board had three (Bricolage + Bungee + the body sans); an
+     arcade face was the single loudest reason it read like a placeholder. */
+  --disp: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
+
+  position: relative;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 24px 18px 96px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+/* Numbers never jitter as they count or re-rank. */
+.lb-climb .chase-n, .lb-climb .lg-rk, .lb-climb .lg-score, .lb-climb .bm-score,
+.lb-climb .bm-numeral, .lb-climb .youbar-rk, .lb-climb .youbar-score, .lb-climb .sheet-rk,
+.lb-climb .sheet-stats dd { font-variant-numeric: tabular-nums; }
+
+/* A still star field. Fixed-position LAYER (not background-attachment) so it composites. */
 .lb-climb::before {
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
   background-image:
-    radial-gradient(1.6px 1.6px at 20% 32%, rgba(214,120,44,.5), transparent 60%),
-    radial-gradient(1.2px 1.2px at 70% 62%, rgba(224,140,64,.44), transparent 60%),
-    radial-gradient(2px 2px at 46% 86%, rgba(206,110,38,.46), transparent 60%),
-    radial-gradient(1px 1px at 88% 22%, rgba(230,150,72,.42), transparent 60%),
-    radial-gradient(1.4px 1.4px at 12% 72%, rgba(214,120,44,.44), transparent 60%);
-  background-size:240px 260px; background-repeat:repeat;
-  animation:lb-embers 14s linear infinite;
+    radial-gradient(1.1px 1.1px at 18% 24%, rgba(255, 255, 255, .40), transparent 60%),
+    radial-gradient(1px 1px at 72% 58%, rgba(255, 240, 208, .34), transparent 60%),
+    radial-gradient(1.4px 1.4px at 44% 82%, rgba(255, 255, 255, .28), transparent 60%),
+    radial-gradient(1px 1px at 88% 16%, rgba(255, 240, 208, .30), transparent 60%),
+    radial-gradient(1.2px 1.2px at 8% 68%, rgba(255, 255, 255, .26), transparent 60%);
+  background-size: 280px 300px; background-repeat: repeat;
+  animation: lb-drift 90s linear infinite;
 }
 
-/* ── hero: deep-brown banner with a warm gold accent, carries title + hook + filter + settings ──
-   Dark espresso-brown (near-black) gradient + a thin gold hairline: premium, competitive and
-   clearly DISTINCT from both the light warm arena behind it and the bright ranked rows.
-   Kept short — one tight band. */
-.lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:16px 20px; box-shadow:var(--sh-lg); text-align:center;
-  container-type:inline-size;
-  background:linear-gradient(135deg,#33210f 0%,#20150a 48%,#100a05 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
-/* title is sized in cqw so the wordmark fills ~88% of the card width at EVERY breakpoint
-   (one coefficient, no per-viewport clamp) — .lb-head is the query container above. */
-.lb-title { position:relative; margin:0; font-family:var(--arcade); font-weight:400; text-transform:uppercase; letter-spacing:.005em;
-  font-size:9.8cqw; line-height:1.02; display:flex; align-items:center; justify-content:center; gap:.12em; color:#fff; white-space:nowrap;
-  text-shadow:0 2px 0 rgba(0,0,0,.35), 0 10px 26px rgba(245,158,11,.28); }
-.lb-title-ico { font-size:.62em; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
-.lb-sub { position:relative; margin:10px auto 0; font-size:16px; font-weight:600; color:rgba(255,255,255,.94); line-height:1.45; text-wrap:balance; }
-/* Weekly-reset cue: a quiet pill under the hook so students know the race refreshes Monday. */
-.lb-reset { position:relative; margin:9px auto 0; width:fit-content; font-size:12.5px; font-weight:800; letter-spacing:.01em;
-  color:#fff; background:rgba(0,0,0,.16); border:1px solid rgba(255,255,255,.28); border-radius:999px; padding:4px 12px; backdrop-filter:blur(4px); }
-.lb-filter { position:relative; margin-top:13px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-.lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff;
-  font-family:var(--arcade); font-weight:400; text-transform:uppercase; letter-spacing:.02em; font-size:12.5px;
-  border-radius:999px; padding:8px 15px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
-.lb-chip:hover { transform:translateY(-1px); background:rgba(255,255,255,.26); }
-.lb-chip[data-on="true"] { background:linear-gradient(180deg,#FCD34D,#F59E0B); color:#3a2600; border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.6); }
-
-/* board settings, demoted into the hero card */
-.lb-settings { position:relative; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  margin-top:9px; padding-top:9px; border-top:1px solid rgba(255,255,255,.16); }
-.lb-sh { font-family:var(--disp); font-weight:800; font-size:13px; color:#fff; }
-.lb-set-lbl { font-size:12px; color:rgba(255,255,255,.86); font-weight:700; }
-.lb-grow { flex:1; }
-.lb-switch { flex:0 0 auto; width:44px; height:25px; border-radius:999px; border:0; padding:3px; background:rgba(255,255,255,.24);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.34); cursor:pointer; transition:background .18s ease; }
-.lb-switch[data-on="true"] { background:#fff; }
-.lb-switch:disabled { opacity:.55; cursor:default; }
-.lb-switch-knob { display:block; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.35);
-  transition:transform .2s cubic-bezier(.2,.9,.3,1.3); }
-.lb-switch[data-on="true"] .lb-switch-knob { transform:translateX(19px); background:var(--accent); }
-.lb-field { display:flex; gap:6px; }
-.lb-name-input { border:1px solid rgba(255,255,255,.32); border-radius:11px; background:rgba(255,255,255,.16); padding:7px 11px; font-size:13.5px; font-family:inherit; color:#fff; min-width:120px; }
-.lb-name-input::placeholder { color:rgba(255,255,255,.72); }
-.lb-name-input:focus-visible { outline:2px solid #fff; outline-offset:1px; }
-.lb-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; font-size:13.5px; padding:8px 13px;
-  border-radius:11px; border:none; cursor:pointer; text-decoration:none; font-family:inherit; white-space:nowrap; }
-.lb-btn.ghost { background:linear-gradient(180deg,#FCD34D,#F59E0B); color:#3a2600; border:0; }
-.lb-btn:disabled { opacity:.5; cursor:default; box-shadow:none; }
-
-/* ── shared mascot ring ── */
-.lb-face, .lb-ped-face { display:grid; place-items:center; border-radius:50%; }
-.lb-face .eyecon-wrap, .lb-ped-face .eyecon-wrap { border-radius:50%; overflow:hidden; }
-
-/* ── podium: Nano-Banana metal cards; overlay sits on the baked zones ──
-   Each card is short (4:5) with a drawn circular plinth (upper), a mid panel and a nameplate
-   plaque (lower third). Portrait → plinth · Lumens → score-chip on the panel · name → a solid
-   dark nameplate chip (below), so the name is high-contrast and legible on every metal.
-   The three cards are generated with an identical layout so one set of offsets aligns all. */
-.lb-podium { display:grid; grid-template-columns:1fr 1.14fr 1fr; align-items:end; gap:14px; margin-top:16px; }
-.lb-ped { position:relative; aspect-ratio:4/5; border-radius:18px; overflow:hidden; text-align:center;
-  background:#241206 center/cover no-repeat; box-shadow:var(--sh-lg);
-  /* `backwards`, not `both` — a retained final keyframe leaves a transform on the pedestal
-     forever, making it a containing block that traps position:fixed descendants (see
-     motion.css .aurora-page-enter). Inert for all three: lb-pop's implicit 100% is the
-     natural style, and p1's lb-pop-hi ends at translateY(-12px) — exactly p1's own base
-     transform below, which it keeps either way. */
-  animation:lb-pop .5s cubic-bezier(.2,.9,.3,1.1) backwards; }
-.lb-ped.p1 { background-image:url(/brand/leaderboard/ped-gold.webp); transform:translateY(-12px); }
-.lb-ped.p2 { background-image:url(/brand/leaderboard/ped-silver.webp); animation-delay:.06s; }
-.lb-ped.p3 { background-image:url(/brand/leaderboard/ped-bronze.webp); animation-delay:.12s; }
-
-/* portrait drops into the drawn glowing plinth (upper-centre). Sized as a % of the card so it
-   fills + centres the plinth ring at any card width; the inner Eyecon raster is forced to fill. */
-.lb-ped-face { position:absolute; left:50%; top:33%; width:35%; transform:translate(-50%,-50%); z-index:1;
-  box-shadow:0 6px 16px -6px rgba(0,0,0,.5); }
-.lb-ped-face .eyecon-wrap { width:100% !important; height:auto !important; aspect-ratio:1 !important; }
-.lb-ped-face .eyecon-img { width:100% !important; height:100% !important; object-fit:cover; }
-.lb-ped.p1 .lb-ped-face { top:32%; width:39%; }
-
-/* Lumens = a dark game score-chip resting in the mid panel / on the plinth ledge */
-.lb-ped-xp { position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); z-index:2; white-space:nowrap;
-  display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:18px; color:#fff;
-  background:rgba(18,9,3,.62); border:1px solid rgba(255,255,255,.3); border-radius:999px;
-  padding:4px 12px 4px 7px; box-shadow:0 6px 14px -6px rgba(0,0,0,.6); backdrop-filter:blur(3px); }
-.lb-ped.p1 .lb-ped-xp { font-size:21px; }
-
-/* name = a solid dark nameplate chip on the lower band — white text, guaranteed high contrast,
-   enlarged so it fills its box; per-place border tint hints the metal. */
-.lb-ped-nm { position:absolute; left:7%; right:7%; top:82%; transform:translateY(-50%); z-index:2;
-  display:block; font-weight:800; font-size:16.5px; line-height:1.12; letter-spacing:.005em; color:#fff;
-  background:linear-gradient(180deg, rgba(26,12,5,.86), rgba(15,7,3,.94));
-  border:1px solid rgba(255,255,255,.24); border-radius:10px; padding:5px 9px;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  box-shadow:0 7px 16px -9px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12); }
-.lb-ped.p1 .lb-ped-nm { font-size:18.5px; top:82.5%; border-color:rgba(255,214,140,.5); }
-.lb-ped.p2 .lb-ped-nm { border-color:rgba(220,230,240,.42); }
-.lb-ped.p3 .lb-ped-nm { border-color:rgba(255,192,140,.44); }
-
-.lb-crown { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:56px; height:56px;
-  object-fit:contain; z-index:3; filter:drop-shadow(0 5px 9px rgba(0,0,0,.5)); }
-
-/* ── open (unclaimed) podium slot — the metal card still shows, muted, with a dashed placeholder
-   plinth + "Open spot" plaque, so all three places are present even for a cohort of one. ── */
-.lb-ped-open { filter:grayscale(.28) opacity(.9); }
-.lb-ped-open .lb-ped-xp { background:rgba(18,9,3,.5); color:rgba(255,255,255,.72); }
-.lb-ped-open .lb-ped-nm { color:rgba(255,255,255,.82); }
-.lb-ped-ph { display:grid; place-items:center; width:100%; aspect-ratio:1; border-radius:50%;
-  background:rgba(18,9,3,.34); border:2px dashed rgba(255,255,255,.5); color:rgba(255,255,255,.78);
-  font-family:var(--disp); font-weight:800; font-size:24px; line-height:1; }
-.lb-ped.p1 .lb-ped-ph { font-size:28px; }
-
-/* ── ranked rows: ivory cards floating on the arena. Tier = left bar + avatar ring. ── */
-.lb-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
-.lb-row { position:relative; overflow:hidden; display:grid; grid-template-columns:26px 46px minmax(0,1fr) auto; align-items:center; gap:12px;
-  border:1px solid rgba(120,84,40,.16); border-radius:var(--rr); padding:12px 15px 12px 12px; box-shadow:var(--sh);
-  background:linear-gradient(180deg,#FFFFFF, var(--card));
-  transition:transform .16s ease, box-shadow .16s ease; animation:lb-rise .5s cubic-bezier(.2,.9,.3,1.1) both; }
-.lb-row::after { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--rc,var(--teal)); }
-.lb-row:hover { transform:translateY(-2px); box-shadow:var(--sh-lg); }
-.lb-list .lb-row:nth-child(1){animation-delay:.02s} .lb-list .lb-row:nth-child(2){animation-delay:.06s}
-.lb-list .lb-row:nth-child(3){animation-delay:.10s} .lb-list .lb-row:nth-child(4){animation-delay:.14s}
-.lb-list .lb-row:nth-child(5){animation-delay:.18s} .lb-list .lb-row:nth-child(6){animation-delay:.22s}
-.lb-list .lb-row:nth-child(n+7){animation-delay:.26s}
-.lb-rk { position:relative; font-weight:800; font-size:17px; color:var(--hink3); text-align:center; font-variant-numeric:tabular-nums; }
-.lb-face { position:relative; width:46px; height:46px; box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--rc, var(--teal)); }
-.lb-meta { position:relative; min-width:0; }
-.lb-nm { font-weight:800; font-size:15px; display:flex; align-items:center; gap:7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.lb-youtag { flex:0 0 auto; font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#fff;
-  background:linear-gradient(180deg,#FB5C74,var(--accent)); border-radius:999px; padding:2px 8px; box-shadow:0 4px 10px -4px rgba(225,29,72,.7); }
-.lb-sub2 { display:flex; align-items:center; gap:8px; margin-top:4px; }
-.lb-rolechip { font-size:10.5px; font-weight:800; letter-spacing:.02em; color:var(--accent-d); background:#FDE7EA; border-radius:999px; padding:2px 9px; }
-.lb-lvl { font-size:11px; font-weight:800; color:var(--hink3); white-space:nowrap; }
-
-/* right cluster: gold Lumens is primary; streak is a quiet inline flame beneath it */
-.lb-badges { position:relative; display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
-.lb-lum { display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; white-space:nowrap;
-  background:linear-gradient(180deg,#FFF6D8,#FFE59F); color:#8a5606; border:1px solid #F3D273; border-radius:999px; padding:4px 11px 4px 6px;
-  box-shadow:0 5px 12px -6px rgba(214,159,12,.55); }
-.lb-streak { display:inline-flex; align-items:center; gap:3px; font-weight:800; font-size:11px; color:#C2410C; white-space:nowrap; padding-right:4px; }
-.lb-streak[data-cold] { color:var(--hink3); }
-.lb-streak[data-cold] span[aria-hidden] { filter:grayscale(1) opacity(.55); }
-
-/* the viewer's own row — one strong static rose ring */
-.lb-row[data-you] { border-color:transparent; background:linear-gradient(180deg,#FFF1F3,#FFFDF9);
-  box-shadow:0 0 0 2px var(--accent), var(--sh-lg); }
-.lb-row[data-you]::after { background:linear-gradient(180deg,#FB5C74,var(--accent)); }
-.lb-row[data-you] .lb-face { box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--accent); }
-
-.lb-empty { color:var(--hink2); text-align:center; padding:2.5rem 1rem; font-size:16px; }
-
-/* empty ranked-list state — a single quiet dashed pill so the list is always present, even
-   when no one has landed below the podium yet. */
-.lb-open-row { list-style:none; text-align:center; color:var(--hink2); font-weight:700; font-size:13.5px;
-  border:1px dashed rgba(120,84,40,.34); border-radius:var(--rr); padding:18px 16px;
-  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,253,249,.6)); }
-
-/* ── keyframes: entrance + slow ember drift ── */
-@keyframes lb-pop { from { opacity:0; transform:translateY(14px) scale(.97); } }
-.lb-ped.p1 { animation-name:lb-pop-hi; }
-@keyframes lb-pop-hi { from { opacity:0; transform:translateY(2px) scale(.97); } to { opacity:1; transform:translateY(-12px) scale(1); } }
-@keyframes lb-rise { from { opacity:0; transform:translateY(10px); } }
-@keyframes lb-embers { to { background-position:0 -260px; } }
-
-/* ── responsive (390px-safe) ──
-   Phone-landscape joins this list because these are the PHONE sizes and a landscape phone is a
-   phone: at 844x390 / 932x430 the width tier missed it and the plinth type went desktop-scale.
-   Width cannot identify a phone (breakpoints.css). Contents unchanged. */
-@media (max-width:720px),
-       (max-height:480px) and (pointer:coarse) {
-  .lb-climb { gap:12px; }
-  .lb-podium { gap:8px; }
-  .lb-ped-nm { font-size:13.5px; } .lb-ped.p1 .lb-ped-nm { font-size:15px; }
-  .lb-ped-xp { font-size:15.5px; padding:3px 10px 3px 6px; } .lb-ped.p1 .lb-ped-xp { font-size:18px; }
+/* ── header ───────────────────────────────────────────────────────────────── */
+.lb-head { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.lb-eyebrow {
+  margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--gold);
 }
-@media (max-width:420px) {
-  .lb-climb { padding:16px 12px 60px; }
-  .lb-head { padding:14px 16px 13px; }
-  .lb-ped-nm { font-size:12.5px; padding:4px 6px; } .lb-ped.p1 .lb-ped-nm { font-size:13.5px; }
-  .lb-row { grid-template-columns:22px 44px minmax(0,1fr) auto; gap:10px; padding:11px 12px 11px 10px; }
-  .lb-lvl { display:none; }
+.lb-title {
+  margin: 0; font-family: var(--disp); font-weight: 700; letter-spacing: -.028em; line-height: 1;
+  font-size: clamp(34px, 9vw, 50px); color: var(--ink);
+  text-shadow: 0 0 42px rgba(245, 197, 66, .30);
 }
 
-/* ── phone landscape: the board sizes itself off its own WIDTH (9.8cqw title, 4:5 plinths in a
-   3-col grid), so a landscape phone — 844-932 wide but only 390-430 tall — resolved all of it
-   at desktop scale: a measured 83px wordmark and a 392px podium on a 430px-tall screen. Cap the
-   COLUMN rather than re-size the parts, and every authored proportion (the cqw fill, the 4:5 the
-   metal art is baked to, the % face/score/plaque offsets registered to that art) lands at phone
-   scale untouched — landscape just gets the portrait board, centred on the arena. ── */
-@media (max-height:480px) and (pointer:coarse) {
-  .lb-climb { max-width:440px; padding:14px 14px 60px; }
+/* ── division ladder: luminance, not hue ─────────────────────────────────── */
+.dv { width: 100%; display: flex; flex-direction: column; gap: 9px; align-items: center; }
+.dv-rungs {
+  list-style: none; margin: 0; padding: 0; width: 100%;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+}
+.dv-rung {
+  text-align: center; border-radius: 999px; padding: 6px 4px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  border: 1px solid var(--hair); background: var(--stage-2); color: var(--ink-3);
+}
+/* Already climbed: filled, dim gold — a record, not a target. */
+.dv-rung[data-state="past"] {
+  background: rgba(245, 197, 66, .10); border-color: rgba(245, 197, 66, .26); color: rgba(245, 197, 66, .78);
+}
+/* Here: the only lit rung on the ladder. */
+.dv-rung[data-state="now"] {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  border-color: transparent; color: #2A1B00;
+  box-shadow: 0 0 22px -4px rgba(245, 197, 66, .60);
+}
+.dv-abbr { display: none; }
+.dv-meta {
+  margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+  font-size: 12.5px;
+}
+.dv-now { font-weight: 700; color: var(--ink-2); }
+.dv-clock {
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink-2);
+  border: 1px solid var(--hair); border-radius: 999px; padding: 4px 11px; background: var(--stage-2);
+}
+.dv-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+/* ── the chase: the biggest number on the page after the champion ────────── */
+.chase { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.chase-n {
+  font-family: var(--disp); font-weight: 700; letter-spacing: -.03em; line-height: 1;
+  font-size: clamp(38px, 11vw, 54px); color: var(--gold);
+  text-shadow: 0 0 34px rgba(245, 197, 66, .35);
+}
+.chase-l {
+  font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3);
+}
+/* Nothing to chase (top division, or hidden) — the line carries itself, so give it size. */
+.chase[data-kind="summit"] .chase-l, .chase[data-kind="idle"] .chase-l {
+  font-size: 13px; letter-spacing: .06em; text-transform: none; color: var(--ink-2);
 }
 
-/* ── touch: the filter chips are the board's only tap targets; 37px is under the 44 minimum. ── */
-@media (pointer:coarse) {
-  .lb-chip { min-height:44px; }
+/* ── THE BEAM ─────────────────────────────────────────────────────────────── */
+.bm { position: relative; margin-top: 6px; padding-top: 30px; isolation: isolate; }
+
+/* The one light source: a shaft from off-stage, narrow at the top, spilling onto the floor. */
+.bm-ray {
+  position: absolute; left: 50%; top: -34px; width: min(360px, 88%); height: 100%;
+  transform: translateX(-50%); z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(255, 233, 168, .34) 0%, rgba(245, 197, 66, .16) 42%, rgba(245, 197, 66, .04) 74%, transparent 92%);
+  clip-path: polygon(41% 0%, 59% 0%, 90% 100%, 10% 100%);
+  filter: blur(11px);
+  animation: bm-ignite 1s ease-out .5s backwards;
+}
+/* …and the pool it makes on the floor, under the champion only. */
+.bm-pool {
+  position: absolute; left: 50%; bottom: -6px; width: min(300px, 74%); height: 62px;
+  transform: translateX(-50%); z-index: 0; pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(245, 197, 66, .30) 0%, rgba(245, 197, 66, .08) 45%, transparent 72%);
+  filter: blur(7px);
+  animation: bm-ignite 1s ease-out .5s backwards;
 }
 
-/* ── reduced motion: freeze entrance + embers ── */
-@media (prefers-reduced-motion:reduce) {
-  .lb-ped, .lb-row, .lb-climb::before { animation:none !important; }
-  .lb-ped.p1 { transform:translateY(-12px) !important; }
+.bm-slots {
+  position: relative; z-index: 1; list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1.28fr 1fr; align-items: end; gap: 8px;
 }
-html[data-motion="reduce"] .lb-ped,
-html[data-motion="reduce"] .lb-row,
-html[data-motion="reduce"] .lb-climb::before { animation:none !important; }
-html[data-motion="reduce"] .lb-ped.p1 { transform:translateY(-12px) !important; }
+/* DOM is 1 → 2 → 3 so the champion is announced first; `order` makes it read 2 · 1 · 3. */
+.bm-slot[data-place="1"] { order: 2; }
+.bm-slot[data-place="2"] { order: 1; }
+.bm-slot[data-place="3"] { order: 3; }
+.bm-slot {
+  display: flex; flex-direction: column; align-items: center; min-width: 0;
+  animation: bm-rise .6s cubic-bezier(.2, .9, .3, 1.05) backwards;
+}
+.bm-slot[data-place="3"] { animation-delay: 0s; }
+.bm-slot[data-place="2"] { animation-delay: .12s; }
+.bm-slot[data-place="1"] { animation-delay: .26s; }
+
+.bm-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; min-width: 0; }
+.bm-crown { width: 40px; height: 25px; margin-bottom: -2px; filter: drop-shadow(0 3px 10px rgba(245, 197, 66, .55)); }
+
+.bm-face { position: relative; display: grid; place-items: center; border-radius: 50%; }
+.bm-face .eyecon-wrap { border-radius: 50%; overflow: hidden; }
+/* Three un-customized students render three identical mascots, so the SLOT carries the
+   difference: a metal rim, an engraved numeral, and a soft-light wash that reads as the
+   stage lighting falling on them. The mascot art itself is never recoloured. */
+.bm-face::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  mix-blend-mode: soft-light; opacity: .55;
+}
+.bm-slot[data-place="1"] .bm-face { box-shadow: 0 0 0 2px var(--gold), 0 0 34px -4px rgba(245, 197, 66, .75); }
+.bm-slot[data-place="1"] .bm-face::after { background: linear-gradient(180deg, #FFE9A8, #C8901A); }
+.bm-slot[data-place="2"] .bm-face { box-shadow: 0 0 0 2px rgba(214, 222, 232, .72); }
+.bm-slot[data-place="2"] .bm-face::after { background: linear-gradient(180deg, #EDF2F8, #8B96A5); }
+.bm-slot[data-place="3"] .bm-face { box-shadow: 0 0 0 2px rgba(214, 150, 106, .70); }
+.bm-slot[data-place="3"] .bm-face::after { background: linear-gradient(180deg, #F0C6A4, #9C5F35); }
+.bm-face-open {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 2px dashed rgba(245, 243, 239, .22); background: rgba(255, 255, 255, .03);
+}
+.bm-slot[data-place="1"] .bm-face-open { width: 108px; height: 108px; }
+
+.bm-name {
+  max-width: 100%; font-weight: 700; font-size: 13px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.bm-slot[data-place="1"] .bm-name { font-size: 16px; }
+.bm-score {
+  display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700;
+  font-size: 14px; color: var(--gold);
+}
+.bm-slot[data-place="1"] .bm-score { font-size: 18px; }
+.bm-open .bm-name { color: var(--ink-3); font-weight: 600; }
+
+/* The plinths carry the scale argument: 132px vs 66px is exactly 2x. */
+.bm-plinth {
+  margin-top: 12px; width: 100%; height: 66px; border-radius: 8px 8px 3px 3px;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--stage-3) 0%, #0A0A0E 100%);
+  border: 1px solid var(--hair); border-bottom: none;
+  box-shadow: inset 0 1px 0 rgba(245, 243, 239, .10);
+}
+.bm-slot[data-place="1"] .bm-plinth {
+  height: 132px;
+  background: linear-gradient(180deg, #23200F 0%, #0C0A06 100%);
+  border-color: rgba(245, 197, 66, .34);
+  box-shadow: inset 0 1px 0 rgba(255, 233, 168, .34), 0 -12px 40px -18px rgba(245, 197, 66, .5);
+}
+.bm-numeral {
+  font-family: var(--disp); font-weight: 700; line-height: 1; font-size: 30px;
+  color: rgba(245, 243, 239, .14);
+  text-shadow: 0 1px 0 rgba(245, 243, 239, .07);
+}
+.bm-slot[data-place="1"] .bm-numeral { font-size: 52px; color: rgba(245, 197, 66, .30); }
+
+/* ── role filter ──────────────────────────────────────────────────────────── */
+.lb-filter { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.lb-chip {
+  border: 1px solid var(--hair); background: var(--stage-2); color: var(--ink-2);
+  font-family: inherit; font-weight: 700; font-size: 12.5px; letter-spacing: .04em;
+  border-radius: 999px; padding: 8px 16px; cursor: pointer;
+  transition: color .14s ease, background .14s ease, border-color .14s ease;
+}
+.lb-chip:hover { color: var(--ink); border-color: rgba(245, 197, 66, .35); }
+.lb-chip[data-on="true"] {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: #2A1B00; border-color: transparent;
+}
+
+/* ── the league list ──────────────────────────────────────────────────────── */
+.lg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lg-item { display: block; animation: lb-rise .45s cubic-bezier(.2, .9, .3, 1.05) backwards; }
+.lg-list .lg-item:nth-child(1) { animation-delay: .02s } .lg-list .lg-item:nth-child(2) { animation-delay: .05s }
+.lg-list .lg-item:nth-child(3) { animation-delay: .08s } .lg-list .lg-item:nth-child(4) { animation-delay: .11s }
+.lg-list .lg-item:nth-child(5) { animation-delay: .14s } .lg-list .lg-item:nth-child(n+6) { animation-delay: .17s }
+
+.lg-row {
+  position: relative; width: 100%; min-height: 62px; text-align: left; cursor: pointer;
+  display: grid; grid-template-columns: 24px 30px 44px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  padding: 9px 14px 9px 10px; border-radius: var(--rr);
+  border: 1px solid var(--hair); background: var(--stage-2); color: var(--ink);
+  font-family: inherit;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.lg-row:hover { background: var(--stage-3); border-color: rgba(245, 243, 239, .18); transform: translateY(-1px); }
+.lg-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Above the promotion line: warmed, and edged in gold. This is the whole mechanic. */
+.lg-item[data-promo] .lg-row {
+  background: linear-gradient(90deg, rgba(245, 197, 66, .09), rgba(245, 197, 66, .03) 42%, var(--stage-2));
+  border-color: rgba(245, 197, 66, .22);
+}
+.lg-item[data-promo] .lg-row::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold-deep));
+}
+/* Your own row: a ring, not a tint — so it stays distinct from the promotion band above. */
+.lg-row[data-you] {
+  background: var(--stage-3);
+  border-color: transparent; box-shadow: 0 0 0 2px var(--gold), 0 12px 34px -20px rgba(245, 197, 66, .8);
+}
+
+.lg-rk { font-family: var(--disp); font-weight: 700; font-size: 15px; color: var(--ink-3); text-align: center; }
+.lg-row[data-you] .lg-rk { color: var(--gold); }
+.lg-mv { display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--ink-3); }
+.lg-mv[data-dir="up"] { color: #6FD08C; }      /* the one hue outside gold, and it is semantic */
+.lg-mv[data-dir="down"] { color: rgba(245, 243, 239, .40); }
+.lg-mv[data-dir="none"] { color: rgba(245, 243, 239, .30); font-size: 15px; }
+.lg-face { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; }
+.lg-face .eyecon-wrap { border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--hair); }
+.lg-meta { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.lg-nm {
+  display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lg-you {
+  flex: 0 0 auto; font-size: 9px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
+  color: #2A1B00; background: var(--gold); border-radius: 999px; padding: 2px 7px;
+}
+.lg-sub { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-3); min-width: 0; }
+.lg-role { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.lg-lvl, .lg-streak { white-space: nowrap; }
+.lg-score {
+  display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700;
+  font-size: 15px; color: var(--gold); white-space: nowrap;
+}
+
+/* The promotion line itself. */
+.lg-line { display: flex; align-items: center; gap: 12px; padding: 12px 2px 10px; }
+.lg-line::before, .lg-line::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 66, .55), transparent);
+}
+.lg-line-txt {
+  flex: 0 1 auto; text-align: center; font-size: 10.5px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid rgba(245, 197, 66, .38); border-radius: 999px; padding: 5px 12px;
+  background: rgba(245, 197, 66, .07); text-shadow: 0 0 18px rgba(245, 197, 66, .5);
+}
+
+.lg-open {
+  text-align: center; color: var(--ink-3); font-weight: 600; font-size: 13px;
+  border: 1px dashed var(--hair); border-radius: var(--rr); padding: 20px 16px;
+}
+.lb-empty { color: var(--ink-3); text-align: center; padding: 3rem 1rem; font-size: 15px; }
+
+/* ── sticky "you" bar ─────────────────────────────────────────────────────── */
+.youbar {
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));
+  transform: translateX(-50%); z-index: 40; width: min(560px, calc(100vw - 32px));
+  display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 10px;
+  min-height: 50px; padding: 8px 16px; cursor: pointer; font-family: inherit; text-align: left;
+  border-radius: 999px; border: 1px solid rgba(245, 197, 66, .34); color: var(--ink);
+  background: rgba(16, 16, 22, .92);
+  box-shadow: 0 18px 44px -16px rgba(0, 0, 0, .9), 0 0 0 1px rgba(0, 0, 0, .5);
+  backdrop-filter: blur(10px);
+  animation: youbar-in .28s cubic-bezier(.2, .9, .3, 1.1) backwards;
+}
+.youbar-rk { font-family: var(--disp); font-weight: 700; font-size: 15px; color: var(--gold); }
+.youbar-mv { font-size: 11px; font-weight: 700; color: var(--ink-3); }
+.youbar-mv[data-dir="up"] { color: #6FD08C; }
+.youbar-nm { font-weight: 700; font-size: 13.5px; }
+.youbar-score { display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700; font-size: 14px; color: var(--gold); }
+
+/* ── peek sheet ───────────────────────────────────────────────────────────── */
+.sheet-scrim {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(3, 3, 6, .68); backdrop-filter: blur(3px);
+  animation: sheet-fade .2s ease-out backwards;
+}
+.sheet {
+  width: min(460px, 100%); background: var(--stage-2); color: var(--ink);
+  border: 1px solid var(--hair); border-bottom: none; border-radius: 20px 20px 0 0;
+  padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
+  box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, .9);
+  animation: sheet-up .26s cubic-bezier(.2, .9, .3, 1.05) backwards;
+}
+.sheet-grip { width: 38px; height: 4px; border-radius: 999px; background: rgba(245, 243, 239, .22); margin: 0 auto 14px; }
+.sheet-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; }
+.sheet-face { display: grid; place-items: center; border-radius: 50%; }
+.sheet-face .eyecon-wrap { border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--hair); }
+.sheet-id { min-width: 0; }
+.sheet-nm { margin: 0; font-family: var(--disp); font-weight: 700; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-sub { margin: 3px 0 0; font-size: 12px; color: var(--ink-3); }
+.sheet-rk { font-family: var(--disp); font-weight: 700; font-size: 22px; color: var(--gold); }
+.sheet-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 16px 0 0; }
+.sheet-stats > div { background: var(--stage-3); border: 1px solid var(--hair); border-radius: 11px; padding: 10px 12px; }
+.sheet-stats dt { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.sheet-stats dd { margin: 4px 0 0; display: flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700; font-size: 16px; }
+.sheet-stats dd[data-dir="up"] { color: #6FD08C; }
+.sheet-close {
+  width: 100%; margin-top: 16px; min-height: 46px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--hair); background: var(--stage-3); color: var(--ink);
+  font-family: inherit; font-weight: 700; font-size: 14px;
+}
+.sheet-close:hover { border-color: rgba(245, 197, 66, .4); }
+
+/* ── privacy controls (restored — the hook existed, nothing imported it) ──── */
+.bs {
+  margin-top: 14px; border: 1px solid var(--hair); border-radius: var(--rr); background: var(--stage-2);
+  padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 14px;
+}
+.bs-h { margin: 0; font-family: var(--disp); font-weight: 700; font-size: 14px; color: var(--ink-2); }
+.bs-row { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.bs-copy { flex: 1 1 200px; min-width: 0; }
+.bs-lbl { margin: 0; font-weight: 700; font-size: 13.5px; color: var(--ink); display: block; }
+.bs-hint { margin: 3px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--ink-3); }
+.bs-switch {
+  flex: 0 0 auto; width: 52px; height: 30px; border-radius: 999px; border: 1px solid var(--hair);
+  padding: 3px; background: var(--stage-3); cursor: pointer; transition: background .18s ease;
+}
+.bs-switch[data-on="true"] { background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-color: transparent; }
+.bs-switch:disabled { opacity: .55; cursor: default; }
+.bs-knob {
+  display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .5); transition: transform .2s cubic-bezier(.2, .9, .3, 1.3);
+}
+.bs-switch[data-on="true"] .bs-knob { transform: translateX(22px); background: #2A1B00; }
+.bs-field { display: flex; gap: 8px; flex: 1 1 220px; }
+.bs-input {
+  flex: 1; min-width: 0; min-height: 42px; border-radius: 10px; padding: 8px 12px;
+  border: 1px solid var(--hair); background: var(--stage-3); color: var(--ink);
+  font-family: inherit; font-size: 13.5px;
+}
+.bs-input::placeholder { color: rgba(245, 243, 239, .34); }
+.bs-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.bs-save {
+  flex: 0 0 auto; min-height: 42px; padding: 8px 16px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: #2A1B00;
+  font-family: inherit; font-weight: 700; font-size: 13.5px;
+}
+.bs-save:disabled { opacity: .4; cursor: default; }
+.bs-err { margin: 0; font-size: 12px; font-weight: 600; color: #FF9E9E; }
+
+/* ── the Monday ceremony ──────────────────────────────────────────────────────
+   Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens —
+   it declares its own. Same stage language: black, one beam, gold. */
+.lr {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(120% 80% at 50% -10%, rgba(245, 197, 66, .14) 0%, transparent 62%), #07070A;
+  color: #F5F3EF; font-family: var(--font-body);
+  animation: sheet-fade .3s ease-out backwards;
+}
+.lr-ray {
+  position: absolute; left: 50%; top: -60px; width: min(420px, 80%); height: 74%;
+  transform: translateX(-50%); pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 233, 168, .34) 0%, rgba(245, 197, 66, .12) 46%, transparent 88%);
+  clip-path: polygon(43% 0%, 57% 0%, 92% 100%, 8% 100%); filter: blur(13px);
+  animation: bm-ignite 1.1s ease-out .25s backwards;
+}
+.lr-card {
+  position: relative; text-align: center; max-width: 420px; display: flex; flex-direction: column; gap: 12px;
+  animation: bm-rise .6s cubic-bezier(.2, .9, .3, 1.05) backwards;
+}
+.lr-eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: rgba(245, 243, 239, .52); }
+.lr-verdict {
+  margin: 0; font-family: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
+  font-weight: 700; letter-spacing: -.03em; line-height: 1; font-size: clamp(40px, 12vw, 62px);
+  color: #F5C542; text-shadow: 0 0 46px rgba(245, 197, 66, .45);
+}
+.lr[data-outcome="held"] .lr-verdict { color: #F5F3EF; text-shadow: none; }
+.lr-move { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
+.lr-div {
+  font-size: 12px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase;
+  border-radius: 999px; padding: 7px 15px; border: 1px solid rgba(245, 243, 239, .14); color: rgba(245, 243, 239, .62);
+}
+.lr-to {
+  background: linear-gradient(180deg, #FFE9A8, #F5C542); color: #2A1B00; border-color: transparent;
+  box-shadow: 0 0 30px -6px rgba(245, 197, 66, .7);
+}
+.lr-arrow { color: #F5C542; font-size: 17px; }
+.lr-line { margin: 6px 0 0; font-size: 15px; color: rgba(245, 243, 239, .82); }
+.lr-line strong { color: #F5C542; font-variant-numeric: tabular-nums; }
+.lr-next { margin: 0; font-size: 13px; line-height: 1.5; color: rgba(245, 243, 239, .52); }
+.lr-go {
+  margin-top: 10px; min-height: 48px; padding: 12px 28px; border-radius: 12px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, #FFE9A8, #F5C542); color: #2A1B00;
+  font-family: inherit; font-weight: 800; font-size: 15px; letter-spacing: .02em;
+}
+
+/* ── keyframes ────────────────────────────────────────────────────────────── */
+/* `backwards`, never `both`: a retained final keyframe leaves a transform on the element
+   forever, which makes it a containing block and traps position:fixed descendants
+   (see motion.css .aurora-page-enter, and fixed_overlay_assert.mjs). */
+@keyframes bm-rise { from { opacity: 0; transform: translateY(26px); } }
+@keyframes bm-ignite { from { opacity: 0; } }
+@keyframes lb-rise { from { opacity: 0; transform: translateY(9px); } }
+@keyframes youbar-in { from { opacity: 0; transform: translate(-50%, 14px); } }
+@keyframes sheet-fade { from { opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(22px); } }
+@keyframes lb-drift { to { background-position: 0 -300px; } }
+
+/* ── responsive ───────────────────────────────────────────────────────────── */
+/* Phone-landscape joins the phone tier: at 844x390 / 932x430 a WIDTH breakpoint misses it
+   entirely and the board resolves at desktop scale. Width cannot identify a phone
+   (breakpoints.css / project_mobile_refit). */
+@media (max-width: 560px), (max-height: 480px) and (pointer: coarse) {
+  .lb-climb { gap: 15px; }
+  .dv-full { display: none; }
+  .dv-abbr { display: inline; }
+  .bm-slots { gap: 6px; }
+  .bm-plinth { height: 56px; }
+  .bm-slot[data-place="1"] .bm-plinth { height: 112px; }   /* 2x preserved */
+  .bm-numeral { font-size: 24px; }
+  .bm-slot[data-place="1"] .bm-numeral { font-size: 42px; }
+}
+@media (max-width: 420px) {
+  .lb-climb { padding: 18px 12px 92px; }
+  .lg-row { grid-template-columns: 20px 26px 40px minmax(0, 1fr) auto; gap: 8px; padding: 9px 11px 9px 8px; }
+  .lg-face { width: 40px; height: 40px; }
+  .lg-lvl { display: none; }
+  .bm-name { font-size: 12px; }
+  .bm-slot[data-place="1"] .bm-name { font-size: 14px; }
+}
+/* Phone landscape is WIDE and SHORT: cap the column instead of re-sizing every part, so the
+   authored proportions land at phone scale untouched. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .lb-climb { max-width: 440px; padding: 14px 14px 88px; }
+  .lb-title { font-size: 32px; }
+}
+/* Touch: every control in the board clears 44px. */
+@media (pointer: coarse) {
+  .lb-chip { min-height: 44px; }
+  .bs-switch { width: 64px; height: 44px; padding: 5px; }
+  .bs-knob { width: 32px; height: 32px; }
+  .bs-switch[data-on="true"] .bs-knob { transform: translateX(20px); }
+  .bs-input, .bs-save { min-height: 44px; }
+  .sheet-close { min-height: 48px; }
+}
+
+/* ── reduced motion: freeze everything, both signals ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lb-climb::before, .bm-ray, .bm-pool, .bm-slot, .lg-item, .youbar, .sheet-scrim, .sheet,
+  .lr, .lr-ray, .lr-card {
+    animation: none !important;
+  }
+  .lg-row, .lb-chip, .bs-switch, .bs-knob { transition: none !important; }
+}
+html[data-motion="reduce"] .lr,
+html[data-motion="reduce"] .lr-ray,
+html[data-motion="reduce"] .lr-card { animation: none !important; }
+html[data-motion="reduce"] .lb-climb::before,
+html[data-motion="reduce"] .bm-ray,
+html[data-motion="reduce"] .bm-pool,
+html[data-motion="reduce"] .bm-slot,
+html[data-motion="reduce"] .lg-item,
+html[data-motion="reduce"] .youbar,
+html[data-motion="reduce"] .sheet-scrim,
+html[data-motion="reduce"] .sheet { animation: none !important; }
+html[data-motion="reduce"] .lg-row,
+html[data-motion="reduce"] .lb-chip,
+html[data-motion="reduce"] .bs-switch,
+html[data-motion="reduce"] .bs-knob { transition: none !important; }
