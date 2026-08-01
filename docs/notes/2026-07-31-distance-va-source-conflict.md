@@ -8,14 +8,33 @@
 The app carries two different SNEC documents for the same procedure, both ingested
 into Supabase `checklists` as separate rows:
 
+Verified 2026-08-01 against **both primary documents** (the .docx of each), not against
+the ingested Supabase rows. All differences below are quoted from source.
+
 | | **SOP** — `NU-PR-OPD-D0039` v03 | **PSA Checklist V2** |
 |---|---|---|
 | Supabase row | `Distance Vision Testing LogMAR (SOP)` | `Distance Vision Testing LogMAR` |
 | Source file | `Module 1 Content EyeBot/NU-PR-OPD-D0039 ….pdf` | `Module 2 Content EyeBot/PSA_Checklist_… V2.pdf` |
-| Test distance | **4 m**, fixed | "calibrated according to room length" |
-| Reading direction | **right to left** | **left to right** |
-| Below 6/60 | 6/60 partial → PH; none at 6/60 → Snellen 6/120 → CF/HM/PL/NPL | adds PH-at-6/60-none and 6/120-with-PH branches; labels 6/120 as LogMAR 1.3 |
-| Occluder | "Occluder with Pinholes" | + orange-sticker occluder for infected eyes |
+| Test distance | "the testing distance should be **4m**" | "is **calibrated according to room length**"; no figure |
+| Reading direction | "from **right to left**" | "from **left to right**" |
+| Partial 6/60 | pinhole; if still not all 5, stop and record | same |
+| **No letters at 6/60** | **no pinhole** — straight to Snellen 6/120 | **pinhole first**, then 6/120 |
+| **At 6/120** | unreadable → CF/HM/PL/NPL; no pinhole step, no LogMAR value | **adds a pinhole attempt**; labels the line **LogMAR 1.3** |
+| Occluder | "Occluder with Pinholes" as a requisite | general occluder + **orange-sticker occluder for infected** |
+| Document control | v03, rev 22 Feb 2024, Nursing Dept, Restricted/Sensitive | **no doc number, version or date** — "V2" is only in the filename |
+
+Complementary rather than contradictory (each has steps the other omits): the SOP
+opens with a requisites list (M&S Smart System, Occluder with Pinholes, Alcohol
+Wipes, Good Lighting) and closes with discarding waste + doctor examines; V2 has
+neither but adds "ensure patient is comfortable after the procedure".
+
+**Correction to the first draft of this note:** the earlier "Below 6/60" row said the
+SOP goes "6/60 partial → PH; none at 6/60 → 6/120". That collapsed two distinct
+branches and implied the pinhole always precedes 6/120. It does not: under the SOP a
+patient who reads *zero* letters at 6/60 goes to 6/120 with **no** pinhole. The
+"two extra pinhole attempts in V2" claim was correct.
+
+The V2-derived Supabase row was confirmed near-verbatim faithful to the V2 document.
 
 **Live impact:** `tools/cases/resolve_checklist.py:51` maps every VA keyword
 (`logmar`, `snellen`, `pinhole`, `visual_acuity`, `distance_va`, `e_chart`,
