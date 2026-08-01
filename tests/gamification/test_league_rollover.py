@@ -166,11 +166,12 @@ BIG_DIVISION = [
 
 
 @pytest.mark.asyncio
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)   # the tripwire fires here
 @patch("tools.shared.db.update_profile", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
 @patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=[])
 @patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
-async def test_a_division_over_pool_max_is_still_ranked_as_one_pool(seal, getall, upsert, upd):
+async def test_a_division_over_pool_max_is_still_ranked_as_one_pool(seal, getall, upsert, upd, audit):
     """35 > POOL_MAX (30). Under the old split_pools behaviour this division would break
     into two hash-bucketed sub-pools, each producing its own rank 1 — while the live board
     (which never splits) kept showing all 35 as one race. That divergence is exactly what
@@ -187,35 +188,60 @@ async def test_a_division_over_pool_max_is_still_ranked_as_one_pool(seal, getall
 
 
 @pytest.mark.asyncio
-@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)
 @patch("tools.shared.db.update_profile", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
 @patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=[])
 @patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
-async def test_an_oversized_division_trips_the_audit_tripwire(seal, getall, upsert, upd, log):
+async def test_an_oversized_division_trips_the_audit_tripwire(seal, getall, upsert, upd, audit):
     """A documented threshold nobody is watching is how this bug shipped in the first
-    place — an oversized division must leave a trace in the audit log, not just a comment
-    in the source, so it surfaces before a student notices their rank stopped meaning
-    anything."""
+    place — an oversized division must leave a trace, so it surfaces before a student
+    notices their rank stopped meaning anything.
+
+    It has to be the DURABLE trace: audit_log.log() writes .tmp/audit_log.jsonl, which no
+    reader on this app ever opens and which Render's ephemeral disk throws away on every
+    restart. audit_events is the table GET /api/admin/audit actually serves."""
     from tools.gamification.league_rollover import run_rollover
     did = await run_rollover(BIG_DIVISION, LAST_WEEK)
     assert did is True
-    log.assert_called_once_with(
-        "league_pool_max_exceeded", feature="gamification",
+    audit.assert_awaited_once_with(
+        action="league_pool_max_exceeded", feature="gamification",
         detail="division 1 has 35 members (max 30)",
     )
 
 
 @pytest.mark.asyncio
-@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock)
 @patch("tools.shared.db.update_profile", new_callable=AsyncMock)
 @patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
 @patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
 @patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
-async def test_a_normal_division_does_not_trip_the_tripwire(seal, getall, upsert, upd, log):
+async def test_a_normal_division_does_not_trip_the_tripwire(seal, getall, upsert, upd, audit):
     """The common case (a division at or under POOL_MAX) must stay silent — the tripwire
     is for the exceptional case only, not noise on every rollover."""
     from tools.gamification.league_rollover import run_rollover
     did = await run_rollover(PROFILES, LAST_WEEK)
     assert did is True
-    log.assert_not_called()
+    audit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.insert_audit_event", new_callable=AsyncMock,
+       side_effect=RuntimeError("audit table missing"))
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=[])
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_a_failing_tripwire_write_never_aborts_the_rollover(
+    seal, getall, upsert, upd, audit, release,
+):
+    """The tripwire is an observer. It fires from inside the try/except that releases the
+    seal, so an unguarded raise here would turn "this division is a bit big" into "the week
+    never closed and nobody was promoted" — the watcher breaking the thing it watches."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(BIG_DIVISION, LAST_WEEK)
+    assert did is True
+    upsert.assert_awaited_once()
+    assert len(upsert.await_args.args[0]) == 35   # the whole division still closed
+    release.assert_not_awaited()
