@@ -26,6 +26,7 @@ STAFF_READ_ENDPOINTS = [
     ("GET", "/api/admin/student/stu_x/detail"),
     ("GET", "/api/admin/token-summary"),
     ("GET", "/api/admin/cohort-analytics"),
+    ("GET", "/api/admin/performance-trend"),
 ]
 
 # Mutating endpoints — require_admin (admin only)
@@ -121,6 +122,9 @@ def _stub_admin_db():
         "tools.shared.db.get_active_student_profiles": ([], 0),
         "tools.shared.db.get_all_case_scores": ([], True),
         "tools.shared.db.get_all_flashcard_attempts": ([], True),
+        # GET /api/admin/performance-trend — windowed, but still a paged scan of
+        # case_progress, and it returns the same (rows, complete) tuple.
+        "tools.shared.db.get_case_scores_since": ([], True),
         # Every mutating admin endpoint logs one of these.
         "tools.shared.db.insert_audit_event": None,
     }
