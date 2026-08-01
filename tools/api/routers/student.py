@@ -2,8 +2,9 @@
 import asyncio
 import json
 import random
+from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
 from tools.api.shared import limiter, _case_cache, FORFEIT_PENALTY
@@ -20,6 +21,7 @@ from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 from tools.gamification.leaderboard import rank_entries
 from tools.gamification.league import division_name, promote_count
+from tools.gamification.league_rollover import run_rollover
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
@@ -630,14 +632,19 @@ class LbPrefs(BaseModel):
 
 
 @router.get("/api/leaderboard", response_model=LbResponse)
-async def leaderboard(role: str | None = None, current_user: CurrentUser = Depends(get_current_user)):
+async def leaderboard(background: BackgroundTasks, role: str | None = None,
+                      current_user: CurrentUser = Depends(get_current_user)):
     """The weekly league board: the viewer's own division, ranked by XP earned this week,
     with the promotion line (`pool_size` / `promote_count`) it is racing for. An optional
     `role` filter narrows the *view* only. The viewer's own row is flagged; their current
     hidden state + display name come back for the form.
 
+    Two once-per-period jobs ride on this traffic because the app has no cron: closing last
+    week (promotions) and stamping today's ranks for tomorrow's movement arrows. Both are
+    seal-guarded in the DB and both run as BackgroundTasks — no student waits on them.
+
     Degrades to an empty board (never 500) until migration 008 lands, and to a single
-    undivided ladder until 016 lands."""
+    undivided ladder with no league jobs until 016 lands."""
     student_id = current_user["sub"]
     try:
         # get_active_leaderboard_profiles = active students (access revoked → dropped
@@ -650,19 +657,21 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
 
     names = {r["student_id"]: (r.get("student_name") or "") for r in consent}
     from tools.shared.clock import app_today, app_week_start
+    today, monday = app_today(), app_week_start()
     # Rank by XP earned this week once the xp_week columns exist; until migration 012
     # lands (no such key on any row) fall back to lifetime ranking so the board never
     # shows an all-zero week. Auto-cuts over to weekly the moment the columns are added.
     weekly_ready = any("xp_week_start" in p for p in profiles)
-    week_start = app_week_start() if weekly_ready else None
+    week_start = monday if weekly_ready else None
     # Same shape for the league: until migration 016 adds `division`/`rank_prev`, no row
-    # carries the column, so the board stays one undivided ladder with no arrows.
+    # carries the column, so the board stays one undivided ladder with no arrows and the
+    # two league jobs stay dark — they would write columns and tables that don't exist.
     league_ready = any("division" in p for p in profiles)
 
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
     my_division = int(me.get("division") or 1) if league_ready else None
     entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
-                           today=app_today(), week_start=week_start, division=my_division)
+                           today=today, week_start=week_start, division=my_division)
 
     # The pool is derived from the profiles, NOT from `entries`: the `role` filter is a
     # view, and letting it shrink the pool would quietly move the promotion line — a
@@ -671,6 +680,20 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
             if not p.get("leaderboard_hidden")                       # holds no slot
             and (my_division is None or int(p.get("division") or 1) == my_division)]
     roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
+
+    if league_ready:
+        # Close last week (idempotent, seal-guarded inside) — never the live week.
+        background.add_task(run_rollover, profiles, monday - timedelta(days=7))
+        # And stamp today's ranks exactly once per day: without the seal every read would
+        # restamp rank_prev with the live rank and every arrow would read 0 forever.
+        if await db.take_seal(f"day:{today.isoformat()}"):
+            snapshot: dict[str, int] = {}
+            for d in sorted({int(p.get("division") or 1) for p in profiles}):
+                for e in rank_entries(profiles, names, viewer_id=student_id,
+                                      today=today, week_start=week_start, division=d):
+                    snapshot[e["student_id"]] = e["rank"]   # join by id: names collide
+            background.add_task(db.set_rank_prev_bulk, snapshot, today.isoformat())
+
     return LbResponse(
         entries=[LbEntry(**{k: v for k, v in e.items() if k != "student_id"}) for e in entries],
         you_hidden=bool(me.get("leaderboard_hidden")),
