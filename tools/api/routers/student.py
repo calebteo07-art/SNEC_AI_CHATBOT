@@ -727,6 +727,66 @@ async def leaderboard_prefs(body: LbPrefs, current_user: CurrentUser = Depends(g
     return {"ok": True, **fields}
 
 
+# ── The Monday result (promoted / held), shown exactly once ───────────────────
+
+class LeagueSeen(BaseModel):
+    week_start: str
+
+
+@router.get("/api/league/result")
+# Plain limit(), not shared_limit: neither route carries a {path_param}, and slowapi's
+# default key_style="url" buckets on the ASGI path, so there is nothing that could mint a
+# fresh bucket per value. shared_limit(scope=...) is only needed where a templated path
+# would (see admin_unapprove_student). `request` is slowapi's required seam.
+@limiter.limit("60/minute")
+async def league_result(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    """The viewer's outcome for the most recently closed week — or nothing, once seen.
+
+    The seen-flag lives on the profile rather than in localStorage, so the ceremony fires
+    exactly once per student across every device they log in from. It stores WHICH week was
+    seen, not a boolean, so next Monday's result still comes through.
+
+    Every failure is a null result, never a 500: pre-016 the table doesn't exist at all, and
+    a homepage must not break because a celebration is unavailable."""
+    from tools.shared.clock import app_week_start
+
+    student_id = current_user["sub"]
+    last_week = (app_week_start() - timedelta(days=7)).isoformat()
+    try:
+        row = await db.get_league_week(student_id, last_week)
+        profile = await db.get_profile(student_id) or {}
+    except Exception:
+        return {"result": None}
+    if not row or str(profile.get("league_result_seen_week") or "") == last_week:
+        return {"result": None}
+
+    from_div = int(row.get("division") or 1)
+    # Only a promotion moves them: naming a division a held student didn't earn would be a
+    # lie the very next board read contradicts.
+    to_div = from_div + 1 if row.get("outcome") == "promoted" else from_div
+    return {
+        "week_start": last_week,
+        "outcome": row.get("outcome"),
+        "rank_final": row.get("rank_final"),
+        "xp_final": row.get("xp_final"),
+        "from_division_name": division_name(from_div),
+        "to_division_name": division_name(to_div),
+    }
+
+
+@router.post("/api/league/result/seen")
+@limiter.limit("60/minute")
+async def league_result_seen(request: Request, body: LeagueSeen,
+                             current_user: CurrentUser = Depends(get_current_user)):
+    """Mark a week's result as seen. Identity is the JWT sub, never the body — trusting the
+    body would let one student burn another's ceremony, or replay their own forever."""
+    try:
+        await db.update_profile(current_user["sub"], league_result_seen_week=body.week_start)
+    except Exception:
+        return {"ok": False}
+    return {"ok": True}
+
+
 # ── Study suggestion ───────────────────────────────────────────────────────
 
 @router.get("/api/study-suggestion", response_model=StudySuggestionResponse)
