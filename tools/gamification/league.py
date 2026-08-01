@@ -41,3 +41,33 @@ def promote_count(pool_size: int) -> int:
     if n < 4:
         return 1
     return min(n - 1, max(3, min(7, math.ceil(n * 0.25))))
+
+
+def close_week(standings: list[dict], division: int) -> list[dict]:
+    """Turn one division's final standings into outcome rows.
+
+    `standings` is already ranked and already excludes hidden students — a hidden student
+    must not occupy a promotion slot invisibly, and that filtering belongs to the caller
+    that knows about visibility. Returns one row per student, ready to persist."""
+    n = len(standings)
+    at_top = int(division or 1) >= TOP_DIVISION
+    promo = 0 if at_top else promote_count(n)
+
+    rows: list[dict] = []
+    for i, s in enumerate(standings):
+        rank = i + 1
+        if at_top:
+            outcome, nxt = ("placed" if rank <= 3 else "held"), TOP_DIVISION
+        elif rank <= promo:
+            outcome, nxt = "promoted", int(division) + 1
+        else:
+            outcome, nxt = "held", int(division)
+        rows.append({
+            "student_id": s.get("student_id"),
+            "division": int(division or 1),
+            "xp_final": int(s.get("xp_final") or 0),
+            "rank_final": rank,
+            "outcome": outcome,
+            "next_division": nxt,
+        })
+    return rows
