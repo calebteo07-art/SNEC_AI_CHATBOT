@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
-"""Shared audit logger — append-only JSONL event log for the SNEC platform.
+"""Local developer trace — an append-only JSONL breadcrumb file. NOT the audit trail.
 
-Every tool imports and calls log() whenever something significant happens.
-Student IDs are SHA-256 hashed before writing — raw PII never touches the log.
+READ THIS BEFORE ADDING A log() CALL. This app has two independent audit mechanisms and
+only one of them ever reaches a human:
+
+  * ``db.insert_audit_event()`` writes the Supabase ``audit_events`` table (migration 014),
+    which ``GET /api/admin/audit`` serves to admins. Durable, queryable, survives a
+    redeploy, shared across workers. **This is the audit trail.**
+  * ``log()`` (this module) appends to ``.tmp/audit_log.jsonl``, which has NO reader
+    anywhere in the app — ``read_recent()`` below is called only by this file's own
+    self-test — and which lives on Render's ephemeral per-worker disk, so it is discarded
+    on the next restart and never aggregated across workers.
+
+Choosing between them: if a human ever has to answer a question from the record — what
+broke, who did what, why did a student's rank stop moving — it belongs in ``audit_events``.
+Reach for ``log()`` only when the event's real record already lives in a queryable table
+(a failed profile write logged next to the ``profiles`` row it was writing), so the JSONL
+line is a local debugging convenience whose loss costs nothing.
+
+Security-relevant events do BOTH: the durable row is the record, and the local line carries
+the extra debugging context that must NOT be persisted — see ``routers/chat.py``, where the
+JSONL line keeps the raw blocked query and the ``audit_events`` twin keeps only the reason.
+
+Student IDs are SHA-256 hashed before writing — raw PII never touches this file.
 
 Usage (from other tools):
     from tools.shared.audit_log import log
@@ -34,7 +54,8 @@ def log(
     detail: str = "",
 ) -> None:
     """
-    Append one audit event to .tmp/audit_log.jsonl.
+    Append one line to the local .tmp/audit_log.jsonl trace. Not staff-visible — see the
+    module docstring for when to use db.insert_audit_event() instead.
 
     Args:
         event_type: What happened. Examples: session_start, card_reviewed,
@@ -64,7 +85,11 @@ def log(
 
 
 def read_recent(n: int = 20) -> list[dict]:
-    """Return the last n entries from the audit log."""
+    """Return the last n entries from the local trace file.
+
+    Used only by the self-test below — nothing in the running app reads this file, which is
+    the whole reason log() is not an audit trail. Reads the file whole, with no rotation, so
+    do not wire it to a request path."""
     if not LOG_FILE.exists():
         return []
     lines = LOG_FILE.read_text(encoding="utf-8").strip().splitlines()

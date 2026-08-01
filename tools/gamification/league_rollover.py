@@ -25,7 +25,6 @@ from datetime import date
 
 from tools.gamification.league import POOL_MAX, close_week
 from tools.shared import db
-from tools.shared.audit_log import log
 
 
 def _final_scores(profiles: list[dict], sealed: list[dict], week_start: date) -> dict[str, int]:
@@ -116,7 +115,18 @@ async def run_rollover(profiles: list[dict], week_start: date) -> bool:
         # raising (there is no one above us to usefully catch it) but still leave a
         # trace, or a real outage looks identical to the ordinary lost-the-race case.
         await db.release_seal(key)
-        log("league_rollover_error", feature="gamification", detail=str(exc))
+        # audit_events, not audit_log.log(), for the same reason as the tripwire above: a
+        # trace only counts if a human can find it, and .tmp/audit_log.jsonl has no reader
+        # in this app and does not survive a restart. This is the event that least tolerates
+        # that — a rollover failing on every retry means no week ever closes and nobody is
+        # ever promoted, and nothing else in the system records why. Guarded because we are
+        # already on the failure path: an audit write that raised here would turn the
+        # returned False into an exception escaping into a fire-and-forget BackgroundTask.
+        try:
+            await db.insert_audit_event(action="league_rollover_error", feature="gamification",
+                                        detail=str(exc))
+        except Exception:
+            pass
         return False
 
     return True
