@@ -1063,8 +1063,19 @@ const tp = await trainerCtx.newPage();
 await tp.goto(base + "/admin", { waitUntil: "domcontentloaded" });
 await tp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
 if (new URL(tp.url()).pathname !== "/admin") { console.error(`FAIL: AdminGuard bounced a trainer off /admin (url=${tp.url()})`); process.exit(1); }
+// P2b: /admin gets the SAME a11y landmark contract as the student shell routes, asserted
+// here rather than in A11Y_ROUTES. That sweep drives the STUDENT context, and AdminGuard
+// bounces a student off /admin — appending "/admin" there would silently measure the
+// bounce destination and report it as coverage, which is exactly the /profile→/dashboard
+// trap documented at the top of that sweep. The staff surface is the largest screen in the
+// app and the only one a trainer uses for real work, so it earns the check, not an
+// exemption. Only the LANDMARK half was actually missing: horizontal overflow at phone
+// widths is already a hard gate for /admin in mobile_audit (0/30 across five viewports),
+// so re-checking it here would duplicate a stronger check with a weaker one.
+const anMains = await tp.locator("main").count();
 const anH1 = await tp.locator("main h1").count();
-if (anH1 !== 1) { console.error(`FAIL: admin main h1 count = ${anH1}`); process.exit(1); }
+const anNavs = await tp.locator("nav").count();
+if (anMains !== 1 || anH1 !== 1 || anNavs < 1) { console.error(`FAIL: a11y landmarks on /admin (main=${anMains}, h1=${anH1}, nav=${anNavs})`); process.exit(1); }
 // the KPIs read the payload rather than rendering placeholders: at_risk_count 2 → "At risk".
 const atRiskCard = tp.locator('[data-testid="stat-card"]:has(.aurora-statcard-label:text-is("At risk"))');
 if ((await atRiskCard.count()) !== 1) { console.error("FAIL: cohort tab missing the 'At risk' KPI card"); process.exit(1); }
