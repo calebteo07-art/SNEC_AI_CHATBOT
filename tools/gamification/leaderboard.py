@@ -7,11 +7,18 @@ passes `week_start` and only a profile's `xp_week` counts, and only while its st
 `xp_week_start` still matches — a stale/absent stamp reads as 0, so inactive students
 drop to the bottom without any reset job. Lifetime `xp` still rides along on each entry
 (`xp_total`) for the tier ring + level. Ties break stably by the resolved display name.
-An optional role filter ranks within that role. This module does no I/O: the router
-feeds it the profile rows + a name map and gets back ready rows.
+An optional role filter ranks within that role. An optional `division` (the promotion
+league, see `tools/gamification/league.py`) further scopes ranking to one league board;
+`division=None` — true pre-migration, when no profile has the column — ranks everyone
+together exactly as before. Each entry also carries `student_id` (for the router to join
+back to its profile server-side; strip it before it reaches the API response) and
+`rank_delta` (places gained since the last daily snapshot, via `league.rank_delta`).
+This module does no I/O: the router feeds it the profile rows + a name map and gets
+back ready rows.
 """
 from datetime import date
 
+from tools.gamification.league import rank_delta
 from tools.gamification.streak import resolve_streak
 
 
@@ -75,18 +82,27 @@ def rank_entries(
     role: str | None = None,
     today: date | None = None,
     week_start: date | None = None,
+    division: int | None = None,
 ) -> list[dict]:
     """Rank visible profiles by **weekly XP** (desc), ties stable by name. Excludes hidden
-    rows and (optionally) filters to a single role. Returns display-ready entry dicts.
+    rows, (optionally) filters to a single role, and (optionally) scopes to a single
+    `division` — the promotion league board. Returns display-ready entry dicts.
     `week_start` (the current Monday) scopes the ranking to XP earned this week; when it's
     None the board falls back to lifetime XP (pre-migration / pure path). Each entry's `xp`
     is the *weekly* score shown on the board, while `xp_total` carries lifetime XP for the
     tier ring and `level` is derived from lifetime XP. `streak_days` is healed from
-    checkin_history; the avatar renders client-side from `avatar_config`."""
+    checkin_history; the avatar renders client-side from `avatar_config`. `division=None`
+    ranks everyone together — the byte-for-byte pre-migration behaviour, since no profile
+    row has a `division` column until migration 016 lands. Each entry also carries
+    `student_id` (server-side join key for the router — two students can share a display
+    name, so callers must NOT match on `name`; strip `student_id` before it reaches the API
+    response) and `rank_delta` (places gained since the last daily snapshot; `None` when
+    there is no prior snapshot, so the UI shows a dash rather than a fake zero)."""
     rows = [
         p for p in profiles
         if not p.get("leaderboard_hidden")
         and (role is None or (p.get("role") or "") == role)
+        and (division is None or int(p.get("division") or 1) == int(division))
     ]
     ranked = sorted(
         rows,
@@ -106,5 +122,8 @@ def rank_entries(
             "streak_days": _entry_streak(p, today),
             "avatar_config": p.get("avatar_config"),
             "is_you": sid == viewer_id,
+            "student_id": sid,
+            "division": int(p.get("division") or 1),
+            "rank_delta": rank_delta(i + 1, p.get("rank_prev")),
         })
     return entries
