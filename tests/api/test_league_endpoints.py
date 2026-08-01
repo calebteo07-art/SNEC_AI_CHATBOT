@@ -224,3 +224,111 @@ def test_board_still_reports_viewer_state_and_roles():
     assert body["you_hidden"] is True
     assert set(body["roles"]) == {"OA", "OT", "PSA"}
     assert body["division"] == 3
+
+
+# ── The Monday result (show-once, server-side) ────────────────────────────────
+
+PREV = PREV_WEEK.isoformat()
+RESULT_ROW = {"student_id": "d3_ann", "week_start": PREV, "division": 2,
+              "xp_final": 7660, "rank_final": 2, "outcome": "promoted"}
+
+
+def league_result(*, row=RESULT_ROW, profile=None, sub="d3_ann"):
+    """GET the result with the clock PINNED to WEEK, so the closed week is always PREV_WEEK.
+
+    Pinning is not decoration: the handler derives the week from app_week_start(), so a test
+    that let the real clock run would silently start comparing a hard-coded date against a
+    week that has moved on — and the show-once assertion would pass or fail by calendar luck.
+    Returns (response, get_league_week mock).
+    """
+    with patch("tools.shared.clock.app_week_start", return_value=WEEK), \
+         patch("tools.shared.db.get_league_week", new_callable=AsyncMock, return_value=row) as lw, \
+         patch("tools.shared.db.get_profile", new_callable=AsyncMock,
+               return_value=profile if profile is not None else {}):
+        r = client.get("/api/league/result", cookies=_cookies(sub))
+    return r, lw
+
+
+def test_unseen_result_is_returned_with_both_division_names():
+    """The ceremony's whole payload: what happened, where they were, where they land."""
+    r, lw = league_result()
+    assert r.status_code == 200
+    body = r.json()
+    assert body["week_start"] == PREV
+    assert body["outcome"] == "promoted"
+    assert body["rank_final"] == 2
+    assert body["xp_final"] == 7660
+    assert body["from_division_name"] == "Silver"   # raced division 2...
+    assert body["to_division_name"] == "Gold"       # ...promoted into 3
+    lw.assert_awaited_once_with("d3_ann", PREV)     # the CLOSED week, never the live one
+
+
+def test_a_held_result_names_the_same_division_twice():
+    """`to` advances only on a promotion — telling a held student they moved up would be a
+    lie the very next board read contradicts."""
+    body = league_result(row=RESULT_ROW | {"outcome": "held", "rank_final": 9})[0].json()
+    assert body["from_division_name"] == body["to_division_name"] == "Silver"
+
+
+def test_result_is_not_returned_twice():
+    """THE test in this block. The seen-flag lives on the profile, not in localStorage, so
+    the Monday ceremony fires exactly once per student — across every device they log in
+    from. A ceremony that re-fires on every load is a bug this app has shipped before."""
+    r, _ = league_result(profile={"league_result_seen_week": PREV})
+    assert r.status_code == 200
+    assert r.json() == {"result": None}
+
+
+def test_a_stale_seen_flag_does_not_suppress_the_next_week():
+    """The flag stores WHICH week was seen, not a boolean: seen-last-week must not swallow
+    this Monday's result, or a student sees exactly one ceremony ever."""
+    body = league_result(profile={"league_result_seen_week": "2026-07-20"})[0].json()
+    assert body["outcome"] == "promoted"
+
+
+def test_no_history_yet_is_a_null_result_not_a_500():
+    """A student who joined mid-week has no closed row — that is the normal case, not an
+    error, and it must not break the surface that asks."""
+    r, _ = league_result(row=None)
+    assert r.status_code == 200
+    assert r.json() == {"result": None}
+
+
+def test_a_missing_league_table_is_a_null_result_not_a_500():
+    """Pre-016 the table does not exist at all. main stays deployable at every commit, so
+    the ceremony endpoint has to stay quiet rather than 500 on every load."""
+    with patch("tools.shared.clock.app_week_start", return_value=WEEK), \
+         patch("tools.shared.db.get_league_week", new_callable=AsyncMock,
+               side_effect=RuntimeError('relation "league_week" does not exist')), \
+         patch("tools.shared.db.get_profile", new_callable=AsyncMock, return_value={}):
+        r = client.get("/api/league/result", cookies=_cookies())
+    assert r.status_code == 200
+    assert r.json() == {"result": None}
+
+
+def test_marking_seen_stores_the_week_server_side():
+    """The write that makes show-once survive a device switch."""
+    with patch("tools.shared.db.update_profile", new_callable=AsyncMock) as upd:
+        r = client.post("/api/league/result/seen", json={"week_start": PREV},
+                        cookies=_cookies("d3_ann"))
+    assert r.status_code == 200
+    upd.assert_awaited_once_with("d3_ann", league_result_seen_week=PREV)
+
+
+def test_marking_seen_ignores_a_student_id_in_the_body():
+    """Identity is the JWT sub, never the body. A body-trusting handler would let any
+    student burn someone else's ceremony — and let them replay their own forever by naming
+    an id that isn't theirs."""
+    with patch("tools.shared.db.update_profile", new_callable=AsyncMock) as upd:
+        r = client.post("/api/league/result/seen",
+                        json={"week_start": PREV, "student_id": "d3_bob"},
+                        cookies=_cookies("d3_ann"))
+    assert r.status_code == 200
+    upd.assert_awaited_once_with("d3_ann", league_result_seen_week=PREV)
+
+
+def test_result_endpoints_require_auth():
+    """No cookie, no result — and no DB call either (the guard fixture proves that)."""
+    assert client.get("/api/league/result").status_code in (401, 403)
+    assert client.post("/api/league/result/seen",
+                       json={"week_start": PREV}).status_code in (401, 403)
