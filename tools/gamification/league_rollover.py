@@ -9,6 +9,7 @@ from datetime import date
 
 from tools.gamification.league import close_week, split_pools
 from tools.shared import db
+from tools.shared.audit_log import log
 
 
 def _final_scores(profiles: list[dict], sealed: list[dict], week_start: date) -> dict[str, int]:
@@ -31,42 +32,60 @@ def _final_scores(profiles: list[dict], sealed: list[dict], week_start: date) ->
 
 async def run_rollover(profiles: list[dict], week_start: date) -> bool:
     """Close `week_start`. Returns True if this caller did the work, False if someone else
-    already holds the seal (or the tables aren't there yet). Safe to call on every read."""
-    if not await db.take_seal(f"week:{week_start.isoformat()}"):
+    already holds the seal (or the tables aren't there yet) — or if the work itself failed
+    after the seal was taken. Safe to call on every read.
+
+    A failure partway through (a transient Supabase blip, a table not yet migrated) releases
+    the seal instead of leaving it held: without that, the week would be permanently marked
+    closed with no outcomes ever written and no recovery short of manual SQL, since every
+    later caller's take_seal would keep hitting the same duplicate key."""
+    key = f"week:{week_start.isoformat()}"
+    if not await db.take_seal(key):
         return False
 
-    sealed = await db.get_league_week_all(week_start.isoformat())
-    scores = _final_scores(profiles, sealed, week_start)
+    try:
+        sealed = await db.get_league_week_all(week_start.isoformat())
+        scores = _final_scores(profiles, sealed, week_start)
 
-    # Hidden students are dropped here, before ranking — a hidden student must never
-    # occupy a promotion slot that a visible student can see going unused.
-    visible = [p for p in profiles if not p.get("leaderboard_hidden")]
+        # Hidden students are dropped here, before ranking — a hidden student must never
+        # occupy a promotion slot that a visible student can see going unused.
+        visible = [p for p in profiles if not p.get("leaderboard_hidden")]
 
-    by_division: dict[int, list[dict]] = {}
-    for p in visible:
-        sid = p.get("student_id")
-        if sid not in scores:
-            continue  # played no part in the closed week
-        by_division.setdefault(int(p.get("division") or 1), []).append(p)
+        by_division: dict[int, list[dict]] = {}
+        for p in visible:
+            sid = p.get("student_id")
+            if sid not in scores:
+                continue  # played no part in the closed week
+            by_division.setdefault(int(p.get("division") or 1), []).append(p)
 
-    all_rows: list[dict] = []
-    for division, members in by_division.items():
-        pools = split_pools([p["student_id"] for p in members], week_start)
-        for pool in pools:
-            standings = sorted(
-                ({"student_id": sid, "xp_final": scores.get(sid, 0)} for sid in pool),
-                key=lambda s: (-s["xp_final"], s["student_id"]),
-            )
-            all_rows.extend(close_week(standings, division))
+        all_rows: list[dict] = []
+        for division, members in by_division.items():
+            pools = split_pools([p["student_id"] for p in members], week_start)
+            for pool in pools:
+                standings = sorted(
+                    ({"student_id": sid, "xp_final": scores.get(sid, 0)} for sid in pool),
+                    key=lambda s: (-s["xp_final"], s["student_id"]),
+                )
+                all_rows.extend(close_week(standings, division))
 
-    persisted = [{k: v for k, v in r.items() if k != "next_division"}
-                 | {"week_start": week_start.isoformat()} for r in all_rows]
-    await db.upsert_league_week(persisted)
+        persisted = [{k: v for k, v in r.items() if k != "next_division"}
+                     | {"week_start": week_start.isoformat()} for r in all_rows]
+        await db.upsert_league_week(persisted)
 
-    for r in all_rows:
-        if r["outcome"] == "promoted":
-            try:
-                await db.update_profile(r["student_id"], division=r["next_division"])
-            except Exception:
-                continue  # one failed bump must not abandon the rest of the cohort
+        for r in all_rows:
+            if r["outcome"] == "promoted":
+                try:
+                    await db.update_profile(r["student_id"], division=r["next_division"])
+                except Exception:
+                    continue  # one failed bump must not abandon the rest of the cohort
+    except Exception as exc:
+        # Everything above ran with the seal held — release it so the next board read
+        # retries the whole rollover, rather than finding the week already "closed".
+        # This caller is a fire-and-forget BackgroundTask, so return False instead of
+        # raising (there is no one above us to usefully catch it) but still leave a
+        # trace, or a real outage looks identical to the ordinary lost-the-race case.
+        await db.release_seal(key)
+        log("league_rollover_error", feature="gamification", detail=str(exc))
+        return False
+
     return True
