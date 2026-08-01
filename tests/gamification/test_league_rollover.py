@@ -107,3 +107,50 @@ async def test_rollover_is_a_noop_when_another_worker_holds_the_seal(seal, upser
     from tools.gamification.league_rollover import run_rollover
     assert await run_rollover(PROFILES, LAST_WEEK) is False
     upsert.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_rollover_releases_the_seal_when_the_write_fails(seal, getall, upsert, release):
+    """A transient write failure must not leave the week permanently sealed-but-empty: the
+    seal has to come back off so the next board read retries the whole rollover instead of
+    finding the week already "closed" with no outcomes ever written."""
+    from tools.gamification.league_rollover import run_rollover
+    await run_rollover(PROFILES, LAST_WEEK)
+    release.assert_awaited_once_with(f"week:{LAST_WEEK.isoformat()}")
+
+
+@pytest.mark.asyncio
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.update_profile", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock)
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_rollover_success_does_not_release_the_seal(seal, getall, upsert, upd, release):
+    """A legitimately closed week must stay closed — releasing it on success would let a
+    second caller re-run the rollover and double-write (or double-promote) the cohort."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(PROFILES, LAST_WEEK)
+    assert did is True
+    release.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("tools.gamification.league_rollover.log")
+@patch("tools.shared.db.release_seal", new_callable=AsyncMock)
+@patch("tools.shared.db.upsert_league_week", new_callable=AsyncMock, side_effect=RuntimeError("boom"))
+@patch("tools.shared.db.get_league_week_all", new_callable=AsyncMock, return_value=SEALED)
+@patch("tools.shared.db.take_seal", new_callable=AsyncMock, return_value=True)
+async def test_rollover_failure_returns_false_and_is_logged_not_raised(seal, getall, upsert, release, log):
+    """The caller is a fire-and-forget BackgroundTask with no way to usefully handle an
+    exception, so a failed rollover must resolve to False rather than raise. But it still
+    has to leave a trace — otherwise a real outage looks identical to the ordinary
+    'someone else already holds the seal' case, and nobody would ever notice the retries
+    are failing every time."""
+    from tools.gamification.league_rollover import run_rollover
+    did = await run_rollover(PROFILES, LAST_WEEK)
+    assert did is False
+    log.assert_called_once_with("league_rollover_error", feature="gamification", detail="boom")

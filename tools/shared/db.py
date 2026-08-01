@@ -118,6 +118,18 @@ async def take_seal(key: str) -> bool:
         return False
 
 
+async def release_seal(key: str) -> None:
+    """Give back a seal whose work failed, so the next caller retries it.
+
+    Without this a transient error during a rollover would leave the week marked closed
+    with no outcomes written and no path to recovery short of manual SQL."""
+    client = await _get_client()
+    try:
+        await client.table("league_seal").delete().eq("key", key).execute()
+    except Exception:
+        pass
+
+
 async def upsert_league_week(rows: list[dict]) -> None:
     """Persist closed-week rows. Idempotent on (student_id, week_start): replaying a
     rollover overwrites with identical values instead of duplicating history."""
