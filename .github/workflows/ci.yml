@@ -6,10 +6,14 @@ on:
   pull_request:
     branches: [main]
 
-# A newer push to the same ref cancels the in-flight run.
+# A newer push to the same ref cancels the in-flight run — but NEVER on main, where every
+# commit must get a completed gate. main auto-deploys to Render prod, and cancelling means a
+# commit lands with no verdict at all: on 2026-08-01 three consecutive main commits reported
+# "cancelled" (frontend job killed by the next push) while backend and supply-chain passed,
+# which reads as harmless on the dashboard and is indistinguishable from a real gate.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   backend:
