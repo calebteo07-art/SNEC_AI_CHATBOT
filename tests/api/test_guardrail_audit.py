@@ -1,4 +1,4 @@
-"""Durable audit trail for guardrail input-block events (reuses migration 014).
+"""Durable audit trail for guardrail events, both directions (reuses migration 014).
 
 When the input filter blocks a message (prompt injection / unsafe input) in the tutor
 chat, the OSCE action panel, or the OSCE patient chat, that abuse signal previously
@@ -6,6 +6,11 @@ survived only in the ephemeral .tmp/audit_log.jsonl (wiped every Render redeploy
 now also writes a durable audit_events row via best-effort db.insert_audit_event. The
 durable detail carries only the block reason — never the raw user query (which the local
 ephemeral log keeps for debugging).
+
+The OUTPUT direction is here too: a reply our own model emitted that the validator flagged
+as clinically suspect. That one kept the ephemeral-only treatment longest because
+/api/chat's SSE generator is sync and had nowhere to await, so its durable row is written
+from the response's background task once streaming finishes.
 """
 from unittest.mock import AsyncMock, patch
 
@@ -78,6 +83,54 @@ def test_case_action_input_block_audits():
     assert kw["action"] == "input_blocked"
     assert kw["actor"] == "stu_2"
     assert kw["feature"] == "guardrail_action"
+
+
+def test_tutor_chat_output_flag_audits():
+    """The OUTPUT half of the guardrail. An input block is the student doing something
+    suspect; an output flag is our own model emitting a clinically wrong number at a
+    student, which is the direction that can actually hurt someone — yet it was the half
+    with no durable record at all, only the ephemeral .tmp/audit_log.jsonl line.
+
+    Real validator against a real out-of-range value (85 mmHg IOP, ceiling 60), so this
+    fails if the numeric rules stop firing — not just if the audit wiring breaks. The write
+    cannot happen inside sse_stream(), which is a SYNC generator with nowhere to await, so
+    it rides the response's background task and lands after the stream is exhausted."""
+    def _fake_stream(*_a, **_kw):
+        yield "A normal IOP of 85 mmHg is expected."
+
+    with patch("tools.api.routers.chat.filter_input", new=AsyncMock(return_value={"safe": True, "reason": ""})), \
+         patch("tools.api.shared._student_context_block", new=AsyncMock(return_value="")), \
+         patch("tools.api.routers.chat.get_or_create_context_cache", return_value=None), \
+         patch("tools.api.routers.chat.stream_ask", new=_fake_stream), \
+         patch("tools.shared.db.insert_audit_event", new=AsyncMock()) as audit:
+        r = client.post("/api/chat",
+                        json={"messages": [{"role": "user", "content": "what is a normal IOP"}]},
+                        cookies=_cookie("stu_4"))
+    assert r.status_code == 200
+    audit.assert_awaited_once()
+    kw = audit.call_args.kwargs
+    assert kw["action"] == "output_flagged"
+    assert kw["actor"] == "stu_4"
+    assert kw["feature"] == "guardrail"
+    assert "suspect_IOP_mmHg" in kw["detail"]
+
+
+def test_tutor_chat_clean_output_writes_no_audit_row():
+    """The flag is for the exceptional case. A clean reply must leave no row, or the table
+    fills with noise on every tutor message and the real signals drown."""
+    def _fake_stream(*_a, **_kw):
+        yield "A normal IOP is between 10 and 21 mmHg."
+
+    with patch("tools.api.routers.chat.filter_input", new=AsyncMock(return_value={"safe": True, "reason": ""})), \
+         patch("tools.api.shared._student_context_block", new=AsyncMock(return_value="")), \
+         patch("tools.api.routers.chat.get_or_create_context_cache", return_value=None), \
+         patch("tools.api.routers.chat.stream_ask", new=_fake_stream), \
+         patch("tools.shared.db.insert_audit_event", new=AsyncMock()) as audit:
+        r = client.post("/api/chat",
+                        json={"messages": [{"role": "user", "content": "what is a normal IOP"}]},
+                        cookies=_cookie("stu_5"))
+    assert r.status_code == 200
+    audit.assert_not_awaited()
 
 
 def test_case_patient_chat_input_block_audits():
