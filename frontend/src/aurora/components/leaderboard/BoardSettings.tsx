@@ -7,13 +7,24 @@
    writes. On a named, supervisor-visible cohort board that is a real privacy gap, not a
    missing nicety — so it comes back regardless of the redesign.
 
-   A hidden student still sees their own board; they simply appear to no one and hold no
-   promotion slot (the server excludes them from the pool). The copy says so, because a
-   toggle whose consequences are invisible is one students won't trust. */
+   A hidden student appears to no one and holds no promotion slot (the server excludes them
+   from the pool). The copy says so, because a toggle whose consequences are invisible is one
+   students won't trust.
+
+   They keep sight of their own standing via `wouldBeRank`: `rank_entries` drops hidden rows
+   unconditionally — including from the hidden student's own board, which is what makes the
+   opt-out airtight — so there is no `is_you` row left to read a rank from. The server
+   computes the position separately (`you_would_be_rank`) and it is shown here, the one place
+   that can honour "you'll still see where you stand". */
 import { useEffect, useState } from "react";
 import { useSetLeaderboardPrefs } from "@/hooks/useLeaderboard";
 
-export function BoardSettings({ hidden, displayName }: { hidden: boolean; displayName: string | null }) {
+export function BoardSettings({ hidden, displayName, wouldBeRank }: {
+  hidden: boolean;
+  displayName: string | null;
+  /** The rank this student would hold if visible. Non-null only while hidden. */
+  wouldBeRank: number | null;
+}) {
   const prefs = useSetLeaderboardPrefs();
   const [name, setName] = useState(displayName ?? "");
 
@@ -31,9 +42,14 @@ export function BoardSettings({ hidden, displayName }: { hidden: boolean; displa
         <div className="bs-copy">
           <p className="bs-lbl" id="bs-hide-lbl">Hide me from the league</p>
           <p className="bs-hint">
-            You&apos;ll still see your own board. Others won&apos;t see you, and you won&apos;t hold a
+            You&apos;ll still see where you stand. Others won&apos;t see you, and you won&apos;t hold a
             promotion slot.
           </p>
+          {hidden && wouldBeRank !== null && (
+            <p className="bs-standing" data-testid="lb-would-be-rank">
+              You&apos;re hidden — you&apos;d be <strong>#{wouldBeRank}</strong> this week.
+            </p>
+          )}
         </div>
         <button
           type="button"

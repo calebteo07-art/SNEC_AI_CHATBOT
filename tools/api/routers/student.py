@@ -19,7 +19,7 @@ from tools.flashcards.static_cards import (
 )
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
-from tools.gamification.leaderboard import rank_entries
+from tools.gamification.leaderboard import rank_entries, would_be_rank_for
 from tools.gamification.league import division_name, promote_count
 from tools.gamification.league_rollover import run_rollover
 from tools.profile.get_profile import get_profile
@@ -619,6 +619,10 @@ class LbResponse(BaseModel):
     entries: list[LbEntry]
     you_hidden: bool
     display_name: str | None = None
+    # Where a hidden viewer would stand if they un-hid. Only ever set for the hidden
+    # viewer themselves — a visible student has a real rank on `entries`, and a second
+    # number would be a conflicting source of truth.
+    you_would_be_rank: int | None = None
     roles: list[str]
     division: int = 1
     division_name: str = "Bronze"
@@ -694,10 +698,19 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
                     snapshot[e["student_id"]] = e["rank"]   # join by id: names collide
             background.add_task(db.set_rank_prev_bulk, snapshot, today.isoformat())
 
+    # A hidden viewer is off the ladder for everyone including themselves, so tell them
+    # where they *would* stand — otherwise opting out means losing sight of your own
+    # progress, and the toggle becomes a trap. Suppressed when a role filter excludes
+    # them, because they would not appear on that board even un-hidden.
+    you_would_be_rank = None
+    if me.get("leaderboard_hidden") and (not role or (me.get("role") or "") == role):
+        you_would_be_rank = would_be_rank_for(entries, me, names, week_start)
+
     return LbResponse(
         entries=[LbEntry(**{k: v for k, v in e.items() if k != "student_id"}) for e in entries],
         you_hidden=bool(me.get("leaderboard_hidden")),
         display_name=(me.get("display_name") or None),
+        you_would_be_rank=you_would_be_rank,
         roles=roles,
         division=my_division or 1,
         division_name=division_name(my_division or 1),

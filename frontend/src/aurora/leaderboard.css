@@ -406,6 +406,10 @@
 }
 .bs-save:disabled { opacity: .4; cursor: default; }
 .bs-err { margin: 0; font-size: 12px; font-weight: 600; color: #FF9E9E; }
+/* A hidden student's standing — the only surface that carries it, since they hold no row on
+   the ladder. Gold because it is their own result, not a warning. */
+.bs-standing { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--gold); }
+.bs-standing strong { font-weight: 900; }
 
 /* ── the Monday ceremony ──────────────────────────────────────────────────────
    Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens —
