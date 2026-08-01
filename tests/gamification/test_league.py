@@ -34,3 +34,38 @@ def test_promote_count_always_leaves_someone_behind():
     """If everyone promotes the line means nothing — the whole mechanic dies."""
     for pool in range(2, 41):
         assert promote_count(pool) < pool
+
+
+from tools.gamification.league import close_week
+
+
+def _standings(*pairs):
+    """Ranked rows as close_week takes them: already ordered, hidden already dropped."""
+    return [{"student_id": sid, "xp_final": xp} for sid, xp in pairs]
+
+
+def test_close_week_promotes_the_top_slice():
+    rows = close_week(_standings(("a", 900), ("b", 800), ("c", 700), ("d", 600),
+                                 ("e", 500), ("f", 400)), division=2)
+    assert [r["rank_final"] for r in rows] == [1, 2, 3, 4, 5, 6]
+    assert [r["outcome"] for r in rows] == [
+        "promoted", "promoted", "promoted", "held", "held", "held"]
+    assert [r["next_division"] for r in rows] == [3, 3, 3, 2, 2, 2]
+    assert rows[0]["division"] == 2      # the division they played in, not the new one
+    assert rows[0]["xp_final"] == 900
+
+
+def test_close_week_top_division_places_instead_of_promoting():
+    rows = close_week(_standings(("a", 900), ("b", 800), ("c", 700), ("d", 600)),
+                      division=5)
+    assert [r["outcome"] for r in rows] == ["placed", "placed", "placed", "held"]
+    assert all(r["next_division"] == 5 for r in rows)  # nobody leaves Diamond
+
+
+def test_close_week_empty_pool_is_no_rows_not_a_crash():
+    assert close_week([], division=1) == []
+
+
+def test_close_week_missing_xp_reads_zero():
+    rows = close_week([{"student_id": "a"}], division=1)
+    assert rows[0]["xp_final"] == 0
