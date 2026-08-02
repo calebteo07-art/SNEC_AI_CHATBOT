@@ -313,3 +313,25 @@ POSTs; `leaderboard_privacy_assert.mjs` proves the states after the flip (standi
 failed save reported, hidden survives a reload, 44px touch targets). The reachability
 assertion was verified to fail against the pre-fix build by reverting and rebuilding, not by
 inspection.
+
+### Amendment C — the visibility panel was removed (2026-08-02)
+
+**Retires §6.4 and Amendment B as shipping requirements.** User instruction: remove the
+visibility card from the leaderboard page entirely. Done — `BoardSettings.tsx`,
+`useSetLeaderboardPrefs`, the `.bs*` styles and `leaderboard_privacy_assert.mjs` are deleted.
+
+**What this means, recorded so it is not rediscovered as a bug.** Problem 8 of §2 ("the privacy
+opt-out is unreachable") is now the intended state rather than a defect: the board is
+everyone-by-default and there is no in-app way off it. A student flagged `leaderboard_hidden`
+in the database stays hidden, sees a ladder with no row of their own, and gets no explanation —
+`you_would_be_rank` is still computed and still sent, and nothing renders it.
+
+**The server was deliberately left whole.** `POST /api/leaderboard/prefs`,
+`leaderboard.would_be_rank`, the unconditional hidden-row filter and
+`tests/api/test_leaderboard_prefs.py` all stay. Hiding must keep working for anyone already
+hidden regardless of whether a control exists to unset it, and a future restoration should be a
+UI job. Amendment B's *reasoning* — why the filter has no exceptions, why the viewer is never
+inserted into their own ladder — still governs the code that remains.
+
+**Not bumped**: `PERSIST_SCHEMA_VERSION` stays "10". The GET payload shape is unchanged; only
+its consumer went away.

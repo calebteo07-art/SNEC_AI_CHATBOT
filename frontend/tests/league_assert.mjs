@@ -241,7 +241,7 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   await ctx.close();
 }
 
-/* ── 3) interactions: peek sheet, sticky you-bar, privacy toggle ─────────────────────── */
+/* ── 3) interactions: peek sheet, sticky you-bar ─────────────────────────────────────── */
 {
   const ctx = await boardCtx(b, VIEWPORTS[1]);
   const p = await openBoard(ctx);
@@ -261,18 +261,13 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   if (await p.locator('[data-testid="youbar"]').count() !== 1) bad("the sticky you-bar is missing while your row is off-screen");
   else ok("the sticky you-bar appears while your row is off-screen");
 
-  // The privacy opt-out — unreachable on the board this replaces.
-  const posts = [];
-  p.on("request", (r) => { if (r.method() === "POST" && r.url().includes("/api/leaderboard/prefs")) posts.push(r.postData()); });
-  const sw = p.locator('[data-testid="lb-hide-switch"]');
-  if (await sw.count() !== 1) bad("the hide-me switch is not on the board (the privacy opt-out is still unreachable)");
-  else {
-    await sw.click();
-    await p.waitForTimeout(400);
-    if (!posts.length) bad("the hide-me switch did not POST /api/leaderboard/prefs");
-    else if (!/"hidden":true/.test(posts[0])) bad(`the hide-me switch POSTed ${posts[0]}, expected {"hidden":true}`);
-    else ok("the hide-me switch reaches POST /api/leaderboard/prefs");
-  }
+  /* The board carries NO visibility panel (removed 2026-08-02 by request). Asserted as an
+     absence rather than dropped silently: the panel has now been added and removed twice, and
+     a stray re-import is the cheapest way for it to come back unnoticed. If it is ever meant
+     to return, delete this check in the same commit that restores it. */
+  if (await p.locator('[data-testid="lb-hide-switch"], .bs').count() !== 0) {
+    bad("a visibility panel is rendering on the board — it was removed on request");
+  } else ok("no visibility panel on the board");
   await ctx.close();
 }
 

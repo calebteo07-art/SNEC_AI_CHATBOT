@@ -777,11 +777,10 @@ const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="eyecon-logo"]
 if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
 console.log("PASS: Home greeting — always the DEFAULT living mascot, even when customized");
 
-// Leaderboard — vibrant & seamless (supersedes "The Climb"): podium (top 3) + one
-// color-graded ranked list + a personal chase hook. Everyone-by-default: the show/hide-self
-// switch and nickname field were deliberately dropped with the BoardSettings strip (214ab7f),
-// so there is no opt-out UI left to verify. The GET mock honours ?role= so the filter stays a
-// real behavioral verify.
+// Leaderboard — "The League" (supersedes "vibrant & seamless"): the Beam podium (top 3) + the
+// ranked league list + a personal chase hook. Everyone-by-default: the hide-self switch and
+// nickname field were removed on request (2026-08-02), so there is no opt-out UI left to
+// verify here. The GET mock honours ?role= so the filter stays a real behavioral verify.
 // `xp` is now the WEEKLY score (ranking key); `xp_total` is lifetime XP (tier ring).
 // `avatar_config` must carry REAL customization to exercise the config-driven Eyecon: since
 // 15c853b a config whose look axes are all default renders the iris.png mascot, and
@@ -836,12 +835,8 @@ const lbReset = np.locator('[data-testid="lb-reset"]');
 if ((await lbReset.count()) !== 1 || !/closes in/i.test(await lbReset.innerText())) {
   console.error("FAIL: leaderboard week-close countdown ([data-testid=lb-reset]) missing"); process.exit(1);
 }
-// The privacy opt-out must be reachable — it was exported and imported by nothing for weeks.
-if ((await np.locator('[data-testid="lb-hide-switch"]').count()) !== 1) {
-  console.error("FAIL: the leaderboard hide-me switch is missing (privacy opt-out unreachable)"); process.exit(1);
-}
 if ((await np.locator('[data-testid="edit-selena"]').count()) !== 0) { console.error("FAIL: a legacy Edit-Eyecon control still exists on the leaderboard"); process.exit(1); }
-console.log("PASS: Leaderboard — Beam, league list, chase stat, you-row highlight, composited Eyecon (portrait_url ignored), privacy switch reachable");
+console.log("PASS: Leaderboard — Beam, league list, chase stat, you-row highlight, composited Eyecon (portrait_url ignored)");
 
 // role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();

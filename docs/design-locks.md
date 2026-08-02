@@ -913,8 +913,8 @@ demote, because the cohort is named and supervisor-visible — with a **"Beam" p
 
 **The stage.** Black (`--stage #07070A`), lit by exactly ONE source: a clipped, blurred gold
 shaft (`.bm-ray`) onto the champion plus a floor pool (`.bm-pool`). Top→bottom: division ladder
-+ SGT countdown · the chase · the Beam · role filter · the league list with the promotion line ·
-the privacy controls. Backend: migration 016 + `tools/gamification/league.py`.
++ SGT countdown · the chase · the Beam · role filter · the league list with the promotion line.
+Backend: migration 016 + `tools/gamification/league.py`.
 
 **The three rules. Name which one you are changing before refining:**
 1. **ONE LIGHT SOURCE.** Only `.bm-ray`/`.bm-pool` emit. Everything else is lit or dark.
@@ -935,22 +935,25 @@ regression, not a restyle:
 - **The promotion line** is drawn only on the **unfiltered** board — `promote_count` describes
   the whole division, so a role-filtered line points at the wrong student.
 - **"No snapshot" ≠ "no change".** A student with no prior daily snapshot gets `·`, never `—`.
-- **The privacy opt-out is reachable** (`[data-testid="lb-hide-switch"]`).
-- **A hidden student is told where they stand** (refine 2026-08-01). Hiding drops the row for
-  *everyone including the student themselves* — `rank_entries` filters `leaderboard_hidden`
-  with no exceptions, and that lack of exceptions is what makes the opt-out provable — so
-  there is no `is_you` row left to read a rank from, and this panel's own promise ("you'll
-  still see where you stand") was false as written. The server now sends `you_would_be_rank`
-  and `BoardSettings` renders it (`[data-testid="lb-would-be-rank"]`). Computed by
-  `leaderboard.would_be_rank` against the *visible* ladder with the identical
-  `(-xp, name.lower())` key, so the number equals the rank they would get by un-hiding, and
-  **nobody else's rank moves** — a hidden student is never inserted into any ladder.
-  **When refining**: the opt-out must stay reachable *and* keep the student's own standing
-  visible; a failed save must say so rather than silently snapping the switch back. Guarded
-  by `frontend/tests/leaderboard_privacy_assert.mjs` (the after-the-flip states — standing,
-  failed save, reload, touch targets) on top of `league_assert.mjs` (reachability + POST),
-  and `tests/api/test_leaderboard_prefs.py` (a hidden student is absent from every other
-  viewer's board).
+- **NO visibility panel — removed on request 2026-08-02.** The "Your visibility" card (hide-me
+  switch + display-name field, `BoardSettings.tsx`) is gone from the board, and with it the
+  only client for `POST /api/leaderboard/prefs`. `useSetLeaderboardPrefs` was deleted rather
+  than left exported-and-unimported, because *that* shape is what hid the 214ab7f regression
+  for weeks — a dead hook makes a missing feature look present.
+  **What this costs, stated plainly:** the board is now everyone-by-default with **no in-app
+  opt-out** on a named, supervisor-visible cohort. A student already flagged
+  `leaderboard_hidden` in the database stays hidden and now sees a ladder with no row of their
+  own and no explanation — `you_would_be_rank` still arrives in the payload and nothing renders
+  it. **Backend deliberately untouched**: the endpoint, `leaderboard.would_be_rank`,
+  `tests/api/test_leaderboard_prefs.py` and the hidden-student filter all still work, so
+  restoring the control is a UI job, not a re-implementation.
+  **When refining**: `league_assert.mjs` asserts the panel's ABSENCE. If it is ever meant to
+  return, delete that check in the same commit that restores it — and restore the
+  after-the-flip guarantees too (own standing stays visible, a failed save says so), which
+  lived in the now-deleted `leaderboard_privacy_assert.mjs`.
+- **NEVER relax the unconditional `leaderboard_hidden` filter.** `rank_entries` drops hidden
+  rows for *everyone including the student themselves*, and that lack of exceptions is what
+  makes the opt-out provable.
 - **Two type families** (Bricolage display + `--font-body`), tabular numerals on every number.
   Bungee/`--font-arcade` is gone — an arcade face was the loudest reason it read like a
   placeholder.
@@ -962,7 +965,9 @@ regression, not a restyle:
   (`student_profiles.league_result_seen_week`), mounted from `AppShell` on an **allowlist**
   (`/homepage`, `/leaderboard`) so it can never interrupt a timed station or deck.
 
-**Deleted**: `Podium.tsx`, `LeaderboardHeader.tsx`, `LeaderboardRow.tsx`, `crests.tsx`,
+**Deleted**: `BoardSettings.tsx` + `leaderboard_privacy_assert.mjs` + `useSetLeaderboardPrefs`
+(the visibility panel, removed on request — see the bullet above), `Podium.tsx`,
+`LeaderboardHeader.tsx`, `LeaderboardRow.tsx`, `crests.tsx`,
 `leaderboard/tiers.ts` (lifetime XP tiers/rings — division carries prestige now; `splitPodium`
 moved into `league.ts`), `leaderboard_logic.mjs`, `leaderboard_mobile_assert.mjs` (every one of
 its assertions was registered to the deleted art; `league_assert.mjs` covers the same device

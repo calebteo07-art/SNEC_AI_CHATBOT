@@ -370,47 +370,6 @@
 }
 .sheet-close:hover { border-color: rgba(245, 197, 66, .4); }
 
-/* ── privacy controls (restored — the hook existed, nothing imported it) ──── */
-.bs {
-  margin-top: 14px; border: 1px solid var(--hair); border-radius: var(--rr); background: var(--stage-2);
-  padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 14px;
-}
-.bs-h { margin: 0; font-family: var(--disp); font-weight: 700; font-size: 14px; color: var(--ink-2); }
-.bs-row { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
-.bs-copy { flex: 1 1 200px; min-width: 0; }
-.bs-lbl { margin: 0; font-weight: 700; font-size: 13.5px; color: var(--ink); display: block; }
-.bs-hint { margin: 3px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--ink-3); }
-.bs-switch {
-  flex: 0 0 auto; width: 52px; height: 30px; border-radius: 999px; border: 1px solid var(--hair);
-  padding: 3px; background: var(--stage-3); cursor: pointer; transition: background .18s ease;
-}
-.bs-switch[data-on="true"] { background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-color: transparent; }
-.bs-switch:disabled { opacity: .55; cursor: default; }
-.bs-knob {
-  display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .5); transition: transform .2s cubic-bezier(.2, .9, .3, 1.3);
-}
-.bs-switch[data-on="true"] .bs-knob { transform: translateX(22px); background: #2A1B00; }
-.bs-field { display: flex; gap: 8px; flex: 1 1 220px; }
-.bs-input {
-  flex: 1; min-width: 0; min-height: 42px; border-radius: 10px; padding: 8px 12px;
-  border: 1px solid var(--hair); background: var(--stage-3); color: var(--ink);
-  font-family: inherit; font-size: 13.5px;
-}
-.bs-input::placeholder { color: rgba(245, 243, 239, .34); }
-.bs-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
-.bs-save {
-  flex: 0 0 auto; min-height: 42px; padding: 8px 16px; border-radius: 10px; border: none; cursor: pointer;
-  background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: #2A1B00;
-  font-family: inherit; font-weight: 700; font-size: 13.5px;
-}
-.bs-save:disabled { opacity: .4; cursor: default; }
-.bs-err { margin: 0; font-size: 12px; font-weight: 600; color: #FF9E9E; }
-/* A hidden student's standing — the only surface that carries it, since they hold no row on
-   the ladder. Gold because it is their own result, not a warning. */
-.bs-standing { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--gold); }
-.bs-standing strong { font-weight: 900; }
-
 /* ── the Monday ceremony ──────────────────────────────────────────────────────
    Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens —
    it declares its own. Same stage language: black, one beam, gold. */
@@ -500,10 +459,6 @@
 /* Touch: every control in the board clears 44px. */
 @media (pointer: coarse) {
   .lb-chip { min-height: 44px; }
-  .bs-switch { width: 64px; height: 44px; padding: 5px; }
-  .bs-knob { width: 32px; height: 32px; }
-  .bs-switch[data-on="true"] .bs-knob { transform: translateX(20px); }
-  .bs-input, .bs-save { min-height: 44px; }
   .sheet-close { min-height: 48px; }
 }
 
@@ -513,7 +468,7 @@
   .lr, .lr-ray, .lr-card {
     animation: none !important;
   }
-  .lg-row, .lb-chip, .bs-switch, .bs-knob { transition: none !important; }
+  .lg-row, .lb-chip { transition: none !important; }
 }
 html[data-motion="reduce"] .lr,
 html[data-motion="reduce"] .lr-ray,
@@ -527,6 +482,4 @@ html[data-motion="reduce"] .youbar,
 html[data-motion="reduce"] .sheet-scrim,
 html[data-motion="reduce"] .sheet { animation: none !important; }
 html[data-motion="reduce"] .lg-row,
-html[data-motion="reduce"] .lb-chip,
-html[data-motion="reduce"] .bs-switch,
-html[data-motion="reduce"] .bs-knob { transition: none !important; }
+html[data-motion="reduce"] .lb-chip { transition: none !important; }
