@@ -11,7 +11,12 @@
      silently disappearing. */
 
 export function Sparkline({ values, height = 82 }: { values: (number | null)[]; height?: number }) {
-  const W = 240;
+  /* 600, not 240. The svg stretches to fill the hero's right column (~500px) under
+     preserveAspectRatio="none", so a narrow viewBox scales x by ~2.1 and turns every
+     marker circle into a lozenge. At 600 the scale is ~0.83 and markers stay round. */
+  const W = 600;
+  const PAD = 7; // Keeps the first and last marker off the viewBox edge — an end dot at
+                 // x = W is clipped in half and reads as an arrowhead, not a reading.
   const n = values.length;
   if (n === 0) return null;
 
@@ -21,7 +26,7 @@ export function Sparkline({ values, height = 82 }: { values: (number | null)[]; 
   const lo = Math.min(...nums);
   const hi = Math.max(...nums);
   const span = hi - lo || 1;
-  const x = (i: number) => (n === 1 ? W / 2 : (i / (n - 1)) * W);
+  const x = (i: number) => (n === 1 ? W / 2 : PAD + (i / (n - 1)) * (W - PAD * 2));
   const y = (v: number) => height - 8 - ((v - lo) / span) * (height - 22);
 
   // Split into contiguous runs so nulls become gaps, not zeros.

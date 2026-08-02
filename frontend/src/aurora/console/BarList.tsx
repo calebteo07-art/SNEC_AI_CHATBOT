@@ -40,7 +40,15 @@ export function BarList({ rows, max }: { rows: CsBarRow[]; max?: number }) {
               }}
             />
           </span>
-          <span className="cs-num" style={{ width: 44, textAlign: "right", fontWeight: 700, color: RAMP[r.hue][0] }}>
+          {/* Wide enough for a readout that carries its denominator ("68 (14)") — at 44px
+              those wrapped onto a second line and broke the row rhythm. */}
+          <span
+            className="cs-num"
+            style={{
+              width: 64, flex: "none", textAlign: "right", fontWeight: 700,
+              whiteSpace: "nowrap", color: RAMP[r.hue][0],
+            }}
+          >
             {r.readout}
           </span>
         </div>
