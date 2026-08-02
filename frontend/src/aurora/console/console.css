@@ -1,0 +1,211 @@
+/* EyeBot Console — "Aurora Command, light". Scoped under .cs so it re-themes the
+   surface without touching the student app (the .aurora-chat pattern, inverted: this
+   one goes LIGHT). Replaces the .aurora-admin dark scope.
+
+   Hue encodes DOMAIN, never decoration:
+     blue = population · coral = risk · teal = pass/safe · purple = topics · amber = warning
+   A hue is never chosen for variety. Panels and stat cards take theirs through
+   --cs-h / --cs-h2, set by Panel.tsx.
+
+   Fonts are pinned explicitly — an undefined --font-* var silently falls back to Times.
+
+   Spec: docs/superpowers/specs/2026-08-02-admin-console-redesign-design.md §5. */
+.cs {
+  --cs-blue:   #2F6FE4;
+  --cs-purple: #8154BE;
+  --cs-coral:  #CE4655;
+  --cs-teal:   #0C8F84;
+  --cs-amber:  #BE710A;
+
+  --cs-ink:    #131628;
+  --cs-ink-2:  #4C5468;
+  --cs-ink-3:  #767E94;
+  --cs-hair:   rgba(19, 22, 40, 0.09);
+  --cs-hair-2: rgba(19, 22, 40, 0.15);
+  --cs-surface: #FFFFFF;
+
+  /* The ONE full-gradient fill on the console. Stops are DARKENED Gemini hues so white
+     text clears AA on every one: 7.2:1 / 7.2:1 / 6.2:1. Do not lighten them — the
+     earlier grey-on-tint hero was rejected for camouflaging its own labels. */
+  --cs-hero:   linear-gradient(118deg, #1A4FBE 0%, #6B4499 50%, #A83C47 100%);
+  --cs-accent: linear-gradient(112deg, #2F6FE4, #8154BE);
+
+  --font-sans: var(--font-sans-src), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-src), ui-monospace, "SF Mono", Menlo, monospace;
+
+  color: var(--cs-ink);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  background:
+    radial-gradient(720px 330px at 4% -14%, rgba(66, 133, 244, 0.30), transparent 60%),
+    radial-gradient(680px 320px at 99% -8%, rgba(155, 114, 203, 0.28), transparent 58%),
+    radial-gradient(700px 400px at 55% 112%, rgba(217, 101, 112, 0.20), transparent 62%),
+    #EDF1FA;
+}
+
+.cs-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ── shell ───────────────────────────────────────────────────── */
+.cs-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+
+.cs-top {
+  display: flex; align-items: center; gap: 13px; padding: 0 16px; height: 56px;
+  background: rgba(255, 255, 255, 0.80); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--cs-hair); position: sticky; top: 0; z-index: 20;
+}
+.cs-title { font-size: 14px; font-weight: 700; letter-spacing: -0.014em; white-space: nowrap; }
+.cs-title span { color: var(--cs-ink-3); font-weight: 500; }
+
+.cs-body { display: grid; grid-template-columns: 184px 1fr; flex: 1; min-height: 0; }
+
+.cs-nav {
+  padding: 14px 9px; display: flex; flex-direction: column; gap: 2px;
+  border-right: 1px solid var(--cs-hair); background: rgba(255, 255, 255, 0.50);
+}
+.cs-navlab {
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--cs-ink-3); font-weight: 700; padding: 8px 10px 5px;
+}
+.cs-navi {
+  display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 570;
+  color: var(--cs-ink-2); padding: 11px 10px; border-radius: 9px;
+  text-decoration: none; min-height: 44px; box-sizing: border-box; position: relative;
+}
+.cs-navi[data-active="true"] {
+  color: #fff; font-weight: 670; background: var(--cs-accent);
+  box-shadow: 0 3px 12px rgba(47, 111, 228, 0.34);
+}
+.cs-navdot { width: 7px; height: 7px; border-radius: 2.5px; flex: none; }
+.cs-navn {
+  margin-left: auto; font-size: 10px; font-weight: 760; color: #fff;
+  background: var(--cs-coral); border-radius: 999px; padding: 2px 7px;
+}
+
+.cs-main { padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* ── controls ────────────────────────────────────────────────── */
+.cs-seg { display: flex; background: rgba(19, 22, 40, 0.06); border-radius: 9px; padding: 3px; gap: 2px; }
+.cs-seg button {
+  font-size: 11.5px; font-weight: 640; padding: 8px 12px; border-radius: 6.5px;
+  color: var(--cs-ink-2); background: none; border: 0; min-height: 44px; white-space: nowrap;
+}
+.cs-seg button[data-active="true"] { background: var(--cs-accent); color: #fff; }
+
+.cs-live {
+  margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px;
+  color: var(--cs-teal); font-weight: 680; background: rgba(12, 143, 132, 0.11);
+  border-radius: 999px; padding: 5px 11px; white-space: nowrap;
+}
+.cs-livedot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--cs-teal);
+  box-shadow: 0 0 0 3.5px rgba(12, 143, 132, 0.20);
+}
+.cs-back {
+  font-size: 11px; font-weight: 660; color: #fff; background: var(--cs-accent);
+  border-radius: 8px; padding: 0 12px; text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+
+/* ── hero ────────────────────────────────────────────────────── */
+.cs-hero {
+  display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 18px;
+  align-items: end; border-radius: 15px; padding: 20px; position: relative;
+  overflow: hidden; background: var(--cs-hero);
+  box-shadow: 0 10px 30px -8px rgba(74, 54, 140, 0.50);
+}
+.cs-hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(560px 200px at 88% -30%, rgba(255, 255, 255, 0.26), transparent 66%);
+}
+.cs-hero > * { position: relative; z-index: 1; min-width: 0; }
+
+.cs-eyebrow {
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700;
+  color: var(--cs-ink-3);
+}
+.cs-hero .cs-eyebrow { color: rgba(255, 255, 255, 0.84); }
+.cs-hero-val {
+  font-size: clamp(44px, 7vw, 64px); font-weight: 250; letter-spacing: -0.05em;
+  line-height: 0.86; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.22);
+}
+.cs-hpills { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.cs-hpill {
+  font-size: 10.5px; font-weight: 640; color: #fff; background: rgba(255, 255, 255, 0.19);
+  border: 1px solid rgba(255, 255, 255, 0.26); border-radius: 999px; padding: 3px 9px;
+}
+.cs-hup {
+  font-size: 10.5px; font-weight: 760; color: #0A3F1E; background: #7BE8A8;
+  border-radius: 999px; padding: 3px 9px;
+}
+
+/* ── stat cards + panels (hue supplied via --cs-h / --cs-h2) ──── */
+.cs-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.cs-stat, .cs-panel {
+  border-radius: 12px; overflow: hidden; min-width: 0;
+  border: 1px solid var(--cs-h-edge, var(--cs-hair-2)); background: var(--cs-surface);
+}
+.cs-band {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #fff;
+  background: linear-gradient(100deg, var(--cs-h), var(--cs-h2, var(--cs-h)));
+  font-size: 10px; font-weight: 740; letter-spacing: 0.11em; text-transform: uppercase;
+}
+.cs-panel .cs-band { font-size: 12px; letter-spacing: -0.008em; text-transform: none; }
+.cs-tag {
+  margin-left: auto; font-size: 9px; font-weight: 760; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.cs-cbody { padding: 11px 13px 12px; }
+.cs-statv { font-size: 26px; font-weight: 400; letter-spacing: -0.032em; line-height: 1; color: var(--cs-h); }
+.cs-statd { font-size: 10px; font-weight: 660; margin-top: 6px; color: var(--cs-ink-3); }
+.cs-note { font-size: 11px; color: var(--cs-ink-3); line-height: 1.45; margin: 0 0 8px; }
+.cs-two { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 11px; }
+
+/* Marker for any figure the discipline segment cannot re-scope. Only
+   cohort-analytics and performance-trend accept the parameter; everything else is
+   cohort-wide and says so on its face rather than silently ignoring the control. */
+.cs-allmark {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.86); border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px; padding: 2px 7px; white-space: nowrap;
+}
+
+/* ── motion: entrance only, frozen on request ────────────────── */
+@keyframes cs-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.cs-rise { animation: cs-rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+html[data-motion="reduce"] .cs-rise { animation: none; }
+@media (prefers-reduced-motion: reduce) { .cs-rise { animation: none; } }
+
+/* ── coarse pointer: bottom nav, stacked cards ────────────────
+   Gated on POINTER, never width — a 15 Pro Max is 932px in landscape. */
+@media (pointer: coarse) {
+  /* The top bar's four items are all nowrap and total ~514px — 124px over a 390
+     viewport. Wrap it: title · live · back on row one, the discipline segment full
+     width on row two. Shedding a control instead would hide the one thing the console
+     is scoped by. */
+  .cs-top { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+  .cs-seg { order: 3; width: 100%; }
+  .cs-seg button { flex: 1; padding: 8px 4px; }
+  .cs-live { font-size: 10px; padding: 4px 9px; }
+  .cs-back { font-size: 10px; padding: 0 10px; }
+
+  .cs-body { grid-template-columns: 1fr; }
+  .cs-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    flex-direction: row; justify-content: space-around; border-right: 0;
+    border-top: 1px solid var(--cs-hair-2); background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px); padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  }
+  .cs-navlab { display: none; }
+  .cs-navi {
+    flex-direction: column; gap: 3px; font-size: 10px; padding: 6px 8px; flex: 1;
+    justify-content: center; text-align: center;
+  }
+  .cs-navn { margin-left: 0; position: absolute; top: 2px; right: 10px; }
+  .cs-main { padding: 12px 12px 84px; }
+  .cs-main > *, .cs-strip > *, .cs-two > * { min-width: 0; }
+  .cs-hero { grid-template-columns: 1fr; }
+  .cs-hero-val { font-size: clamp(38px, 12vw, 52px); }
+  .cs-strip { grid-template-columns: repeat(2, 1fr); }
+  .cs-two { grid-template-columns: 1fr; }
+}
