@@ -1,9 +1,6 @@
-"""The leaderboard privacy opt-out — the consent contract, end to end.
+"""The leaderboard privacy opt-out — the server-side consent contract.
 
-The hide toggle was *deleted* from the board on 2026-07-14 (commit 214ab7f, a declutter
-sweep), leaving a live supervisor-visible board with no way off it until the Beam rebuild
-(`eb72a9a`) put the control back. These tests pin the server-side contract that control
-depends on, per the league spec §6.4/§7:
+These pin the API, per the league spec §6.4/§7:
 
   1. the toggle round-trips through POST /api/leaderboard/prefs,
   2. a hidden student is absent from *every other viewer's* board,
@@ -13,11 +10,17 @@ depends on, per the league spec §6.4/§7:
 (2) is the regression test proper: the board is supervisor-visible, so a leak here is
 a consent failure, not a cosmetic bug.
 
-Worth knowing before trusting this file: only (3) was ever red. The API was never broken
-— it was unreachable from the UI — so (1), (2) and (4) passed the moment they were
-written. They are guards against future regression, not proof that anything was fixed.
-The test that actually fails against the broken state is the browser harness,
-`frontend/tests/leaderboard_privacy_assert.mjs`.
+STATUS 2026-08-02: the UI for all of this was removed from /leaderboard by request, so
+nothing in the app currently POSTs to /prefs or renders `you_would_be_rank`. The endpoint
+and the hidden-row filter are deliberately left working — a student flagged
+`leaderboard_hidden` in the database must keep being hidden whether or not a control
+exists to unset it, and restoring the control should not mean rewriting the server. Keep
+these tests green; they are the contract, not the feature.
+
+Note these were never the tests that could catch the original 214ab7f regression: the API
+was never broken, only unreachable, so (1), (2) and (4) passed the moment they were
+written. Only a browser harness can prove reachability, and with the panel gone there is
+nothing left to prove — `league_assert.mjs` now asserts its absence instead.
 """
 from datetime import date
 from unittest.mock import AsyncMock, patch

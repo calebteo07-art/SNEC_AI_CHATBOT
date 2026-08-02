@@ -7,7 +7,13 @@
    cuts across the list: everything above it moves up on Monday, and nobody is ever demoted.
 
    Layout, top to bottom: division ladder + countdown → the chase → the Beam (top three) →
-   the ranked league with the promotion line → the privacy controls.
+   the ranked league with the promotion line.
+
+   There is NO visibility panel here (removed on request, 2026-08-02). The board is therefore
+   everyone-by-default with no in-app way out: POST /api/leaderboard/prefs still works and the
+   payload still carries `you_hidden`/`display_name`/`you_would_be_rank`, but nothing on this
+   page reads or writes them. A student already flagged `leaderboard_hidden` in the database
+   keeps that state — they just see a ladder with no row of their own and no explanation.
 
    Backend: GET /api/leaderboard (tools/api/routers/student.py). `pool_size`/`promote_count`
    describe the REAL division and ignore the role filter, which is why the promotion line is
@@ -24,7 +30,6 @@ import { ChaseStat } from "@/aurora/components/leaderboard/ChaseStat";
 import { LeagueRow, PromotionLine } from "@/aurora/components/leaderboard/LeagueRow";
 import { RowSheet } from "@/aurora/components/leaderboard/RowSheet";
 import { YouBar } from "@/aurora/components/leaderboard/YouBar";
-import { BoardSettings } from "@/aurora/components/leaderboard/BoardSettings";
 
 export function Leaderboard() {
   const [role, setRole] = useState<string | null>(null);
@@ -135,12 +140,6 @@ export function Leaderboard() {
               </li>
             )}
           </ol>
-
-          <BoardSettings
-            hidden={data?.you_hidden ?? false}
-            displayName={data?.display_name ?? null}
-            wouldBeRank={data?.you_would_be_rank ?? null}
-          />
         </>
       )}
 

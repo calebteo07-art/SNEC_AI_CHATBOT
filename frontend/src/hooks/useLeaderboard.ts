@@ -21,9 +21,13 @@ export interface LeaderboardEntry {
 }
 
 /** The league payload: the viewer's own division, ranked by XP earned this week, plus the
- *  promotion line it is racing for. `you_hidden` + `display_name` prime the privacy controls;
- *  `roles` seeds the filter tabs. `pool_size`/`promote_count` describe the REAL division and
- *  are deliberately unaffected by the `role` view filter — see the router note. */
+ *  promotion line it is racing for. `roles` seeds the filter tabs. `pool_size`/`promote_count`
+ *  describe the REAL division and are deliberately unaffected by the `role` view filter — see
+ *  the router note.
+ *
+ *  `you_hidden` / `display_name` / `you_would_be_rank` are still sent by the server but no
+ *  longer rendered anywhere: the visibility panel was removed on 2026-08-02. They stay typed
+ *  because they remain part of the live GET contract. */
 export interface LeaderboardData {
   entries: LeaderboardEntry[];
   you_hidden: boolean;
@@ -62,25 +66,11 @@ export function useLeaderboard(role?: string | null) {
   });
 }
 
-/** Update the caller's leaderboard preferences — hide/show themselves (D7 opt-out)
- *  and/or set an optional display name. On success we refresh every ["leaderboard", …]
- *  view so the change lands immediately. */
-export function useSetLeaderboardPrefs() {
-  const qc = useQueryClient();
-  return useMutation<unknown, Error, { hidden?: boolean; display_name?: string }>({
-    mutationFn: async (body) => {
-      const res = await fetch("/api/leaderboard/prefs", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error("Failed to update leaderboard preference");
-      return res.json();
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["leaderboard"] }),
-  });
-}
+/* NOTE: there is no `useSetLeaderboardPrefs` any more. The visibility panel was removed from
+   /leaderboard on 2026-08-02 by request, which left this mutation exported and imported by
+   nothing — exactly the shape that hid the last opt-out regression (214ab7f) for weeks. The
+   endpoint POST /api/leaderboard/prefs is untouched and still works; restoring the write path
+   means restoring a UI for it, not just re-adding a hook. */
 
 /** The viewer's outcome for the week that just closed — or nothing. */
 export interface LeagueResult {
