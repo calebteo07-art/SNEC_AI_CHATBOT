@@ -15,6 +15,7 @@
 @import './eyebot.css';
 @import './gemini-gradients.css';
 @import '../fx/fx.css';
+@import "../aurora/console/console.css";
 
 /* Host styles previously inlined in the Vite index.html */
 html, body { height: 100%; margin: 0; }

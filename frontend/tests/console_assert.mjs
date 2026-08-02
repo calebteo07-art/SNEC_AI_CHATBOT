@@ -37,6 +37,7 @@ async function boot(page, path, label) {
   const ctx = await seededContext(browser, BASE, admin, { width: 1440, height: 900 });
   const page = await ctx.newPage();
   if (await boot(page, "/admin", "desktop")) {
+  try {
 
   // 1. Full-bleed: the student rail must NOT be present.
   const railCount = await page.locator(".rail, .atlas-rail").count();
@@ -103,6 +104,7 @@ async function boot(page, path, label) {
     check(found > 0, `${href} did not render ${sel}`);
   }
 
+  } catch (e) { fails.push(`desktop: threw — ${String(e.message).split("\n")[0]}`); }
   }
   await ctx.close();
 }
@@ -115,6 +117,7 @@ async function boot(page, path, label) {
     { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
   const page = await ctx.newPage();
   if (await boot(page, "/admin", "phone-390")) {
+  try {
 
   // 7. No horizontal overflow at 390px.
   const overflow = await page.evaluate(() =>
@@ -134,6 +137,7 @@ async function boot(page, path, label) {
       .filter((x) => x.h > 0 && x.h < 44));
   check(small.length === 0, `tap targets under 44px: ${JSON.stringify(small)}`);
 
+  } catch (e) { fails.push(`phone-390: threw — ${String(e.message).split("\n")[0]}`); }
   }
   await ctx.close();
 }
