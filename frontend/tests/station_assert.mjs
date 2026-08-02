@@ -132,19 +132,39 @@ await p.waitForFunction(
 ).catch(() => die("briefing must advance itself without a click"));
 ok("briefing opens on the checklist beat and auto-advances");
 
+/* Wait for the new beat's spotlight to RESOLVE, not merely for the beat to flip.
+   StationBriefing clears `anchorEl` on every beat and re-resolves the target through
+   `waitForElement([beat.target], 4000)`. When that pane is already mounted the promise
+   settles in a microtask and the spot never blinks out — probing every frame on a warm
+   local server measured zero absent-windows, which is why this passed here indefinitely.
+   When the pane is NOT yet mounted (cold dynamic route, loaded runner) waitForElement
+   polls, `anchorEl` stays null for as long as that takes, `{spot && …}` renders nothing,
+   and the scrim falls back to `sbrief--center`. So `.sbrief-spot` can be legitimately
+   absent for up to 4s after the flip — CI landed in exactly that window and
+   `getComputedStyle(null)` took the whole sweep down with it. 8s clears waitForElement's
+   own 4s budget. Fails rather than skips if it still never arrives: a centred card IS the
+   component's designed degrade path, but this fixture always renders the anchor, so a
+   missing spotlight here is a real defect — and a skip would read as a pass. */
+await p.waitForSelector(".sbrief-spot", { timeout: 8000 })
+  .catch(() => die("the beat after checklist never resolved a spotlight anchor"));
+
 // The stage must actually be dark, and the spotlit pane must actually be lit. Both broke
 // once already: tour.css loads AFTER aurora.css, so an equal-specificity .sbrief-spot lost
 // to .tour-spot and reverted to the lighter tour dim; and a background on the scrim sits
 // over the spotlight HOLE, dimming the pane it is meant to ignite. Measured, not eyeballed.
+// Returns null rather than throwing if either node is missing: an uncaught TypeError here
+// kills `start-harness.sh all` outright, so every harness after this one silently never runs.
 const stage = await p.evaluate(() => {
   const spot = document.querySelector(".sbrief-spot");
   const scrim = document.querySelector(".sbrief");
+  if (!spot || !scrim) return null;
   const alpha = (s) => Number((/rgba?\([\d\s,.]*?([\d.]+)\)/.exec(s) || [])[1] ?? (/rgb\(/.test(s) ? 1 : 0));
   return {
     dim: alpha(getComputedStyle(spot).boxShadow),
     scrimBg: getComputedStyle(scrim).backgroundColor,
   };
 });
+if (!stage) die("the briefing stage vanished before it could be measured (.sbrief-spot/.sbrief missing)");
 if (!(stage.dim >= 0.75)) die(`the briefing stage must go dark (spot dim alpha ${stage.dim}, want >= 0.75)`);
 if (!/rgba\(0, 0, 0, 0\)|transparent/.test(stage.scrimBg)) {
   die(`an anchored briefing scrim must be transparent or it dims the spotlit pane, got "${stage.scrimBg}"`);
