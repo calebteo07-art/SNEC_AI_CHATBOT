@@ -49,6 +49,23 @@ async function boot(page, path, label) {
   const mains = await page.locator("main").count();
   check(mains === 1, `expected exactly 1 <main>, found ${mains}`);
 
+  // The shell paints before React Query resolves, so a figure read the instant
+  // .cs-shell appears is ALWAYS "…". Wait for the hero to settle rather than racing
+  // it — and report a stuck hero as its own failure, since "never left loading" and
+  // "rendered the wrong number" are different defects.
+  try {
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector("[data-testid=cs-hero-value]");
+        return !!el && el.textContent.trim() !== "…";
+      },
+      undefined,
+      { timeout: 15000 },
+    );
+  } catch {
+    fails.push("desktop: the hero never left its loading state");
+  }
+
   // 3. The hero renders a figure, never a bare 0 — and never an out-of-range one.
   // TrendPoint.avg_score already arrives 0-100; multiplying it by 100 renders "6800%",
   // which a mere "has digits" check waves straight through. Bound it.
@@ -100,8 +117,13 @@ async function boot(page, path, label) {
     ["/admin/audit", "[data-testid=admin-audit]"],
   ]) {
     await page.goto(`${BASE}${href}`, { waitUntil: "domcontentloaded" });
-    const found = await page.locator(sel).count();
-    check(found > 0, `${href} did not render ${sel}`);
+    // Each screen renders its testid only once its own read resolves, so wait rather
+    // than counting immediately.
+    try {
+      await page.waitForSelector(sel, { timeout: 10000 });
+    } catch {
+      fails.push(`${href} did not render ${sel}`);
+    }
   }
 
   } catch (e) { fails.push(`desktop: threw — ${String(e.message).split("\n")[0]}`); }
