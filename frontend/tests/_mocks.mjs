@@ -191,6 +191,23 @@ export async function mockApis(ctx, user) {
     mastery: MASTERY,
   })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
+  // Staff section: one activated trainer + one PENDING admin (account created, first
+  // login not yet made, so no profile and no student_id). The pending row is the one
+  // the roster must render un-clickable.
+  await ctx.route("**/api/admin/staff", (r) => r.fulfill(J({ staff: [
+    { student_id: "T001", full_name: "Coach Lim", email: "trainer@snec.com.sg", role: "trainer",
+      status: "active", session_count: 4, streak: 2, last_active: new Date().toISOString() },
+    { student_id: "", full_name: "", email: "pending.admin@snec.com.sg", role: "admin",
+      status: "pending", session_count: 0, streak: 0, last_active: "" },
+  ] })));
+  // Audit trail (migration 014). Two categories on purpose — auth and privilege — so the
+  // console's category filter has something to actually filter.
+  await ctx.route("**/api/admin/audit*", (r) => r.fulfill(J({ events: [
+    { audit_id: "a1", ts: new Date().toISOString(), actor: "admin@snec.com.sg", action: "login_success",
+      target: "admin@snec.com.sg", feature: "auth", detail: "ok", ip: "127.0.0.1" },
+    { audit_id: "a2", ts: new Date().toISOString(), actor: "admin@snec.com.sg", action: "promote",
+      target: "trainer@snec.com.sg", feature: "privilege", detail: "→ trainer", ip: "127.0.0.1" },
+  ] })));
   await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [
     { type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 },
     { type: "case", student_id: "S001", name: "Test Student", detail: "Completed Glaucoma station", timestamp: new Date().toISOString(), case_id: "C001", total_score: 31, passed: true, score_100: 78, safe: true, missed_critical: [] },
