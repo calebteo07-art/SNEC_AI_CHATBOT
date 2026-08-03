@@ -52,6 +52,17 @@ def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
         f"medical diagnosis) and 'management' as ESCALATION & CARE (escalating/referring to the right person, clear "
         f"documentation/handover, and correct within-scope patient advice and safety-netting). Do NOT reward — and "
         f"lightly penalise — medical diagnosis or prescribing, which are outside their role.\n"
+        # Branda (2026-08-03): the generic anchors read as a wish-list, so students lost marks for
+        # items this encounter never called for. The case already holds the answer —
+        # `rubric.<domain>.key_points` and `management` are in the Case Context above — so say
+        # they are the standard. Pinned by tests/cases/test_rubric_applicability.py.
+        f"Grade against THIS case. The Case Context above carries this case's own "
+        f"`rubric.<domain>.key_points` and its expected `management` plan; together they define "
+        f"what a complete performance looks like HERE. An item this scenario never called for is "
+        f"not an omission and must not cost marks. In particular, where this case needs no "
+        f"escalation, a correct routine plan — \"routine, patient keeps their appointment time\", "
+        f"with the findings recorded for the doctor — earns full marks for management; never mark "
+        f"it down for the absence of an urgency this case never had.\n"
         f"Base scores ONLY on what appears in the student conversation above — do not infer actions not mentioned.\n"
         f"Return ONLY valid JSON:\n"
         f'{{"history": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
