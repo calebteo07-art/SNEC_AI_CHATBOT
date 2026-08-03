@@ -16,15 +16,23 @@
 export const METALS = ["bronze", "silver", "gold", "platinum", "diamond"] as const;
 export type Metal = (typeof METALS)[number];
 
-/** hi / mid / low stops. Picked so the ladder reads as five DIFFERENT materials at 34px on a
- *  phone: warm brown → neutral grey → warm yellow → cool violet-white → cyan. Silver and
- *  platinum are the pair most at risk of collapsing, so platinum is pushed cool and violet. */
+/** hi / mid / low stops, pitched for the LIGHT canvas (2026-08-03).
+ *
+ *  The previous set was tuned for a near-black stage, where a metal reads by its bright stop.
+ *  On white that inverts: #FFFFFF and #F2FDFF highlights simply vanish, which is why silver,
+ *  platinum and diamond collapsed into one another. Every hi stop is therefore pulled off
+ *  white, and the MID — the stop that carries the identity — is saturated enough to hold its
+ *  own against the canvas.
+ *
+ *  Five materials, five hues, checked as hues rather than luminances: warm brown → cool grey →
+ *  deep gold → indigo-violet → cyan. Silver and platinum remain the pair most at risk of
+ *  collapsing, so platinum is pushed hard into violet rather than merely "cooler". */
 const STOPS: Record<Metal, readonly [string, string, string]> = {
-  bronze: ["#F6C79B", "#C97B3F", "#6B3712"],
-  silver: ["#FFFFFF", "#C4CFDD", "#68737F"],
-  gold: ["#FFF0BE", "#F5C542", "#8A5E08"],
-  platinum: ["#FFFFFF", "#D6DAF2", "#767BA6"],
-  diamond: ["#F2FDFF", "#7EE8FA", "#1E6C8E"],
+  bronze: ["#F0C398", "#B4652C", "#5E3011"],
+  silver: ["#E3EAF3", "#8C9BAD", "#465061"],
+  gold: ["#FFDF8F", "#DFA326", "#7A5206"],
+  platinum: ["#D3D8F7", "#7C86C9", "#3E4478"],
+  diamond: ["#B4F0FB", "#2FB3D4", "#12586F"],
 };
 
 /** A shield crest. `flat` drops the bevel for the tiny in-row usage.
@@ -47,14 +55,18 @@ export function Crest({ metal, size = 26, dim = false }: { metal: Metal; size?: 
           <stop offset="1" stopColor={lo} />
         </linearGradient>
       </defs>
+      {/* Outlined in the DARK stop, not the light one. On the black stage a crest was defined
+          by a rim-light; on the light canvas that same pale stroke dissolves into the page and
+          the shield loses its silhouette. */}
       <path
         d="M14 1.4 26 5.4v10.9c0 7.6-5.4 12.6-12 14.3-6.6-1.7-12-6.7-12-14.3V5.4z"
-        fill={`url(#${gid})`} stroke={hi} strokeOpacity=".55" strokeWidth="1"
+        fill={`url(#${gid})`} stroke={lo} strokeOpacity=".5" strokeWidth="1"
         strokeLinejoin="round"
       />
-      {/* The bevel: one lit facet down the left, which is what makes a flat path read as metal. */}
-      <path d="M14 1.4 26 5.4v10.9c0 7.6-5.4 12.6-12 14.3z" fill="#000" fillOpacity=".17" />
-      <path d="M14 5.6 22.2 8.3v8c0 5.3-3.6 8.8-8.2 10.1z" fill={hi} fillOpacity=".16" />
+      {/* The bevel: one shaded facet down the right and one lit facet inside, which is what
+          makes a flat path read as metal. */}
+      <path d="M14 1.4 26 5.4v10.9c0 7.6-5.4 12.6-12 14.3z" fill="#000" fillOpacity=".15" />
+      <path d="M14 5.6 22.2 8.3v8c0 5.3-3.6 8.8-8.2 10.1z" fill={hi} fillOpacity=".22" />
     </svg>
   );
 }
@@ -84,9 +96,9 @@ export function Laurel() {
     <svg className="bm-laurel" viewBox="0 0 120 120" aria-hidden focusable="false">
       <defs>
         <linearGradient id="bm-laurel-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FFF0BE" />
-          <stop offset="0.6" stopColor="#F5C542" />
-          <stop offset="1" stopColor="#96690C" />
+          <stop offset="0" stopColor="#F7CE63" />
+          <stop offset="0.6" stopColor="#DFA326" />
+          <stop offset="1" stopColor="#7A5206" />
         </linearGradient>
       </defs>
       <g transform="translate(60 60)">
@@ -133,18 +145,21 @@ export function Crown() {
     <svg className="bm-crown" viewBox="0 0 64 40" aria-hidden focusable="false">
       <defs>
         <linearGradient id="bm-crown-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FFF6DA" />
-          <stop offset="0.55" stopColor="#F5C542" />
-          <stop offset="1" stopColor="#B07D12" />
+          <stop offset="0" stopColor="#FFE9A0" />
+          <stop offset="0.55" stopColor="#E8B02F" />
+          <stop offset="1" stopColor="#8A5E08" />
         </linearGradient>
       </defs>
+      {/* Outlined dark, and the jewels sit ON the gold rather than against the page — a pale
+          stroke that worked on the black stage is invisible on the light canvas. */}
       <path
         d="M6 34 L2 10 L18 20 L32 4 L46 20 L62 10 L58 34 Z"
-        fill="url(#bm-crown-g)" stroke="#FFF3CE" strokeWidth="1.2" strokeLinejoin="round"
+        fill="url(#bm-crown-g)" stroke="#7A5206" strokeOpacity=".55" strokeWidth="1.4"
+        strokeLinejoin="round"
       />
-      <circle cx="32" cy="4" r="3.2" fill="#FFF3CE" />
-      <circle cx="2" cy="10" r="2.4" fill="#FFF3CE" />
-      <circle cx="62" cy="10" r="2.4" fill="#FFF3CE" />
+      <circle cx="32" cy="4" r="3.2" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
+      <circle cx="2" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
+      <circle cx="62" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
     </svg>
   );
 }
@@ -166,8 +181,8 @@ export function Medal({ place }: { place: 2 | 3 }) {
           <stop offset="1" stopColor={lo} />
         </linearGradient>
       </defs>
-      <circle cx="17" cy="17" r="15" fill={`url(#${gid})`} stroke={hi} strokeOpacity=".7" strokeWidth="1.4" />
-      <circle cx="17" cy="17" r="11" fill="none" stroke={lo} strokeOpacity=".45" strokeWidth="1" />
+      <circle cx="17" cy="17" r="15" fill={`url(#${gid})`} stroke={lo} strokeOpacity=".6" strokeWidth="1.4" />
+      <circle cx="17" cy="17" r="11" fill="none" stroke={hi} strokeOpacity=".55" strokeWidth="1" />
       <text
         x="17" y="17" textAnchor="middle" dominantBaseline="central"
         fontSize="15" fontWeight="700" fill={lo} fillOpacity=".92"
