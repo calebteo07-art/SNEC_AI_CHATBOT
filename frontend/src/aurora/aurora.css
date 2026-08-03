@@ -861,11 +861,6 @@ html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::afte
 
 .aurora-muted { color: var(--ink-2); font-size: 15.7px; line-height: 1.5; }
 
-/* Bulleted weak-topic list (used on staff drill-down screens) */
-.aurora-rose-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
-.aurora-rose-list li { font-size: 15.7px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
-.aurora-rose-list li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--g-rose); flex-shrink: 0; }
-
 /* Recent activity — clean list, larger text */
 .aurora-activity { display: flex; flex-direction: column; }
 .aurora-activity-head { font-family: var(--font-mono); font-size: 14.6px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 10px; }
@@ -2182,23 +2177,12 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
   .aurora-checkin-streaknum { font-size: 92px; }
 }
 
-/* pill tabs */
-.aurora-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 999px; }
-.aurora-tab { position: relative; border: none; background: none; padding: 7px 16px; border-radius: 999px; font-size: 14.6px; font-weight: 600; color: var(--ink-2); cursor: pointer; overflow: hidden; }
-.aurora-tab span { position: relative; z-index: 1; }
-.aurora-tab:hover { color: var(--ink); }
-.aurora-tab[data-active="true"] { color: #fff; }
-
 /* KPI grid (reuses StatCard) */
 .aurora-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
 
 /* AI insight blockquote */
 .aurora-insight { padding: 18px 20px; border-left: 3px solid var(--g-purple); background: rgba(120, 110, 200, 0.05); border-radius: var(--radius); }
 .aurora-insight p { font-size: 16.8px; line-height: 1.6; color: var(--ink); font-style: italic; margin: 0; }
-
-/* generic two-column panel grid */
-.aurora-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-@media (max-width: 760px) { .aurora-panels { grid-template-columns: 1fr; } }
 
 /* labelled bars (weak topics, benchmarks) */
 .aurora-bars { display: flex; flex-direction: column; gap: 10px; }
@@ -2215,27 +2199,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-field { flex: 1; min-width: 200px; background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-sm); padding: 9px 12px; font-family: var(--font-sans); font-size: 15.7px; color: var(--ink); outline: none; }
 .aurora-field:focus-visible { border-color: var(--g-blue); }
 .aurora-field::placeholder { color: var(--ink-3); }
-.aurora-select { background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-sm); padding: 9px 12px; font-family: var(--font-sans); font-size: 15.7px; color: var(--ink); outline: none; cursor: pointer; color-scheme: light; }
-
-/* data table */
-.aurora-table-wrap { border: 1px solid var(--hairline); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); }
-.aurora-trow { display: grid; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--hairline); }
-.aurora-trow:last-child { border-bottom: none; }
-.aurora-thead { font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); background: var(--paper); }
-.aurora-trow.is-clickable { cursor: pointer; transition: background-color 0.15s; }
-.aurora-trow.is-clickable:hover { background: rgba(31, 31, 31, 0.03); }
-.aurora-tcell { font-size: 14.6px; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aurora-tcell.is-muted { color: var(--ink-3); }
-.aurora-tcell.is-mono { font-family: var(--font-mono); font-size: 13.4px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.aurora-tcell.is-accent { font-family: var(--font-mono); font-size: 13.4px; color: var(--on-blue-2); font-weight: 600; }
-.aurora-tempty { padding: 36px; text-align: center; color: var(--ink-3); font-size: 14.6px; }
-
-/* badges */
-.aurora-badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.06em; font-weight: 600; text-transform: uppercase; background: rgba(31, 31, 31, 0.06); color: var(--ink-2); border: 1px solid var(--hairline); }
-.aurora-badge[data-tone="blue"] { color: var(--on-blue-2); background: rgba(66, 133, 244, 0.10); border-color: rgba(66, 133, 244, 0.24); }
-.aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(155, 114, 203, 0.10); border-color: rgba(155, 114, 203, 0.24); }
-.aurora-badge[data-tone="rose"] { color: var(--on-rose); background: rgba(217, 101, 112, 0.10); border-color: rgba(217, 101, 112, 0.26); }
-.aurora-badge[data-tone="ok"] { color: var(--on-blue-2); background: rgba(66, 133, 244, 0.10); border-color: rgba(66, 133, 244, 0.22); }
 
 /* pager */
 .aurora-pager { display: flex; align-items: center; justify-content: space-between; font-size: 13.4px; color: var(--ink-3); }
@@ -2262,15 +2225,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-chip:hover { color: var(--ink); border-color: var(--ink-3); }
 .aurora-chip[data-active="true"] { color: #fff; border-color: transparent; }
 
-/* Touch: let wide tables scroll horizontally inside their own container instead of
-   clipping columns. The wrap clips by default (overflow:hidden); give rows a min-width
-   so every column stays readable and the wrap scrolls on the x-axis.
-   Gated on `pointer: coarse`, not width — see below. */
-@media (pointer: coarse) {
-  .aurora-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .aurora-table-wrap .aurora-trow { min-width: 720px; }
-}
-
 /* Touch: enlarge small tap targets to a comfortable hit area. A mouse is precise; a
    fingertip needs ~44px. Visuals are unchanged — only the clickable box grows.
    ── Why `pointer: coarse` and NOT `max-width: 700px` ──
@@ -2288,13 +2242,8 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
   .aurora-pin { padding: 12.5px; }
   /* Chat back arrow → full touch square. */
   .aurora-chat-back { width: 44px; height: 44px; }
-  /* Account remove (×) → larger hit area (base is 28px). */
-  .aurora-acct-remove { width: 40px; height: 40px; }
   /* Clickable feed name → comfortable tap height. */
   .aurora-feed-name { display: inline-flex; align-items: center; min-height: 44px; }
-  /* Admin view switcher + Refresh — measured 75x34 and 92x36 at every phone
-     viewport. Both are pills, so growing the box keeps the shape and the type. */
-  .console-segment button, .aurora-refresh { min-height: 44px; }
 }
 
 /* buttons */
@@ -2303,26 +2252,10 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .aurora-btn-ghost { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: 14.6px; font-weight: 600; cursor: pointer; }
 .aurora-btn-ghost:hover { color: var(--ink); border-color: rgba(31, 31, 31, 0.22); }
-.aurora-form-label { font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 6px; }
 .aurora-form-row { display: flex; flex-direction: column; gap: 12px; }
 .aurora-note { font-size: 13.4px; }
 .aurora-note.is-ok { color: var(--on-blue-2); }
 .aurora-note.is-err { color: var(--on-rose); }
-
-/* CSV dropzone */
-.aurora-dropzone { border: 2px dashed var(--hairline); border-radius: var(--radius-lg); padding: 28px; text-align: center; cursor: pointer; transition: border-color 0.18s; }
-.aurora-dropzone:hover { border-color: rgba(120, 110, 200, 0.4); }
-.aurora-dropzone-title { font-size: 15.7px; font-weight: 500; color: var(--ink-2); margin: 6px 0 2px; }
-.aurora-dropzone-sub { font-size: 13.4px; color: var(--ink-3); }
-
-/* account row */
-.aurora-acct-row { display: flex; align-items: center; gap: 14px; padding: 11px 16px; border-bottom: 1px solid var(--hairline); }
-.aurora-acct-row:last-child { border-bottom: none; }
-.aurora-acct-meta { flex: 1; min-width: 0; }
-.aurora-acct-name { font-size: 14.6px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aurora-acct-email { font-size: 13.4px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aurora-acct-remove { flex-shrink: 0; width: 28px; height: 28px; border: none; background: none; border-radius: 50%; display: grid; place-items: center; color: var(--ink-3); cursor: pointer; }
-.aurora-acct-remove:hover { color: var(--on-rose); background: rgba(217, 101, 112, 0.08); }
 
 /* activity feed */
 .aurora-feed-group { display: flex; flex-direction: column; gap: 8px; }
@@ -2341,25 +2274,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-feed-detail { font-size: 14.6px; color: var(--ink-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aurora-feed-tokens { font-size: 12.3px; color: var(--ink-3); margin-top: 1px; }
 .aurora-feed-time { font-family: var(--font-mono); font-size: 12.3px; color: var(--ink-3); flex-shrink: 0; font-variant-numeric: tabular-nums; }
-
-/* modal (student detail / drill-down) */
-.aurora-modal-backdrop { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: clamp(12px, 4vw, 32px); background: rgba(31, 31, 31, 0.32); backdrop-filter: blur(3px); }
-/* 88dvh, not 88vh: vh is the LARGE viewport on mobile, so a modal capped at 88vh can
-   still exceed the visible area once the browser toolbar is showing — the bottom of a
-   dialog (where its buttons live) ends up under the chrome with no way to reach it. */
-.aurora-modal { width: min(680px, 100%); max-height: 88dvh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-xl); box-shadow: 0 30px 80px -24px rgba(31, 31, 31, 0.4); overflow: hidden; }
-.aurora-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--hairline); flex-shrink: 0; }
-.aurora-modal-title { font-size: 17.9px; font-weight: 600; color: var(--ink); margin: 0; }
-.aurora-modal-eyebrow { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 2px; }
-.aurora-modal-close { width: 32px; height: 32px; border: none; background: none; border-radius: 50%; display: grid; place-items: center; color: var(--ink-3); cursor: pointer; flex-shrink: 0; }
-.aurora-modal-close:hover { color: var(--ink); background: rgba(31, 31, 31, 0.05); }
-.aurora-modal-body { padding: 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
-.aurora-modal-actions { display: flex; align-items: center; gap: 10px; }
-
-.aurora-mini-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
-.aurora-mini-stat { background: var(--surface); padding: 12px 10px; text-align: center; }
-.aurora-mini-stat-val { font-size: 20.2px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
-.aurora-mini-stat-label { font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin-top: 3px; }
 
 @media (max-width: 600px) {
   .aurora-bar-label { width: 7rem; }
@@ -2410,12 +2324,9 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
 .console-dark .aurora-btn:hover { opacity: 0.92; }
 
-/* Tables, badges, tracks, inputs. */
-.console-dark .aurora-trow.is-clickable:hover { background: rgba(255, 255, 255, 0.04); }
-.console-dark .aurora-badge { background: rgba(255, 255, 255, 0.07); }
+/* Tracks. */
 .console-dark .aurora-bar-track,
 .console-dark .aurora-progress { background: rgba(255, 255, 255, 0.09); }
-.console-dark .aurora-select { color-scheme: dark; }
 
 /* StatCard tints glow brighter on dark (per-domain colour coding). */
 .console-dark .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
@@ -2425,10 +2336,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 
 /* Insight band reads on slate. */
 .console-dark .aurora-insight { background: rgba(182, 139, 230, 0.12); border-left-color: var(--g-purple); }
-
-/* Modals (student detail / drill-down) render inside the scope — darken scrim. */
-.console-dark .aurora-modal-backdrop { background: rgba(0, 0, 0, 0.55); }
-.console-dark .aurora-modal-close:hover { background: rgba(255, 255, 255, 0.06); }
 
 /* ── Console chrome extras (used by ConsoleRail + redesigned screens) ── */
 /* Section eyebrow with a coloured leading tick — gives each screen a domain hue. */
@@ -2441,45 +2348,14 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-tick[data-hue="rose"]   { background: var(--g-rose); }
 .console-tick[data-hue="purple"] { background: var(--g-purple); }
 
-/* A card whose top edge carries its domain hue (declutter cue). */
-.console-card-accent { border-top: 2px solid var(--accent, var(--g-blue)); }
-
-/* Segmented control (Accounts: One student | Import CSV). */
-.console-segment { display: inline-flex; gap: 3px; padding: 3px; background: var(--paper); border: 1px solid var(--hairline); border-radius: 999px; }
-.console-segment button { border: none; background: none; padding: 6px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: color .15s, background .15s; }
-.console-segment button:hover { color: var(--ink); }
-.console-segment button[data-active="true"] { color: var(--ink); background: var(--surface); box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 8px -4px rgba(0,0,0,.6); }
-
-/* Collapsible utility panel (Promote to staff, media tools). */
-.console-disclosure { border: 1px solid var(--hairline); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
-.console-disclosure > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 16px; font-size: 14.6px; font-weight: 600; color: var(--ink); }
-.console-disclosure > summary::-webkit-details-marker { display: none; }
-.console-disclosure > summary .console-disc-sub { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
-.console-disclosure > summary .console-disc-chevron { transition: transform .2s; color: var(--ink-3); }
-.console-disclosure[open] > summary .console-disc-chevron { transform: rotate(180deg); }
-.console-disclosure-body { padding: 4px 16px 16px; border-top: 1px solid var(--hairline); }
-
 /* "Needs attention" focal panel (Overview at-risk). */
 .console-focus { border: 1px solid rgba(240, 122, 134, 0.30); background: linear-gradient(180deg, rgba(240,122,134,0.06), transparent 60%); border-radius: var(--radius-lg); padding: 16px; }
 .console-attn-count { font-family: var(--font-mono); font-size: 12.3px; font-weight: 600; letter-spacing: .04em; color: var(--on-rose); background: rgba(240,122,134,0.12); border: 1px solid rgba(240,122,134,0.28); border-radius: 999px; padding: 2px 9px; }
-
-/* Status + role badges read in colour on the slate (override the flat dark bg so
-   each domain keeps its hue: OA/students blue, OT purple, PSA rose, Active green,
-   Pending amber). Specificity beats the generic .console-dark .aurora-badge. */
-.console-dark .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
-.console-dark .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
-.console-dark .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
-.console-dark .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
-.console-dark .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
-.console-dark .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
 
 /* Asymmetric split — Overview's at-risk focus (primary) beside weak-topics
    (secondary); collapses to one column on narrow viewports. */
 .console-split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start; }
 @media (max-width: 760px) { .console-split { grid-template-columns: 1fr; } }
-
-/* Small rose marker for at-risk rows in the Students table. */
-.console-risk-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g-rose); flex-shrink: 0; box-shadow: 0 0 6px rgba(240,122,134,.6); }
 
 /* ════════════════ Legibility tuning — low-vision staff ════════════════
    Larger type, stronger contrast and bigger targets for older reviewers, scoped
@@ -2514,28 +2390,11 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-muted { font-size: 16.8px; }
 .console-dark .aurora-insight p { font-size: 19px; }
 
-/* Tables — more row height + readable cells/headers */
-.console-dark .aurora-trow { padding: 14px 16px; }
-.console-dark .aurora-thead { font-size: 12.3px; letter-spacing: 0.1em; }
-.console-dark .aurora-tcell { font-size: 16.8px; }
-.console-dark .aurora-tcell.is-mono,
-.console-dark .aurora-tcell.is-accent { font-size: 15.7px; }
-.console-dark .aurora-tempty { font-size: 16.8px; }
-
 /* Forms / buttons — bigger hit targets */
-.console-dark .aurora-field,
-.console-dark .aurora-select { font-size: 17.4px; padding: 11px 14px; }
-.console-dark .aurora-form-label { font-size: 12.3px; letter-spacing: 0.1em; }
+.console-dark .aurora-field { font-size: 17.4px; padding: 11px 14px; }
 .console-dark .aurora-btn { font-size: 16.8px; padding: 12px 22px; }
 .console-dark .aurora-btn-ghost { font-size: 16.2px; padding: 10px 18px; }
 .console-dark .aurora-note { font-size: 15.7px; }
-.console-dark .aurora-dropzone-title { font-size: 17.9px; }
-.console-dark .aurora-dropzone-sub { font-size: 15.1px; }
-
-/* Accounts roster */
-.console-dark .aurora-acct-row { padding: 14px 16px; }
-.console-dark .aurora-acct-name { font-size: 16.8px; }
-.console-dark .aurora-acct-email { font-size: 15.1px; }
 
 /* Activity feed */
 .console-dark .aurora-feed-name { font-size: 16.8px; }
@@ -2543,16 +2402,10 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-feed-time { font-size: 14px; }
 .console-dark .aurora-feed-day span { font-size: 13.4px; }
 
-/* Bars / chips / badges */
+/* Bars / chips */
 .console-dark .aurora-bar-label,
 .console-dark .aurora-bar-pct { font-size: 15.7px; }
 .console-dark .aurora-prog-chip { font-size: 14.6px; padding: 6px 13px; }
-.console-dark .aurora-badge { font-size: 13.4px; padding: 3px 11px; letter-spacing: 0.05em; }
-
-/* Console extras */
-.console-dark .console-segment button { font-size: 15.7px; padding: 8px 18px; }
-.console-dark .console-disclosure > summary { font-size: 16.8px; padding: 15px 18px; }
-.console-dark .console-disclosure > summary .console-disc-sub { font-size: 12.9px; }
 
 /* ─────────────────────────────────────────────────────────────────────────
    Flashcards — one dark ARCADE world. Clinical active-recall as an addictive game;
@@ -3742,30 +3595,19 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 }
 .rw-cta:active { transform: translateY(2px); box-shadow: none; }
 
-/* ═══════════════ Leftover panel + chart chrome ═══════════════
-   What is left of the .aurora-admin dark scope after the staff console moved to its
-   own .cs theme (aurora/console/console.css).
+/* ═══════════════ Leftover chart chrome ═══════════════
+   All that survives of the .aurora-admin dark scope after the staff console moved to
+   its own .cs theme (aurora/console/console.css): the two rules charts/TrendChart.tsx
+   and charts/BarSeries.tsx still carry. Nothing RENDERS either component — they exist
+   because the frozen view-models cohortAnalyticsView.ts and performanceTrendView.ts
+   import a type from them (`BarRow`, `Series`). Retiring the components means editing
+   a frozen file, so both they and these two rules are deliberately left standing.
 
-   Only .aurora-unavail and .aurora-trend still have a consumer, and only from
-   charts/TrendChart.tsx + charts/BarSeries.tsx — which nothing RENDERS any more.
-   Both files survive solely because the frozen view-models cohortAnalyticsView.ts and
-   performanceTrendView.ts import a type from them (`BarRow`, `Series`), and the spec
-   holds those four view-models byte-identical through this rebuild.
-
-   So everything below is dead, and so are the .aurora-tabs / .aurora-table-wrap /
-   .aurora-badge / .aurora-modal / .console-segment families further down: they are
-   globally scoped rather than admin-scoped, so removing them was out of this change's
-   charter. Tracked separately — do not treat their presence as evidence of use. */
-.aurora-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 16px 18px; }
-.aurora-panel-head { font-family: var(--font-mono); font-size: 12.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin: 0 0 12px; }
-.aurora-refresh { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s; }
-.aurora-refresh:hover:not(:disabled) { color: var(--ink); border-color: rgba(255,255,255,0.28); }
-.aurora-refresh:disabled { opacity: .6; cursor: default; }
+   The panel/table/badge/modal/segment families that used to sit here and further down
+   are gone — globally scoped rather than admin-scoped, they outlived the screens that
+   were their only consumers. */
 .aurora-unavail { color: var(--ink-3); font-size: 13px; line-height: 1.6; margin: 0; }
 .aurora-trend { display: block; width: 100%; height: auto; }
-.aurora-gauge { display: grid; place-items: center; }
-.aurora-gauge-num { fill: var(--ink); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
 /* Mastery vs cohort moved to .cs-mastery / .cs-diverge-* in console.css, and the
    skeleton shimmer to .cs states. */
 
