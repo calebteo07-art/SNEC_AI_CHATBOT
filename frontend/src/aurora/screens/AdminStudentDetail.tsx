@@ -1,6 +1,11 @@
 "use client";
-/* AURORA student-detail modal (admin). Loads /api/admin/student/:id/detail and
-   shows mini-stats + sessions/cases/topics sub-tabs + a lecturer note. */
+/* Console student-detail modal (staff). Loads /api/admin/student/:id/detail and
+   shows mini-stats + sessions/cases/topics sub-tabs + a lecturer note.
+
+   Re-skinned onto .cs. Behaviour preserved exactly: the `seededFor` ref that stops a
+   30s poll clobbering a mid-edit note, the AI narrative staying behind an explicit
+   button (it is a paid call), the whole report-download mapping, and the
+   `mastery.length > 0` omission guard. */
 import { useEffect, useRef, useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { useStudentDetail } from "@/hooks/useAdmin";
@@ -9,6 +14,10 @@ import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 import { DivergingBar } from "@/aurora/components/admin/DivergingBar";
 import { masteryRows } from "@/aurora/components/admin/masteryView";
 import { buildStudentReportHtml, type StudentReportData } from "@/aurora/lib/studentReportExport";
+import { DataTable } from "@/aurora/console/DataTable";
+import { BarList, type CsBarRow } from "@/aurora/console/BarList";
+import { Badge, MiniStat, Panel } from "@/aurora/console/Panel";
+import { CsSkeleton, CsError } from "@/aurora/console/states";
 
 type SubTab = "sessions" | "cases" | "topics";
 const SUBTAB_LABEL: Record<SubTab, string> = {
@@ -128,217 +137,205 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
+  const retentionBars: CsBarRow[] = Object.entries(data?.retention_scores ?? {}).map(([topic, score]) => ({
+    label: topic.replace(/_/g, " "),
+    value: Math.round(score * 100),
+    readout: `${Math.round(score * 100)}%`,
+    hue: score < 0.65 ? "coral" : "blue",
+  }));
+  const flashcardBars: CsBarRow[] = Object.entries(data?.flashcard_accuracy ?? {}).map(([topic, a]) => ({
+    label: topic.replace(/_/g, " "),
+    value: Math.max(0, Math.min(100, a.pct)),   // pct already 0-100
+    readout: `${a.correct}/${a.total}`,
+    hue: a.pct < 65 ? "coral" : "blue",
+  }));
+
   return (
-    <div className="aurora-modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="aurora-modal" role="dialog" aria-modal="true" aria-label="Student detail">
-        <div className="aurora-modal-head">
-          <div>
-            <p className="aurora-modal-eyebrow">Student detail</p>
-            <p className="aurora-modal-title">{data?.full_name ?? "…"}</p>
+    <div className="cs-modal-back" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="cs-modal" role="dialog" aria-modal="true" aria-label="Student detail" style={{ maxWidth: 860 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <div style={{ minWidth: 0 }}>
+            <p className="cs-eyebrow" style={{ margin: 0 }}>Student detail</p>
+            <p style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-.018em", margin: "3px 0 0" }}>
+              {data?.full_name ?? "…"}
+            </p>
           </div>
-          <button type="button" className="aurora-modal-close" onClick={onClose} aria-label="Close">
-            <Icon.close size={18} />
+          <button type="button" className="cs-close" onClick={onClose} aria-label="Close">
+            <Icon.close size={17} />
           </button>
         </div>
 
-        <div className="aurora-modal-body">
-          {loading && <p className="aurora-muted">Loading student…</p>}
-          {!loading && error && <p className="aurora-muted">Could not load student data.</p>}
+        {loading && <CsSkeleton rows={6} />}
+        {!loading && error && <CsError onRetry={() => detailQ.refetch()} label="Could not load student data." />}
 
-          {data && (
-            <>
-              <div className="aurora-mini-stats">
-                {[
-                  { label: "Sessions", val: data.session_count },
-                  { label: "Streak", val: `${data.streak}d` },
-                  { label: "Cases", val: data.cases.length },
-                  { label: "Tokens", val: fmtTokens(data.total_tokens) },
-                  { label: "Last active", val: data.last_active?.slice(0, 10) || "—" },
-                ].map((s) => (
-                  <div key={s.label} className="aurora-mini-stat">
-                    <div className="aurora-mini-stat-val">{s.val}</div>
-                    <div className="aurora-mini-stat-label">{s.label}</div>
-                  </div>
-                ))}
-              </div>
+        {data && (
+          <>
+            <div className="cs-strip">
+              {[
+                { label: "Sessions", val: String(data.session_count) },
+                { label: "Streak", val: `${data.streak}d` },
+                { label: "Cases", val: String(data.cases.length) },
+                { label: "Tokens", val: fmtTokens(data.total_tokens) },
+                { label: "Last active", val: data.last_active?.slice(0, 10) || "—" },
+              ].map((s) => <MiniStat key={s.label} label={s.label} value={s.val} />)}
+            </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span className="aurora-badge" data-tone="purple">{data.role}</span>
-                <span className="aurora-badge" data-tone={data.learning_velocity === "declining" ? "rose" : "blue"}>
-                  {data.learning_velocity}
-                </span>
-              </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <Badge hue="purple">{data.role}</Badge>
+              <Badge hue={data.learning_velocity === "declining" ? "coral" : "blue"}>{data.learning_velocity}</Badge>
+            </div>
 
-              <EngagementBlock sessions={data.sessions} />
+            <EngagementBlock sessions={data.sessions} />
 
-              {/* Omitted entirely when `mastery` is null — the mastery reads failed, or this
-                  student is not in the cohort population (a promoted trainer is on the
-                  roster but excluded from it). Neither is "scored 0 against their peers". */}
-              {mastery.length > 0 && (
-                <section className="aurora-panel" data-testid="mastery-panel">
-                  <p className="aurora-panel-head">Mastery vs cohort</p>
-                  <p className="aurora-unavail" style={{ marginBottom: 12 }}>
-                    Three separate scales — they measure different things and are never blended. The
-                    cohort average excludes this student, so a delta of 0 means &ldquo;level with peers&rdquo;,
-                    not &ldquo;no peers to compare&rdquo;.
-                  </p>
-                  <ul className="aurora-mastery-list">
-                    {mastery.map((r) => (
-                      <li key={r.key} data-testid="mastery-row" data-scale={r.key}>
-                        <span className="aurora-mastery-label">{r.label}</span>
-                        <span className="aurora-mastery-value" data-testid="mastery-value">{r.valueLabel}</span>
-                        <DivergingBar pct={r.deltaPct} tone={r.tone} />
-                        <span className="aurora-mastery-delta" data-testid="mastery-delta"
-                              data-tone={r.tone}>{r.deltaLabel}</span>
-                        <small className="aurora-mastery-cohort" data-testid="mastery-cohort">{r.cohortLabel}</small>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+            {/* Omitted entirely when `mastery` is null — the mastery reads failed, or this
+                student is not in the cohort population (a promoted trainer is on the
+                roster but excluded from it). Neither is "scored 0 against their peers". */}
+            {mastery.length > 0 && (
+              <Panel hue="blue" title="Mastery vs cohort" testId="mastery-panel">
+                <p className="cs-note" style={{ maxWidth: "72ch" }}>
+                  Three separate scales — they measure different things and are never blended. The
+                  cohort average excludes this student, so a delta of 0 means &ldquo;level with peers&rdquo;,
+                  not &ldquo;no peers to compare&rdquo;.
+                </p>
+                <ul className="cs-mastery">
+                  {mastery.map((r) => (
+                    <li key={r.key} data-testid="mastery-row" data-scale={r.key}>
+                      <span className="cs-mastery-label">{r.label}</span>
+                      <span className="cs-mastery-value cs-num" data-testid="mastery-value">{r.valueLabel}</span>
+                      <DivergingBar pct={r.deltaPct} tone={r.tone} />
+                      <span className="cs-mastery-delta" data-testid="mastery-delta" data-tone={r.tone}>{r.deltaLabel}</span>
+                      <small className="cs-mastery-cohort" data-testid="mastery-cohort">{r.cohortLabel}</small>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            )}
 
-              {data.insights && data.insights.findings.length > 0 && (
-                <div className="aurora-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
-                  <p className="aurora-activity-head" style={{ margin: 0 }}>Findings &amp; insights · all three features</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {data.insights.findings.map((f, i) => (
-                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 13.5, lineHeight: 1.45 }}>
-                        <span className="aurora-badge" data-tone="purple" style={{ flex: "none", minWidth: 96, textAlign: "center" }}>{f.feature}</span>
-                        <span>{f.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {narrative ? (
-                    <p style={{ margin: "4px 0 0", padding: "10px 12px", borderRadius: 8, background: "rgba(123,86,180,.08)", fontSize: 13.5, lineHeight: 1.5 }}>
-                      <b>AI teaching insight:</b> {narrative}
-                    </p>
-                  ) : (
-                    <button type="button" className="aurora-btn-ghost" style={{ alignSelf: "flex-start" }} onClick={loadNarrative} disabled={narrLoading}>
-                      {narrLoading ? "Generating…" : "✨ Generate AI teaching narrative"}
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <div className="aurora-tabs" style={{ alignSelf: "flex-start" }}>
-                {(["sessions", "cases", "topics"] as SubTab[]).map((t) => (
-                  <button key={t} type="button" className={`aurora-tab${subTab === t ? " aurora-flow" : ""}`} data-active={subTab === t} onClick={() => setSubTab(t)}>
-                    <span>{SUBTAB_LABEL[t]}</span>
-                  </button>
-                ))}
-              </div>
-
-              {subTab === "sessions" && (
-                <div className="aurora-table-wrap">
-                  <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "100px 1fr 70px 70px" }}>
-                    <span>Date</span><span>Topic</span><span>Tokens</span><span>Model</span>
-                  </div>
-                  {data.sessions.length === 0 && <p className="aurora-tempty">No sessions yet.</p>}
-                  {data.sessions.map((s) => (
-                    <div key={s.session_id} className="aurora-trow" style={{ gridTemplateColumns: "100px 1fr 70px 70px" }}>
-                      <span className="aurora-tcell is-mono">{s.timestamp?.slice(0, 10) || "—"}</span>
-                      <span className="aurora-tcell">{s.topic || "—"}</span>
-                      <span className="aurora-tcell is-accent">{s.token_count.toLocaleString()}</span>
-                      <span className="aurora-tcell is-muted">{s.model || "—"}</span>
+            {data.insights && data.insights.findings.length > 0 && (
+              <Panel hue="purple" title="Findings &amp; insights · all three features">
+                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                  {data.insights.findings.map((f, i) => (
+                    <div key={i} style={{ display: "flex", gap: 9, alignItems: "baseline", fontSize: 13, lineHeight: 1.45 }}>
+                      <span style={{ flex: "none", minWidth: 96 }}><Badge hue="purple">{f.feature}</Badge></span>
+                      <span>{f.text}</span>
                     </div>
                   ))}
                 </div>
-              )}
+                {/* The narrative is a PAID Gemini call — it stays behind an explicit press
+                    and never fires on open. */}
+                {narrative ? (
+                  <p style={{ margin: "10px 0 0", padding: "10px 12px", borderRadius: 9, background: "rgba(129,84,190,.09)", fontSize: 13, lineHeight: 1.5 }}>
+                    <b>AI teaching insight:</b> {narrative}
+                  </p>
+                ) : (
+                  <button type="button" className="cs-btn-ghost" style={{ marginTop: 10 }} onClick={loadNarrative} disabled={narrLoading}>
+                    {narrLoading ? "Generating…" : "✨ Generate AI teaching narrative"}
+                  </button>
+                )}
+              </Panel>
+            )}
 
-              {subTab === "cases" && (
-                <div className="aurora-table-wrap">
-                  <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "1fr 80px 88px 66px 96px" }}>
-                    <span>Case</span><span>Score</span><span>Sub-scores</span><span>Safety</span><span>Date</span>
+            <div className="cs-seg" style={{ alignSelf: "flex-start", maxWidth: "100%", overflowX: "auto" }} role="tablist" aria-label="Student detail section">
+              {(["sessions", "cases", "topics"] as SubTab[]).map((t) => (
+                <button key={t} type="button" role="tab" aria-selected={subTab === t} data-active={subTab === t} onClick={() => setSubTab(t)}>
+                  {SUBTAB_LABEL[t]}
+                </button>
+              ))}
+            </div>
+
+            {subTab === "sessions" && (
+              <DataTable
+                rows={data.sessions}
+                rowKey={(s) => s.session_id}
+                empty="No sessions yet."
+                columns={[
+                  { key: "date", head: "Date", width: "104px", primary: true, cell: (s) => <span className="cs-num">{s.timestamp?.slice(0, 10) || "—"}</span> },
+                  { key: "topic", head: "Topic", width: "1fr", cell: (s) => s.topic || "—" },
+                  { key: "tokens", head: "Tokens", width: "78px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-blue)" }}>{s.token_count.toLocaleString()}</span> },
+                  { key: "model", head: "Model", width: "78px", cell: (s) => <span style={{ color: "var(--cs-ink-3)" }}>{s.model || "—"}</span> },
+                ]}
+              />
+            )}
+
+            {subTab === "cases" && (
+              <DataTable
+                rows={data.cases}
+                rowKey={(c, i) => `${c.case_id}-${i}`}
+                empty="No case attempts yet."
+                columns={[
+                  { key: "case", head: "Case", width: "1fr", primary: true, cell: (c) => c.case_id },
+                  // score_100 is the Tier-2 scale; pre-Tier-2 rows only ever had /40.
+                  { key: "score", head: "Score", width: "84px", cell: (c) => <span className="cs-num">{c.score_100 !== undefined ? `${c.score_100}/100` : `${c.total_score}/40`}</span> },
+                  {
+                    key: "sub", head: "Sub-scores", width: "92px",
+                    cell: (c) => (
+                      <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>
+                        {c.consult_technique !== undefined && c.judgement_safety !== undefined
+                          ? `${c.consult_technique}·${c.judgement_safety}` : "—"}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "safety", head: "Safety", width: "74px",
+                    cell: (c) => (c.safe === undefined
+                      ? <Badge hue={c.passed ? "teal" : "coral"}>{c.passed ? "Pass" : "Fail"}</Badge>
+                      : <Badge hue={c.safe ? "teal" : "coral"}>{c.safe ? "Safe" : "Unsafe"}</Badge>),
+                  },
+                  { key: "date", head: "Date", width: "98px", cell: (c) => <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>{c.completed_at?.slice(0, 10) || "—"}</span> },
+                ]}
+              />
+            )}
+
+            {subTab === "topics" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {retentionBars.length === 0 && flashcardBars.length === 0 && data.missed_findings.length === 0 && (
+                  <p className="cs-note" style={{ margin: 0 }}>No topic data yet.</p>
+                )}
+                {retentionBars.length > 0 && (
+                  <div>
+                    <p className="cs-eyebrow" style={{ marginBottom: 4 }}>Topic retention</p>
+                    <BarList rows={retentionBars} max={100} />
                   </div>
-                  {data.cases.length === 0 && <p className="aurora-tempty">No case attempts yet.</p>}
-                  {data.cases.map((c, i) => {
-                    const scored = c.score_100 !== undefined;
-                    return (
-                      <div key={i} className="aurora-trow" style={{ gridTemplateColumns: "1fr 80px 88px 66px 96px" }}>
-                        <span className="aurora-tcell">{c.case_id}</span>
-                        <span className="aurora-tcell is-mono">{scored ? `${c.score_100}/100` : `${c.total_score}/40`}</span>
-                        <span className="aurora-tcell is-muted">
-                          {c.consult_technique !== undefined && c.judgement_safety !== undefined
-                            ? `${c.consult_technique}·${c.judgement_safety}` : "—"}
-                        </span>
-                        <span className="aurora-tcell">
-                          {c.safe === undefined
-                            ? <span className="aurora-badge" data-tone={c.passed ? "ok" : "rose"}>{c.passed ? "Pass" : "Fail"}</span>
-                            : <span className="aurora-badge" data-tone={c.safe ? "ok" : "rose"}>{c.safe ? "Safe" : "Unsafe"}</span>}
-                        </span>
-                        <span className="aurora-tcell is-muted">{c.completed_at?.slice(0, 10) || "—"}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {subTab === "topics" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  {Object.keys(data.retention_scores).length === 0 && data.missed_findings.length === 0 && (
-                    <p className="aurora-muted">No topic data yet.</p>
-                  )}
-                  {Object.keys(data.retention_scores).length > 0 && (
-                    <div className="aurora-bars">
-                      {Object.entries(data.retention_scores).map(([topic, score]) => {
-                        const pct = Math.round(score * 100);
-                        return (
-                          <div key={topic} className="aurora-bar-row">
-                            <span className="aurora-bar-label">{topic.replace(/_/g, " ")}</span>
-                            <span className="aurora-bar-track"><span className="aurora-bar-fill" data-weak={score < 0.65} style={{ width: `${pct}%` }} /></span>
-                            <span className="aurora-bar-pct">{pct}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {data.flashcard_accuracy && Object.keys(data.flashcard_accuracy).length > 0 && (
-                    <div>
-                      <p className="aurora-activity-head">Flashcard accuracy (per topic)</p>
-                      <div className="aurora-bars">
-                        {Object.entries(data.flashcard_accuracy).map(([topic, a]) => (
-                          <div key={topic} className="aurora-bar-row">
-                            <span className="aurora-bar-label">{topic.replace(/_/g, " ")}</span>
-                            <span className="aurora-bar-track"><span className="aurora-bar-fill" data-weak={a.pct < 65} style={{ width: `${Math.max(0, Math.min(100, a.pct))}%` }} /></span>
-                            <span className="aurora-bar-pct">{a.correct}/{a.total}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {data.missed_findings.length > 0 && (
-                    <div>
-                      <p className="aurora-activity-head">Consistently missed</p>
-                      <ul className="aurora-rose-list">
-                        {data.missed_findings.map((f) => <li key={f}>{f}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <p className="aurora-activity-head">Lecturer note</p>
-                <textarea
-                  className="aurora-checkin-textarea"
-                  style={{ marginBottom: 10 }}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  rows={3}
-                  placeholder="Add a note about this student…"
-                />
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <button type="button" className="aurora-btn-ghost" onClick={saveNote} disabled={savingNote}>
-                    {noteSaved ? "Saved" : savingNote ? "Saving…" : "Save note"}
-                  </button>
-                  <button type="button" className="aurora-btn-ghost" onClick={handleDownloadReport}>
-                    Download report (HTML)
-                  </button>
-                </div>
+                )}
+                {flashcardBars.length > 0 && (
+                  <div>
+                    <p className="cs-eyebrow" style={{ marginBottom: 4 }}>Flashcard accuracy (per topic)</p>
+                    <BarList rows={flashcardBars} max={100} />
+                  </div>
+                )}
+                {data.missed_findings.length > 0 && (
+                  <div>
+                    <p className="cs-eyebrow" style={{ marginBottom: 4 }}>Consistently missed</p>
+                    <ul className="cs-misslist">
+                      {data.missed_findings.map((f) => <li key={f}>{f}</li>)}
+                    </ul>
+                  </div>
+                )}
               </div>
-            </>
-          )}
-        </div>
+            )}
+
+            <div>
+              <p className="cs-eyebrow" style={{ marginBottom: 5 }}>Lecturer note</p>
+              <textarea
+                className="cs-textarea"
+                style={{ marginBottom: 10 }}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                placeholder="Add a note about this student…"
+                aria-label="Lecturer note"
+              />
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button type="button" className="cs-btn-ghost" onClick={saveNote} disabled={savingNote}>
+                  {noteSaved ? "Saved" : savingNote ? "Saving…" : "Save note"}
+                </button>
+                <button type="button" className="cs-btn-ghost" onClick={handleDownloadReport}>
+                  Download report (HTML)
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

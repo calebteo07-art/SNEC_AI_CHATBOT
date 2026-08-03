@@ -3,16 +3,20 @@
  *  aria-hidden with a text summary alongside; the a11y pass is P5. */
 import type { MasteryTone } from "./masteryView";
 
-// MasteryTone, not string: only the four known tones have CSS, and .aurora-diverge-fill
+// MasteryTone, not string: only the four known tones have CSS, and .cs-diverge-fill
 // sets no left/right of its own — so an unstyled tone would fall back to static position
 // and draw a bar from the LEFT EDGE of the track, which reads as a large below-cohort
 // delta. The type is what stops that reaching a trainer.
+//
+// The classes moved from .aurora-diverge-* (styled only under the deleted .aurora-admin
+// dark scope) to .cs-diverge-*, defined in console.css. Losing the stylesheet here is
+// not a cosmetic regression — it is the left-edge bar above.
 export function DivergingBar({ pct, tone }: { pct: number; tone: MasteryTone }) {
   const width = `${Math.max(0, Math.min(100, pct)) / 2}%`;
   return (
-    <div className="aurora-diverge" aria-hidden="true">
-      <span className="aurora-diverge-axis" />
-      <span className={`aurora-diverge-fill aurora-diverge-${tone}`} style={{ width }} />
+    <div className="cs-diverge" aria-hidden="true">
+      <span className="cs-diverge-axis" />
+      <span className={`cs-diverge-fill cs-diverge-${tone}`} style={{ width }} />
     </div>
   );
 }
