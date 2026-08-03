@@ -22,6 +22,7 @@ import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
 import { stationTurn } from "@/aurora/lib/stationTurn";
 import { timerState, formatClock } from "@/aurora/lib/stationTimer";
+import { submitErrorMessage } from "@/aurora/lib/submitError";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
 import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
@@ -517,18 +518,23 @@ export function CaseSession() {
         credentials: "include",
         body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked), self_advanced: Array.from(selfMarked) }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) { setSubmitError(submitErrorMessage(res.status)); return; }
       const data = (await res.json()) as { result: DomainResult; coaching?: Coaching; lumens_awarded?: number };
       setResult(data.result);
       setCoaching(data.coaching ?? null);
       setShowSubmit(false);
       qc.invalidateQueries({ queryKey: ["progress"] });
-      const sc = data.result.score_100 ?? 0;
-      const ids = ["first_station",
-        ...(sc >= 60 ? ["station_pass"] : []),
-        ...(sc >= 100 && data.result.safe && data.result.missed_critical.length === 0 ? ["flawless_station"] : [])];
-      grantAchievements(user?.studentId ?? "", ids, data.lumens_awarded ?? 0).forEach(enqueue);
-    } catch { setSubmitError("Could not evaluate. Please try again."); }
+      // Past this line the station IS graded and the debrief is on screen. Confetti and
+      // Lumens are a garnish — if any of it throws it must not surface as "submission
+      // failed", which the one outer catch used to do.
+      try {
+        const sc = data.result.score_100 ?? 0;
+        const ids = ["first_station",
+          ...(sc >= 60 ? ["station_pass"] : []),
+          ...(sc >= 100 && data.result.safe && data.result.missed_critical.length === 0 ? ["flawless_station"] : [])];
+        grantAchievements(user?.studentId ?? "", ids, data.lumens_awarded ?? 0).forEach(enqueue);
+      } catch { /* graded and shown — an achievement hiccup is not the student's problem */ }
+    } catch { setSubmitError(submitErrorMessage(null)); }  // fetch/JSON threw: it never landed
     finally { setSubmitting(false); }
   };
 
