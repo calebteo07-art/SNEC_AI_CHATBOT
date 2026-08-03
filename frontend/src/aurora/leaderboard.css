@@ -53,6 +53,17 @@
    pixel across three rejected passes, which is what precise measurement of the wrong thing
    looks like.
 
+   RETUNED same day ("the plinths look too small ... too much white space in the page"). Two
+   findings, both about proportion rather than style:
+   · A PLINTH IS SIZED AGAINST ITS FIGURE, not against the other two. 76px of block under a
+     124px stack of portrait+name+score is a tray under a head, whichever way the three step
+     down. They land near 1:1 at every tier now — and stay WIDER THAN THEY ARE TALL, which is
+     the line between a plinth and a tower.
+   · THE WHITE SPACE WAS THE DESKTOP CAP. A 1000px board on a maximised 1920 window is 920px of
+     empty page, wider than the ladder itself. 1340 with a 560px left column, and the stage is
+     STICKY: three items beside thirty empty their column by construction, so the leftover is
+     the stage's travel lane instead of a void.
+
    Kept, and still load-bearing:
    · LIGHT. Base luminance > 0.7 and the stack ENDS IN A SOLID so it is measurable.
    · GOLD SPLITS BY JOB, and the split is load-bearing: --gold-ink #7A5206 is 6.9:1 on white but
@@ -259,12 +270,12 @@
      face here is 136x76 behind a keyline, ~79% less area. */
 .pod {
   position: relative; margin: 0 0 3px; padding: 0;
-  display: grid; grid-template-columns: 1fr 1.18fr 1fr; gap: 0;
+  display: grid; grid-template-columns: 1fr 1.26fr 1fr; gap: 0;
   /* min-height, NOT height. A fixed height that the figure stack outgrows does not clip — it
      OVERFLOWS downward, silently, and the stage ends up under the bottom nav while every
      measurement still passes (the gate's view.bottom is the scroller, which does not subtract
      the floating nav). min-height lets the box grow to its content and keeps the reserve. */
-  align-items: end; min-height: var(--pod-h, 200px);
+  align-items: end; min-height: var(--pod-h, 240px);
 }
 /* The ground. First child in the DOM, so it paints under every slot with no z-index game.
    left/right 0 deliberately — a floor bled past the container's padding fails the overflow
@@ -290,10 +301,20 @@
   animation: pod-rise .5s cubic-bezier(.18, .89, .32, 1.16) backwards;
 }
 /* DOM order is 1,2,3 so a screen reader reaches the champion first; the stage PAINTS 2-1-3.
-   The old board's DOM was literally 2-1-3 and announced second place first for weeks. */
-.pod-slot[data-place="1"] { order: 2; --pl-h: 76px; --face: 56px; --num-sz: 34px; --crown-w: 30px; animation-delay: .14s; }
-.pod-slot[data-place="2"] { order: 1; --pl-h: 58px; --face: 44px; --num-sz: 26px; animation-delay: .04s; }
-.pod-slot[data-place="3"] { order: 3; --pl-h: 46px; --face: 44px; --num-sz: 22px; animation-delay: .24s; }
+   The old board's DOM was literally 2-1-3 and announced second place first for weeks.
+
+   PLINTH MASS (retuned 2026-08-04 — "the plinths look too small"). The number that governs is
+   plinth height vs FIGURE-STACK height, not plinth height on its own: the figure is portrait +
+   name + score, ~122px here, and against a 76px block it read as a tray under a head. These land
+   near 1:1 (110 vs ~122), which is where a block reads as something you STAND on. The champion's
+   column also widens (1.26fr) — mass is two-dimensional, and the tallest of three equal-width
+   blocks is a bar chart's tallest bar.
+   The champion block must also stay WIDER THAN IT IS TALL at every tier. Past ~1:1 it stops
+   being a plinth and becomes a tower, which is why the desktop tier tops out at 176px under a
+   193px column rather than chasing the empty space below it. */
+.pod-slot[data-place="1"] { order: 2; --pl-h: 110px; --face: 56px; --num-sz: 44px; --crown-w: 32px; animation-delay: .14s; }
+.pod-slot[data-place="2"] { order: 1; --pl-h: 84px; --face: 44px; --num-sz: 34px; animation-delay: .04s; }
+.pod-slot[data-place="3"] { order: 3; --pl-h: 66px; --face: 44px; --num-sz: 28px; animation-delay: .24s; }
 
 .pod-slot[data-place="1"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; --num-ink: #3A2600; }
 .pod-slot[data-place="2"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; --num-ink: #1F1F1F; }
@@ -351,7 +372,7 @@
 
 .pod-block {
   position: relative; z-index: 0; overflow: hidden; box-sizing: border-box;
-  height: var(--pl-h); margin-inline: -1.25px; padding-top: 13px;
+  height: var(--pl-h); margin-inline: -1.25px; padding-top: var(--top-h, 17px);
   display: grid; place-items: center;
   border: var(--mat-out) solid var(--mat-ink);
   border-radius: 4px 4px 10px 10px;
@@ -389,7 +410,7 @@
 /* The lit top face: a trapezoid narrow at the BACK and wide at the FRONT, drawn at top:0 so it
    can never protrude and never be conditionally clipped. */
 .pod-top {
-  position: absolute; left: 0; right: 0; top: 0; height: 15px; pointer-events: none;
+  position: absolute; left: 0; right: 0; top: 0; height: var(--top-h, 17px); pointer-events: none;
   clip-path: polygon(9% 0, 91% 0, 100% 100%, 0 100%);
   background-color: var(--f-mid);
   background-image: linear-gradient(180deg, var(--f-hi) 0%, var(--f-hi) 55%,
@@ -403,11 +424,12 @@
   font-family: var(--disp); font-weight: 800; font-size: var(--num-sz); line-height: 1;
   color: var(--num-ink);
   /* A CENTRED stroke, so paint-order:stroke-then-fill leaves half of it visible outside the
-     glyph. 4px (2px visible) rather than 5 — the landscape tier draws this at 18px, where a
-     2.5px outline starts closing the counters on an 8. */
-  -webkit-text-stroke: 4px var(--mat-ink);
+     glyph. It scales with the numeral: a fixed 4px that reads as a keyline at 20px reads as a
+     hairline at 66px, and the outline is the whole material. Only 1/2/3 are ever drawn here,
+     so a heavy stroke has no counter to close. */
+  -webkit-text-stroke: var(--num-stroke, 4.5px) var(--mat-ink);
   paint-order: stroke fill;
-  text-shadow: 0 2px 0 var(--f-lip);
+  text-shadow: 0 var(--num-ext, 2px) 0 var(--f-lip);
 }
 /* The one-shot sheen. Skewed, so it lives on a pseudo-element inside the block's own
    overflow:hidden — a skewed ELEMENT would report an inflated bounding box. */
@@ -779,10 +801,15 @@
 /* The stage gives back height first on a small screen: it is the part that can most afford to
    shorten, and the ladder is the part that cannot. */
 @media (max-width: 380px) {
-  .pod { --pod-h: 186px; }
-  .pod-slot[data-place="1"] { --pl-h: 70px; --face: 52px; --num-sz: 30px; --crown-w: 26px; }
-  .pod-slot[data-place="2"] { --pl-h: 54px; --face: 40px; --num-sz: 23px; }
-  .pod-slot[data-place="3"] { --pl-h: 43px; --face: 40px; --num-sz: 20px; }
+  /* The blocks still grow here, but they are FUNDED rather than free: the two gaps below pay
+     8 of the 26px back, so a 360x800 board keeps its 8-rank floor. Anything the stage takes
+     without paying for comes straight out of the ladder. */
+  .lb-climb { gap: 7px; }
+  .pod-fig { padding-bottom: 4px; }
+  .pod { --pod-h: 216px; --top-h: 15px; }
+  .pod-slot[data-place="1"] { --pl-h: 96px; --face: 52px; --num-sz: 38px; --crown-w: 28px; }
+  .pod-slot[data-place="2"] { --pl-h: 74px; --face: 40px; --num-sz: 30px; }
+  .pod-slot[data-place="3"] { --pl-h: 58px; --face: 40px; --num-sz: 25px; }
   .lg-row { min-height: 54px; }
 }
 /* Phone LANDSCAPE is WIDE AND SHORT: at 844x390 stacked, the list would start at y~321 and show
@@ -819,10 +846,10 @@
      item defaults to stretch — so with min-height (rather than a fixed height) the stage grows
      to the full height of the ladder beside it, and `justify-content: flex-end` then parks all
      three figures hundreds of pixels below the fold. The gate caught it: "0 on the stage". */
-  .pod { --pod-h: 148px; margin-bottom: 0; align-self: start; }
-  .pod-slot[data-place="1"] { --pl-h: 54px; --face: 44px; --num-sz: 26px; --crown-w: 24px; }
-  .pod-slot[data-place="2"] { --pl-h: 40px; --face: 34px; --num-sz: 20px; }
-  .pod-slot[data-place="3"] { --pl-h: 32px; --face: 34px; --num-sz: 18px; }
+  .pod { --pod-h: 150px; --top-h: 13px; --num-stroke: 4px; margin-bottom: 0; align-self: start; }
+  .pod-slot[data-place="1"] { --pl-h: 64px; --face: 44px; --num-sz: 30px; --crown-w: 22px; }
+  .pod-slot[data-place="2"] { --pl-h: 48px; --face: 34px; --num-sz: 24px; }
+  .pod-slot[data-place="3"] { --pl-h: 38px; --face: 34px; --num-sz: 20px; }
   .lg-row { min-height: 46px; }
   .lg-zone { min-height: 24px; }
   /* STACKED READOUT. In a ~296px column the chase and the clock cannot share a line: the
@@ -833,30 +860,64 @@
   .tb-chase { flex: 1 1 100%; }
   .chase-l { white-space: normal; overflow: visible; }
   /* The last few pixels of the left column: on a 430px-tall phone the stage's bottom lip is
-     what runs into the floating nav, and the lip is the material this whole pass is about. */
-  .pod-fig { padding-bottom: 4px; }
-  .pod-face { margin-bottom: 2px; }
+     what runs into the floating nav, and the lip is the material this whole pass is about.
+     This is the ONE tier where the plinths grew and the stage did not: the figure gives up
+     13px of label and padding to fund 10px of block, so the blocks read heavier while the
+     column ends 2px HIGHER than before. Growing the stage here would push the lip further
+     under the nav — and the ranks gate cannot see it, because the ladder is a second column. */
+  .pod-fig { padding: 0 3px 2px; }
+  .pod-slot[data-place="1"] .pod-fig { padding-top: 5px; }
+  .pod-face { margin-bottom: 1px; }
+  .pod-nm { font-size: 11px; }
+  .pod-score { font-size: 12px; gap: 4px; }
 }
 /* Desktop, guarded on HEIGHT so the 932x430 phone can never reach it. Same two columns, which
    is what turns a tall empty margin into 13 visible rungs. */
 @media (min-width: 1024px) and (min-height: 620px) {
   .lb-climb {
     --mat-out: 3px; --mat-lip: 6px;
-    max-width: 1000px;
-    display: grid; grid-template-columns: 340px minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr; gap: 12px 22px; align-content: start;
-    padding: 20px 16px 40px;
+    /* 1340, not 1000. A 1000px board on a maximised 1920 window is 920px of empty page — over
+       twice the width of the ladder itself — and that margin, not the layout, is what "too much
+       white space" was pointing at. The cap does not go further: the LADDER is held at ~720px
+       here (1340 - 32 padding - 560 - 26), and a rung wide enough to strand its name at x=200
+       and its score at x=850 is a spreadsheet row. Widen the left column, never the ladder. */
+    max-width: 1340px;
+    display: grid; grid-template-columns: 560px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr; gap: 14px 26px; align-content: start;
+    padding: 18px 16px 36px;
   }
   .tb, .lb-filter, .pod { grid-column: 1; }
   .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
-  .pod { --pod-h: 250px; align-self: start; }   /* see the landscape tier — stretch parks the stage below the fold */
-  .pod-slot[data-place="1"] { --pl-h: 98px; --face: 76px; --num-sz: 48px; --crown-w: 40px; }
-  .pod-slot[data-place="2"] { --pl-h: 74px; --face: 58px; --num-sz: 36px; }
-  .pod-slot[data-place="3"] { --pl-h: 60px; --face: 58px; --num-sz: 30px; }
-  .lg-row { min-height: 62px; }
+  /* The band grows with its column: 25px of name in a 560px head is a caption. */
+  .tb-head { padding: 12px 14px; }
+  .tb-name { font-size: 28px; }
+  /* STICKY, and this is the answer to the dead half-page rather than a flourish. Three items
+     beside a thirty-item ladder empty their column by construction: the stage ended at y~565 of
+     900 and everything under it was blank, then went blanker as you scrolled. Pinning turns that
+     column into the stage's travel lane — scroll to rank 25 and the three you are chasing are
+     still on screen. It needs BOTH `align-self: start` (a stretched item fills its area and has
+     nowhere to travel) and a grid area taller than itself, which row 3 is only because .lg-list
+     spans all three rows and the 1fr row absorbs the leftover. */
+  .pod { --pod-h: 360px; --top-h: 22px; --num-stroke: 6px; --num-ext: 3px;
+         align-self: start; position: sticky; top: 16px; }
+  .pod-slot[data-place="1"] { --pl-h: 200px; --face: 76px; --num-sz: 72px; --crown-w: 48px; }
+  .pod-slot[data-place="1"] .pod-fig { padding-top: 14px; }   /* headroom scales with the crown */
+  .pod-slot[data-place="2"] { --pl-h: 150px; --face: 58px; --num-sz: 54px; }
+  .pod-slot[data-place="3"] { --pl-h: 120px; --face: 58px; --num-sz: 46px; }
+  .pod-nm { font-size: 15px; }
+  .pod-score { font-size: 17px; }
+  /* Anchored over the LADDER, for the same reason as the landscape tier and found the same way
+     — in a screenshot. Centred on the viewport it floats across the left column, pointing at
+     nothing, and the one thing it exists to do is scroll you back to your own rung. */
+  .youbar {
+    left: auto; right: calc(max(0px, (100vw - 1340px)) / 2 + 16px); transform: none;
+    width: min(560px, calc(100vw - 640px));
+  }
+  .youbar:active { transform: translateY(3px); }
+  .lg-row { min-height: 64px; }
   .lg-zone { min-height: 30px; }
-  /* Same stacked readout as the landscape tier, same reason: a 340px column cannot hold
-     "1,550 Lumens to the promotion zone" and "Closes in 5d 22h" on one line. */
+  /* Same stacked readout as the landscape tier, same reason: even a 560px column will not hold
+     "1,550 Lumens to the promotion zone" and "Closes in 5d 22h" on one line at this type size. */
   .tb-readout { flex-wrap: wrap; row-gap: 5px; }
   .tb-chase { flex: 1 1 100%; }
   .chase-l { white-space: normal; overflow: visible; }

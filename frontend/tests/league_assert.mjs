@@ -286,11 +286,17 @@ const measure = (p) => p.evaluate(() => {
        while the CSS says #FFF. */
     podiumBlocks: [...document.querySelectorAll('[data-testid="podium-slot"]')].map((el) => {
       const block = el.querySelector(".pod-block");
+      const fig = el.querySelector(".pod-fig");
       const cs = block ? getComputedStyle(block) : null;
       return {
         place: el.dataset.place ?? null,
         promo: el.dataset.promo !== undefined,
         h: block ? +block.getBoundingClientRect().height.toFixed(1) : null,
+        /* Mass, which is what "the plinths look too small" was about (2026-08-04). A block is
+           read against the FIGURE STANDING ON IT, not against the other two blocks — the three
+           can step down perfectly and still all be trays. */
+        w: block ? +block.getBoundingClientRect().width.toFixed(1) : null,
+        figH: fig ? +fig.getBoundingClientRect().height.toFixed(1) : null,
         bg: cs ? cs.backgroundColor : null,
         border: cs ? +parseFloat(cs.borderTopWidth || "0").toFixed(1) : null,
         lip: cs ? hardLip(cs.boxShadow) : null,
@@ -409,6 +415,30 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
     } else if (!(h1 > h2 && h2 >= h3)) {
       bad(`${at}: plinth heights are ${h1}/${h2}/${h3}px for 1st/2nd/3rd — the champion's block must be the tallest`);
     } else ok(`${at}: the plinths step down ${h1} > ${h2} ≥ ${h3}px`);
+
+    /* PLINTH MASS, both bounds. The stepping check above passed on a board the user read as
+       "the plinths look too small" (2026-08-04), because three blocks can step down perfectly
+       and all three still be trays. The bound that matters is the block against the FIGURE
+       STANDING ON IT, and it is two-sided:
+         · TOO SMALL — the champion's block under 0.78x its own figure stack (portrait + name +
+           score) is a plinth-shaped shadow under a head. Every rejected version sat at 0.5-0.63.
+           The floor drops to 0.6 on a landscape phone, where the left column runs into the
+           floating nav and the honest trade is a shorter stage, not a clipped lip. Only the
+           champion is measured: 2nd and 3rd MUST step down, so the same ratio would forbid the
+           silhouette the podium exists for.
+         · TOO TALL — any block taller than it is wide is a tower, not a plinth. That is the
+           shape you drift into the moment you size the stage to fill leftover page instead of
+           to fit its own figure, which is exactly what the same report asked for. */
+    const floor = vp.height >= 700 ? 0.78 : 0.6;
+    for (const s of m.podiumBlocks) {
+      if (!(s.h > 0) || !(s.w > 0) || !(s.figH > 0)) {
+        bad(`${at}: could not measure place ${s.place}'s block against its figure`);
+      } else if (s.place === "1" && s.h < s.figH * floor) {
+        bad(`${at}: the champion's block is ${s.h}px under a ${s.figH}px figure (${(s.h / s.figH).toFixed(2)}x, floor ${floor}x) — a tray under a head`);
+      } else if (s.w <= s.h) {
+        bad(`${at}: place ${s.place}'s block is ${s.w}x${s.h} — taller than it is wide is a tower, not a plinth`);
+      } else ok(`${at}: place ${s.place}'s block is ${s.w}x${s.h} under a ${s.figH}px figure`);
+    }
 
     // Three distinct metals, sampled as PAINT. `data-place` would pass on three grey blocks.
     const metals = new Set(m.podiumBlocks.map((s) => s.bg));

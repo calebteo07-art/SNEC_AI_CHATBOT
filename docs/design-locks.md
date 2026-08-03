@@ -1243,7 +1243,9 @@ across half the viewport was the largest single surface exempting itself from th
 **Acceptance criteria when refining** (all gated in `league_assert.mjs`):
 - **≥8 ranks legible without scrolling** on a ≥700px-tall viewport, ≥6 on a landscape phone —
   counted as **podium places + list rows**, because a podium place is a rank you can read.
-  Measured 9 at 390×844 and 16 at 1440×900. Chrome above the first rank ≤250px.
+  Measured 9 at 390×844 and 15 at 1440×900. Chrome above the first rank ≤250px.
+- **Plinth mass, both bounds** (added by the retune below): the champion's block is **≥0.78× its
+  own figure stack** (≥0.6 on a landscape phone), and **no block is taller than it is wide**.
 - The podium holds **exactly ranks 1–3**, **DOM order 1-2-3**, **painted 2-1-3**, champion's
   plinth tallest, three **distinct metals sampled as PAINT**, exactly one crown and on 1st.
 - The ladder **resumes at rank 4**; stage + ladder together render every rank **exactly once**.
@@ -1301,6 +1303,49 @@ ceremony's server-side show-once; two type families and **no novelty arcade face
 in `league.ts`. **Removed**: the list's `data-place` metal plates and its crown (the stage owns
 place ornament now). `public/brand/tiers/*.webp` remains paid art orphaned since 2026-08-03 —
 still flagged, still not deleted.
+
+#### RETUNED 2026-08-04 — plinth mass and the desktop cap (a refinement *within* this lock)
+
+User, on the shipped board: *"the plinths look too small, make them bigger, too much white space
+in the page"*. Direction, material and layout are unchanged; **one acceptance criterion changed
+and one was added**, both stated before the code moved:
+
+- **Changed**: "measured 16 at 1440×900" → **15**. The stage grew and bought that rung with it.
+  The ≥8/≥6 floors are untouched, and every tier still clears them (9 · 9 · 9 · 15 · 18).
+- **Added**: **plinth mass, two-sided**, now gated per viewport in `league_assert`.
+
+**Why the previous numbers were wrong.** The gate checked that the three blocks *step down* —
+and they did, at every tier — but three blocks can step down perfectly and all three still be
+trays. The bound that was missing is the block against the **figure standing on it** (portrait +
+name + score). Every version the user rejected sat at **0.5–0.63×**; a 76px block under a 124px
+figure reads as a shadow under a head no matter how it is finished. They now measure
+**0.89× at 390×844, 0.81× at 360×800, 0.67× on a landscape phone** (nav-constrained, and the
+honest trade there is a shorter stage rather than a lip clipped by the floating nav) and
+**1.29× on desktop**, where the champion's block is 219×200 under a 155px figure.
+
+⚠ **The other bound is real and was hit while fixing this one**: a block **taller than it is
+wide** stops being a plinth and becomes a tower, and that is exactly the shape you drift into if
+you size the stage to fill leftover page instead of to fit its own figure. Desktop stops at
+200px under a 219px column for that reason and not because the space ran out.
+
+**The white space was the desktop cap, not the layout.** A 1000px board on a maximised 1920
+window is **920px of empty page — wider than the ladder itself**. Now **1340px** with a **560px**
+left column; the **ladder is still held at ~720px** (`1340 − 32 padding − 560 − 26`), because a
+rung wide enough to strand its name at x=200 and its score at x=850 is a spreadsheet row.
+**Widen the left column, never the ladder.**
+
+⚠ **The desktop stage is `position: sticky`.** Three items beside a thirty-item ladder empty
+their column *by construction* — the stage ended at y≈565 of 900 and everything below it was
+blank, then went blanker as you scrolled. Pinning turns the leftover into the stage's travel
+lane: scroll to rank 25 and the three you are chasing are still on screen. It needs **both**
+`align-self: start` (a stretched grid item fills its area and has nowhere to travel) **and** a
+grid area taller than itself — which row 3 only is because `.lg-list` spans all three rows and
+the `1fr` row absorbs the leftover. Break either and it silently stops sticking.
+
+⚠ **The you-bar was floating over the empty left column on desktop** — centred on the viewport,
+in a two-column layout, pointing at nothing. It is now anchored right, over the ladder, the same
+fix the landscape tier already carried. Found in a screenshot with every assertion green, which
+is the third time on this feature.
 
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
