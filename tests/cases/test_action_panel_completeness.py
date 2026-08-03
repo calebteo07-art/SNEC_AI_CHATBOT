@@ -49,8 +49,11 @@ AUTHORED_STEPS = [
 
 def test_fixture_covers_the_real_procedure_checklists():
     # Guards against an empty/half-written fixture silently passing everything below.
-    assert len(CHECKLISTS) >= 22
-    assert len(STEPS) > 400
+    # 21, not 22: the two distance-VA rows (from the PSA Checklist V2 PDF and from the
+    # superseded SOP NU-PR-OPD-D0039) were retired in favour of one authored row built
+    # from CC-D0008. See docs/notes/2026-07-31-distance-va-source-conflict.md
+    assert len(CHECKLISTS) >= 21
+    assert len(STEPS) > 380
     assert not any("Skills Observation" in c["procedure_name"] for c in CHECKLISTS)
 
 

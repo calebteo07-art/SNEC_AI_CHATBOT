@@ -22,16 +22,36 @@ swept and shipped. Two clarifications still with SNEC, neither blocking.
   only, not as a competing checklist.
 - `tests/content/test_distance_va_alignment.py` — 15 tests pinning all of the above.
 
-## Outstanding (needs the user / SNEC)
+## Supabase: done
 
-1. **Supabase:** the `Distance Vision Testing LogMAR (SOP)` row still exists and should
-   be deleted; CC-D0008 should be ingested to replace the V2-derived row. Both need a
-   live ingestion run (paid embeddings) with CC-D0008 staged in the Module folder, so
-   they were not done autonomously. The resolver guard makes the stale row harmless
-   meanwhile.
-2. **SNEC follow-up** (drafted, not sent): reading direction, the two pinhole steps vs
-   the later SOP revision, whether 4 m is simply the room length, the orange-sticker
-   occluder, and whether children follow an identical procedure.
+Both superseded rows were retired and replaced by **one authored row** built from
+CC-D0008 (`seed_authored_checklists.py`, 22 steps). Checklist rows went 27 → 26.
+
+- Deleted `Distance Vision Testing LogMAR` (id `e60d8193`, from the PSA Checklist V2 PDF)
+- Deleted `Distance Vision Testing LogMAR (SOP)` (id `708c627a`, from the SOP PDF)
+- Seeded `Distance Vision Testing LogMAR` from `Authored/Distance Vision Testing LogMAR`
+
+**No AI call was needed.** `ingest_checklists.py` would have used Gemini Pro to
+re-extract steps from a PDF, but CC-D0008's steps were already extracted verbatim, and
+the authored-checklist path is deterministic, reviewable in git, and free. Step 6
+(orange-sticker occluder) is carried over from PSA Checklist V2 because CC-D0008 is
+silent on occluder selection rather than contradicting it.
+
+**Both source PDFs remain as documents + chunks**, so the SOP and V2 stay searchable
+in RAG; they are simply no longer graded checklists. Both manifest entries in
+`run_ingestion.py` are now document-only, so a re-ingestion cannot recreate either row.
+
+Backup of all 27 pre-change rows was taken before the delete. Verified after: exactly
+one distance-VA row, 22 steps, left-to-right, room-length, both pinhole steps present,
+no "right to left" and no fixed 4 m. All five VA cases resolve to it (explicit and
+keyword paths). 1535 backend tests green.
+
+## Outstanding (SNEC only)
+
+**SNEC follow-up** (drafted, not sent): reading direction, the two pinhole steps vs the
+later SOP revision, whether 4 m is simply the room length, the orange-sticker occluder,
+and whether children follow an identical procedure. None of these block the app; if any
+answer changes, edit the authored entry and re-run the seeder + snapshot.
 
 ## The three documents
 
