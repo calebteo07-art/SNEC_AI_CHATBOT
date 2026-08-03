@@ -11,7 +11,13 @@
 import { chromium } from "playwright";
 import { admin, trainer, student, seededContext, MASTERY, J } from "./_mocks.mjs";
 
-const BASE = process.env.HARNESS_BASE ?? "http://127.0.0.1:3000";
+/* argv[2] FIRST — that is how start-harness.sh's run() passes the base, and it is the
+   only channel that carries HARNESS_PORT. Reading the env var alone made this the one
+   harness of twenty that ignored the port: a `HARNESS_PORT=3999 … all` sweep died here on
+   ERR_CONNECTION_REFUSED at :3000 and aborted every harness after it. Running off-port is
+   the documented way to sweep while another session owns :3000, so the trap cost a whole
+   sweep and read like a product defect. The env fallback stays for direct invocations. */
+const BASE = process.argv[2] ?? process.env.HARNESS_BASE ?? "http://127.0.0.1:3000";
 const fails = [];
 const check = (ok, msg) => { if (!ok) fails.push(msg); };
 
