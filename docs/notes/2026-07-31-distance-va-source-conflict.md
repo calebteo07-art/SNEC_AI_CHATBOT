@@ -1,110 +1,107 @@
-# Distance VA — two SNEC sources conflict (BLOCKED on SNEC)
+# Distance VA — three SNEC sources, two still conflict (PARTLY RESOLVED)
 
-**Status:** blocked, awaiting SNEC clarification. No content shipped.
-**Raised:** 2026-07-31, from `NU-PR-OPD-D0039 … LogMAR (Modified) Method.docx` (v03, rev 22 Feb 2024).
+**Status:** narrowed. SNEC supplied a third document on 2026-08-03. No content shipped yet.
+**Verified** against the `.docx` of all three sources, not against the ingested Supabase rows.
 
-## The conflict
+## The three documents
 
-The app carries two different SNEC documents for the same procedure, both ingested
-into Supabase `checklists` as separate rows:
+| | **A. SOP** `NU-PR-OPD-D0039` v03 | **B. PSA Checklist V2** | **C. Competency** `CC-D0008` |
+|---|---|---|---|
+| Type | Policy & Procedure, Nursing Dept | PSA skills practice checklist | Nursing competency assessment |
+| Control | v03, rev 22 Feb 2024, Restricted/Sensitive | none — "V2" only in the filename | doc no. only; embeds slides dated 25 Sept 2020 |
+| Supabase row | `Distance Vision Testing LogMAR (SOP)` | `Distance Vision Testing LogMAR` | **not ingested** |
+| Test distance | "the testing distance should be **4m**" | "calibrated according to **room length**" | "calibrated according to **room length**" |
+| Reading direction | "from **right to left**" | "from **left to right**" | "from **left to right**" |
+| No letters at 6/60 | **no pinhole** → straight to 6/120 | **pinhole first** | **pinhole first** |
+| At 6/120 | no pinhole step; no LogMAR value | pinhole attempt; **6/120 (1.3)** | pinhole attempt; **6/120 (1.3)** |
+| Orange-sticker occluder | absent | **present** | absent |
 
-Verified 2026-08-01 against **both primary documents** (the .docx of each), not against
-the ingested Supabase rows. All differences below are quoted from source.
+**C sides with B against A on every procedural conflict (2 v 1).** C also carries two
+slides marked "New slide added on 25 Sept 2020" that introduce the two extra pinhole
+steps explicitly, so they are a deliberate 2020 training change, not drift.
 
-| | **SOP** — `NU-PR-OPD-D0039` v03 | **PSA Checklist V2** |
-|---|---|---|
-| Supabase row | `Distance Vision Testing LogMAR (SOP)` | `Distance Vision Testing LogMAR` |
-| Source file | `Module 1 Content EyeBot/NU-PR-OPD-D0039 ….pdf` | `Module 2 Content EyeBot/PSA_Checklist_… V2.pdf` |
-| Test distance | "the testing distance should be **4m**" | "is **calibrated according to room length**"; no figure |
-| Reading direction | "from **right to left**" | "from **left to right**" |
-| Partial 6/60 | pinhole; if still not all 5, stop and record | same |
-| **No letters at 6/60** | **no pinhole** — straight to Snellen 6/120 | **pinhole first**, then 6/120 |
-| **At 6/120** | unreadable → CF/HM/PL/NPL; no pinhole step, no LogMAR value | **adds a pinhole attempt**; labels the line **LogMAR 1.3** |
-| Occluder | "Occluder with Pinholes" as a requisite | general occluder + **orange-sticker occluder for infected** |
-| Document control | v03, rev 22 Feb 2024, Nursing Dept, Restricted/Sensitive | **no doc number, version or date** — "V2" is only in the filename |
+## What remains genuinely open
 
-Complementary rather than contradictory (each has steps the other omits): the SOP
-opens with a requisites list (M&S Smart System, Occluder with Pinholes, Alcohol
-Wipes, Good Lighting) and closes with discarding waste + doctor examines; V2 has
-neither but adds "ensure patient is comfortable after the procedure".
+1. **Reading direction.** A flat contradiction; both cannot be right. 2 v 1 for left to right.
+2. **The two extra pinhole steps.** Added Sept 2020 (per C's slides), yet SOP v03 —
+   revised **later**, Feb 2024 — omits them. Deliberate removal or an oversight?
+3. **Test distance.** Possibly not a real conflict: the M&S Smart System scales letters
+   to room length, so if the SNEC rooms are 4 m then A states the figure and B/C state
+   the principle. Needs one-line confirmation.
+4. **Orange-sticker occluder.** In B only. Current practice or superseded?
+5. **Children.** C is titled "for Adults **& Children**" but contains no child-specific
+   step anywhere in the body. `cases/case_psa_001_logmar_child.json` tests a child at
+   **3 metres**, which matches no document.
 
-**Correction to the first draft of this note:** the earlier "Below 6/60" row said the
-SOP goes "6/60 partial → PH; none at 6/60 → 6/120". That collapsed two distinct
-branches and implied the pinhole always precedes 6/120. It does not: under the SOP a
-patient who reads *zero* letters at 6/60 goes to 6/120 with **no** pinhole. The
-"two extra pinhole attempts in V2" claim was correct.
+## Uncontested and shippable: the Snellen ↔ LogMAR ladder
 
-The V2-derived Supabase row was confirmed near-verbatim faithful to the V2 document.
+From C's embedded M&S screen captures. All three documents agree wherever they
+overlap (A quotes 6/19 (0.5), 6/15 (0.4), 6/60 (1.0)). **The app currently has no
+conversion table at all and never mentions 6/9.5.**
 
-**Live impact:** `tools/cases/resolve_checklist.py:51` maps every VA keyword
-(`logmar`, `snellen`, `pinhole`, `visual_acuity`, `distance_va`, `e_chart`,
-`low_vision`, `va_testing`) to the **V2** row. The SOP row is orphaned — no station
-can reach it. Every VA station therefore grades against left-to-right and
-room-length calibration.
+| Snellen | LogMAR | | Snellen | LogMAR |
+|---|---|---|---|---|
+| 6/7.5 | 0.1 | | 6/30 | 0.7 |
+| 6/9.5 | 0.2 | | 6/38 | 0.8 |
+| 6/12 | 0.3 | | 6/48 | 0.9 |
+| 6/15 | 0.4 | | 6/60 | 1.0 |
+| 6/19 | 0.5 | | 6/120 | 1.3 |
+| 6/24 | 0.6 | | | |
 
-## Open questions for SNEC
+M&S screen grouping: **Screen 1** 6/60, 6/48, 6/38 · **Screen 2** 6/30, 6/24, 6/19 ·
+**Screen 3** 6/15, 6/12, 6/9.5, 6/7.5. Every line carries exactly 5 characters.
 
-See the drafted email. Numbered Q1–Q5 there map to sections A1–A5 below.
+Note **6/9.5**, not 6/9 — the modified-LogMAR chart line differs from the familiar
+Snellen 6/9. Several flashcards use 6/9.
 
-## A. Blocked — conflict-dependent
+## Live impact (unchanged)
 
-### A1. Test distance
-- `tests/fixtures/procedure_checklists.json:796` — V2 row, "calibrated according to room length"
-- `tests/fixtures/procedure_checklists.json:910` — SOP row, "testing distance is 4m"
-- `cases/case_oa_002_iop_va.json:44,79` — "4 metres" (SOP-aligned)
+`tools/cases/resolve_checklist.py:51` maps every VA keyword to the **B** row, so the
+A row is orphaned and no station can reach it. If B/C win, the current routing is
+already correct and only A's row needs retiring.
+
+## File:line inventory — blocked until items 1–5 above are answered
+
+### Test distance
+- `tests/fixtures/procedure_checklists.json:796` (B row) · `:910` (A row)
+- `cases/case_oa_002_iop_va.json:44,79` — "4 metres"
 - `cases/case_ot_011_modified_logmar_va_testing.json:46,55` — "calibrated working distance"
 - `cases/case_psa_006_logmar_va_adult_new_patient.json:43,51` — "calibrated room distance"
-- `cases/case_psa_001_logmar_child.json:43,83` — "3 metres" / "3 or 6 metres" — **matches neither**
-- `workflows/ophthalmology_kb.md:156` — "Standard testing distance: 6 metres" — **matches neither**
-- `tools/flashcards/static_cards.py:909,934` — teaches 6 m as the test distance — **matches neither**
-- `tools/flashcards/static_cards.py:940` — card is built on the V2 phrase "calibrated according to room length"
-- `tools/flashcards/static_cards.py:956` — "largest LogMAR line at 6m" — **matches neither**
+- `cases/case_psa_001_logmar_child.json:43,83` — "3 metres" / "3 or 6 metres" — **matches nothing**
+- `workflows/ophthalmology_kb.md:156` — "6 metres" — **matches nothing**
+- `tools/flashcards/static_cards.py:909,934,956` — teaches 6 m — **matches nothing**
+- `tools/flashcards/static_cards.py:940` — built on B's "calibrated according to room length"
 
-Not in scope (different instrument, 6 m is standard for a Snellen projector):
-`cases/case_psa_007_snellen_va_pinhole.json:42,50`.
+Out of scope (Snellen projector, 6 m is correct there): `cases/case_psa_007_snellen_va_pinhole.json:42,50`.
 
-### A2. Reading direction — app is 100% V2 (left to right)
-- `tests/fixtures/procedure_checklists.json:796` — V2 row
-- `tests/fixtures/procedure_checklists.json:916` — SOP row (right to left)
+### Reading direction — app is 100% left to right, i.e. B/C
+- `tests/fixtures/procedure_checklists.json:796` (B) · `:916` (A, right to left)
 - `cases/case_ot_011_modified_logmar_va_testing.json:58`
 - `cases/case_psa_006_logmar_va_adult_new_patient.json:53`
 - `workflows/ophthalmology_kb.md:169`
 
-### A3. Low-vision ladder below 6/60
-- `cases/case_oa_037_logmar_low_vision_progression.json` — follows the SOP ladder
-- `tools/flashcards/static_cards.py:925,926` — mixed version
+### Low-vision ladder
+- `cases/case_oa_037_logmar_low_vision_progression.json` — follows A's ladder
+- `tools/flashcards/static_cards.py:925,926` — mixed
 
-### A4. Orange-sticker occluder (V2 only, absent from SOP)
+### Orange-sticker occluder
 - `tools/flashcards/static_cards.py:935,955`
 
-### A5. Which checklist governs the station
-- `tools/cases/resolve_checklist.py:51-52`
+### Both A and B agree — no change needed
+Right eye first · read ALL 5 before progressing · lines 6/48, 6/38, 6/30 · notation
+`VR 6/19 +2 (0.5) with gls` · pinhole when vision is 6/12 & above · CF → HM → PL → NPL ·
+alcohol-wipe before **and** after · 2 identifiers · check the doctor's order · record to EMR.
 
-## B. Both sources agree — no change needed
+### A-only closing steps dropped on ingestion
+The A row stops at step 18. The SOP continues: wipe occluder after (§4.2.13), discard
+waste + hand hygiene (§4.2.14), record to EMR (§4.3.1), doctor examines (§4.3.2).
 
-Right eye first by convention · read ALL 5 letters before progressing · lines
-6/48, 6/38, 6/30 · notation `VR 6/19 +2 (0.5) with gls` · pinhole when vision is
-6/12 & above · CF → HM → PL → NPL · alcohol-wipe the occluder before **and** after ·
-2 patient identifiers · check the doctor's order · record date/time/readings in EMR.
+## Once the five questions are answered
 
-## C. Independent defect — SOP row is truncated
-
-The `(SOP)` row stops at step 18 ("Repeat the test for the Left eye"). The source
-SOP continues past that point and those steps were dropped on ingestion:
-
-- §4.2.13 Wipe occluder with alcohol wipes after the procedure
-- §4.2.14 Discard all wastes into the waste bag and perform hand hygiene
-- §4.3.1 Record the date / time / distance vision readings onto the patient's EMR notes
-- §4.3.2 Doctor to examine patient's eyes after the procedure
-
-Fixing this is faithfulness to the SOP, not a conflict call — but the row may be
-merged or retired depending on SNEC's answer, so it is staged with the rest.
-
-## Once SNEC answers
-
-1. Reconcile the two Supabase `checklists` rows; re-run `tools/kb/snapshot_checklists.py`.
+1. Reconcile the Supabase `checklists` rows; ingest C if it becomes authoritative;
+   re-run `tools/kb/snapshot_checklists.py`.
 2. Repoint or leave `resolve_checklist.py:51`.
-3. Sweep A1–A4 above.
-4. Re-ingest the KB if the losing document should stop being cited by the tutor
-   (both PDFs are currently in the RAG corpus, so the tutor can quote either).
-5. Regression test pinning the agreed distance + reading direction, per `/ship-check`.
+3. Sweep the inventory above.
+4. Add the Snellen ↔ LogMAR ladder as new teaching content.
+5. Re-ingest the KB so the tutor stops citing whichever document loses.
+6. Regression test pinning the agreed distance + direction, per `/ship-check`.
