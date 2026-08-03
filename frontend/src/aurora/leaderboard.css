@@ -73,14 +73,14 @@
   --disp: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
 
   position: relative;
-  max-width: 660px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 24px 18px 96px;
+  padding: 18px 18px 88px;
   color: var(--ink);
   font-family: var(--font-body);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 /* Numbers never jitter as they count or re-rank. */
 .lb-climb .chase-n, .lb-climb .lg-rk, .lb-climb .lg-score, .lb-climb .bm-score,
@@ -108,19 +108,32 @@
 }
 
 /* ── header ───────────────────────────────────────────────────────────────── */
-.lb-head { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.lb-head { text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+/* The eyebrow wears its own rule, so the title arrives on a plinth of its own. */
 .lb-eyebrow {
-  margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  margin: 0; display: flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .26em; text-transform: uppercase;
   color: var(--gold);
 }
+.lb-eyebrow::before, .lb-eyebrow::after {
+  content: ""; width: 34px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 66, .7));
+}
+.lb-eyebrow::after { transform: scaleX(-1); }
+/* Struck gold rather than painted: a three-stop gradient clipped to the glyphs, which is what
+   separates "a gold-coloured word" from a title that looks minted. background-clip:text kills
+   text-shadow, so the glow is a drop-shadow filter instead. */
 .lb-title {
-  margin: 0; font-family: var(--disp); font-weight: 700; letter-spacing: -.028em; line-height: 1;
-  font-size: clamp(34px, 9vw, 50px); color: var(--ink);
-  text-shadow: 0 0 42px rgba(245, 197, 66, .34);
+  margin: 0; font-family: var(--disp); font-weight: 700; letter-spacing: -.03em; line-height: 1;
+  font-size: clamp(38px, 10vw, 62px);
+  background: linear-gradient(178deg, #FFFDF5 6%, #FFE9A8 38%, #F5C542 62%, #C08E17 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 34px rgba(245, 197, 66, .40)) drop-shadow(0 2px 1px rgba(0, 0, 0, .55));
 }
 
 /* ── division ladder: five real metals ───────────────────────────────────── */
-.dv { width: 100%; display: flex; flex-direction: column; gap: 11px; align-items: center; }
+.dv { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .dv-rungs {
   list-style: none; margin: 0; padding: 0; width: 100%;
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: stretch;
@@ -154,11 +167,17 @@
   display: grid; place-items: center; font-size: 8px; font-weight: 800;
   background: var(--mm); color: #10121A; box-shadow: 0 0 0 2px #12141F;
 }
-/* Here: raised off the ladder, lit in its own metal, and labelled in words. */
+/* Here: raised off the ladder, lit in its own metal, labelled in words, and breathing — the
+   one rung that is alive. The pulse is on a ::after so it can glow without re-stating the
+   rung's own border and rim. */
 .dv-rung[data-state="now"] {
   background: var(--surf-2); border-color: var(--mm);
-  box-shadow: var(--rim), 0 0 0 1px var(--msoft), 0 12px 26px -14px var(--mglow), 0 0 30px -8px var(--mglow);
+  box-shadow: var(--rim), 0 0 0 1px var(--msoft), 0 12px 26px -14px var(--mglow);
   transform: translateY(-3px);
+}
+.dv-rung[data-state="now"]::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+  animation: dv-breathe 3.8s ease-in-out infinite;
 }
 .dv-rung[data-state="now"] .dv-nm { color: var(--ink); font-size: 10.5px; }
 .dv-here {
@@ -194,13 +213,18 @@
 /* "How the league works" — the rules, on demand. A <details> rather than a button: no state
    to own, and it is not a button/a/input so it never enters the 44px target sweep (it clears
    44px anyway, because a rule nobody can tap is a rule nobody reads). */
+/* Closed, this is a pill that costs one line; open, it becomes a panel. It used to be a
+   full-width 44px bar even when shut, which spent a whole band of the page on a control
+   nobody had opened yet. */
 .dv-help {
-  width: 100%; max-width: 480px; border-radius: 12px;
+  width: fit-content; max-width: 480px; border-radius: 999px;
   border: 1px solid var(--hair); background: var(--surf-1); box-shadow: var(--rim);
+  transition: border-radius .12s ease;
 }
+.dv-help[open] { width: 100%; border-radius: 14px; }
 .dv-help > summary {
   display: flex; align-items: center; justify-content: center; gap: 7px;
-  min-height: 44px; padding: 0 14px; cursor: pointer; list-style: none;
+  min-height: 36px; padding: 0 16px; cursor: pointer; list-style: none;
   font-size: 12.5px; font-weight: 700; color: var(--ink-2);
 }
 .dv-help > summary::-webkit-details-marker { display: none; }
@@ -220,11 +244,16 @@
 .dv-help strong { color: var(--ink-2); font-weight: 700; }
 
 /* ── the chase: the biggest number on the page after the champion ────────── */
-.chase { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.chase { text-align: center; display: flex; flex-direction: column; gap: 1px; margin-top: 2px; }
+/* Struck in the same gold as the title — the page's two headline numbers should be the same
+   material, or the hierarchy reads as two unrelated accents. */
 .chase-n {
   font-family: var(--disp); font-weight: 700; letter-spacing: -.03em; line-height: 1;
-  font-size: clamp(38px, 11vw, 54px); color: var(--gold);
-  text-shadow: 0 0 34px rgba(245, 197, 66, .38);
+  font-size: clamp(40px, 11vw, 58px);
+  background: linear-gradient(178deg, #FFFDF5 4%, #FFE9A8 34%, #F5C542 62%, #C08E17 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 30px rgba(245, 197, 66, .42));
 }
 .chase-l {
   font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3);
@@ -235,7 +264,7 @@
 }
 
 /* ── THE BEAM ─────────────────────────────────────────────────────────────── */
-.bm { position: relative; margin-top: 6px; padding: 34px 0 32px; isolation: isolate; }
+.bm { position: relative; margin-top: 0; padding: 18px 0 22px; isolation: isolate; }
 
 /* The stage floor. Without a ground plane the figures float in the same void as the sky,
    which is half of why the old podium read flat. */
@@ -374,7 +403,7 @@
    that ratio off THIS element — so the top face and the reflection are both absolute and
    neither contributes a pixel of height. */
 .bm-plinth {
-  position: relative; margin-top: 26px; width: 100%; height: 66px;
+  position: relative; margin-top: 18px; width: 100%; height: 66px;
   border-radius: 2px 2px 5px 5px;
   display: grid; place-items: center;
   background:
@@ -435,7 +464,7 @@
 }
 
 /* ── the league list ──────────────────────────────────────────────────────── */
-.lg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
 .lg-item { display: block; animation: lb-rise .45s cubic-bezier(.2, .9, .3, 1.05) backwards; }
 .lg-list .lg-item:nth-child(1) { animation-delay: .02s } .lg-list .lg-item:nth-child(2) { animation-delay: .05s }
 .lg-list .lg-item:nth-child(3) { animation-delay: .08s } .lg-list .lg-item:nth-child(4) { animation-delay: .11s }
@@ -446,8 +475,8 @@
    as one undifferentiated field. */
 .lg-row {
   position: relative; width: 100%; min-height: 62px; text-align: left; cursor: pointer;
-  display: grid; grid-template-columns: 24px 30px 44px minmax(0, 1fr) auto; align-items: center; gap: 10px;
-  padding: 9px 14px 9px 10px; border-radius: var(--rr);
+  display: grid; grid-template-columns: 28px 26px 44px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  padding: 8px 14px 8px 10px; border-radius: var(--rr);
   border: 1px solid var(--hair); background: var(--surf-1); color: var(--ink);
   box-shadow: var(--rim), var(--cast);
   font-family: inherit;
@@ -471,15 +500,37 @@
   background: linear-gradient(180deg, var(--gold-hi), var(--gold-deep));
   box-shadow: 0 0 12px rgba(245, 197, 66, .5);
 }
-/* Your own row: a ring, not a tint — so it stays distinct from the promotion band above. */
+/* Your own row: a ring, not a tint — so it stays distinct from the promotion band above —
+   and the only thing on the list that breathes. */
 .lg-row[data-you] {
   background: var(--surf-2);
   border-color: transparent;
   box-shadow: 0 0 0 2px var(--gold), var(--rim), 0 16px 34px -18px rgba(245, 197, 66, .55);
 }
+.lg-row[data-you]::after {
+  content: ""; position: absolute; inset: -2px; border-radius: inherit; pointer-events: none;
+  animation: lg-breathe 3.4s ease-in-out infinite;
+}
 
-.lg-rk { font-family: var(--disp); font-weight: 700; font-size: 15px; color: var(--ink-3); text-align: center; }
-.lg-row[data-you] .lg-rk { color: var(--gold); }
+/* The rank rides a struck disc rather than sitting as loose type. Twenty-seven identical rows
+   of bare numerals is most of why the list read as a spreadsheet. */
+.lg-rk {
+  display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto;
+  border-radius: 50%; font-family: var(--disp); font-weight: 700; font-size: 13px;
+  color: var(--ink-3); text-align: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .015));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .13), 0 2px 5px -3px rgba(0, 0, 0, .9);
+}
+.lg-item[data-promo] .lg-rk {
+  color: var(--gold-hi);
+  background: linear-gradient(180deg, rgba(245, 197, 66, .30), rgba(245, 197, 66, .06));
+  box-shadow: inset 0 1px 0 rgba(255, 233, 168, .35), 0 2px 6px -3px rgba(0, 0, 0, .9);
+}
+.lg-row[data-you] .lg-rk {
+  color: #2A1B00;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 3px 10px -4px rgba(245, 197, 66, .9);
+}
 .lg-mv { display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--ink-3); }
 .lg-mv[data-dir="up"] { color: #6FD08C; }      /* the one hue outside the metals, and it is semantic */
 .lg-mv[data-dir="down"] { color: rgba(245, 243, 239, .40); }
@@ -503,18 +554,20 @@
   font-size: 15px; color: var(--gold); white-space: nowrap;
 }
 
-/* The promotion line itself. */
-.lg-line { display: flex; align-items: center; gap: 12px; padding: 14px 2px 12px; }
+/* The promotion line: the single most consequential band on the page, so it is struck like
+   one rather than drawn as a hairline with a caption. */
+.lg-line { display: flex; align-items: center; gap: 10px; padding: 10px 2px 8px; }
 .lg-line::before, .lg-line::after {
-  content: ""; flex: 1; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 197, 66, .6), transparent);
+  content: ""; flex: 1; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 66, .75), transparent);
+  box-shadow: 0 0 14px rgba(245, 197, 66, .35);
 }
 .lg-line-txt {
   flex: 0 1 auto; text-align: center; font-size: 10.5px; font-weight: 800; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--gold);
-  border: 1px solid rgba(245, 197, 66, .38); border-radius: 999px; padding: 6px 13px;
-  background: rgba(245, 197, 66, .08); text-shadow: 0 0 18px rgba(245, 197, 66, .5);
-  box-shadow: 0 6px 22px -14px rgba(245, 197, 66, .9);
+  text-transform: uppercase; color: #2E2100;
+  border-radius: 999px; padding: 7px 15px;
+  background: linear-gradient(180deg, #FFF0BE 0%, #F5C542 55%, #D9A521 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 8px 26px -12px rgba(245, 197, 66, .95);
 }
 
 .lg-open {
@@ -638,12 +691,32 @@
   100% { opacity: 0; transform: translateY(-200px) scale(1.2); }
 }
 @keyframes lb-rise { from { opacity: 0; transform: translateY(9px); } }
+/* Two slow breaths, on ::after layers so neither restates its element's own shadow stack. */
+@keyframes dv-breathe { 50% { box-shadow: 0 0 26px -4px var(--mglow); } }
+@keyframes lg-breathe { 50% { box-shadow: 0 0 0 3px rgba(245, 197, 66, .13), 0 0 28px rgba(245, 197, 66, .22); } }
 @keyframes youbar-in { from { opacity: 0; transform: translate(-50%, 14px); } }
 @keyframes sheet-fade { from { opacity: 0; } }
 @keyframes sheet-up { from { transform: translateY(22px); } }
 @keyframes lb-drift { to { background-position: 0 -300px; } }
 
 /* ── responsive ───────────────────────────────────────────────────────────── */
+/* Desktop: a 660px column on a 1280px screen left ~300px of dead margin either side while the
+   page read as cramped vertically — the wrong whitespace in both axes. The column widens and
+   the podium grows into it (the plinths are `fr` units, so they widen for free; the heights
+   have to be told). 2x is preserved exactly — league_assert measures it.
+   Guarded on HEIGHT too: 932x430 phone-landscape also clears 860px wide, and 164px plinths on
+   a 430px-tall screen would not fit. */
+@media (min-width: 860px) and (min-height: 640px) {
+  .lb-climb { max-width: 830px; gap: 14px; }
+  .bm { padding: 22px 0 26px; }
+  .bm-plinth { height: 82px; }
+  .bm-slot[data-place="1"] .bm-plinth { height: 164px; }   /* 2x preserved */
+  .bm-top { top: -15px; height: 16px; }
+  .bm-slot[data-place="1"] .bm-top { top: -20px; height: 21px; }
+  .bm-numeral { font-size: 36px; }
+  .bm-slot[data-place="1"] .bm-numeral { font-size: 66px; }
+  .lg-row { min-height: 66px; }
+}
 /* Phone-landscape joins the phone tier: at 844x390 / 932x430 a WIDTH breakpoint misses it
    entirely and the board resolves at desktop scale. Width cannot identify a phone
    (breakpoints.css / project_mobile_refit). */
@@ -663,7 +736,8 @@
 }
 @media (max-width: 420px) {
   .lb-climb { padding: 18px 12px 92px; }
-  .lg-row { grid-template-columns: 20px 26px 40px minmax(0, 1fr) auto; gap: 8px; padding: 9px 11px 9px 8px; }
+  .lg-row { grid-template-columns: 24px 22px 40px minmax(0, 1fr) auto; gap: 8px; padding: 8px 11px 8px 8px; }
+  .lg-rk { width: 23px; height: 23px; font-size: 12px; }
   .lg-face { width: 40px; height: 40px; }
   .lg-lvl { display: none; }
   .bm-name { font-size: 12px; }
@@ -688,7 +762,8 @@
    frozen because they should be, not because they are measured. */
 @media (prefers-reduced-motion: reduce) {
   .lb-climb::before, .bm-ray, .bm-pool, .bm-burst::before, .bm-ember, .bm-shine::before, .bm-slot,
-  .lg-item, .youbar, .sheet-scrim, .sheet, .lr, .lr-ray, .lr-card {
+  .lg-item, .lg-row[data-you]::after, .dv-rung[data-state="now"]::after,
+  .youbar, .sheet-scrim, .sheet, .lr, .lr-ray, .lr-card {
     animation: none !important;
   }
   .lg-row, .lb-chip, .dv-help > summary::after { transition: none !important; }
@@ -701,6 +776,8 @@ html[data-motion="reduce"] .bm-ember,
 html[data-motion="reduce"] .bm-shine::before,
 html[data-motion="reduce"] .bm-slot,
 html[data-motion="reduce"] .lg-item,
+html[data-motion="reduce"] .lg-row[data-you]::after,
+html[data-motion="reduce"] .dv-rung[data-state="now"]::after,
 html[data-motion="reduce"] .youbar,
 html[data-motion="reduce"] .sheet-scrim,
 html[data-motion="reduce"] .sheet,
