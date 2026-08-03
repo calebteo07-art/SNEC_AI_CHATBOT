@@ -2177,13 +2177,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
   .aurora-checkin-streaknum { font-size: 92px; }
 }
 
-/* KPI grid (reuses StatCard) */
-.aurora-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
-
-/* AI insight blockquote */
-.aurora-insight { padding: 18px 20px; border-left: 3px solid var(--g-purple); background: rgba(120, 110, 200, 0.05); border-radius: var(--radius); }
-.aurora-insight p { font-size: 16.8px; line-height: 1.6; color: var(--ink); font-style: italic; margin: 0; }
-
 /* labelled bars (weak topics, benchmarks) */
 .aurora-bars { display: flex; flex-direction: column; gap: 10px; }
 .aurora-bar-row { display: flex; align-items: center; gap: 12px; }
@@ -2193,37 +2186,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-bar-fill[data-weak="true"] { background-image: linear-gradient(100deg, var(--g-rose), var(--g-purple)); }
 .aurora-bar-pct { font-family: var(--font-mono); font-size: 13.4px; color: var(--ink-2); flex-shrink: 0; min-width: 2.8rem; text-align: right; font-variant-numeric: tabular-nums; }
 .aurora-bar-meta { font-size: 12.3px; color: var(--ink-3); flex-shrink: 0; min-width: 4rem; }
-
-/* toolbar + search field */
-.aurora-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.aurora-field { flex: 1; min-width: 200px; background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-sm); padding: 9px 12px; font-family: var(--font-sans); font-size: 15.7px; color: var(--ink); outline: none; }
-.aurora-field:focus-visible { border-color: var(--g-blue); }
-.aurora-field::placeholder { color: var(--ink-3); }
-
-/* pager */
-.aurora-pager { display: flex; align-items: center; justify-content: space-between; font-size: 13.4px; color: var(--ink-3); }
-.aurora-pager-btns { display: flex; gap: 8px; align-items: center; }
-.aurora-pager button { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: 13.4px; cursor: pointer; }
-.aurora-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
-.aurora-pager button:not(:disabled):hover { color: var(--ink); }
-
-/* Filter chips (admin roster toolbar). Base styles were never defined, so the
-   buttons collapsed to bare text crushed together with no gap. Tokens adapt to
-   the dark console (.console-dark redefines --surface/--ink-2/--hairline). The
-   active chip also carries .aurora-flow for the gemini-gradient fill, so set
-   background-color (not the background shorthand, which would wipe its image). */
-.aurora-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.aurora-chip {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 38px; padding: 8px 15px;
-  border: 1px solid var(--hairline); border-radius: 999px;
-  background-color: var(--surface); color: var(--ink-2);
-  font-family: var(--font-sans); font-size: 13.4px; font-weight: 600;
-  white-space: nowrap; cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
-}
-.aurora-chip:hover { color: var(--ink); border-color: var(--ink-3); }
-.aurora-chip[data-active="true"] { color: #fff; border-color: transparent; }
 
 /* Touch: enlarge small tap targets to a comfortable hit area. A mouse is precise; a
    fingertip needs ~44px. Visuals are unchanged — only the clickable box grows.
@@ -2334,9 +2296,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
 .console-dark .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
 
-/* Insight band reads on slate. */
-.console-dark .aurora-insight { background: rgba(182, 139, 230, 0.12); border-left-color: var(--g-purple); }
-
 /* ── Console chrome extras (used by ConsoleRail + redesigned screens) ── */
 /* Section eyebrow with a coloured leading tick — gives each screen a domain hue. */
 .console-rail-brand { padding: 2px 6px 14px; }
@@ -2388,10 +2347,8 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 /* Cards / body copy */
 .console-dark .aurora-activity-head { font-size: 14.6px; letter-spacing: 0.1em; }
 .console-dark .aurora-muted { font-size: 16.8px; }
-.console-dark .aurora-insight p { font-size: 19px; }
 
 /* Forms / buttons — bigger hit targets */
-.console-dark .aurora-field { font-size: 17.4px; padding: 11px 14px; }
 .console-dark .aurora-btn { font-size: 16.8px; padding: 12px 22px; }
 .console-dark .aurora-btn-ghost { font-size: 16.2px; padding: 10px 18px; }
 .console-dark .aurora-note { font-size: 15.7px; }
