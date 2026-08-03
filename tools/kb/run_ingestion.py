@@ -165,10 +165,14 @@ MODULE_2_CATALOG = [
         "checklist_type": "OT", "procedure_name": "Humphrey Visual Field",
     },
     # PSA Checklists
+    # Reference document only. The graded checklist is authored from CC-D0008 in
+    # seed_authored_checklists.py (V2 agrees with it procedurally, but CC-D0008 is the
+    # current competency assessment). Parsing this PDF as well produced a second row
+    # with the same procedure_name, which get_checklist_by_name would pick between
+    # arbitrarily. See docs/notes/2026-07-31-distance-va-source-conflict.md
     {
         "filename": "PSA_Checklist_Distance Vision Testing for Adults Using LogMAR (Modified) Method V2.pdf",
-        "category": "checklist", "is_checklist": True,
-        "checklist_type": "PSA", "procedure_name": "Distance Vision Testing LogMAR",
+        "category": "checklist",
     },
     {
         "filename": "PSA_Checklist_History taking V3.pdf",
