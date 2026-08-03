@@ -35,6 +35,14 @@ export function advance(order: number[], ticked: ReadonlySet<number>, satisfied:
   return next;
 }
 
+/** What the student actually DID, for the grade and the record. `ticked` means "the gate
+    moved past this", which is NOT the same as "the student did this" — the skip valve
+    advances steps the student said they could not complete. Those come back out here, so
+    giving up never earns credit. Sorted, so the same station submits the same payload. */
+export function performedOnly(ticked: ReadonlySet<number>, skipped: ReadonlySet<number>): number[] {
+  return [...ticked].filter((n) => !skipped.has(n)).sort((a, b) => a - b);
+}
+
 /** Whether firing /observe can still tick anything. The conversational examiner only ticks
     NON-MANUAL steps, and the backend returns [] once none of those remain — so the round-trip
     (which, for intermediate/advanced cases, also costs an access-check DB read) is worth making

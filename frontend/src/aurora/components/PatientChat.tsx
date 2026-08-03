@@ -4,6 +4,7 @@
    conversation: vocal/history steps are typed here and the examiner (/observe)
    auto-ticks them. Presentational — all state lives in CaseSession. */
 import { type KeyboardEvent, type RefObject } from "react";
+import { SkipStepButton } from "@/aurora/components/SkipStepButton";
 
 interface PatientMessage { role: "user" | "assistant"; content: string }
 
@@ -18,9 +19,9 @@ export function PatientChat({
   locked,
   active,
   turnBadge,
-  canUnstick,
-  unsticking,
-  onUnstick,
+  canSkip,
+  skipping,
+  onSkip,
   endRef,
   onInputChange,
   onSend,
@@ -40,10 +41,10 @@ export function PatientChat({
   active: boolean;
   /** Badge copy — names the CHANNEL, never the clinical step. Empty when not active. */
   turnBadge: string;
-  /** Three messages on the same step with no tick — offer the stuck-valve. */
-  canUnstick: boolean;
-  unsticking: boolean;
-  onUnstick: () => void;
+  /** Enough messages on the same step with no tick — offer the way out (stationTurn.canSkip). */
+  canSkip: boolean;
+  skipping: boolean;
+  onSkip: () => void;
   endRef: RefObject<HTMLDivElement | null>;
   onInputChange: (value: string) => void;
   onSend: () => void;
@@ -95,17 +96,7 @@ export function PatientChat({
         </div>
       )}
 
-      {!hasResult && !locked && canUnstick && (
-        <button
-          type="button"
-          className="aurora-station-unstick"
-          data-testid="station-unstick"
-          onClick={onUnstick}
-          disabled={unsticking}
-        >
-          {unsticking ? "Re-checking your consult…" : "Examiner didn't catch that?"}
-        </button>
-      )}
+      {!hasResult && !locked && canSkip && <SkipStepButton busy={skipping} onSkip={onSkip} />}
 
       {!hasResult && !locked && (
         <div className="aurora-station-composer">

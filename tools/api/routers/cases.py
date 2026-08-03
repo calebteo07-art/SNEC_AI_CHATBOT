@@ -163,9 +163,10 @@ class CaseSubmitRequest(BaseModel):
     findings: str
     recommendation: str
     performed_steps: list[int] = []
-    # Subset of performed_steps advanced by the station's stuck-valve, NOT examiner-verified.
-    # Included in performed_steps (student's favour) but named to the debrief coach.
-    self_advanced: list[int] = []
+    # Steps the student could not complete and skipped to carry on. They pass the station's
+    # gate but were NOT done: subtracted from performed_steps below (the client already
+    # excludes them; the endpoint doesn't rely on that) and named to the debrief coach.
+    skipped_steps: list[int] = []
 
 class ScorePart(BaseModel):
     label: str
@@ -972,9 +973,14 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     #    and let the coaching call run CONCURRENTLY with grading.
     checklist_comparison: list[ChecklistStepResult] = []
     _cl_compare: dict = {}
+    # A skipped step reached the gate without being done, so it is not performed — anywhere.
+    # The client already strips them; doing it here too means no client version, old or
+    # hand-rolled, can buy credit (or clear the safety gate) by giving up on a step.
+    _skipped_set = set(body.skipped_steps)
+    performed_set = set(body.performed_steps) - _skipped_set
+    performed_list = sorted(performed_set)
     try:
         _cl_compare = await asyncio.to_thread(_station_checklist, case)
-        performed_set = set(body.performed_steps)
         for s in (_cl_compare.get("steps") or []):
             step_num = int(s.get("step_number", 0))
             performed = step_num in performed_set
@@ -997,11 +1003,10 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     except Exception:
         _coach_ctx = ""
     missed_actions = [c.action for c in checklist_comparison if not c.performed]
-    # Steps the student self-marked when the examiner missed them (station stuck-valve). They
-    # count for the grade — after 3 genuine attempts the likeliest truth is that the examiner
-    # missed it — but the coach is told, so the debrief never claims verification it lacks.
-    _self_set = set(body.self_advanced)
-    self_named = [c.action for c in checklist_comparison if c.step_number in _self_set]
+    # Steps the student tried and gave up on (the station's skip). They're already in
+    # missed_actions — this names them separately because "attempted, couldn't finish" is
+    # coachable in a way "never attempted" isn't, and the debrief should tell them apart.
+    skipped_named = [c.action for c in checklist_comparison if c.step_number in _skipped_set]
     # Feed BOTH the patient consultation AND the action-panel procedures (decoded from the
     # embedded markers) so the coach can comment on what was actually said and done — the
     # source of real, specific feedback (ricoe C7).
@@ -1029,8 +1034,8 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
             f"Findings submitted: {body.findings}\n"
             f"Recommendation submitted: {body.recommendation}\n"
             f"Checklist steps NOT performed: {', '.join(missed_actions) or 'none'}\n"
-            f"Steps the student SELF-MARKED (not examiner-verified — if the transcript does not "
-            f"support them, say so): {', '.join(self_named) or 'none'}\n\n"
+            f"Steps the student tried but COULD NOT COMPLETE, and skipped to carry on (they "
+            f"asked for help here — coach these first): {', '.join(skipped_named) or 'none'}\n\n"
             "PATIENT CONSULTATION:\n" + ("\n".join(consult_patient) or "(no conversation)") + "\n\n"
             "ACTION PANEL — procedures performed and examiner grades:\n"
             + ("\n".join(consult_actions) or "(no manual procedures performed)")
@@ -1038,7 +1043,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     }]
 
     grade_task = asyncio.create_task(
-        asyncio.to_thread(evaluate_case, case, messages, student_id, body.performed_steps)
+        asyncio.to_thread(evaluate_case, case, messages, student_id, performed_list)
     )
     coaching_task = asyncio.create_task(asyncio.to_thread(
         ask,
@@ -1072,7 +1077,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
             "management": raw_result.get("management_score", 0),
         },
         _cl_compare.get("steps", []),
-        body.performed_steps,
+        performed_list,
         has_manual,
     )
 
@@ -1161,7 +1166,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         },
     )
 
-    per_phase = _per_phase_summary(_cl_compare.get("steps", []), body.performed_steps)
+    per_phase = _per_phase_summary(_cl_compare.get("steps", []), performed_list)
 
     domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields if k in raw_result}
     domain_fields.update({

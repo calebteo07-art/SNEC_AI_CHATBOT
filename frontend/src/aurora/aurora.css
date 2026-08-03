@@ -1414,8 +1414,12 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-step[data-display="masked"] .mask {
   letter-spacing: .06em; color: var(--ink-3); opacity: .45; user-select: none;
 }
-/* Self-marked via the stuck-valve — deliberately NOT a ✓, so the record stays honest. */
-.aurora-station-step[data-display="self"] .bx { color: var(--ink-3); font-weight: 700; }
+/* Skipped — past the gate, but the student said they couldn't do it. Deliberately NOT a
+   green ✓: it reads as an open item, so the record stays honest at a glance. */
+.aurora-station-step[data-display="skipped"] { color: var(--ink-3); }
+.aurora-station-step[data-display="skipped"] .bx {
+  color: var(--on-rose-2); font-weight: 700; border-style: dashed; background: rgba(255,255,255,.5);
+}
 
 .aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
 /* The consult thread is the only scrolling region on the right — the exam tray and
@@ -3421,16 +3425,21 @@ html[data-motion="reduce"] .aurora-station-grid[data-turn="handover"] .aurora-st
 }
 html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !important; }
 
-/* Stuck-valve — deliberately quiet. It is the recovery path when the examiner misses a
-   step, not a shortcut, so it never competes with the composer for attention. */
-.aurora-station-unstick {
+/* The way out of a step the student can't complete — deliberately quiet. It costs them the
+   mark, so it must never compete with the composer for attention or read as a shortcut. */
+.aurora-station-skip { flex: none; }
+.aurora-station-skip-btn {
   display: block; margin: 8px auto 0; padding: 5px 12px; border-radius: 999px;
   border: 1px dashed var(--hairline); background: none;
   color: var(--ink-3); font-size: 12.5px; cursor: pointer;
   transition: color .15s var(--st-ease, ease), background .15s var(--st-ease, ease);
 }
-.aurora-station-unstick:hover:not(:disabled) { color: var(--ink-2); background: rgba(31,31,31,.04); }
-.aurora-station-unstick:disabled { opacity: .6; cursor: default; }
+.aurora-station-skip-btn:hover:not(:disabled) { color: var(--ink-2); background: rgba(31,31,31,.04); }
+.aurora-station-skip-btn:disabled { opacity: .6; cursor: default; }
+.aurora-station-skip-note {
+  margin: 5px auto 0; max-width: 46ch; text-align: center;
+  font-size: 11.5px; line-height: 1.4; color: var(--ink-3); opacity: .85;
+}
 
 /* "?" help — quiet until wanted, reachable from both Virtual Patients surfaces. Both head
    rows are already flex, so margin-left:auto is all it takes to sit them on the right. */

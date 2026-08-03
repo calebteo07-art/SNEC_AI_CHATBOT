@@ -42,3 +42,17 @@ export function stationTurn(
   }
   return { turn: "patient", badge: "Your turn — talk to the patient" };
 }
+
+/** Attempts on the CURRENT step before the way-out is offered, per channel. Typing another
+    line is cheap; opening a procedure and backing out of it is not — a student doing that
+    twice is telling you they don't know the technique, so the action pane offers it sooner. */
+export const SKIP_AFTER: Record<"patient" | "eyebot", number> = { patient: 3, eyebot: 2 };
+
+/**
+ * Whether to offer "unable to complete this checklist item" right now.
+ * @param attempts tries on the CURRENT step only — the caller resets it when the gate moves.
+ */
+export function canSkip(turn: Turn, attempts: number, hasResult: boolean): boolean {
+  if (hasResult || turn === null || turn === "handover") return false;
+  return attempts >= SKIP_AFTER[turn];
+}

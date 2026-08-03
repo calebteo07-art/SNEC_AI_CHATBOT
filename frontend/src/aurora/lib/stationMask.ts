@@ -7,19 +7,20 @@
    current step (so a lost student never stalls). Everything ahead is masked to a glyph
    run that preserves the row's rhythm without leaking the words.
 
-   `self` is ticked-but-not-examiner-verified (the stuck-valve): it counts for the gate,
-   but it must never render as a clean ✓ — the debrief and the export stay honest. */
+   `skipped` is a step the student said they could not complete (the skip valve): it counts
+   for the gate so the session can continue, but it must never render as a clean ✓ — the
+   debrief, the grade and the export all stay honest. */
 
-export type StepDisplay = "done" | "current" | "masked" | "self";
+export type StepDisplay = "done" | "current" | "masked" | "skipped";
 
 /** The display state of one checklist row. `current` is the gate step (stationGate.currentStep). */
 export function stepDisplay(
   stepNumber: number,
   ticked: ReadonlySet<number>,
-  selfMarked: ReadonlySet<number>,
+  skipped: ReadonlySet<number>,
   current: number | null,
 ): StepDisplay {
-  if (ticked.has(stepNumber)) return selfMarked.has(stepNumber) ? "self" : "done";
+  if (ticked.has(stepNumber)) return skipped.has(stepNumber) ? "skipped" : "done";
   if (current !== null && stepNumber === current) return "current";
   return "masked";
 }
