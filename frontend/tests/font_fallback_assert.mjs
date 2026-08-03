@@ -47,7 +47,10 @@ for (const [path, who] of ROUTES) {
     const p = await ctx.newPage();
     try {
       await p.goto(base + path, { waitUntil: "domcontentloaded", timeout: 30000 });
-      await p.waitForSelector(".aurora-shell, .flash-root", { timeout: 25000 });
+      // .cs-shell is the staff console — it renders NO .aurora-shell, and this harness
+      // matters most there: .cs re-declares --font-sans from scratch, and an undefined
+      // --font-*-src would silently drop the whole console to Times.
+      await p.waitForSelector(".aurora-shell, .flash-root, .cs-shell", { timeout: 25000 });
       await p.waitForTimeout(2500);
       const r = await p.evaluate(() => {
         // The fallback resolves to the bare family with NO chain — that exactness is what

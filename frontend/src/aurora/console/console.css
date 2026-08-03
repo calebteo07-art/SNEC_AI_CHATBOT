@@ -53,7 +53,7 @@
   background: rgba(255, 255, 255, 0.80); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--cs-hair); position: sticky; top: 0; z-index: 20;
 }
-.cs-title { font-size: 14px; font-weight: 700; letter-spacing: -0.014em; white-space: nowrap; }
+.cs-title { font-size: 14px; font-weight: 700; letter-spacing: -0.014em; white-space: nowrap; margin: 0; }
 .cs-title span { color: var(--cs-ink-3); font-weight: 500; }
 
 .cs-body { display: grid; grid-template-columns: 184px 1fr; flex: 1; min-height: 0; }
@@ -105,6 +105,13 @@
   border-radius: 8px; padding: 0 12px; text-decoration: none; white-space: nowrap;
   display: inline-flex; align-items: center; min-height: 44px;
 }
+
+.cs-signout {
+  flex: none; min-width: 44px; min-height: 44px; border: 1px solid var(--cs-hair-2);
+  border-radius: 9px; background: var(--cs-surface); color: var(--cs-ink-2);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.cs-signout:hover { color: var(--cs-coral); border-color: var(--cs-coral); }
 
 .cs-btn {
   min-height: 44px; padding: 0 16px; border-radius: 9px; border: 0; font-size: 13px;
@@ -371,6 +378,8 @@ html[data-motion="reduce"] .cs-rise { animation: none; }
   .cs-seg button { flex: 1; padding: 8px 4px; }
   .cs-live { font-size: 10px; padding: 4px 9px; }
   .cs-back { font-size: 10px; padding: 0 10px; }
+  /* ~70px the top row does not have. The bottom tab bar already names the section. */
+  .cs-title-sec { display: none; }
 
   .cs-body { grid-template-columns: 1fr; }
   .cs-nav {
