@@ -10,6 +10,10 @@
      who is promoted — the single most consequential pixel here.
    · ZERO baked raster on the stage. The four deleted webps are why the old podium drifted;
      this fails the moment someone reintroduces one.
+   · the divisions are READABLE — five distinct metals, earned/current/locked all legible, a
+     stakes line naming the cut and the destination, and rules that actually state the rules.
+     Added 2026-08-03 after "the league tiers are unclear and do not make sense to users";
+     every one of these is a content guarantee a screenshot diff cannot make.
    · motion freezes under BOTH reduce signals (OS pref and the in-app data-motion toggle).
    · the ceremony shows once and does not come back (/ship-check: state invariants need the
      repeat case covered behaviourally, not just in pytest).
@@ -143,6 +147,8 @@ const measure = (p) => p.evaluate(() => {
       .sort((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x)
       .map((e) => e.dataset.place).join(" "),
     rungs: [...document.querySelectorAll(".dv-rung")].map((e) => e.dataset.state),
+    rungMetals: [...document.querySelectorAll(".dv-rung")].map((e) => e.dataset.metal),
+    stakes: document.querySelector('[data-testid="lb-stakes"]')?.textContent?.trim() ?? null,
     clock: document.querySelector('[data-testid="lb-reset"]')?.textContent?.trim() ?? null,
     // Where the promotion line sits, by the RANK of the row directly under it.
     lineNextRank: (() => {
@@ -202,6 +208,31 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   if (m.rungs.length !== 5) bad(`${at}: division ladder has ${m.rungs.length} rungs, expected 5`);
   else if (m.rungs.filter((s) => s === "now").length !== 1) bad(`${at}: division ladder lights ${m.rungs.filter((s) => s === "now").length} rungs, expected exactly 1`);
   else ok(`${at}: division ladder shows 5 rungs with exactly one lit`);
+
+  /* The tiers were reported as "unclear and do not make sense to users" (2026-08-03). Three
+     things fixed that, and all three are cheap to lose in a restyle, so all three are pinned.
+
+     Five DISTINCT metals: the rule this refit overturned was "division by luminance, never
+     hue", which painted the Silver rung gold. Collapsing them back to one material is the
+     regression, and it is invisible in a screenshot diff if only the CSS changes. */
+  const uniqMetals = new Set(m.rungMetals.filter(Boolean));
+  if (uniqMetals.size !== 5) bad(`${at}: the ladder carries ${uniqMetals.size} distinct metals, expected 5 — divisions are identified by material, not by luminance`);
+  else ok(`${at}: five divisions wear five distinct metals`);
+
+  // All three ladder states are legible at once: what you earned, where you are, what's locked.
+  const states = new Set(m.rungs);
+  if (!(states.has("past") && states.has("now") && states.has("next"))) {
+    bad(`${at}: the ladder shows only ${[...states].join("/")} — earned, current and locked must all read at a glance`);
+  } else ok(`${at}: the ladder distinguishes earned / current / locked`);
+
+  /* The stakes sentence. The board used to make the reader infer the whole mechanic from a
+     line halfway down a 30-row list; this states the number AND the destination above the
+     fold. Asserted on CONTENT, not on the element existing, because an empty or generic
+     sentence ("keep climbing!") is the failure mode — it would still render. */
+  if (!m.stakes) bad(`${at}: no stakes line — nothing above the fold says what promotion requires`);
+  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.stakes)) bad(`${at}: the stakes line does not name the promotion count (top ${PROMOTE}): "${m.stakes}"`);
+  else if (!/Gold/.test(m.stakes)) bad(`${at}: the stakes line does not name the division being climbed into: "${m.stakes}"`);
+  else ok(`${at}: the stakes line names both the cut and the destination`);
 
   if (!m.clock || !/Closes in/.test(m.clock)) bad(`${at}: no countdown to the week close (got ${JSON.stringify(m.clock)})`);
   else ok(`${at}: countdown renders — "${m.clock}"`);
@@ -268,6 +299,27 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   if (await p.locator('[data-testid="lb-hide-switch"], .bs').count() !== 0) {
     bad("a visibility panel is rendering on the board — it was removed on request");
   } else ok("no visibility panel on the board");
+
+  /* "How the league works" — the rules, on demand. Before this existed nothing on the board
+     defined a division, so the ladder was five unexplained badges. Checked for the four
+     load-bearing facts rather than for the element: a disclosure that opens onto vague copy
+     would pass an existence check while failing the reader. */
+  const help = p.locator(".dv-help");
+  if (await help.count() !== 1) bad('no "how the league works" explainer on the board');
+  else {
+    await help.locator("summary").click();
+    await p.waitForTimeout(200);
+    const txt = (await help.locator("ul").textContent()) ?? "";
+    const want = [
+      [/this week/i, "that ranking is weekly, not all-time"],
+      [/Monday/i, "when the week closes"],
+      [/never|nobody is ever demoted/i, "that nobody is demoted"],
+      [/Bronze.*Diamond/i, "the five divisions in order"],
+    ];
+    const gaps = want.filter(([re]) => !re.test(txt)).map(([, why]) => why);
+    if (gaps.length) bad(`the league rules never explain: ${gaps.join("; ")}`);
+    else ok("the explainer covers weekly scoring, the Monday close, no-demotion and all five divisions");
+  }
   await ctx.close();
 }
 
