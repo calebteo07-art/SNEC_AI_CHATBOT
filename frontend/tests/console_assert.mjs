@@ -140,6 +140,27 @@ async function badgeContrast(page, where) {
   const marked = await page.locator("[data-testid=cs-allmark]").count();
   check(marked > 0, "no figure carries the All-disciplines marker — cohort-wide reads are unmarked");
 
+  // 5b. The topic drill-down reads the TopicGroupRow the Overview query already
+  // returned. "Progressive disclosure costs nothing" is the whole reason most-missed
+  // steps became a drill-down instead of an eleventh panel — if opening one fires a
+  // request, that trade is gone and the argument for cutting the panel goes with it.
+  try {
+    const chip = page.locator("[data-testid=cs-weakest] button.cs-btn-ghost").first();
+    await chip.waitFor({ timeout: 10000 });
+    const calls = [];
+    const spy = (r) => { if (r.url().includes("/api/")) calls.push(new URL(r.url()).pathname); };
+    page.on("request", spy);
+    await chip.click();
+    await page.waitForSelector("[data-testid=cs-topic-detail]", { timeout: 10000 });
+    await page.waitForTimeout(900);   // give a stray fetch time to actually fire
+    page.off("request", spy);
+    check(calls.length === 0,
+      `opening the topic drill-down fired ${calls.length} request(s): ${JSON.stringify(calls)} — it must read the already-loaded row`);
+    await page.keyboard.press("Escape");
+  } catch (e) {
+    fails.push(`topic drill-down: ${String(e.message).split("\n")[0]}`);
+  }
+
   // 6. Nav deep-links resolve.
   for (const [href, sel] of [
     ["/admin/students", "[data-testid=admin-roster]"],
@@ -250,7 +271,19 @@ async function badgeContrast(page, where) {
     for (const href of ["/admin/accounts", "/admin/audit"]) {
       const n = await page.locator(`.cs-nav a[href="${href}"]`).count();
       check(n === 0, `the admin-only ${href} link is exposed to a trainer`);
+
+      // ...and hiding the link is not the same as closing the door. Typing the URL has
+      // to bounce too: the routes re-guard themselves rather than relying on a nav item
+      // being absent, which is the difference between a tidy menu and an access control.
+      await page.goto(`${BASE}${href}`, { waitUntil: "domcontentloaded" });
+      await page.waitForFunction(
+        (h) => location.pathname !== h, href, { timeout: 10000 },
+      ).catch(() => null);
+      check(new URL(page.url()).pathname !== href,
+        `a TRAINER reached ${href} by typing the URL — the route does not re-guard`);
     }
+    await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".cs-shell", { timeout: 15000 });
 
     await page.waitForSelector("[data-testid=risk-row]", { timeout: 15000 });
 
