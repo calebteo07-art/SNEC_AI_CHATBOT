@@ -10,6 +10,8 @@
    would be the most common single reading on the screen. */
 import { useEffect } from "react";
 import type { TopicGroupRow } from "@/hooks/useAdmin";
+import { Icon } from "@/aurora/icons";
+import { MiniStat } from "@/aurora/console/Panel";
 
 const rate = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
@@ -47,22 +49,16 @@ export function TopicDetail({ topic, onClose }: { topic: TopicGroupRow; onClose:
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <p className="cs-eyebrow" style={{ margin: 0 }}>Topic detail</p>
-          <button
-            type="button" onClick={onClose} aria-label="Close" className="cs-btn-ghost"
-            style={{ marginLeft: "auto", minWidth: 44, padding: 0, fontSize: 17, border: 0, background: "none" }}
-          >×</button>
+          <button type="button" className="cs-close" onClick={onClose} aria-label="Close">
+            <Icon.close size={17} />
+          </button>
         </div>
         <h2 style={{ fontSize: 19, fontWeight: 700, margin: "4px 0 12px", letterSpacing: "-.015em" }}>
           {topic.label}
         </h2>
 
         <div className="cs-strip" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
-          {cells.map(([k, v]) => (
-            <div key={k} style={{ border: "1px solid var(--cs-hair)", borderRadius: 10, padding: "9px 11px" }}>
-              <div className="cs-eyebrow">{k}</div>
-              <div className="cs-num" style={{ fontSize: 20, marginTop: 3 }}>{v}</div>
-            </div>
-          ))}
+          {cells.map(([k, v]) => <MiniStat key={k} label={k} value={v} />)}
         </div>
 
         {o.missed_top.length > 0 && (

@@ -21,6 +21,28 @@ export const RAMP: Record<Hue, [string, string]> = {
   amber:  ["#BE710A", "#D69233"],
 };
 
+/** Darkened ramp for TEXT on a tint of its own hue. RAMP[hue][0] is tuned to carry
+    white on top of it (the band); reused as small text on a pale tint it lands at
+    ~4.1:1 for blue and 3.97:1 for teal, both under AA. These clear 5.6-7.5:1 on the
+    9%-tint badge background. A badge is 9.5px uppercase — small text, so 4.5:1 is the
+    bar, not 3:1. Verified by console_assert's badge contrast sweep. */
+export const INK: Record<Hue, string> = {
+  blue:   "#1D4FB0",
+  coral:  "#9E2C39",
+  teal:   "#076B62",
+  purple: "#5E3A8F",
+  amber:  "#8A5107",
+};
+
+/** The console's one badge. `hue` names the same domains as everywhere else; the
+    audit trail maps its severity tones onto it rather than inventing a second scale. */
+export function Badge({ hue, children }: { hue?: Hue; children: ReactNode }) {
+  const style = hue
+    ? { background: `${RAMP[hue][0]}18`, color: INK[hue] }
+    : { background: "rgba(19,22,40,.06)", color: "var(--cs-ink-2)" };
+  return <span className="cs-badge" style={style}>{children}</span>;
+}
+
 function hueVars(hue: Hue): CSSProperties {
   const [a, b] = RAMP[hue];
   return { "--cs-h": a, "--cs-h2": b, "--cs-h-edge": `${a}55` } as CSSProperties;
@@ -38,6 +60,19 @@ export function StatCard({ hue, label, value, detail, detailHue, mark }: {
           <div className="cs-statd" style={detailHue ? { color: RAMP[detailHue][0] } : undefined}>{detail}</div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** A stat cell INSIDE a modal. Deliberately not a StatCard: a drill-down already sits on
+    a dimmed console, and five hue-banded cards in a dialog turn a detail view into a
+    second dashboard. Both drill-downs (topic and student) use this one, so they read as
+    the same kind of surface. */
+export function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ border: "1px solid var(--cs-hair)", borderRadius: 10, padding: "9px 11px", minWidth: 0 }}>
+      <div className="cs-eyebrow">{label}</div>
+      <div className="cs-num" style={{ fontSize: 20, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
     </div>
   );
 }

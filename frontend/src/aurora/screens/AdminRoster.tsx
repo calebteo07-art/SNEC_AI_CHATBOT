@@ -1,22 +1,26 @@
 "use client";
-/* Admin — roster. The cohort table: search + role/at-risk filter + paginate
+/* Console — students. The cohort table: search + role/at-risk filter + paginate
    (the AdminStudents controls, now hook-driven so it refreshes in real time).
-   A row click opens the reused AdminStudentDetail drill-down. */
+   A row click opens the reused AdminStudentDetail drill-down.
+
+   Re-skinned onto .cs — the filtering and paging arithmetic is byte-identical to the
+   .aurora-admin version; only the markup moved. */
 import { useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { AdminStudentDetail } from "@/aurora/screens/AdminStudentDetail";
 import { displayName } from "@/aurora/lib/displayName";
-import { useRoster, useAtRisk, useTokenSummary, useStaff } from "@/hooks/useAdmin";
+import { useRoster, useAtRisk, useTokenSummary, useStaff, type RosterRow, type StaffRow } from "@/hooks/useAdmin";
+import { DataTable } from "@/aurora/console/DataTable";
+import { Badge, Panel, type Hue } from "@/aurora/console/Panel";
+import { CsSkeleton, CsError } from "@/aurora/console/states";
 
 const PAGE_SIZE = 20;
-const COLS = "2.2fr 2.4fr 84px 92px 78px 92px 112px";
-const STAFF_COLS = "2fr 2.4fr 92px 96px 84px 72px 112px";
 type Filter = "all" | "OA" | "OT" | "PSA" | "at-risk";
 
-function roleTone(role: string): "blue" | "purple" | "rose" | undefined {
+function roleHue(role: string): Hue | undefined {
   if (role === "OA") return "blue";
   if (role === "OT") return "purple";
-  if (role === "PSA") return "rose";
+  if (role === "PSA") return "coral";
   return undefined;
 }
 
@@ -48,47 +52,70 @@ export function AdminRoster() {
   const paged = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div className="aurora-toolbar">
-        <input className="aurora-field" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} placeholder="Search name or email…" />
-        <div className="aurora-chips">
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="cs-toolbar">
+        <input
+          className="cs-field"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+          placeholder="Search name or email…"
+          aria-label="Search students"
+        />
+        <div className="cs-chips">
           {(["all", "OA", "OT", "PSA", "at-risk"] as Filter[]).map((f) => (
-            <button key={f} type="button" className={`aurora-chip${filter === f ? " aurora-flow" : ""}`} data-active={filter === f} onClick={() => { setFilter(f); setPage(0); }}>
-              <span>{f === "all" ? "All" : f === "at-risk" ? "At risk" : f}</span>
+            <button
+              key={f}
+              type="button"
+              className="cs-chip"
+              data-active={filter === f}
+              onClick={() => { setFilter(f); setPage(0); }}
+            >
+              {f === "all" ? "All" : f === "at-risk" ? "At risk" : f}
             </button>
           ))}
         </div>
       </div>
 
       {roster.isLoading ? (
-        <p className="aurora-unavail">Loading roster…</p>
+        <CsSkeleton rows={6} />
+      ) : roster.isError ? (
+        <CsError onRetry={() => roster.refetch()} label="Couldn’t load the roster." />
       ) : (
-        <div className="aurora-table-wrap" data-testid="admin-roster">
-          <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: COLS }}>
-            <span>Name</span><span>Email</span><span>Role</span><span>Sessions</span><span>Streak</span><span>Tokens</span><span>Last active</span>
-          </div>
-          {paged.map((s) => (
-            <div key={s.student_id} className="aurora-trow is-clickable" style={{ gridTemplateColumns: COLS }} onClick={() => setOpenId(s.student_id)}>
-              <span className="aurora-tcell" style={{ fontWeight: 500, display: "flex", alignItems: "center", gap: 7 }}>
-                {atRisk.includes(s.student_id) && <span className="console-risk-dot" title="At risk" aria-label="At risk" />}
-                {s.full_name}
-              </span>
-              <span className="aurora-tcell is-muted">{s.email}</span>
-              <span><span className="aurora-badge" data-tone={roleTone(s.role)}>{s.role}</span></span>
-              <span className="aurora-tcell is-mono">{s.session_count}</span>
-              <span className="aurora-tcell is-mono">{s.streak}</span>
-              <span className="aurora-tcell is-accent">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span>
-              <span className="aurora-tcell is-mono">{s.last_active?.slice(0, 10) || "—"}</span>
-            </div>
-          ))}
-          {filtered.length === 0 && <p className="aurora-tempty">No students found.</p>}
-        </div>
+        <DataTable<RosterRow>
+          testId="admin-roster"
+          rows={paged}
+          rowKey={(s) => s.student_id}
+          onRowClick={(s) => setOpenId(s.student_id)}
+          empty="No students found."
+          columns={[
+            {
+              key: "name", head: "Name", width: "2.2fr", primary: true,
+              cell: (s) => (
+                <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                  {atRisk.includes(s.student_id) && (
+                    <span
+                      title="At risk" aria-label="At risk"
+                      style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--cs-coral)", flex: "none" }}
+                    />
+                  )}
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{s.full_name}</span>
+                </span>
+              ),
+            },
+            { key: "email", head: "Email", width: "2.4fr", cell: (s) => <span style={{ color: "var(--cs-ink-3)" }} title={s.email}>{s.email}</span> },
+            { key: "role", head: "Role", width: "84px", cell: (s) => <Badge hue={roleHue(s.role)}>{s.role}</Badge> },
+            { key: "sessions", head: "Sessions", width: "92px", cell: (s) => <span className="cs-num">{s.session_count}</span> },
+            { key: "streak", head: "Streak", width: "78px", cell: (s) => <span className="cs-num">{s.streak}</span> },
+            { key: "tokens", head: "Tokens", width: "92px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-blue)" }}>{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span> },
+            { key: "last", head: "Last active", width: "112px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>{s.last_active?.slice(0, 10) || "—"}</span> },
+          ]}
+        />
       )}
 
       {filtered.length > PAGE_SIZE && (
-        <div className="aurora-pager">
+        <div className="cs-pager">
           <span>{safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}</span>
-          <div className="aurora-pager-btns">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={safePage === 0}>← Prev</button>
             <span style={{ padding: "0 4px" }}>Page {safePage + 1} / {totalPages}</span>
             <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={safePage >= totalPages - 1}>Next →</button>
@@ -99,44 +126,42 @@ export function AdminRoster() {
       {/* Staff — trainers & admins. A separate section so student cohort/at-risk/
           benchmark numbers stay student-only. "Pending" = account created but not
           yet activated (first login mints the profile), listed from email + role. */}
-      <section className="aurora-panel" style={{ padding: 0, marginTop: 4 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderBottom: "1px solid var(--hairline)" }}>
-          <p className="aurora-activity-head" style={{ margin: 0 }}>Staff · trainers &amp; admins ({staff.length})</p>
-        </div>
-        <p className="aurora-unavail" style={{ padding: "10px 16px 2px" }}>
-          Staff don’t count toward cohort or at-risk numbers. “Pending” means the account exists but hasn’t been activated yet — the first login creates their profile.
+      <Panel hue="purple" title={`Staff · trainers & admins (${staff.length})`}>
+        <p className="cs-note">
+          Staff don’t count toward cohort or at-risk numbers. “Pending” means the account exists
+          but hasn’t been activated yet — the first login creates their profile.
         </p>
         {staffQ.isLoading ? (
-          <p className="aurora-tempty">Loading staff…</p>
-        ) : staff.length === 0 ? (
-          <p className="aurora-tempty">No staff accounts yet.</p>
+          <CsSkeleton rows={2} />
+        ) : staffQ.isError ? (
+          <CsError onRetry={() => staffQ.refetch()} label="Couldn’t load staff accounts." />
         ) : (
-          <div className="aurora-table-wrap" data-testid="admin-staff">
-            <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: STAFF_COLS }}>
-              <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Sessions</span><span>Streak</span><span>Last active</span>
-            </div>
-            {staff.map((s) => {
-              const activated = s.status === "active" && !!s.student_id;
-              return (
-                <div
-                  key={s.email}
-                  className={`aurora-trow${activated ? " is-clickable" : ""}`}
-                  style={{ gridTemplateColumns: STAFF_COLS }}
-                  onClick={activated ? () => setOpenId(s.student_id) : undefined}
-                >
-                  <span className="aurora-tcell" style={{ fontWeight: 500 }}>{displayName(s.full_name || s.email)}</span>
-                  <span className="aurora-tcell is-muted">{s.email}</span>
-                  <span><span className="aurora-badge" data-tone={s.role === "admin" ? "purple" : "blue"}>{s.role === "admin" ? "Admin" : "Trainer"}</span></span>
-                  <span><span className="aurora-badge" data-tone={activated ? "green" : "amber"}>{activated ? "Active" : "Pending"}</span></span>
-                  <span className="aurora-tcell is-mono">{activated ? s.session_count : "—"}</span>
-                  <span className="aurora-tcell is-mono">{activated ? s.streak : "—"}</span>
-                  <span className="aurora-tcell is-mono">{activated ? (s.last_active?.slice(0, 10) || "—") : "—"}</span>
-                </div>
-              );
-            })}
-          </div>
+          <DataTable<StaffRow>
+            testId="admin-staff"
+            rows={staff}
+            rowKey={(s) => s.email}
+            /* A pending row has no profile to open, so it stays un-clickable — the guard
+               is the same one the .aurora version carried. */
+            onRowClick={(s) => { if (s.status === "active" && s.student_id) setOpenId(s.student_id); }}
+            empty="No staff accounts yet."
+            columns={[
+              { key: "name", head: "Name", width: "2fr", primary: true, cell: (s) => displayName(s.full_name || s.email) },
+              { key: "email", head: "Email", width: "2.4fr", cell: (s) => <span style={{ color: "var(--cs-ink-3)" }} title={s.email}>{s.email}</span> },
+              { key: "role", head: "Role", width: "92px", cell: (s) => <Badge hue={s.role === "admin" ? "purple" : "blue"}>{s.role === "admin" ? "Admin" : "Trainer"}</Badge> },
+              {
+                key: "status", head: "Status", width: "96px",
+                cell: (s) => {
+                  const activated = s.status === "active" && !!s.student_id;
+                  return <Badge hue={activated ? "teal" : "amber"}>{activated ? "Active" : "Pending"}</Badge>;
+                },
+              },
+              { key: "sessions", head: "Sessions", width: "84px", cell: (s) => <span className="cs-num">{s.status === "active" && s.student_id ? s.session_count : "—"}</span> },
+              { key: "streak", head: "Streak", width: "72px", cell: (s) => <span className="cs-num">{s.status === "active" && s.student_id ? s.streak : "—"}</span> },
+              { key: "last", head: "Last active", width: "112px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>{s.status === "active" && s.student_id ? (s.last_active?.slice(0, 10) || "—") : "—"}</span> },
+            ]}
+          />
         )}
-      </section>
+      </Panel>
 
       {openId && <AdminStudentDetail studentId={openId} onClose={() => setOpenId(null)} />}
     </div>
