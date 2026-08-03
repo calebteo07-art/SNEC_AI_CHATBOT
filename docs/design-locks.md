@@ -1114,7 +1114,7 @@ deleted**. Gates: `league_logic.mjs`, `league_assert.mjs`, `aurora_assert.mjs`.
 Spec `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md`, plans
 `2026-08-01-league-backend.md` + `2026-08-02-league-frontend.md`.
 
-### REBUILT 2026-08-03 (fourth pass) — the GENRE, not the palette · **THIS IS THE LIVE LOCK**
+### REBUILT 2026-08-03 (fourth pass) — the GENRE, not the palette
 
 User, on the light board above: **"the leaderboard page frontend is still horendous, very
 obvious ai slop, and did not seem like a game leaderboard."**
@@ -1191,6 +1191,116 @@ Monday ceremony's server-side show-once.
 `Metals.tsx`, `splitPodium` from `league.ts`, and every `.bm-*` / `.dv-*` rule. **Added**:
 `TierBand.tsx`, `RulesSheet.tsx`. Gate: `league_assert.mjs` — **115 assertions**, of which the
 podium's DOM-order / 1.7× / 2× / seam checks are replaced by the geometry ones above.
+
+### REBUILT 2026-08-04 (fifth pass) — "STRUCK": the OBJECTS, not the layout · **THIS IS THE LIVE LOCK**
+
+User: *"i want the leaderboard page to have a podium, and everything in the page upgraded to a
+world class game standard (not like the current ai slop)"*. Direction was put to the user rather
+than guessed a fifth time, and the answer was **bright arcade** — Clash Royale / Brawl Stars /
+Duolingo — over dark esports, broadcast sports, and trophy-road. **Light stays** (asked and
+answered in the third pass, and it is measured).
+
+**Rule 2 of the fourth pass — "THE PODIUM IS DELETED" — is broken deliberately and on request.**
+It is not quietly ignored: the deletion was *correct about the geometry* (three cream plinths and
+three identical mascots cost ~380px and put ONE half-cut row on a 390×844 phone) and *wrong about
+the ceremony*. So the stage returns under a **budget instead of an argument**, and the pass-4
+ratio pins (**1.7× portrait, 2× plinth**) are deliberately **NOT** restored — those were held to
+the pixel across three rejected passes, which is what precise measurement of the wrong thing
+looks like.
+
+**Direction.** The canvas was never the problem. Every OBJECT was flat — 1px hairlines at ~10%
+ink, 4–6% blurred shadows, pastel fills, smooth washes — and that combination *is* the house
+style of a generated dashboard, which is why four passes of re-colouring and re-arranging could
+not shake the word "slop". Every object on the page is now **struck**, from one recipe:
+
+1. **A dark defining outline** in `--mat-ink #2A1F3D` — a warm near-black violet, never grey and
+   never `#000`. Grey on a coloured fill reads as a CSS border; this reads as painted plastic.
+   This single token does more work than everything else combined.
+2. **A hard lip**: an offset `box-shadow` with **zero blur**, plus a second shadow at the same
+   offset carrying the outline as **spread** — so the keyline wraps the lip's side crescents
+   instead of stopping where the box does. Blur may describe the ground; never an edge.
+3. **Hard-stop fills** (`17%` → `17.01%`). A gradient easing across a whole box is a wash.
+4. **A lit top edge + dark base**, inset — one key light from above, which is what makes the lip
+   read as thickness rather than as a drop shadow.
+5. **A drawn floor** (`.pod-floor`). Objects that float are why three plinths read as a chart.
+
+**THE LIP LADDER — exactly four depths**, so "material everywhere" cannot collapse into "the
+whole page is buttons". A fifth object gets a lip only if another gives one up:
+
+| tier | lip / outline | objects |
+|---|---|---|
+| structural | 5px / 2.5px | `.lg-list` `.tb` `.pod-block` |
+| medallion | 3px / 2px | `.pod-face` `.lg-face` `.lb-filter` `.sheet-face` |
+| pill | 2px / 1.5px | `.lg-rk` `.lg-score` `.lg-mv[up\|down]` `.tb-help` `.lg-you` `.tb-pip` |
+| flat | none | `.lg-row` `.lg-item` `.lg-cut` `.lg-zone` |
+
+**`.lg-row` stays flat — gate-pinned, and correct**: the ladder must never compete with the
+objects riding on it. Its material is carried by the **five struck objects inside** each row
+(rank token, movement pill, avatar medallion, name, score pill) plus a **machined groove**
+(2px dark channel + a lit inset return) between rows. A 9%-alpha hairline instantiated 27 times
+across half the viewport was the largest single surface exempting itself from the recipe.
+
+**Acceptance criteria when refining** (all gated in `league_assert.mjs`):
+- **≥8 ranks legible without scrolling** on a ≥700px-tall viewport, ≥6 on a landscape phone —
+  counted as **podium places + list rows**, because a podium place is a rank you can read.
+  Measured 9 at 390×844 and 16 at 1440×900. Chrome above the first rank ≤250px.
+- The podium holds **exactly ranks 1–3**, **DOM order 1-2-3**, **painted 2-1-3**, champion's
+  plinth tallest, three **distinct metals sampled as PAINT**, exactly one crown and on 1st.
+- The ladder **resumes at rank 4**; stage + ladder together render every rank **exactly once**.
+- **Material is measured, not assumed**: computed `border-width ≥2px` and a **zero-blur offset
+  shadow** on `.pod-block`, `.lg-list` and `.tb`. This is the check that would have failed all
+  four rejected passes.
+- The promoted set is **ranks 1..promote_count as the UNION** of stage and ladder, and the stage
+  carries the promotion marking it sits inside (a gold lip).
+- Both podium **and** promotion zone are **withheld on a role-filtered view** — a filtered top
+  three are the best of that ROLE, whose real ranks may be 1, 3 and 6.
+- An **underfilled stage is no stage**: below 3 entries everyone goes in the list.
+
+**Also locked by this pass** — each is a defect it fixed, so re-breaking one is a regression:
+- ⚠ **The podium's top face is drawn INSIDE the block's own box** (`top: 0`, `clip-path`
+  trapezoid). Every protruding version needs `overflow: visible`, which fights the champion's
+  sheen needing `overflow: hidden` — so the champion, *and only the champion*, silently loses
+  its 3D face. Inside the box both are free, and "nothing is absolutely positioned above a
+  plinth" becomes true **by construction** rather than by checking at 5× device scale (which is
+  how `.bm-top` clipping a thousands comma into `9.800` was found).
+- ⚠ **Gold splits by JOB, and the split is load-bearing.** `--gold-ink #7A5206` is 6.9:1 on
+  white but **3.0:1 on the gold fill**. Any glyph landing on gold uses `--ink-on-gold #3A2600`
+  (6.7:1). One token for both is exactly what makes 2.2:1 gold lettering plausible.
+- ⚠ **A gradient has no `background-color`, so white-on-it is measured against the PAGE.**
+  `.lg-you` was white on `var(--gemini)` — 3.56:1 against its own `#4285F4` head, and invisible
+  to the probe. It is now a solid `--you-blue #1A56C4` (6.6:1). Same rule made
+  `.lg-item[data-promo]` a **solid** `#FFF6E0` instead of a gold wash over white.
+- ⚠ **`margin-inline: -1.25px`** on `.pod-block` — half the outline — so adjacent 2.5px outlines
+  **overlap into one seam** instead of doubling to 5px. Three plinths 6–8px apart is a bar chart.
+- ⚠ **The you-bar must track a student on the STAGE too.** `youRef` is a ref **callback**, not a
+  `RefObject`: the tracked element is an `<li>` or an `<article>` depending on rank, and those
+  two cannot satisfy one invariant `RefObject<T>`. Tracking only rows silently stops following
+  the half of the cohort most likely to scroll the board.
+- ⚠ **Phone-landscape AND desktop are TWO COLUMNS** (band + filter + stage left, ladder right),
+  every query carrying a **height** term. At 844×390 stacked, the list starts at y≈321 and shows
+  **zero** rows — an outright fail. A wide-and-short viewport has horizontal room a single column
+  throws away; so does a 1440×900 desktop, where two columns buy 13 rungs instead of 6.
+- ⚠ **The role-filter class names are load-bearing**: `league_assert` clicks
+  `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. Restyled in place as a
+  segmented switch, never renamed.
+- ⚠ **A filter-count assertion can pass before the click lands.** `aurora_assert` filtered on OT
+  (4 of 7) — which equals the unfiltered row count once the podium takes three out of the ladder.
+  It now filters on **OA (3)** and asserts **podium + rows together**.
+- **No sunburst.** A masked `repeating-conic-gradient` ray fan at 13–16% alpha is the pass-2
+  ornament returning under a new name, at an alpha too low to read as anything but a smudge.
+
+**Kept from earlier passes, unchanged and still pinned**: light canvas (base luminance > 0.7,
+stack ends in a solid); every gradient surface also declares a solid; hue is identity **only** on
+the band and the podium, gold elsewhere means the mechanic, green means upward movement; **zero
+rasters**; nothing rotates its own box; no `background-attachment: fixed`; motion frozen under
+both reduce signals; ≥44px touch targets; the unfiltered-only promotion zone; "no snapshot" ≠ "no
+change"; **no visibility panel**; the unconditional `leaderboard_hidden` filter; the Monday
+ceremony's server-side show-once; two type families and **no novelty arcade face**.
+
+**Added**: `Podium.tsx`, `PLACE_METALS` + a heavier `Crown` in `Metals.tsx`, `splitPodium` back
+in `league.ts`. **Removed**: the list's `data-place` metal plates and its crown (the stage owns
+place ornament now). `public/brand/tiers/*.webp` remains paid art orphaned since 2026-08-03 —
+still flagged, still not deleted.
 
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is

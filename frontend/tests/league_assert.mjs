@@ -1,24 +1,40 @@
 /* The League — behavioural gate for the ladder board (spec 2026-08-01 §6).
 
-   Rewritten 2026-08-03 with the third rebuild. The previous version measured the podium to the
-   pixel — DOM order 1-2-3 painting 2-1-3, a 1.7x champion portrait, a 2x plinth, flush seams —
-   and every one of those checks passed on the board the user rejected as "very obvious ai
-   slop, and did not seem like a game leaderboard". They were precise measurements of the wrong
-   thing. The podium is deleted; so are its checks, and what replaces them is the property they
-   were failing to protect:
+   Re-pinned 2026-08-04 for the FIFTH pass, which restores the podium the fourth deleted and
+   rebuilds every object in "bright arcade" material.
 
-     THE RANKS ARE ON SCREEN. On the shipped board the first ranked row began at y≈700 on a
-     390x844 phone and y≈790 on a 1280x900 desktop — one visible row, half-cut. That is the
-     defect, it is purely geometric, and nothing but a live layout can see it.
+   The history matters, because it is why this file is shaped the way it is. The PRE-pass-4
+   harness measured the podium to the pixel — DOM order 1-2-3 painting 2-1-3, a 1.7x champion
+   portrait, a 2x plinth, flush plinth seams — and every one of those checks passed on a board
+   the user rejected as "very obvious ai slop". They were precise measurements of the wrong
+   thing, taken on a page where the ladder was below the fold. Pass 4 deleted the podium and
+   replaced them with the property they had failed to protect. The podium is now back by
+   explicit request, and the discipline is: the STAGE may return, the BLINDNESS may not. No
+   ratio is re-pinned. What is pinned is what the reader actually gets:
+
+     THE RANKS ARE ON SCREEN. On the pass-3 build the first ranked row began at y≈700 on a
+     390x844 phone and y≈790 on a 1280x900 desktop — one visible row, half-cut. The metric is
+     therefore RANKS VISIBLE (podium places + list rows), not rows: a podium place is a rank you
+     can read, and counting it as chrome would be as dishonest as the old check that counted it
+     as nothing. It also says nothing about HOW the top of the page is built, so it survives
+     the next rebuild instead of pinning this one in place.
 
    What only a real browser can prove, and why each check exists:
-   · the first rank is above the fold and enough of the ladder is visible to BE a ladder.
+   · at least 8 ranks are legible without scrolling, on every viewport in the matrix.
+   · the podium holds exactly the top three, in DOM order 1-2-3 (so a screen reader announces
+     the champion first) but PAINTED 2-1-3, with the champion's block the tallest.
+   · the list resumes at rank 4 — no rank is duplicated between the stage and the ladder, and
+     none is lost between them.
    · the board is ONE surface. Twenty-seven rows with their own radius, border and drop shadow
      is a settings screen; rows that share edges under one clip is a board. Measured as seams.
-   · rank 1 is IN the list. The podium split (list starts at rank 4) is the regression this
-     rebuild exists to undo, and it is one line away from returning.
-   · the promotion zone holds exactly promote_count rows and the cut lands on the right
-     student. Off by one and the board lies about who is promoted.
+   · ARCADE MATERIAL, measured rather than assumed. The rejected boards were flat and soft —
+     1px hairlines, 5%-alpha blurred shadows. A game object carries a dark defining outline and
+     a HARD offset lip (a box-shadow with zero blur), so this samples computed border-width and
+     box-shadow on the podium block and the board instead of trusting that the tokens were
+     typed in. This is the check that would have failed all four rejected passes.
+   · the promoted set is exactly ranks 1..promote_count, taken as the UNION of the podium and
+     the list — the top three moved onto a different element from the zone header, so checking
+     either one alone would silently drop three students.
    · the tier band is made of the division's METAL, and the ink on it is readable. Five
      distinct metals sampled as PAINT, not as data attributes — the old check read
      `data-metal` off the DOM, which would have passed on five identical grey pips.
@@ -104,10 +120,13 @@ async function boardCtx(b, vp, { board = BOARD, result = null, extra = {} } = {}
   return ctx;
 }
 
-async function openBoard(ctx) {
+async function openBoard(ctx, { podium = true } = {}) {
   const p = await ctx.newPage();
   await p.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".lg-row", { timeout: 20000 });
+  // Wait for the stage too, or every podium measurement below races the first paint and
+  // reports a plausible zero.
+  if (podium) await p.waitForSelector('[data-testid="podium-slot"]', { timeout: 20000 });
   await p.waitForFunction(() => {
     const finite = document.getAnimations().filter((a) => {
       const t = a.effect?.getComputedTiming?.();
@@ -170,7 +189,10 @@ const measure = (p) => p.evaluate(() => {
     return null;
   };
   const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".tb-clock",
-    ".lg-zone", ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk"]
+    ".lg-zone", ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk",
+    // The stage carries text on saturated metal, which is exactly where "gold is a fill,
+    // never a glyph" gets broken — so the podium's own type is probed too.
+    ".pod-nm", ".pod-score", ".pod-num"]
     .map((sel) => {
       const el = document.querySelector(sel);
       if (!el) return { sel, color: null, on: null };
@@ -194,23 +216,88 @@ const measure = (p) => p.evaluate(() => {
     return { radius: cs.borderTopLeftRadius, shadow: cs.boxShadow, h: +el.getBoundingClientRect().height.toFixed(1) };
   })();
 
+  /* Does this box carry a HARD LIP — an offset shadow with ZERO blur? That single property is
+     what separates a mobile-game object from a dashboard card, and it is the one thing all
+     four rejected passes lacked: they used blurred 4-6% shadows throughout, which is why the
+     report was "flat". A computed box-shadow reads
+       "rgb(r, g, b) 0px 4px 0px 0px, rgba(...) 0px 10px 16px -8px"
+     so split on commas that are NOT inside an rgb()/rgba(), and ignore inset layers — an
+     inset top highlight is the bevel, not the lip, and counting it would make this vacuous. */
+  const hardLip = (shadow) => (shadow || "").split(/,(?![^(]*\))/).some((part) => {
+    if (/inset/.test(part)) return false;
+    const n = (part.match(/-?[\d.]+px/g) || []).map(parseFloat);
+    return n.length >= 3 && Math.abs(n[1]) >= 2 && n[2] === 0;
+  });
+  const material = (sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    return {
+      border: +parseFloat(cs.borderTopWidth || "0").toFixed(1),
+      lip: hardLip(cs.boxShadow),
+      shadow: (cs.boxShadow || "").slice(0, 90),
+    };
+  };
+
   return {
     vw, vh: window.innerHeight, over, targets, rasters, pageBg, inkProbe, rowStyle,
     root: one(".lb-climb"),
 
-    /* THE check. How far down the page the ladder begins, and how much of it you can see
-       without scrolling. This is the defect the rebuild exists to fix and it is the one the
-       previous harness had no opinion about at all. */
+    /* THE check, and the one the pre-pass-4 harness had no opinion about at all: how many
+       RANKS a student can read without scrolling.
+       Podium places COUNT. They are ranks, and they are the ranks a reader most wants — the
+       pass-4 metric ("ranked rows visible") would score a perfect podium as zero and drive the
+       stage straight back off the page. Chrome is therefore everything above the first rank of
+       ANY kind, which is the stage when there is one and the first row otherwise. */
+    ranksInView: (() => {
+      const fits = (r) => r.top >= view.top - 0.5 && r.bottom <= view.bottom + 0.5;
+      return [...document.querySelectorAll('[data-testid="podium-slot"]')].map(R).filter(fits).length
+        + rows.filter(fits).length;
+    })(),
+    rowsInView: rows.filter((r) => r.top >= view.top - 0.5 && r.bottom <= view.bottom + 0.5).length,
+    slotsInView: [...document.querySelectorAll('[data-testid="podium-slot"]')].map(R)
+      .filter((r) => r.top >= view.top - 0.5 && r.bottom <= view.bottom + 0.5).length,
     chrome: (() => {
       const climb = document.querySelector(".lb-climb");
-      const row = document.querySelector(".lg-row");
-      return climb && row ? +(row.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
+      const first = document.querySelector('[data-testid="podium"]') || document.querySelector(".lg-row");
+      return climb && first ? +(first.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
     })(),
-    chromeParts: ["tb", "tb-head", "tb-readout", "lb-filter", "lg-zone"].map((c) => {
+    chromeParts: ["tb", "tb-head", "tb-readout", "lb-filter", "pod", "lg-zone"].map((c) => {
       const el = document.querySelector("." + c);
       return `${c}=${el ? el.getBoundingClientRect().height.toFixed(0) : "?"}`;
     }).join(" "),
-    rowsInView: rows.filter((r) => r.top >= view.top - 0.5 && r.bottom <= view.bottom + 0.5).length,
+
+    /* ── the stage ──────────────────────────────────────────────────────────────────────
+       DOM order must read 1,2,3 so a screen reader announces the champion first, while the
+       PAINTED order is 2,1,3. Sampling x is the only way to tell those two apart — the old
+       board's DOM was literally 2-1-3 and announced second place first for weeks. */
+    podiumDom: [...document.querySelectorAll('[data-testid="podium-slot"]')].map((el) => el.dataset.place ?? null),
+    podiumPaint: [...document.querySelectorAll('[data-testid="podium-slot"]')]
+      .map((el) => ({ place: el.dataset.place ?? null, x: el.getBoundingClientRect().x }))
+      .sort((a, b) => a.x - b.x).map((s) => s.place),
+    podiumRanks: [...document.querySelectorAll(".pod-num")].map((e) => e.textContent.trim()),
+    podiumH: (() => {
+      const el = document.querySelector('[data-testid="podium"]');
+      return el ? +el.getBoundingClientRect().height.toFixed(1) : null;
+    })(),
+    /* Per-block material AND height. Height because the champion's block must be the tallest —
+       a podium where the blocks are level is a bar chart with a crown on it — and material
+       because "the blocks are metal" is exactly the sort of claim that survives a screenshot
+       while the CSS says #FFF. */
+    podiumBlocks: [...document.querySelectorAll('[data-testid="podium-slot"]')].map((el) => {
+      const block = el.querySelector(".pod-block");
+      const cs = block ? getComputedStyle(block) : null;
+      return {
+        place: el.dataset.place ?? null,
+        promo: el.dataset.promo !== undefined,
+        h: block ? +block.getBoundingClientRect().height.toFixed(1) : null,
+        bg: cs ? cs.backgroundColor : null,
+        border: cs ? +parseFloat(cs.borderTopWidth || "0").toFixed(1) : null,
+        lip: cs ? hardLip(cs.boxShadow) : null,
+      };
+    }),
+    matBoard: material(".lg-list"),
+    matBand: material(".tb"),
 
     /* Seams. Every child of the board, in order — rows, the zone header, the cut — must share
        edges. A positive gap anywhere means the board went back to being a stack of cards. */
@@ -223,16 +310,25 @@ const measure = (p) => p.evaluate(() => {
 
     firstRank: document.querySelector(".lg-row .lg-rk")?.textContent?.trim() ?? null,
     rowCount: rows.length,
-    crowns: document.querySelectorAll(".lg-crown").length,
-    crownRank: (() => {
-      const c = document.querySelector(".lg-crown");
-      return c ? c.closest(".lg-item")?.querySelector(".lg-rk")?.textContent?.trim() ?? null : null;
-    })(),
-    plated: [...document.querySelectorAll(".lg-item[data-place] .lg-rk")].map((e) => e.textContent.trim()),
+    /* Every rank rendered anywhere, stage and ladder together. The split is the one place a
+       student can silently VANISH — an off-by-one in splitPodium drops rank 4 or shows it
+       twice, and both render perfectly well. */
+    allRanks: [
+      ...[...document.querySelectorAll(".pod-num")].map((e) => Number(e.textContent)),
+      ...[...document.querySelectorAll(".lg-row .lg-rk")].map((e) => Number(e.textContent)),
+    ],
+    crowns: document.querySelectorAll(".pod-crown").length,
+    crownPlace: document.querySelector(".pod-crown")?.closest("[data-place]")?.dataset.place ?? null,
 
     // The promotion zone, as a region.
     zoneText: txt('[data-testid="promotion-zone"]'),
-    promoRanks: [...document.querySelectorAll(".lg-item[data-promo] .lg-rk")].map((e) => Number(e.textContent)),
+    /* The promoted set as the UNION of stage and ladder. The top three are promoted and are no
+       longer in the list, so reading only `.lg-item[data-promo]` would report ranks 4-7 and
+       call that correct — a check that silently drops the three most visible students. */
+    promoRanks: [
+      ...[...document.querySelectorAll('[data-testid="podium-slot"][data-promo]')].map((el) => Number(el.dataset.place)),
+      ...[...document.querySelectorAll(".lg-item[data-promo] .lg-rk")].map((e) => Number(e.textContent)),
+    ].sort((a, b) => a - b),
     cutNextRank: (() => {
       const cut = document.querySelector('[data-testid="promotion-line"]');
       const next = cut?.nextElementSibling?.querySelector(".lg-rk");
@@ -265,23 +361,86 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   const at = `${vp.tag} ${vp.width}x${vp.height}`;
 
   /* ── the ladder is visible ──────────────────────────────────────────────────────────
-     The rejected board spent 700-790px on a headline, a card of prose and a podium before
-     rank 1. Two checks, because they fail differently: the budget catches a header that grows,
-     the row count catches a board whose rows are too tall to scan. */
-  const BUDGET = 250;
+     THE budget check, and the whole reason the podium was deleted once. The metric is RANKS,
+     not rows: three of them now stand on a stage, and a check that counted only rows would
+     score a perfect podium as zero and push it straight back off the page. Two checks, because
+     they fail differently — the header budget catches chrome that grows above the stage, the
+     rank count catches a stage or a row height that eats the ladder. */
+  const HEAD = 250;
   if (m.chrome === null) bad(`${at}: could not measure the distance to the first rank`);
-  else if (m.chrome > BUDGET) bad(`${at}: the first rank starts ${m.chrome}px down, budget ${BUDGET}px — the page is spending its height on itself [${m.chromeParts}]`);
-  else ok(`${at}: the first rank starts ${m.chrome}px down (budget ${BUDGET}px)`);
+  else if (m.chrome > HEAD) bad(`${at}: the first rank starts ${m.chrome}px down, budget ${HEAD}px — the page is spending its height on itself [${m.chromeParts}]`);
+  else ok(`${at}: the first rank starts ${m.chrome}px down (budget ${HEAD}px)`);
 
-  const WANT_ROWS = vp.height >= 700 ? 7 : 3;
-  if (m.rowsInView < WANT_ROWS) bad(`${at}: only ${m.rowsInView} ranked row(s) fit on screen, expected ≥${WANT_ROWS} — a ladder you cannot see is not a leaderboard`);
-  else ok(`${at}: ${m.rowsInView} ranked rows visible without scrolling (≥${WANT_ROWS})`);
+  /* 8 on a tall viewport = the 3 on the stage plus 5 rungs of ladder under it. On a landscape
+     phone (390-430px tall, and the stage still has to fit) 6 is the honest floor. For scale:
+     the pass-3 board showed ONE rank at 390x844. */
+  const WANT = vp.height >= 700 ? 8 : 6;
+  if (m.ranksInView < WANT) {
+    bad(`${at}: only ${m.ranksInView} rank(s) legible without scrolling (${m.slotsInView} on the stage + ${m.rowsInView} rows), expected ≥${WANT} — a ladder you cannot see is not a leaderboard [${m.chromeParts}]`);
+  } else ok(`${at}: ${m.ranksInView} ranks legible without scrolling — ${m.slotsInView} on the stage + ${m.rowsInView} rows (≥${WANT})`);
 
-  /* Rank 1 is IN the list. The deleted podium sliced the top three off and started the board
-     at rank 4; restoring `splitPodium` is a one-line regression. */
-  if (m.firstRank !== "1") bad(`${at}: the board starts at rank ${JSON.stringify(m.firstRank)}, expected "1" — every rank belongs in the list`);
-  else if (m.rowCount !== ENTRIES.length) bad(`${at}: the board rendered ${m.rowCount} rows for a division of ${ENTRIES.length}`);
-  else ok(`${at}: the board starts at rank 1 and holds all ${m.rowCount} ranks`);
+  /* ── the stage holds the top three, and the ladder resumes at 4 ──────────────────────
+     The split is the one place a student can silently VANISH: an off-by-one drops rank 4 or
+     renders it twice, and both look perfectly fine. So this checks the UNION against the whole
+     division rather than checking either end alone. */
+  if (String(m.podiumRanks) !== String(["1", "2", "3"])) {
+    bad(`${at}: the podium shows ranks ${JSON.stringify(m.podiumRanks)}, expected 1, 2, 3`);
+  } else if (m.firstRank !== "4") {
+    bad(`${at}: the ladder resumes at rank ${JSON.stringify(m.firstRank)}, expected "4" — the stage already holds 1-3, so anything else duplicates or drops a student`);
+  } else if (String(m.allRanks) !== String(ENTRIES.map((e) => e.rank))) {
+    bad(`${at}: stage + ladder render ${m.allRanks.length} ranks for a division of ${ENTRIES.length}, and not in order — got ${JSON.stringify(m.allRanks.slice(0, 8))}…`);
+  } else ok(`${at}: the stage holds ranks 1-3, the ladder resumes at 4, and all ${ENTRIES.length} ranks are present exactly once`);
+
+  /* DOM order 1-2-3, PAINTED 2-1-3. The old board's DOM was literally 2-1-3, so every screen
+     reader announced second place first — for weeks, because it looked right. */
+  if (String(m.podiumDom) !== String(["1", "2", "3"])) {
+    bad(`${at}: podium DOM order is ${JSON.stringify(m.podiumDom)}, expected 1,2,3 — a screen reader must reach the champion first`);
+  } else if (String(m.podiumPaint) !== String(["2", "1", "3"])) {
+    bad(`${at}: the podium PAINTS ${JSON.stringify(m.podiumPaint)} left-to-right, expected 2,1,3 — the champion belongs in the middle`);
+  } else ok(`${at}: the podium reads 1-2-3 in the DOM and paints 2-1-3 on screen`);
+
+  /* The champion's block is the tallest. Level blocks are a bar chart wearing a crown, and
+     "which one won?" must be answerable from the silhouette alone. */
+  {
+    const byPlace = Object.fromEntries(m.podiumBlocks.map((s) => [s.place, s]));
+    const [h1, h2, h3] = [byPlace["1"]?.h, byPlace["2"]?.h, byPlace["3"]?.h];
+    if (![h1, h2, h3].every((h) => typeof h === "number" && h > 0)) {
+      bad(`${at}: could not measure all three plinth heights (got ${JSON.stringify([h1, h2, h3])})`);
+    } else if (!(h1 > h2 && h2 >= h3)) {
+      bad(`${at}: plinth heights are ${h1}/${h2}/${h3}px for 1st/2nd/3rd — the champion's block must be the tallest`);
+    } else ok(`${at}: the plinths step down ${h1} > ${h2} ≥ ${h3}px`);
+
+    // Three distinct metals, sampled as PAINT. `data-place` would pass on three grey blocks.
+    const metals = new Set(m.podiumBlocks.map((s) => s.bg));
+    if (metals.size !== 3) bad(`${at}: the three places paint ${metals.size} distinct colour(s) — gold, silver and bronze must be materials, not labels`);
+    else ok(`${at}: the three places wear three distinct metals`);
+  }
+
+  if (m.crowns !== 1) bad(`${at}: ${m.crowns} crowns on the board, expected exactly 1`);
+  else if (m.crownPlace !== "1") bad(`${at}: the crown is on place ${m.crownPlace}, expected 1st`);
+  else ok(`${at}: the champion, and only the champion, wears the crown`);
+
+  /* ── ARCADE MATERIAL, measured ───────────────────────────────────────────────────────
+     The check that would have failed all four rejected passes. "Flat and soft" is not a mood,
+     it is 1px hairlines and blurred low-alpha shadows; a game object carries a real outline and
+     a HARD offset lip (zero blur). Sampled from computed style, so typing the tokens into a
+     comment does not satisfy it. */
+  {
+    const block = m.podiumBlocks.find((s) => s.place === "1");
+    if (!block) bad(`${at}: no first-place block to measure`);
+    else if (block.border < 2) bad(`${at}: the champion's block is outlined at ${block.border}px — a game object needs ≥2px of defining edge, not a hairline`);
+    else if (!block.lip) bad(`${at}: the champion's block has no hard lip (zero-blur offset shadow) — that single property is the difference between a game object and a dashboard card`);
+    else ok(`${at}: the podium is built as a game object (${block.border}px outline + a hard lip)`);
+
+    if (!m.matBoard) bad(`${at}: could not measure the board's material`);
+    else if (m.matBoard.border < 2) bad(`${at}: the board is outlined at ${m.matBoard.border}px — a hairline is the dashboard tell`);
+    else if (!m.matBoard.lip) bad(`${at}: the board has no hard lip — got "${m.matBoard.shadow}"`);
+    else ok(`${at}: the board carries the same material (${m.matBoard.border}px outline + a hard lip)`);
+
+    if (!m.matBand) bad(`${at}: could not measure the tier band's material`);
+    else if (m.matBand.border < 2 || !m.matBand.lip) bad(`${at}: the tier band breaks the material system (border ${m.matBand.border}px, lip ${m.matBand.lip}) — one recipe, every object`);
+    else ok(`${at}: the tier band carries the material too`);
+  }
 
   /* ONE surface. Rows share edges and carry no card chrome of their own; the list owns the
      radius and the clip. Twenty-seven floating cards is what read as a settings screen. */
@@ -299,12 +458,18 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
 
   /* ── the promotion zone ─────────────────────────────────────────────────────────────
      A filled region with a labelled head and a struck cut, replacing a hairline with a
-     caption. Exactly the top 7 are inside it, and the cut lands above rank 8. */
+     caption. Exactly the top 7 are inside it — three on the stage, four in the list — and the
+     cut lands above rank 8. */
   if (m.cutNextRank !== PROMOTE + 1) bad(`${at}: the cut sits above rank ${m.cutNextRank}, expected ${PROMOTE + 1}`);
   else ok(`${at}: the cut sits above rank ${PROMOTE + 1} (top ${PROMOTE} promote)`);
   const wantPromo = Array.from({ length: PROMOTE }, (_, i) => i + 1);
-  if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: the promotion zone holds ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)}`);
-  else ok(`${at}: exactly ranks 1-${PROMOTE} are inside the promotion zone`);
+  if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: the promoted set is ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)} — stage and ladder together`);
+  else ok(`${at}: exactly ranks 1-${PROMOTE} are marked promoted across the stage and the ladder`);
+  // The stage is inside the zone, so it must SAY so. Three students standing on a podium with
+  // no promotion marking, above a gold region that starts at rank 4, reads as excluded.
+  if (!m.podiumBlocks.every((s) => s.promo)) {
+    bad(`${at}: podium places ${JSON.stringify(m.podiumBlocks.filter((s) => !s.promo).map((s) => s.place))} are not marked promoted, though the top ${PROMOTE} advance — the stage must carry the zone it sits in`);
+  } else ok(`${at}: the stage carries the promotion marking it sits inside`);
 
   /* The zone's label carries the whole mechanic, which is why nothing above the board needs a
      sentence about it. Asserted on CONTENT, not on the element existing — a generic label
@@ -313,15 +478,6 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.zoneText)) bad(`${at}: the zone label does not name the promotion count (top ${PROMOTE}): "${m.zoneText}"`);
   else if (!/Gold/.test(m.zoneText)) bad(`${at}: the zone label does not name the division being climbed into: "${m.zoneText}"`);
   else ok(`${at}: the zone label names both the cut and the destination`);
-
-  /* ── the top three keep their recognition, in the list ──────────────────────────────
-     This is what the 380px podium was paying for. If it is worth deleting the podium, the
-     replacement has to actually be there. */
-  if (String(m.plated) !== String(["1", "2", "3"])) bad(`${at}: metal rank plates are on ${JSON.stringify(m.plated)}, expected ranks 1-3`);
-  else ok(`${at}: ranks 1-3 wear metal rank plates`);
-  if (m.crowns !== 1) bad(`${at}: ${m.crowns} crowns on the board, expected exactly 1`);
-  else if (m.crownRank !== "1") bad(`${at}: the crown is on rank ${m.crownRank}, expected rank 1`);
-  else ok(`${at}: the champion, and only the champion, wears the crown`);
 
   /* ── the tier band ──────────────────────────────────────────────────────────────────
      The head of the board is made of the division's metal, so climbing re-skins the page. */
@@ -524,7 +680,7 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   const solo = { ...BOARD, entries: [{ ...ENTRIES[0], name: "You", is_you: true, rank: 1, rank_delta: null }],
                  pool_size: 1, promote_count: 0 };
   const ctx = await boardCtx(b, VIEWPORTS[1], { board: solo });
-  const p = await openBoard(ctx);
+  const p = await openBoard(ctx, { podium: false });
   const rows = await p.locator('[data-testid="lb-row"]').count();
   const cut = await p.locator('[data-testid="promotion-line"]').count();
   const zone = await p.locator('[data-testid="promotion-zone"]').count();
@@ -532,6 +688,12 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   else ok("a cohort of one still renders a board");
   if (cut !== 0 || zone !== 0) bad("a cohort of one drew a promotion zone — nobody can be promoted out of a pool of one");
   else ok("no promotion zone when promote_count is 0");
+  /* An UNDERFILLED podium is no podium. One student on a three-place stage is a plinth with
+     nobody beside it; splitPodium refuses below `places`, and that refusal has to reach the
+     DOM or the solo board renders a lone block labelled "1st" over an empty ladder. */
+  if (await p.locator('[data-testid="podium"]').count() !== 0) {
+    bad("a cohort of one built a podium — a three-place stage holding one student is a hole, not a ceremony");
+  } else ok("no podium for a cohort too small to fill it");
   await ctx.close();
 }
 
@@ -547,6 +709,20 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
     if (left !== 0) {
       bad("the promotion zone survived a role filter — promote_count describes the whole division, so a filtered cut points at the wrong student");
     } else ok("the promotion zone is withheld on a role-filtered view");
+
+    /* …and so is the PODIUM, for the same reason and one the zone check cannot cover. The top
+       three of a filtered view are the best three OT, whose real division ranks here are 1, 3
+       and 5. A stage labelled 1-2-3 would be false; a stage labelled 1-3-5 is not a podium.
+       So the filtered view is one honest list, and the first row is that role's best rank. */
+    const stage = await p.locator('[data-testid="podium"]').count();
+    if (stage !== 0) {
+      bad("the podium survived a role filter — its top three are the best of that ROLE, not ranks 1-2-3 of the division");
+    } else ok("the podium is withheld on a role-filtered view");
+
+    const firstFiltered = await p.locator(".lg-row .lg-rk").first().textContent();
+    if (firstFiltered?.trim() !== "1") {
+      bad(`the filtered list starts at rank ${JSON.stringify(firstFiltered?.trim())} — with no stage above it, every rank belongs in the list`);
+    } else ok("with the podium withheld, the filtered list starts at that role's best rank");
   }
   await ctx.close();
 }

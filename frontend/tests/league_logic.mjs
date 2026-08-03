@@ -11,7 +11,7 @@
 */
 import assert from "node:assert";
 import {
-  msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex,
+  msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex, splitPodium,
   nextDivisionName, DIVISION_NAMES,
 } from "../src/aurora/leaderboard/league.ts";
 
@@ -45,18 +45,47 @@ assert.strictEqual(countdownLabel(12 * 60_000), "12m");
 assert.strictEqual(countdownLabel(0), "0m");
 assert.strictEqual(countdownLabel(-5), "0m");   // never renders a negative
 
+// ── 1b) the podium split ──
+/* Restored 2026-08-04. The interesting cases are the two refusals, not the happy path:
+   an underfilled stage, and the caller withholding the podium on a filtered view. */
+const thirty = Array.from({ length: 30 }, (_, i) => i + 1);
+{
+  const { podium, rest } = splitPodium(thirty);
+  assert.deepStrictEqual(podium, [1, 2, 3]);
+  assert.strictEqual(rest.length, 27);
+  assert.strictEqual(rest[0], 4);                       // the ladder resumes at rank 4
+}
+// Nothing is ever dropped or duplicated, whatever the split.
+for (const places of [0, 1, 2, 3, 5, 40]) {
+  const { podium, rest } = splitPodium(thirty, places);
+  assert.deepStrictEqual([...podium, ...rest], thirty, `places=${places} lost or duplicated a rank`);
+}
+// An UNDERFILLED podium is no podium — a three-place stage holding two is a hole.
+assert.deepStrictEqual(splitPodium([1, 2], 3), { podium: [], rest: [1, 2] });
+assert.deepStrictEqual(splitPodium([1], 3), { podium: [], rest: [1] });
+assert.deepStrictEqual(splitPodium([], 3), { podium: [], rest: [] });
+// Exactly enough still stands: 3 of 3 is a full stage with an empty ladder under it.
+assert.deepStrictEqual(splitPodium([1, 2, 3], 3), { podium: [1, 2, 3], rest: [] });
+// places 0 is how the board withholds the podium on a role-filtered view, where the top
+// three of a role are NOT ranks 1-2-3 of the division.
+assert.deepStrictEqual(splitPodium(thirty, 0), { podium: [], rest: thirty });
+assert.deepStrictEqual(splitPodium(thirty, -1), { podium: [], rest: thirty });
+// It must not mutate its input — the board re-splits on every filter change.
+const frozen = [1, 2, 3, 4];
+splitPodium(frozen, 3);
+assert.deepStrictEqual(frozen, [1, 2, 3, 4]);
+
 // ── 2) the promotion line ──
-/* THE SHIPPING CASE. The podium was deleted on 2026-08-03 and every rank is a row, so the
-   board passes podiumCount 0: 30 rows, top 7 promote, cut before index 7 (i.e. above rank 8).
-   Off by one here and the board promotes the wrong student — the most consequential pixel
-   on the page. */
+/* THE SHIPPING CASE (2026-08-04): the podium holds ranks 1-3, so the list is 27 rows and the
+   cut falls after 4 of them — ranks 4-7, with 1-3 promoted on the stage above. Off by one
+   here and the board promotes the wrong student, which is the most consequential pixel on
+   the page. */
+assert.strictEqual(promotionLineIndex(3, 27, 7), 4);
+// …and the podium-less form the role-filtered view and small cohorts still use.
 assert.strictEqual(promotionLineIndex(0, 30, 7), 7);
 assert.strictEqual(promotionLineIndex(0, 8, 7), 7);   // exactly one row below the cut
 assert.strictEqual(promotionLineIndex(0, 7, 7), null); // everyone visible promotes — don't draw
 assert.strictEqual(promotionLineIndex(0, 30, 0), null);
-// The general form still holds for a caller that renders the leaders elsewhere.
-// podium 3, rest 27, top 7 promote → the line sits after 4 ranked rows (ranks 4-7).
-assert.strictEqual(promotionLineIndex(3, 27, 7), 4);
 // promote_count landing inside the podium → the line sits at the very top of the list.
 assert.strictEqual(promotionLineIndex(3, 9, 3), 0);
 assert.strictEqual(promotionLineIndex(3, 9, 1), 0);

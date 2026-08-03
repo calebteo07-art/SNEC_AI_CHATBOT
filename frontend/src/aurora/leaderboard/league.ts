@@ -69,13 +69,32 @@ export function countdownLabel(ms: number): string {
   return `${Math.floor(t / 60_000)}m`;
 }
 
+/** Split the ranked list into the finishers who stand on the podium and the rest of the
+ *  ladder.
+ *
+ *  Restored 2026-08-04 with the podium (it was deleted on 2026-08-03 and every rank became a
+ *  row). Two rules, and both of them are about not telling a lie with a stage:
+ *
+ *  1. An UNDERFILLED podium is no podium. Two students on a three-place stage is a set with a
+ *     hole in it, so below `places` entries everyone goes in the list instead. This is also
+ *     what keeps the one-student cohort rendering a board rather than a lone plinth.
+ *  2. `places` is the CALLER's decision, because the caller knows whether a filter is on. The
+ *     board passes 0 on a role-filtered view: those top three are the best three OA, whose
+ *     real division ranks might be 1, 3 and 6. A podium labelled 1-2-3 would be false, and a
+ *     podium labelled 1-3-6 is not a podium. Same reasoning as the promotion zone, which is
+ *     withheld on a filtered view for exactly this reason.
+ *
+ *  Generic in the entry type: this is list surgery, and it must not drag the row shape in. */
+export function splitPodium<T>(entries: T[], places = 3): { podium: T[]; rest: T[] } {
+  if (places <= 0 || entries.length < places) return { podium: [], rest: entries };
+  return { podium: entries.slice(0, places), rest: entries.slice(places) };
+}
+
 /** Index in the ranked list before which the cut is drawn, or null when drawing it would
  *  mislead.
  *
- *  `podiumCount` is how many top finishers the list does NOT contain. The podium was deleted
- *  on 2026-08-03 and every rank is now a row, so the board passes 0 — but the parameter stays
- *  because the arithmetic is the general one, and a caller that renders the leaders elsewhere
- *  would need it again.
+ *  `podiumCount` is how many top finishers the list does NOT contain — `splitPodium`'s
+ *  `podium.length`, which is 0 whenever the podium is withheld.
  *
  *  Two null cases, both real: the top division promotes nobody, and a line at or past the
  *  end of the rendered rows would say "everyone here promotes" — which is false whenever

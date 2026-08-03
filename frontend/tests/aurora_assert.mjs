@@ -777,9 +777,10 @@ const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="eyecon-logo"]
 if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
 console.log("PASS: Home greeting — always the DEFAULT living mascot, even when customized");
 
-// Leaderboard — "The League": the tier band + ONE ranked board holding every rank. The Beam
-// podium was deleted on 2026-08-03 (it cost ~380px to push the ranks below the fold), so the
-// top three are simply the top three rows. Everyone-by-default: the hide-self switch and
+// Leaderboard — "The League": the tier band + a PODIUM holding ranks 1-3 + the ranked board
+// holding rank 4 down. (The podium was deleted on 2026-08-03 and restored on 2026-08-04 by
+// request; `lb-row` therefore counts LB_ROWS.length - 3, not LB_ROWS.length.)
+// Everyone-by-default: the hide-self switch and
 // nickname field were removed on request (2026-08-02), so there is no opt-out UI left to
 // verify here. The GET mock honours ?role= so the filter stays a real behavioral verify.
 // `xp` is now the WEEKLY score (ranking key); `xp_total` is lifetime XP (tier ring).
@@ -815,7 +816,10 @@ await np.waitForSelector('[data-testid="lb-row"]', { timeout: 15000 });
 const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator('[data-testid="tier-band"]').count()) !== 1) { console.error("FAIL: leaderboard did not render the tier band"); process.exit(1); }
-if ((await np.locator('[data-testid="lb-row"]').count()) !== LB_ROWS.length) { console.error(`FAIL: expected all ${LB_ROWS.length} ranks as rows`); process.exit(1); }
+// Ranks 1-3 stand on the stage; the ladder holds the remaining 4. Both halves are asserted,
+// because "3 + 4" is the only statement that catches either one silently going to zero.
+if ((await np.locator('[data-testid="podium-slot"]').count()) !== 3) { console.error("FAIL: leaderboard did not render a 3-place podium"); process.exit(1); }
+if ((await np.locator('[data-testid="lb-row"]').count()) !== LB_ROWS.length - 3) { console.error(`FAIL: expected ${LB_ROWS.length - 3} ranks as rows below the podium`); process.exit(1); }
 if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-layer[src^="/avatar/"]').count()) < 1) {
   console.error("FAIL: leaderboard did not render any student's composited Eyecon (config-driven /avatar layer)"); process.exit(1);
 }
@@ -839,12 +843,24 @@ if ((await lbReset.count()) !== 1 || !/closes in/i.test(await lbReset.innerText(
 if ((await np.locator('[data-testid="edit-selena"]').count()) !== 0) { console.error("FAIL: a legacy Edit-Eyecon control still exists on the leaderboard"); process.exit(1); }
 console.log("PASS: Leaderboard — tier band, ranked board, chase stat, you-row highlight, composited Eyecon (portrait_url ignored)");
 
-// role filter narrows the board and drops the other role (4 OT of the 7 rows).
-await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
-await np.waitForFunction(() => document.querySelectorAll('[data-testid="lb-row"]').length === 4, { timeout: 8000 });
-console.log("PASS: Leaderboard — role filter narrows the board");
+/* Role filter narrows the board AND withholds the podium (a filtered view's top three are
+   the best three of that role, not ranks 1-2-3 of the division). Filtered on OA — 3 of the 7
+   — deliberately, NOT on OT: OT is 4 of 7, which is exactly the unfiltered row count once the
+   podium takes three out of the ladder, so an OT assertion would pass before the click landed
+   and test nothing. The count is asserted as podium + rows together for the same reason. */
+await np.locator('.lb-filter .lb-chip:has-text("OA")').click();
+await np.waitForFunction(() => {
+  const n = { slots: document.querySelectorAll('[data-testid="podium-slot"]').length,
+              rows: document.querySelectorAll('[data-testid="lb-row"]').length };
+  return n.slots === 0 && n.rows === 3;
+}, { timeout: 8000 });
+console.log("PASS: Leaderboard — role filter narrows the board and withholds the podium");
 await np.locator('.lb-filter .lb-chip:has-text("All")').click();
-await np.waitForFunction(() => document.querySelectorAll('[data-testid="lb-row"]').length === 7, { timeout: 8000 });
+await np.waitForFunction(() => {
+  const n = { slots: document.querySelectorAll('[data-testid="podium-slot"]').length,
+              rows: document.querySelectorAll('[data-testid="lb-row"]').length };
+  return n.slots === 3 && n.rows === 4;
+}, { timeout: 8000 });
 
 await np.setViewportSize({ width: 390, height: 844 });
 await np.waitForTimeout(250);

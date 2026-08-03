@@ -1,11 +1,11 @@
 "use client";
 /* One rung of the league, the zone that promotes, and the line that cuts it off.
 
-   The board this replaces split the top three onto a podium and started the list at rank 4.
-   Everyone is in one list now: a ranked ladder that begins at rank 1 is the whole genre, and
-   the podium was costing ~380px to say something a medal on a row says for nothing. Places
-   1-3 keep their recognition — a struck metal plate instead of a grey disc, and a crown on the
-   champion — but they keep it IN the list.
+   A rung carries NO place ornament — no metal plate, no crown. Those went back onto the podium
+   on 2026-08-04, and duplicating them here would mean the board says "first place" twice, in
+   two different visual languages, about two different elements. On a role-filtered view the
+   podium is withheld and rank 1 does appear as a row: still no crown, deliberately, because a
+   filtered view is a lens and the champion of a lens is not a champion.
 
    Kept from the previous row: the movement arrow off the once-daily rank snapshot (the board's
    only time axis), and no lifetime-XP tier ring (division carries prestige now, and a second
@@ -17,7 +17,6 @@ import { forwardRef } from "react";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Lumen } from "@/aurora/components/Lumen";
 import { arrowFor } from "@/aurora/leaderboard/league";
-import { Crown } from "./Metals";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
 export const LeagueRow = forwardRef<HTMLLIElement, {
@@ -26,11 +25,8 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
   onPeek: (e: LeaderboardEntry) => void;
 }>(function LeagueRow({ e, promo, onPeek }, ref) {
   const mv = arrowFor(e.rank_delta);
-  // Only the real top three wear metal. On a role-filtered view the ranks are still the
-  // division's own, so this stays honest without a second source of truth.
-  const place = e.rank <= 3 ? e.rank : undefined;
   return (
-    <li className="lg-item" ref={ref} data-promo={promo || undefined} data-place={place}>
+    <li className="lg-item" ref={ref} data-promo={promo || undefined}>
       <button
         type="button"
         className="lg-row"
@@ -43,9 +39,12 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
         <span className="lg-mv" data-dir={mv.dir} title={mv.label}>
           <span aria-hidden>{mv.glyph}</span>
         </span>
+        {/* 34, inside a 44px struck ring. The portrait shrank by 2px when the ring arrived:
+            an N-px portrait in an N-px bordered circle leaves a ring 0px wide, and the row's
+            height is set by this element, so growing the ring instead would push every row
+            past the 56px the visible-ranks budget is built on. */}
         <span className="lg-face">
-          <Eyecon config={e.avatar_config} background={e.avatar_config?.background} size={36} />
-          {e.rank === 1 && <Crown />}
+          <Eyecon config={e.avatar_config} background={e.avatar_config?.background} size={34} />
         </span>
         <span className="lg-meta">
           <span className="lg-nm">
