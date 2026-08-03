@@ -911,18 +911,55 @@ privacy opt-out was **unreachable** (`useSetLeaderboardPrefs` exported, imported
 Direction chosen from mockups: a **Duolingo-style weekly league, PROMOTION-ONLY** — never
 demote, because the cohort is named and supervisor-visible — with a **"Beam" podium**.
 
-**The stage.** Black (`--stage #07070A`), lit by exactly ONE source: a clipped, blurred gold
-shaft (`.bm-ray`) onto the champion plus a floor pool (`.bm-pool`). Top→bottom: division ladder
-+ SGT countdown · the chase · the Beam · role filter · the league list with the promotion line.
+**The stage.** A deep cool ramp (`#10132A → #04050C`) lit warm from above and cool from below
+left. Top→bottom: division ladder + SGT countdown + **the stakes line** + **"How the league
+works"** · the chase · the Beam · role filter · the league list with the promotion line.
 Backend: migration 016 + `tools/gamification/league.py`.
 
-**The three rules. Name which one you are changing before refining:**
-1. **ONE LIGHT SOURCE.** Only `.bm-ray`/`.bm-pool` emit. Everything else is lit or dark.
-2. **ONE ACCENT — gold** (`#F5C542`). Division is carried by **luminance** (lit / dim /
-   outline), never hue, so five metals never fight one accent. The only other hue on the board
-   is the green climb arrow, and it is semantic. The old board had four accents.
-3. **SCALE IS THE ARGUMENT.** Champion portrait **1.7×** (108px vs 64px), champion plinth
-   **2×** (132 vs 66; 112 vs 56 on phones). Both are asserted numerically by the harness.
+### REFINED 2026-08-03 — all three rules changed, by name
+
+User: the board is **"too dark and flat with no layers"**, the podium is **"too simple… I want
+it flamboyant"**, and **"the league tiers are unclear and do not make sense to users"**. Each
+complaint traced to a rule the 08-02 pass set deliberately, so each rule is superseded rather
+than quietly ignored. The originals are kept below so the trade being made stays visible.
+
+1. ~~ONE LIGHT SOURCE — only `.bm-ray`/`.bm-pool` emit.~~ →
+   **FOUR PLANES, TWO TEMPERATURES.** One emitter with surfaces at `#101016` on a `#07070A`
+   page is a **4% luminance step** carrying a 1px hairline and no shadow — not a dark theme,
+   an *unlit* one, in which nothing sits on anything. Every raised surface now takes the
+   elevation pair (`--surf-1/2` gradient + `--rim` top highlight + `--cast` shadow), plus a
+   stage floor (`.bm::before`), a vignette (`.lb-climb::after`) and a star field. Warm key
+   light above, cool indigo fill below-left: temperature contrast is the cheapest depth cue
+   there is and it costs no extra accent.
+2. ~~ONE ACCENT — division by luminance, never hue.~~ →
+   **HUE IS IDENTITY, BUT ONLY ON THE METALS.** This rule *was* the tier bug: a Silver rung
+   painted gold is a contradiction the reader must resolve before the ladder says anything.
+   Divisions and podium places now wear their real materials (`Metals.tsx`). Gold everywhere
+   **else** still means the mechanic — promotion line, your row, the chase — so the two
+   languages never collide. Green climb arrows stay semantic.
+3. ~~SCALE IS THE ARGUMENT.~~ → **SCALE, PLUS ORNAMENT.** The ratios are unchanged and still
+   asserted numerically (portrait **1.7×** 108/64, plinth **2×** 132/66, 112/56 on phones) —
+   but three rectangles and a numeral is a *diagram* of a podium. Plinths gained lit trapezoid
+   top faces (`.bm-top`), metal bevels and floor reflections; the champion gained a crowned
+   laurel, a masked sunburst, a one-shot shine and drifting embers.
+
+**Also locked by this pass:**
+- **The tiers must EXPLAIN THEMSELVES.** Five distinct metals, earned/current/locked all
+  legible without colour alone (✓ badge, "You are here", inline `Lock`), a **stakes line**
+  naming the cut *and* the destination, and a `<details>` covering weekly scoring, the Monday
+  SGT close, no-demotion and all five divisions. `league_assert` checks all four on CONTENT —
+  a vague sentence would still render, so an existence check would pass while failing the
+  reader.
+- **The laurel is tangential, not radial.** Leaves lie ~62° off radial along a visible stem
+  arc. The first attempt pointed them outward at even spacing and rendered a **sunflower**.
+- **Nothing on the stage may ROTATE its own box.** A rotated square reports a bounding box
+  1.41× its width, which escapes a 390px viewport and fails the overflow sweep even under
+  `overflow: hidden` — clipping stops the paint, not `getBoundingClientRect()`. The sunburst
+  spins on `.bm-burst::before` (pseudo-elements are invisible to `querySelectorAll`) inside
+  the clipping `.bm-fx` layer, so the guarantee is real and not merely unmeasured.
+- **Podium metals are pitched darker than the ladder's.** A literal silver (`#FFF`/`#C4CFDD`)
+  out-reads gold at podium scale, and the champion losing a brightness contest to the
+  runner-up is the exact failure the 2× plinth exists to prevent.
 
 **Also locked** — each of these is a defect this rebuild fixed, so re-breaking one is a
 regression, not a restyle:
@@ -954,6 +991,10 @@ regression, not a restyle:
 - **NEVER relax the unconditional `leaderboard_hidden` filter.** `rank_entries` drops hidden
   rows for *everyone including the student themselves*, and that lack of exceptions is what
   makes the opt-out provable.
+- **ZERO baked raster survives the 08-03 refit.** Every new ornament is a gradient,
+  a `repeating-conic-gradient` or an inline path — the crests, laurel, crown, medals and lock
+  are all SVG in `Metals.tsx`. `league_assert` still fails on any `background-image: url(…)`
+  under the stage, which includes SVG **data URIs**, so ornament must be real elements.
 - **Two type families** (Bricolage display + `--font-body`), tabular numerals on every number.
   Bungee/`--font-arcade` is gone — an arcade face was the loudest reason it read like a
   placeholder.
