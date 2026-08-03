@@ -19,8 +19,8 @@ import { StationBriefing } from "@/aurora/components/StationBriefing";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
-import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
-import { stationTurn } from "@/aurora/lib/stationTurn";
+import { advance, gateIndex, currentStep, observeCanTick, performedOnly } from "@/aurora/lib/stationGate";
+import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
 import { timerState, formatClock } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
@@ -119,11 +119,13 @@ export function CaseSession() {
 
   const [ticked, setTicked] = useState<Set<number>>(new Set());
   const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
-  // Steps advanced by the stuck-valve rather than examiner-verified (see unstick()).
-  const [selfMarked, setSelfMarked] = useState<Set<number>>(new Set());
-  // Messages sent since the gate last moved. Three with no tick ⇒ offer the stuck-valve.
-  const [sinceAdvance, setSinceAdvance] = useState(0);
-  const [unsticking, setUnsticking] = useState(false);
+  // Steps the student could not complete and skipped (see skipStep()). They pass the gate
+  // so the session continues, but they are NEVER reported as performed.
+  const [skipped, setSkipped] = useState<Set<number>>(new Set());
+  // Tries on the current step since the gate last moved — a sent message, or a procedure
+  // opened in the action panel. Past SKIP_AFTER with no tick ⇒ offer the way out.
+  const [attempts, setAttempts] = useState(0);
+  const [skipping, setSkipping] = useState(false);
   // The pre-flight briefing runs on EVERY station open (user, 2026-07-29) — no storage key,
   // no "seen" flag. `?` re-opens it mid-case, which is the only other way in.
   const [showBriefing, setShowBriefing] = useState(false);
@@ -321,14 +323,16 @@ export function CaseSession() {
     observeTimer.current = setTimeout(() => void runObserve(0), 450);
   }, [caseId, runObserve]);
 
-  // Stuck-valve. Removing the manual tap made /observe load-bearing: a step it never
-  // recognises would freeze the gate and leave every later manual chip locked forever.
-  // One press, two stages — ask the examiner to re-read THIS step leniently, and only
-  // self-mark if that still finds nothing. Self-marks are recorded, never hidden.
-  const unstick = useCallback(async () => {
+  // The way out of a step the student can't complete. Removing the manual tap made /observe
+  // load-bearing: a step it never recognises would freeze the gate and leave every later
+  // manual chip locked forever. One press, two stages — first ask the examiner to re-read
+  // THIS step leniently, so a student who really did it keeps full credit; only if that
+  // still finds nothing is the step skipped. A skip advances the gate and nothing else:
+  // it is recorded as NOT performed, everywhere.
+  const skipStep = useCallback(async () => {
     const step = currentStep(orderRef.current, tickedRef.current);
-    if (step === null || unsticking) return;
-    setUnsticking(true);
+    if (step === null || skipping) return;
+    setSkipping(true);
     try {
       const res = await fetch(`/api/cases/${caseId}/observe`, {
         method: "POST",
@@ -343,14 +347,15 @@ export function CaseSession() {
       const data = res.ok ? ((await res.json()) as { newly_satisfied?: number[] }) : { newly_satisfied: [] };
       if (data.newly_satisfied?.length) { addAuto(data.newly_satisfied); return; }
     } catch {
-      /* fall through to the self-mark — the valve must never fail closed */
+      /* fall through to the skip — the way out must never fail closed */
     } finally {
-      setUnsticking(false);
+      setSkipping(false);
     }
-    // Stage 2: the examiner still can't see it. Advance, and record that we did.
+    // Stage 2: the examiner still can't see it, so it wasn't done. Move the gate on and
+    // record the skip — the grade, the debrief and the export all read it as not completed.
     setTicked((prev) => { const x = new Set(prev); x.add(step); return x; });
-    setSelfMarked((prev) => { const x = new Set(prev); x.add(step); return x; });
-  }, [caseId, unsticking, addAuto]);
+    setSkipped((prev) => { const x = new Set(prev); x.add(step); return x; });
+  }, [caseId, skipping, addAuto]);
 
   const sendMessage = async (textArg?: string) => {
     const content = (textArg ?? input).trim();
@@ -431,7 +436,7 @@ export function CaseSession() {
     } finally {
       setSending(false);
       setIsStreaming(false);
-      setSinceAdvance((n) => n + 1); // three of these with no tick ⇒ offer the stuck-valve
+      setAttempts((n) => n + 1); // enough of these with no tick ⇒ offer the way out
       // Skip the follow-up examiner pass when the stream was aborted (component unmounted),
       // otherwise we'd schedule an observe fetch after unmount.
       if (!chatAbort.current?.signal.aborted) scheduleObserve(); // run the examiner after the reply completes
@@ -454,6 +459,9 @@ export function CaseSession() {
       scheduleObserve();
       return;
     }
+    // Opening a procedure and not completing it is this pane's version of "I tried" — the
+    // student who does it twice doesn't know the technique, so it counts toward the way out.
+    setAttempts((n) => n + 1);
     setActiveProcedure(a);
     setProcText("");
   };
@@ -516,7 +524,7 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked), self_advanced: Array.from(selfMarked) }),
+        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: performedOnly(ticked, skipped), skipped_steps: Array.from(skipped) }),
       });
       if (!res.ok) { setSubmitError(submitErrorMessage(res.status)); return; }
       const data = (await res.json()) as { result: DomainResult; coaching?: Coaching; lumens_awarded?: number };
@@ -546,7 +554,7 @@ export function CaseSession() {
     const checklist = station.checklist.phases.flatMap((p) =>
       p.steps.map((s) => ({
         phase: p.name, action: s.action, critical: s.critical,
-        done: ticked.has(s.step_number), selfMarked: selfMarked.has(s.step_number),
+        done: ticked.has(s.step_number) && !skipped.has(s.step_number), skipped: skipped.has(s.step_number),
       })),
     );
     const patientTranscript = messages
@@ -587,12 +595,14 @@ export function CaseSession() {
   const phases = station?.checklist.phases ?? [];
   const allSteps: StationStep[] = phases.flatMap((p) => p.steps);
   const criticalSteps = allSteps.filter((s) => s.critical);
-  const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
+  // A skipped step passed the gate but was never done, so it still counts as outstanding
+  // here — the handover warning must not go quiet because a critical step was given up on.
+  const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number) || skipped.has(s.step_number));
   const gateStep = currentStep(allSteps.map((s) => s.step_number), ticked); // current unlockable step, or null
   const clock = timerState(startedAt.current, nowMs, caseInfo?.estimated_minutes ?? 0);
 
   // The gate moved (or the station loaded) → the student isn't stuck any more.
-  useEffect(() => { setSinceAdvance(0); }, [gateStep]);
+  useEffect(() => { setAttempts(0); }, [gateStep]);
 
   const patientMessages = messages.filter((m) => m.channel === "patient").map(({ role, content }) => ({ role, content }));
   const eyebotMessages = messages.filter((m) => m.channel === "eyebot").map(({ role, content }) => ({ role, content }));
@@ -682,7 +692,7 @@ export function CaseSession() {
                 totalSteps={station.checklist.total_steps}
                 ticked={ticked}
                 autoSteps={autoSteps}
-                selfMarked={selfMarked}
+                skipped={skipped}
                 current={gateStep}
               />
             </div>
@@ -709,9 +719,9 @@ export function CaseSession() {
           locked={patientLocked}
           active={turn === "patient"}
           turnBadge={turn === "patient" ? badge : ""}
-          canUnstick={turn === "patient" && sinceAdvance >= 3 && !result}
-          unsticking={unsticking}
-          onUnstick={() => void unstick()}
+          canSkip={turn === "patient" && canSkip(turn, attempts, !!result)}
+          skipping={skipping}
+          onSkip={() => void skipStep()}
           endRef={endRef}
           onInputChange={setInput}
           onSend={() => sendMessage()}
@@ -732,6 +742,9 @@ export function CaseSession() {
             active={turn === "eyebot"}
             turnBadge={turn === "eyebot" ? badge : ""}
             busy={sending || isStreaming}
+            canSkip={turn === "eyebot" && canSkip(turn, attempts, !!result)}
+            skipping={skipping}
+            onSkip={() => void skipStep()}
             onPerform={performAction}
             onProcText={setProcText}
             onConfirm={confirmProcedure}

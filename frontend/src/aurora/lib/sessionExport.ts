@@ -19,8 +19,8 @@ export interface SessionExportData {
     consult: number; consultMax: number; judgement: number; judgementMax: number;
   };
   summary: { highlights: string[]; didWrong: string[]; missed: string[]; focus: string };
-  /** `selfMarked` = advanced via the station's stuck-valve, never examiner-verified. */
-  checklist: { phase: string; action: string; critical: boolean; done: boolean; selfMarked?: boolean }[];
+  /** `skipped` = the student said they couldn't complete it, so `done` is false for it too. */
+  checklist: { phase: string; action: string; critical: boolean; done: boolean; skipped?: boolean }[];
   patientTranscript: { who: string; text: string }[];
   actionTranscript: { who: string; text: string }[];
 }
@@ -59,9 +59,9 @@ export function buildSessionHtml(data: SessionExportData): string {
     .map(
       (s) =>
         `<tr>
-          <td class="mark ${s.done ? "ok" : "no"}">${s.done ? (s.selfMarked ? "—" : "✓") : "✗"}</td>
+          <td class="mark ${s.done ? "ok" : "no"}">${s.done ? "✓" : "✗"}</td>
           <td>${esc(s.action)}${s.critical ? ' <span class="crit">CRITICAL</span>' : ""}${
-            s.done && s.selfMarked ? ' <span class="muted">(self-marked — not examiner-verified)</span>' : ""
+            s.skipped ? ' <span class="muted">(skipped — could not complete)</span>' : ""
           }</td>
           <td class="ph">${esc(s.phase)}</td>
         </tr>`,

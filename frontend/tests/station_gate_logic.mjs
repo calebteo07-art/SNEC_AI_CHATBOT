@@ -7,7 +7,7 @@
    once every observable step is already ticked (the tail of a consult). It must NOT
    suppress while any observable step is still open, nor before the station has loaded. */
 import assert from "node:assert";
-import { observeCanTick } from "../src/aurora/lib/stationGate.ts";
+import { observeCanTick, performedOnly } from "../src/aurora/lib/stationGate.ts";
 
 const S = (...xs) => new Set(xs);
 
@@ -24,5 +24,16 @@ assert.strictEqual(observeCanTick([2, 5], S(2, 5, 9)), false, "extra (manual) ti
 // no-ops correctly, and this preserves today's behaviour for all-manual stations.
 assert.strictEqual(observeCanTick([], S()), true, "empty observable → don't suppress");
 assert.strictEqual(observeCanTick([], S(1, 2)), true, "empty observable, some ticked → don't suppress");
+
+// ── performedOnly — a skipped step advances the gate but was NEVER done.
+// `ticked` means "the gate moved past this", which is not the same as "the student did
+// this". The grade, the debrief and the saved record all take the second meaning, so the
+// skipped steps come back out here. Getting this wrong hands out credit for giving up.
+assert.deepStrictEqual(performedOnly(S(1, 2, 3), S(2)), [1, 3], "skipped step is not performed");
+assert.deepStrictEqual(performedOnly(S(1, 2, 3), S()), [1, 2, 3], "nothing skipped → all performed");
+assert.deepStrictEqual(performedOnly(S(1, 2), S(1, 2)), [], "everything skipped → nothing performed");
+assert.deepStrictEqual(performedOnly(S(), S(1)), [], "skip of an unticked step is harmless");
+// Ordered output — the payload must not reshuffle between submits of the same station.
+assert.deepStrictEqual(performedOnly(S(3, 1, 2), S()), [1, 2, 3], "output is in step order");
 
 console.log("station_gate_logic: all assertions passed");

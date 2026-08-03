@@ -4,16 +4,17 @@
    Branda's feedback: a fully-visible checklist is a script students read off instead of
    recalling their own history-taking questions. Done steps stay readable (you must be able
    to review what you did), the CURRENT step is named (so nobody stalls), everything ahead
-   is masked. Self-marked steps are a distinct state — they were never examiner-verified. */
+   is masked. Skipped steps are a distinct state — the gate moved past them, but the student
+   said they could not complete them, so they must never read as done. */
 import assert from "node:assert";
 import { stepDisplay, maskFor, isRevealed } from "../src/aurora/lib/stationMask.ts";
 
 const S = (...xs) => new Set(xs);
 const none = S();
 
-// Done vs self-marked — both ticked, but they must never render alike.
-assert.strictEqual(stepDisplay(1, S(1), none, 2), "done", "ticked + not self → done");
-assert.strictEqual(stepDisplay(1, S(1), S(1), 2), "self", "ticked + self-marked → self");
+// Done vs skipped — both past the gate, but they must never render alike.
+assert.strictEqual(stepDisplay(1, S(1), none, 2), "done", "ticked + not skipped → done");
+assert.strictEqual(stepDisplay(1, S(1), S(1), 2), "skipped", "ticked + skipped → skipped");
 
 // The current step is named; everything else unticked is masked.
 assert.strictEqual(stepDisplay(2, S(1), none, 2), "current", "gate step → current");
@@ -26,7 +27,8 @@ assert.strictEqual(stepDisplay(3, S(1, 2), none, null), "masked", "unticked with
 
 // isRevealed is the one predicate the UI uses to decide whether to print action text.
 assert.strictEqual(isRevealed("done"), true);
-assert.strictEqual(isRevealed("self"), true);
+// A skipped step stays readable — the student has to be able to see what they gave up on.
+assert.strictEqual(isRevealed("skipped"), true);
 assert.strictEqual(isRevealed("current"), true);
 assert.strictEqual(isRevealed("masked"), false, "masked text must never be printed");
 

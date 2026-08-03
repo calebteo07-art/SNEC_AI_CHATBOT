@@ -31,7 +31,7 @@ export function StationChecklist({
   phases,
   ticked,
   autoSteps,
-  selfMarked,
+  skipped,
   current,
 }: {
   procedureName: string;
@@ -39,8 +39,8 @@ export function StationChecklist({
   totalSteps: number; // kept for call-site compatibility
   ticked: Set<number>;
   autoSteps: Set<number>;
-  /** Ticked via the stuck-valve, not examiner-verified — rendered distinctly, never as ✓. */
-  selfMarked: Set<number>;
+  /** Past the gate but never completed — rendered distinctly, and never counted as done. */
+  skipped: Set<number>;
   current: number | null;
 }) {
   // Keep the step you're on in view as the gate advances (ricoe C8). `block:"nearest"`
@@ -49,19 +49,23 @@ export function StationChecklist({
   const curRef = useRef<HTMLLIElement>(null);
   useEffect(() => { curRef.current?.scrollIntoView({ block: "nearest" }); }, [current]);
 
-  const doneCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number)).length);
+  // Two counts, because a skipped step passes the gate WITHOUT being done: `passedCounts`
+  // says where you are (so the phase rail keeps moving), `doneCounts` says what you actually
+  // completed (so the numbers never take credit for a skip).
+  const passedCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number)).length);
+  const doneCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number) && !skipped.has(s.step_number)).length);
   const totalSteps = phases.reduce((n, p) => n + p.steps.length, 0);
   const doneTotal = doneCounts.reduce((n, d) => n + d, 0);
-  // "current" phase = first phase not yet fully complete; -1 once all are done.
-  const currentIdx = doneCounts.findIndex((done, i) => done < phases[i].steps.length);
+  // "current" phase = first phase the gate hasn't cleared; -1 once all are behind you.
+  const currentIdx = passedCounts.findIndex((passed, i) => passed < phases[i].steps.length);
   const anyAuto = phases.some((p) => p.steps.some((s) => autoSteps.has(s.step_number)));
-  const anySelf = selfMarked.size > 0;
+  const anySkipped = skipped.size > 0;
 
   return (
     <div>
       <div className="aurora-station-rail" role="list" aria-label="OSCE phases">
         {phases.map((p, i) => {
-          const done = doneCounts[i] === p.steps.length;
+          const done = passedCounts[i] === p.steps.length;
           const now = i === currentIdx;
           const cls = done ? "is-done" : now ? "is-now" : "is-todo";
           return (
@@ -81,7 +85,7 @@ export function StationChecklist({
       </p>
 
       {phases.map((p, i) => {
-        const done = doneCounts[i] === p.steps.length;
+        const done = passedCounts[i] === p.steps.length;
         const now = i === currentIdx;
         return (
           <div key={p.phase} className={`aurora-station-phase ${PHASE_CLASS[p.phase] ?? "p2"}${done ? " is-done" : ""}${now ? " is-now" : ""}`}>
@@ -92,16 +96,16 @@ export function StationChecklist({
             </div>
             <ul className="aurora-station-steps">
               {p.steps.map((s) => {
-                const display = stepDisplay(s.step_number, ticked, selfMarked, current);
+                const display = stepDisplay(s.step_number, ticked, skipped, current);
                 const revealed = isRevealed(display);
-                const glyph = display === "done" ? "✓" : display === "self" ? "—" : display === "masked" ? "🔒" : "";
+                const glyph = display === "done" ? "✓" : display === "skipped" ? "✗" : display === "masked" ? "🔒" : "";
                 return (
                   <li
                     key={s.step_number}
                     ref={display === "current" ? curRef : undefined}
                     className="aurora-station-step"
                     data-display={display}
-                    data-ticked={display === "done" || display === "self" ? "true" : "false"}
+                    data-ticked={display === "done" ? "true" : "false"}
                     data-current={display === "current" ? "true" : "false"}
                     data-locked={display === "masked" ? "true" : "false"}
                     aria-current={display === "current" ? "step" : undefined}
@@ -130,7 +134,7 @@ export function StationChecklist({
 
       <p className="aurora-station-cl-legend">
         {anyAuto ? <><span className="au">✦</span> ticked automatically from your conversation · </> : null}
-        {anySelf ? <>— self-marked (not examiner-verified) · </> : null}
+        {anySkipped ? <>✗ skipped — recorded as not completed · </> : null}
         upcoming steps stay hidden so you recall them yourself
       </p>
     </div>

@@ -5,6 +5,7 @@
    only eyebot-channel messages. Presentational — state lives in CaseSession. */
 import { useEffect, useRef } from "react";
 import { ActionPalette, EXAM_PREFIX, GRADE_PREFIX, type ExamAction, type ActionGrade } from "@/aurora/components/ActionPalette";
+import { SkipStepButton } from "@/aurora/components/SkipStepButton";
 
 const VERDICT_LABEL: Record<string, string> = {
   strong: "Strong technique", partial: "Partial", developing: "Developing",
@@ -52,6 +53,9 @@ export function EyeBotPanel({
   active,
   turnBadge,
   busy,
+  canSkip,
+  skipping,
+  onSkip,
   onPerform,
   onProcText,
   onConfirm,
@@ -70,6 +74,10 @@ export function EyeBotPanel({
   /** Badge copy — names the CHANNEL, never the clinical step. Empty when not active. */
   turnBadge: string;
   busy: boolean;
+  /** Enough tries on the same procedure with no tick — offer the way out (stationTurn.canSkip). */
+  canSkip: boolean;
+  skipping: boolean;
+  onSkip: () => void;
   onPerform: (action: ExamAction) => void;
   onProcText: (value: string) => void;
   onConfirm: () => void;
@@ -180,6 +188,9 @@ export function EyeBotPanel({
               </div>
             </div>
           )}
+          {/* Sits under the palette (and under the open procedure) — right where a student
+              who doesn't know the technique is looking. This pane used to have no way out. */}
+          {canSkip && <SkipStepButton busy={skipping} onSkip={onSkip} />}
         </>
       )}
     </section>
