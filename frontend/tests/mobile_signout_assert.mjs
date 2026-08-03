@@ -146,14 +146,17 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
   const p = await ctx.newPage();
   await p.goto(base + "/admin", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1600);
+  // /admin left the student shell, so there is no Atlas Rail here and no
+  // .aurora-rail-account. The console carries its OWN sign-out — the point of this
+  // assertion is that the control exists and is reachable, not which shell drew it.
   const r = await p.evaluate(() => {
-    const btn = document.querySelector(".aurora-rail-account");
+    const btn = document.querySelector(".aurora-rail-account, [data-testid=cs-signout]");
     if (!btn) return { missing: true };
     const b = btn.getBoundingClientRect();
     return { w: b.width, h: b.height };
   });
-  if (r.missing || r.w < 44 || r.h < 44) die(`admin /admin: account button ${r.missing ? "absent" : `${r.w}x${r.h}`}`);
-  ok(`admin /admin: account button ${r.w}x${r.h}`);
+  if (r.missing || r.w < 44 || r.h < 44) die(`admin /admin: sign-out control ${r.missing ? "absent" : `${r.w}x${r.h}`}`);
+  ok(`admin /admin: sign-out control ${r.w}x${r.h}`);
   await ctx.close();
 }
 

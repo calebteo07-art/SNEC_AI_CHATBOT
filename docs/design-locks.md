@@ -1035,7 +1035,60 @@ reduced-motion gated, via `@/fx/confetti`).
 - **Out of scope (still)**: promotion/relegation leagues, weekly *history*/standings archive,
   rank-movement arrows (needs history).
 
-## Trainer/Admin Analytics + homepage pool toggle — LOCKED 2026-07-13
+## Staff Console (`/admin`) — LOCKED 2026-08-03 (supersedes the dark Analytics surface below)
+**Direction** (approved by the user, 2026-08-02): `/admin` is a **full-bleed light
+staff console** — "Aurora Command, light" — that **leaves the student shell entirely**.
+It is the surface SNEC leadership is shown, so it optimises for demo impact first and
+daily trainer use a very close second. The user's governing constraint: *"I don't want
+the admin feature to have too many things and confusing, only what the trainer and admin
+truly needs."* The backend is unchanged; this is a recomposition of the same endpoints.
+
+- **Shell** (`aurora/console/ConsoleShell.tsx`, route group `src/app/(console)/`): its
+  own `<main id="main">`, **no Atlas Rail**. Top bar = the single `<h1>` ("EyeBot
+  Console · <section>"), the discipline segment, a live pill, "← Student app", and its
+  **own sign-out** — the rail carried the only one in the app, and a trainer on a shared
+  clinic terminal must be able to end a session that shows the whole cohort.
+- **Theme**: a scoped **`.cs`** light re-theme (`aurora/console/console.css`), the
+  `.aurora-chat` pattern inverted. **Hue encodes DOMAIN, never decoration**:
+  blue = population · coral = risk · teal = pass/safe · purple = topics · amber = warning.
+  A hue is never chosen for variety; two panels measuring the same kind of thing take the
+  same colour. Exactly **one** full-gradient fill per screen (the hero); panels and stat
+  cards carry a filled header band over a white body.
+- **IA**: Teaching (Overview · Students) / Governance (Accounts · Audit, `role === "admin"`
+  only — presentation, with `require_admin` re-enforced server-side).
+- **Overview** = one hero + up to five stat cards + **two** panels. It replaced ten
+  equal-weight panels, three of which rendered the same topic-mastery fact three ways.
+  Cut deliberately: the activity-trend chart, the mastery heatmap, the duplicate
+  topic-benchmarks panel, the safety donut, and the standalone most-missed panel (now a
+  drill-down that costs **no extra request**).
+- **Charts stay hand-written dependency-free SVG.** No chart library, ever.
+- **Phone**: gated on `(pointer: coarse)`, **never width** — a 15 Pro Max is 932px in
+  landscape. Bottom tab bar; tables re-lay-out as **stacked cards**, each cell printing
+  its own label, rather than scrolling six slivers sideways.
+- **Acceptance criteria when refining** (name the criterion you change): `/admin` renders
+  **exactly one** `<main>`, one `<h1>`, ≥1 `<nav>` and **zero** Atlas Rail nodes; every
+  figure either follows the discipline segment or wears the `All disciplines` marker
+  (only `useCohortAnalytics` and `usePerformanceTrend` accept the parameter — mark, never
+  hide); a **failed read renders as a failure**, never as `0`; a null bucket is a **gap**,
+  never a floor point; white-on-hero ≥4.5:1 and every `.cs-badge` ≥4.5:1; no horizontal
+  overflow and every tap target ≥44px at 390px coarse; the four pure view-models
+  (`cohortAnalyticsView` · `riskRowView` · `masteryView` · `performanceTrendView`) stay
+  **byte-identical**; adding a panel to Overview requires naming the decision it changes.
+- **Scale conventions differ by endpoint and must not be "tidied" into one**:
+  `TrendPoint.avg_score`/`pass_rate`/`safety_fail_rate` are **0–100**;
+  `TopicGroupRow.osce.pass_rate`/`safety_fail_rate`/`weakness_score` are **0–1**.
+- Harness: `frontend/tests/console_assert.mjs` (owns /admin — role guards, landmarks,
+  at-risk agreement, the D13 gap, failed-read behaviour, the note-draft poll regression,
+  mastery scales, badge contrast, modal-squash geometry). `aurora_assert.mjs` drives the
+  **student** app only; do not re-add /admin coverage there.
+- Spec: `docs/superpowers/specs/2026-08-02-admin-console-redesign-design.md`.
+  Plan: `docs/superpowers/plans/2026-08-02-admin-console-rebuild.md`.
+
+## Trainer/Admin Analytics + homepage pool toggle — LOCKED 2026-07-13 · the `/analytics` DARK SURFACE is SUPERSEDED 2026-08-03 by the Staff Console above
+> Still current: the **homepage pool toggle** and the **admin-only provisioning** rules.
+> Superseded: everything describing `/analytics`, the `.aurora-analytics` / `.aurora-admin`
+> dark scope, and the PowerBI panel inventory. `/analytics` → `/admin` (redirect kept).
+
 **Direction** (approved via the trainer-role spec): trainers and admins run the
 **exact light student app** (daily check-in + mandatory first-login Eyecon gate
 included) plus **two** additions — a homepage content-pool toggle and a dedicated

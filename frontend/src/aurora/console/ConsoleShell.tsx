@@ -28,9 +28,18 @@ const GOVERNANCE = [
 
 function TopBar() {
   const { discipline, setDiscipline } = useDiscipline();
+  const path = usePathname();
+  // The console's ONE h1. Without it the densest screen in the app had no page heading
+  // at all — /admin/students opened on a bare search box. The section suffix is dropped
+  // on Overview (it would just repeat the product name) and on a coarse pointer, where
+  // the bottom tab bar already shows the active section and the bar has no room.
+  const section = [...TEACHING, ...GOVERNANCE].find((i) => i.href === path)?.label;
   return (
     <header className="cs-top">
-      <span className="cs-title">EyeBot <span>Console</span></span>
+      <h1 className="cs-title">
+        EyeBot <span>Console</span>
+        {section && section !== "Overview" && <span className="cs-title-sec"> · {section}</span>}
+      </h1>
       <div className="cs-seg" role="group" aria-label="Discipline filter" data-testid="cs-discipline">
         {DISCIPLINES.map((d) => (
           <button
@@ -47,7 +56,29 @@ function TopBar() {
       </div>
       <span className="cs-live"><span className="cs-livedot" />Live · 30s</span>
       <Link href="/homepage" className="cs-back">← Student app</Link>
+      <SignOut />
     </header>
+  );
+}
+
+/* The console has no Atlas Rail, and the rail carried the ONLY sign-out in the app — so
+   without this a trainer who opened /admin on a shared clinic terminal could not end
+   their session without first navigating back to the student app. That is the exact
+   incident mobile_signout_assert.mjs exists to prevent, and this surface shows the whole
+   cohort's data. */
+function SignOut() {
+  const { logout } = useAuth();
+  return (
+    <button
+      type="button" className="cs-signout" onClick={logout}
+      aria-label="Sign out" title="Sign out" data-testid="cs-signout"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+    </button>
   );
 }
 

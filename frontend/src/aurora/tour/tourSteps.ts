@@ -48,9 +48,12 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "leaderboard", route: "/leaderboard", target: '[data-testid="podium"]', fallback: '[data-testid="leaderboard-root"]',
     title: "See where you stand \u{1F3C6}",
     body: "Climb the ranks, chase the podium, and compare within your own cohort." },
-  { id: "admin", route: "/admin", target: ".aurora-admin",
+  // .cs-shell, not the deleted .aurora-admin. A tour step whose target never matches
+  // falls through to a centred card with no spotlight, which reads as a broken step
+  // rather than an absent one.
+  { id: "admin", route: "/admin", target: ".cs-shell", fallback: '[data-testid="cs-hero"]',
     title: "Your cohort insights \u{1F4CA}",
-    body: "As a trainer you also get the Admin dashboard here — track how your students are progressing." },
+    body: "As a trainer you also get the staff console here — track how your students are progressing." },
   { id: "finish", route: "/homepage", target: null, confetti: true,
     title: "Tour complete! \u{1F389}",
     body: "Two quick things and you're in: build your Eyecon, then light your first streak." },

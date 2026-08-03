@@ -9,7 +9,7 @@
  * Spec: docs/superpowers/specs/2026-08-02-admin-console-redesign-design.md §9.
  */
 import { chromium } from "playwright";
-import { admin, seededContext } from "./_mocks.mjs";
+import { admin, trainer, student, seededContext, MASTERY, J } from "./_mocks.mjs";
 
 const BASE = process.env.HARNESS_BASE ?? "http://127.0.0.1:3000";
 const fails = [];
@@ -213,6 +213,231 @@ async function badgeContrast(page, where) {
 
   } catch (e) { fails.push(`desktop: threw — ${String(e.message).split("\n")[0]}`); }
   }
+  await ctx.close();
+}
+
+/* ═════════════ role, correctness and failure behaviour ═════════════
+   Migrated from aurora_assert.mjs, which owned /admin's security and correctness
+   coverage and asserted it against the deleted .aurora-admin DOM. aurora_assert drives
+   the STUDENT app; the console is a separate surface with its own harness, so the
+   assertions move here rather than being retargeted in place. The ones tied to panels
+   this rebuild deliberately cut (the safety donut, the standalone most-missed panel,
+   the trend window toggle, the verbatim discipline caption) are gone with them — the
+   rest are all here, retargeted at .cs. */
+
+/* ───────────────────────── trainer ───────────────────────── */
+{
+  const ctx = await seededContext(browser, BASE, trainer, { width: 1440, height: 1000 });
+  const page = await ctx.newPage();
+  if (await boot(page, "/admin", "trainer")) {
+  try {
+    check(new URL(page.url()).pathname === "/admin",
+      `AdminGuard bounced a TRAINER off /admin (url=${page.url()})`);
+
+    // The a11y landmark contract the student routes get. /admin cannot join A11Y_ROUTES
+    // — that sweep drives a student context and AdminGuard bounces them, so appending
+    // "/admin" there would silently measure the bounce destination and report it as
+    // coverage. It is the largest screen in the app and the only one a trainer uses for
+    // real work, so it earns the check, not an exemption.
+    const mains = await page.locator("main").count();
+    const h1s = await page.locator("h1").count();
+    const navs = await page.locator("nav").count();
+    check(mains === 1 && h1s === 1 && navs >= 1,
+      `a11y landmarks on /admin (main=${mains}, h1=${h1s}, nav=${navs})`);
+
+    // Governance is admin-only. Presentation, not security — every write behind it is
+    // re-enforced by require_admin — but a trainer must not be shown a door that 403s.
+    for (const href of ["/admin/accounts", "/admin/audit"]) {
+      const n = await page.locator(`.cs-nav a[href="${href}"]`).count();
+      check(n === 0, `the admin-only ${href} link is exposed to a trainer`);
+    }
+
+    await page.waitForSelector("[data-testid=risk-row]", { timeout: 15000 });
+
+    // at_risk_count IS len(get_at_risk()) (cohort_summary.py), so the stat above the
+    // list and the list itself can no longer disagree. They once did, on one screen.
+    const flagged = (await page.locator('.cs-stat:has-text("Needs attention") [data-testid=cs-stat-value]').innerText()).trim();
+    const riskRows = await page.locator("[data-testid=risk-row]").count();
+    check(flagged === String(riskRows),
+      `"Needs attention" reads ${flagged} but the list beneath it has ${riskRows} rows`);
+    check(flagged === "2", `"Needs attention" = ${flagged}, expected the payload's 2`);
+
+    // D7: the row must say WHY. A coloured band with no explanation is the old binary
+    // flag wearing a pill.
+    const reasons = await page.locator("[data-testid=risk-reason]").allInnerTexts();
+    check(reasons.some((r) => r.includes("No activity for 20 days")),
+      `no at-risk row explains why the student is flagged (got ${JSON.stringify(reasons)})`);
+    // Truncated to the 3 heaviest: the fixture's row 1 carries 5 reasons, row 2 carries 1.
+    check(reasons.length === 4, `expected 4 reason chips (3 capped + 1), got ${reasons.length}`);
+
+    for (const band of ["high", "medium"]) {
+      const n = await page.locator(`[data-testid=risk-band][data-band=${band}]`).count();
+      check(n === 1, `at-risk ${band}-band pill missing (found ${n})`);
+    }
+    // The medium row carries days_inactive: null — the state that once rendered
+    // "Noned inactive". It must still show a score and a reason, never a blank or a 0.
+    const scores = (await page.locator("[data-testid=risk-score]").allInnerTexts()).join(" ");
+    check(scores.includes("66") && scores.includes("41"),
+      `at-risk scores not rendered from the payload (got ${scores})`);
+
+    // D13, the one thing worth pinning in a BROWSER: a null bucket has to survive all
+    // the way to pixels as a BREAK. The fixture is real / null / real, so a chart that
+    // maps null to 0 plots THREE points and draws a cliff to the floor on any quiet day
+    // — exactly the cohort collapse the endpoint refuses to report.
+    const plotted = await page.evaluate(() => {
+      const svg = document.querySelector('svg[aria-label="Cohort mastery trend"]');
+      if (!svg) return -1;
+      const poly = [...svg.querySelectorAll("polyline")].reduce(
+        (n, p) => n + (p.getAttribute("points") || "").trim().split(/\s+/).filter(Boolean).length, 0);
+      // r=3 marks a lone reading; the r=4.2 "latest" marker sits on top of one of them.
+      const dots = [...svg.querySelectorAll("circle")].filter((c) => c.getAttribute("r") === "3").length;
+      return poly + dots;
+    });
+    check(plotted === 2,
+      `the trend plotted ${plotted} points for 2 real readings — a null bucket was drawn instead of skipped (D13)`);
+
+    // D2/D11: the two pools are disjoint curricula, so slicing by discipline must
+    // re-query. A client-side filter would leave OT trainers reading OA/PSA numbers and
+    // there is no correct client-side subset. Arm the wait BEFORE the click.
+    const otReq = page.waitForRequest(
+      (r) => r.url().includes("/api/admin/cohort-analytics")
+        && new URL(r.url()).searchParams.get("discipline") === "ot",
+      { timeout: 8000 },
+    ).catch(() => null);
+    await page.locator("[data-testid=cs-discipline] button[data-discipline=ot]").click();
+    check(!!(await otReq),
+      "the discipline segment issued no /api/admin/cohort-analytics request with discipline=ot");
+
+    // P1's core invariant: a FAILED read must never render as a measurement. "0%" beside
+    // a broken endpoint reads as a real, measured, healthy cohort — on a clinical board
+    // that is the most dangerous wrong number this screen can show.
+    await ctx.route("**/api/admin/cohort-analytics*", (r) => r.fulfill({
+      status: 500, contentType: "application/json",
+      body: JSON.stringify({ detail: "Operation failed. Please try again." }),
+    }));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForSelector("[data-testid=cs-weakest] [role=alert]", { timeout: 15000 });
+    const safetyVal = (await page.locator('.cs-stat:has-text("Safety fails") [data-testid=cs-stat-value]').innerText()).trim();
+    check(!/\d/.test(safetyVal),
+      `a failed cohort-analytics read rendered "${safetyVal}" for Safety fails instead of a no-data marker`);
+
+  } catch (e) { fails.push(`trainer: threw — ${String(e.message).split("\n")[0]}`); }
+  }
+  await ctx.close();
+}
+
+/* ───────────── admin: governance + the drill-down's stateful edges ───────────── */
+{
+  const ctx = await seededContext(browser, BASE, admin, { width: 1440, height: 1000 });
+
+  // Registered AFTER seededContext so it wins (Playwright matches newest route first).
+  // `masteryNull` is flipped mid-test to reach the off-cohort state without a reload.
+  let detailFetches = 0;
+  let masteryNull = false;
+  await ctx.route("**/api/admin/student/*/detail", (r) => {
+    detailFetches++;
+    r.fulfill(J({
+      student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA",
+      session_count: 18 + detailFetches, streak: 6,
+      last_active: new Date(Date.now() + detailFetches).toISOString(),
+      learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
+      supervisor_note: detailFetches === 1
+        ? "Original supervisor note"
+        : "SERVER NOTE FROM POLL — must never clobber a draft",
+      sessions: [], cases: [], total_tokens: 1000 + detailFetches,
+      mastery: masteryNull ? null : MASTERY,
+    }));
+  });
+
+  const page = await ctx.newPage();
+  if (await boot(page, "/admin", "admin")) {
+  try {
+    for (const href of ["/admin/accounts", "/admin/audit"]) {
+      const n = await page.locator(`.cs-nav a[href="${href}"]`).count();
+      check(n === 1, `an ADMIN is missing the ${href} link (found ${n})`);
+    }
+
+    // The clock must be installed BEFORE the query mounts — a timer scheduled via the
+    // real setTimeout pre-install is never advanced by a later fastForward.
+    await page.clock.install();
+    await page.goto(`${BASE}/admin/students`, { waitUntil: "domcontentloaded" });
+    const row = "[data-testid=admin-roster] .cs-trow[data-clickable=true]";
+    await page.waitForSelector(row, { timeout: 15000 });
+    await page.locator(row).first().click();
+
+    // Regression: the note seeds from useStudentDetail, which polls every 30s. The
+    // seeding effect keys off studentId (once per opened student), NOT `data` (every
+    // poll) — a background refetch resolving to a new object reference must never
+    // clobber a supervisor's in-progress draft. Reproduced live pre-fix: type a draft,
+    // wait one real poll, draft gone.
+    const noteBox = page.locator(".cs-modal textarea.cs-textarea");
+    await noteBox.waitFor({ state: "visible", timeout: 10000 });
+    await page.waitForFunction(() => {
+      const ta = document.querySelector(".cs-modal textarea.cs-textarea");
+      return ta && ta.value === "Original supervisor note";
+    }, undefined, { timeout: 10000 });
+    const draft = "DRAFT — do not lose me";
+    await noteBox.fill(draft);
+    await page.clock.fastForward(31_000);   // past staleTime (15s) and the 30s poll
+    await page.waitForTimeout(600);         // let the mocked round-trip settle (real time)
+    check(detailFetches >= 2,
+      `test setup never triggered a second /detail fetch (fetches=${detailFetches}) — the assertion is not meaningful`);
+    const survived = await noteBox.inputValue();
+    check(survived === draft,
+      `the supervisor-note draft was clobbered by a background poll refetch (got "${survived}")`);
+
+    // P2b §6.2: three NAMED scales against a leave-one-out cohort. This replaced
+    // `cohort_retention`, a per-topic field the frontend read for seventeen days and no
+    // backend version ever sent, so the report printed a column of dashes.
+    await page.waitForSelector("[data-testid=mastery-row]", { timeout: 15000 });
+    const scales = await page.locator("[data-testid=mastery-row]").count();
+    check(scales === 3, `expected 3 named mastery scales, got ${scales}`);
+
+    const osceDelta = (await page.locator('[data-testid=mastery-row][data-scale=osce_mastery] [data-testid=mastery-delta]').innerText()).trim();
+    check(osceDelta === "+17", `mastery delta vs cohort = "${osceDelta}", expected +17`);
+    // A scale with no student data is an em dash. A 0 there is the worst score in the cohort.
+    const fcValue = (await page.locator('[data-testid=mastery-row][data-scale=flashcard_mastery] [data-testid=mastery-value]').innerText()).trim();
+    check(fcValue === "—", `a scale with no student data must render an em dash, not "${fcValue}"`);
+    const retCohort = await page.locator('[data-testid=mastery-row][data-scale=retention_mastery] [data-testid=mastery-cohort]').innerText();
+    check(retCohort.includes("No cohort"), `a solo cohort must say so, not render a zero delta (got "${retCohort}")`);
+    // peers_n, not cohort_n. cohort_n is 8 here and counts this student; the mean is over
+    // 7. "8 peers" beside a mean of 7 is the exact misread peers_n was added to prevent.
+    const osceCohort = await page.locator('[data-testid=mastery-row][data-scale=osce_mastery] [data-testid=mastery-cohort]').innerText();
+    check(osceCohort.includes("7 peer"),
+      `the cohort caption must name peers_n (7), not cohort_n (8) — got "${osceCohort}"`);
+
+    // The block must VANISH when the API sends none. `mastery: null` is routine —
+    // admin.py emits it for any student outside the staff-free cohort, and a promoted
+    // trainer is on the roster and clickable. Assert on the PANEL, not the rows: without
+    // the `mastery.length > 0` guard the section still renders its heading and help text
+    // over an empty list, so a row count of zero passes while a trainer reads a
+    // "Mastery vs cohort" panel that measures nothing.
+    masteryNull = true;
+    await page.clock.fastForward(31_000);
+    await page.waitForFunction(
+      () => !document.querySelector("[data-testid=mastery-panel]"),
+      undefined, { timeout: 10000 },
+    );
+    check(await noteBox.isVisible(), "a null mastery block took the whole drill-down with it");
+
+  } catch (e) { fails.push(`admin: threw — ${String(e.message).split("\n")[0]}`); }
+  }
+  await ctx.close();
+}
+
+/* ───────────── a student must never reach the cohort-wide surface ───────────── */
+{
+  const ctx = await seededContext(browser, BASE, student, { width: 1440, height: 900 });
+  const page = await ctx.newPage();
+  try {
+    await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => location.pathname !== "/admin", undefined, { timeout: 10000 })
+      .catch(() => null);
+    check(new URL(page.url()).pathname !== "/admin",
+      "AdminGuard let a STUDENT onto /admin (cohort data leak)");
+    check((await page.locator("[data-testid=cs-hero]").count()) === 0,
+      "a student saw the cohort hero on /admin");
+  } catch (e) { fails.push(`student bounce: threw — ${String(e.message).split("\n")[0]}`); }
   await ctx.close();
 }
 

@@ -16,6 +16,13 @@ export const admin = {
   full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001",
   role: "admin", student_role: "", must_change: false,
 };
+/** A trainer sees the same teaching surface as an admin but NONE of the governance
+ *  routes. Kept beside `admin` so the two differ only by role — a harness that proves
+ *  Accounts is hidden has to be comparing like with like. */
+export const trainer = {
+  full_name: "Coach Lim", email: "trainer@snec.com.sg", student_id: "T001",
+  role: "trainer", student_role: "", must_change: false,
+};
 /** A full default Eyecon config (every axis) — seeds the Studio draft + representative-tile
  *  fallback. The default harness student is `customized:true` so the mandatory first-login
  *  gate never fires during ordinary navigation tests (see mockApis). */

@@ -1833,12 +1833,6 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
    A self-themed dark scope like .aurora-chat — a coherent dark admin surface
    that keeps the light rail (NOT added to the immersive list). Phase 3 ships the
    base scope + routed stub; Phase 5 fills the tiles, charts, roster + drill-down. */
-.aurora-admin { min-height: 100%; padding: clamp(20px, 3vw, 40px); background: #0e1117; color: #e6e8ee; }
-.aurora-admin .aurora-eyebrow { color: #7b8494; }
-.aurora-admin .aurora-h1 { color: #f3f5f9; }
-.aurora-admin .aa-head { margin-bottom: 18px; }
-.aurora-admin .aa-placeholder { color: #98a2b3; font-size: 14px; }
-
 /* ─── Tutor greeting landing (ricoe A2) ───────────────────────────────────────
    The empty state of /chat: a hello + prompt + recent sessions, which cross-fades
    into the live thread. The constellation canvas is shared, so the swap reads as one
@@ -2188,38 +2182,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
   .aurora-checkin-streaknum { font-size: 92px; }
 }
 
-/* ─────────────────── Admin + Supervisor ─────────────────── */
-/* `width: 100%` is load-bearing, not tidying. .aurora-page-enter:has(.aurora-admin) is a
-   COLUMN flex container (see the rule near the mastery block), so .aurora-admin is a
-   cross-axis flex item that would normally stretch to the container's width — except its
-   own `margin: 0 auto` sets auto cross-axis margins, and auto margins DISABLE stretch:
-   the item falls back to fit-content. Its widest child is the four-tab .console-segment
-   (353px on the console-dark ramp), so at a 360px viewport the wrapper sized itself to 385
-   and .aurora-main-scroll (overflow-x: hidden) CLIPPED the difference — the Audit tab and
-   the intro paragraph hung off the right edge with no way to reach them.
-   `min-width: 0` alone does NOT fix this: a fit-content item is never being shrunk, so
-   there is no automatic minimum to relax. Measured, not assumed — it stayed 385 with
-   min-width: 0 applied. border-box keeps the padding inside the 100%. */
-.aurora-admin { width: 100%; box-sizing: border-box; min-width: 0; max-width: none; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
-.aurora-admin-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-/* Four tabs on the console-dark ramp measure 353px, wider than a 360px phone's content box
-   however far the wrapper shrinks. Scroll the strip instead of shrinking the labels — the
-   overflow harnesses accept a scroller that itself fits (frontend/tests/_layout.mjs), and
-   a squashed "Accounts" would be the worse trade. flex-shrink must be off or the buttons
-   compress to fit and the strip never scrolls. */
-@media (pointer: coarse), (max-width: 560px) {
-  /* The head's children are flex items wrapping a second flex row (tabs + Refresh). Both
-     levels need `min-width: 0`, or the strip's `max-width: 100%` just resolves against a
-     parent that is already too wide — measured at 353 in a 328px content box. */
-  .aurora-admin .aurora-admin-head > *,
-  .aurora-admin .aurora-admin-head > * > * { min-width: 0; max-width: 100%; }
-  .aurora-admin .console-segment { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-  .aurora-admin .console-segment::-webkit-scrollbar { display: none; }
-  .aurora-admin .console-segment button { flex: 0 0 auto; }
-}
-.aurora-admin-link { background: none; border: none; color: var(--ink-3); font-size: 13.4px; cursor: pointer; padding-bottom: 2px; }
-.aurora-admin-link:hover { color: var(--ink); }
-
 /* pill tabs */
 .aurora-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 999px; }
 .aurora-tab { position: relative; border: none; background: none; padding: 7px 16px; border-radius: 999px; font-size: 14.6px; font-weight: 600; color: var(--ink-2); cursor: pointer; overflow: hidden; }
@@ -2535,9 +2497,7 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-cmdk { font-size: 14.6px; padding: 7px 11px; }
 .console-dark .aurora-cmdk kbd { font-size: 12.3px; }
 .console-dark .aurora-profile-name { font-size: 17.4px; }
-.console-dark .aurora-profile-role { font-size: 12.9px; }
-.console-dark .aurora-admin-link { font-size: 15.7px; }
-.console-dark .aurora-signout { font-size: 15.7px; }
+.console-dark .aurora-profile-role { font-size: 12.9px; }.console-dark .aurora-signout { font-size: 15.7px; }
 
 /* Section headers */
 .console-dark .aurora-eyebrow { font-size: 14.6px; letter-spacing: 0.12em; color: var(--ink-2); }
@@ -2593,7 +2553,6 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .console-segment button { font-size: 15.7px; padding: 8px 18px; }
 .console-dark .console-disclosure > summary { font-size: 16.8px; padding: 15px 18px; }
 .console-dark .console-disclosure > summary .console-disc-sub { font-size: 12.9px; }
-
 
 /* ─────────────────────────────────────────────────────────────────────────
    Flashcards — one dark ARCADE world. Clinical active-recall as an addictive game;
@@ -3783,63 +3742,20 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 }
 .rw-cta:active { transform: translateY(2px); box-shadow: none; }
 
-/* ═══════════════ Admin — dark PowerBI-style surface ═══════════════
-   Rendered INSIDE the light student shell (the .aurora-chat self-theming
-   pattern). Re-declares the retired .console-dark slate tokens on the scope so
-   trainers/admins read charts + tables on dark while the rail stays light. The
-   global token-driven .console-* classes (segment/card-accent/disclosure/
-   focus/split/risk-dot) inherit these tokens automatically. Students never
-   mount this scope. */
-.aurora-admin {
-  --paper:   #14161F;
-  --canvas:  #0E1016;
-  --surface: #181B26;
-  --hairline: rgba(255, 255, 255, 0.15);
-  --ink:   #F4F5F9;
-  --ink-2: #C9CED9;
-  --ink-3: #9CA2B2;
-  --g-blue: #5B9DFF; --g-purple: #B68BE6; --g-rose: #F07A86; --g-green: #43C76B;
-  --on-blue: #8FBEFF;   --on-blue-2: #8FBEFF;
-  --on-purple: #CBA6F0; --on-purple-2: #CBA6F0;
-  --on-rose: #F4969F;   --on-rose-2: #F4969F;
-  --on-green: #6FD89A;  --on-green-2: #6FD89A;
-  color-scheme: dark;
-  flex: 1;
-  min-height: 100%;
-  background: var(--canvas);
-  color: var(--ink);
-  padding: clamp(16px, 2.5vw, 30px);
-}
-/* RouteReveal wraps every page in .aurora-page-enter (height:auto), which severs
-   .aurora-admin's min-height:100% chain — collapsing the dark surface to content
-   height and leaving the light shell showing below (same failure the station route
-   documents). Make the wrapper a full-height flex column for this route so the dark
-   board fills the viewport and still grows to scroll with the long roster. */
-.aurora-page-enter:has(.aurora-admin) { display: flex; flex-direction: column; min-height: 100%; }
-/* Re-apply the light-hardcoded patches that .console-dark scoped to itself. */
-.aurora-admin .aurora-statcard-value { color: var(--ink); }
-.aurora-admin .aurora-badge { background: rgba(255,255,255,0.07); }
-.aurora-admin .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
-.aurora-admin .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
-.aurora-admin .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
-.aurora-admin .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
-.aurora-admin .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
-.aurora-admin .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
-.aurora-admin .aurora-bar-track, .aurora-admin .aurora-progress { background: rgba(255,255,255,0.09); }
-.aurora-admin .aurora-trow.is-clickable:hover { background: rgba(255,255,255,0.04); }
-.aurora-admin .aurora-select { color-scheme: dark; }
-.aurora-admin .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
-.aurora-admin .aurora-insight { background: rgba(182,139,230,0.12); border-left-color: var(--g-purple); }
-.aurora-admin .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
-.aurora-admin .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(182,139,230,.22), rgba(240,122,134,.10), rgba(182,139,230,.22)); border-color: rgba(182,139,230,.32); }
-.aurora-admin .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
-.aurora-admin .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
-.aurora-admin .aurora-modal-backdrop { background: rgba(0,0,0,0.55); }
-.aurora-admin .aurora-modal-close:hover { background: rgba(255,255,255,0.06); }
+/* ═══════════════ Leftover panel + chart chrome ═══════════════
+   What is left of the .aurora-admin dark scope after the staff console moved to its
+   own .cs theme (aurora/console/console.css).
 
-/* Admin-specific chrome */
-.aurora-admin-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
-.aurora-admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+   Only .aurora-unavail and .aurora-trend still have a consumer, and only from
+   charts/TrendChart.tsx + charts/BarSeries.tsx — which nothing RENDERS any more.
+   Both files survive solely because the frozen view-models cohortAnalyticsView.ts and
+   performanceTrendView.ts import a type from them (`BarRow`, `Series`), and the spec
+   holds those four view-models byte-identical through this rebuild.
+
+   So everything below is dead, and so are the .aurora-tabs / .aurora-table-wrap /
+   .aurora-badge / .aurora-modal / .console-segment families further down: they are
+   globally scoped rather than admin-scoped, so removing them was out of this change's
+   charter. Tracked separately — do not treat their presence as evidence of use. */
 .aurora-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 16px 18px; }
 .aurora-panel-head { font-family: var(--font-mono); font-size: 12.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin: 0 0 12px; }
 .aurora-refresh { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s; }
@@ -3850,54 +3766,8 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 .aurora-gauge { display: grid; place-items: center; }
 .aurora-gauge-num { fill: var(--ink); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
-.aurora-admin .aurora-bar-seg { height: 100%; display: block; }
-
-/* Mastery vs cohort (P2b) — the student drill-down's three scales. The DivergingBar
-   anchors at the 50% centre line and grows RIGHT for above-cohort, LEFT for below;
-   .aurora-bar-* is a single stacked track that clamps negatives, so it cannot draw a
-   signed delta. The bar is aria-hidden — the value, the signed delta and the peer
-   count sit beside it as text (D3; the a11y pass is P5). */
-.aurora-admin .aurora-mastery-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-.aurora-admin .aurora-mastery-list li {
-  display: grid; align-items: center; gap: 3px 12px;
-  grid-template-columns: 10rem 2.6rem minmax(0, 1fr) 3rem;
-  grid-template-areas: "label value bar delta" "cohort cohort cohort cohort";
-}
-.aurora-admin .aurora-mastery-label { grid-area: label; min-width: 0; font-size: 13.4px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aurora-admin .aurora-mastery-value { grid-area: value; font-family: var(--font-mono); font-size: 15.2px; font-weight: 700; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
-.aurora-admin .aurora-mastery-delta { grid-area: delta; font-family: var(--font-mono); font-size: 13.4px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
-.aurora-admin .aurora-mastery-delta[data-tone="above"] { color: var(--on-green-2); }
-.aurora-admin .aurora-mastery-delta[data-tone="below"] { color: var(--on-rose); }
-.aurora-admin .aurora-mastery-cohort { grid-area: cohort; font-size: 12.2px; color: var(--ink-3); }
-.aurora-admin .aurora-diverge { grid-area: bar; position: relative; min-width: 0; height: 7px; border-radius: 999px; background: rgba(255,255,255,0.09); }
-.aurora-admin .aurora-diverge-axis { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,0.3); }
-.aurora-admin .aurora-diverge-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
-.aurora-admin .aurora-diverge-above { left: 50%; background-image: linear-gradient(90deg, var(--g-green), var(--g-blue)); }
-.aurora-admin .aurora-diverge-below { right: 50%; background-image: linear-gradient(270deg, var(--g-rose), var(--g-purple)); }
-/* A 0-wide fill is not a measurement: "level" and "no comparison" are read off the
-   delta text, not off an invisible sliver at the axis. */
-.aurora-admin .aurora-diverge-level, .aurora-admin .aurora-diverge-none { display: none; }
-
-.aurora-admin .aurora-skel { display: flex; flex-direction: column; gap: 8px; }
-.aurora-admin .aurora-skel-bar {
-  height: 12px; border-radius: 6px;
-  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.13), rgba(255,255,255,.06));
-  background-size: 200% 100%;
-  animation: aurora-skel-shimmer 1.4s ease-in-out infinite;
-}
-.aurora-admin .aurora-skel-bar:nth-child(2) { width: 82%; }
-.aurora-admin .aurora-skel-bar:nth-child(3) { width: 64%; }
-@keyframes aurora-skel-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-.aurora-admin .aurora-panel-error {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
-}
-@media (prefers-reduced-motion: reduce) {
-  .aurora-admin .aurora-skel-bar { animation: none; }
-}
+/* Mastery vs cohort moved to .cs-mastery / .cs-diverge-* in console.css, and the
+   skeleton shimmer to .cs states. */
 
 /* ── Pre-flight briefing ─────────────────────────────────────────────────────
    The station's cold open, replayed on every station entry. Deliberately NOT the tour's

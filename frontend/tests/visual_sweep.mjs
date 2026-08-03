@@ -36,7 +36,9 @@ async function sweep(ctx, routes, label) {
 }
 
 const STUDENT_ROUTES = ["/", "/checkin", "/homepage", "/cases", "/cases/C001", "/flashcards", "/summary", "/progress", "/profile", "/chat"];
-const ADMIN_ROUTES = ["/admin", "/admin/students", "/admin/accounts", "/admin/activity"];
+// The four console routes that exist. /admin/activity was retired with the activity-feed
+// panels; screenshotting a 404 and filing it as coverage is this sweep's oldest trap.
+const ADMIN_ROUTES = ["/admin", "/admin/students", "/admin/accounts", "/admin/audit"];
 const SUPERVISOR_ROUTES = ["/supervisor"];
 
 const browser = await chromium.launch();
