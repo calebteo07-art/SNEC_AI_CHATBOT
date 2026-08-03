@@ -87,6 +87,73 @@ def test_observe_returns_newly_satisfied():
     assert r.json()["newly_satisfied"] == [1]
 
 
+ALLERGY_STEP = (
+    "Check that the patient is not allergic to the selected eye drops by verifying with "
+    "the patient’s medical record/EMR and by asking the patient."
+)
+DROP_CASE = {**CASE, "case_id": "case_test_drops",
+             "history": {"allergies": "No drug allergy recorded on file."}}
+DROP_CHECKLIST = {
+    "procedure_name": "Instillation of Eye Drops",
+    "steps": {"steps": [
+        {"step_number": 1, "category": "patient_identification", "action": "Identify patient name NRIC", "critical": True, "notes": None},
+        {"step_number": 2, "category": "medication", "action": ALLERGY_STEP, "critical": True, "notes": None},
+        {"step_number": 3, "category": "medication", "action": "Instil one drop into the lower fornix", "critical": True, "notes": None},
+    ]},
+}
+
+
+def test_station_reveals_the_allergy_record_on_the_wire():
+    """The reported bug: the chip posted "examination performed" and no allergy status."""
+    with patch.dict("tools.api.shared._case_cache", {"case_test_drops": DROP_CASE}, clear=False), \
+         patch("tools.api.routers.cases.get_checklist_by_name", return_value=DROP_CHECKLIST):
+        r = client.get("/api/cases/case_test_drops/station", cookies=_cookie())
+    assert r.status_code == 200
+    chip = next(a for a in r.json()["examination_actions"] if 2 in a["satisfies_steps"])
+    assert chip["reveal_text"] == "No drug allergy recorded on file."
+    assert chip["also_ask"] is True
+    assert chip["kind"] == "manual"
+
+
+def test_observe_hides_manual_steps_but_not_the_dual_one():
+    """A dual step's second half is the consult, so the examiner must be able to see it —
+    and be told the record half is already done in the panel."""
+    seen = {}
+
+    def fake_observe(steps, messages, already_ticked, exclude_steps=None, focus_step=None, record_done=None):
+        seen.update(exclude=set(exclude_steps or ()), record_done=list(record_done or ()))
+        return []
+
+    with patch.dict("tools.api.shared._case_cache", {"case_test_drops": DROP_CASE}, clear=False), \
+         patch("tools.api.routers.cases.get_checklist_by_name", return_value=DROP_CHECKLIST), \
+         patch("tools.api.routers.cases.observe", fake_observe):
+        r = client.post(
+            "/api/cases/case_test_drops/observe",
+            json={"messages": [{"role": "user", "content": "any allergies to eye drops?"}],
+                  "already_ticked": [], "record_done": [2]},
+            cookies=_cookie(),
+        )
+    assert r.status_code == 200
+    assert 2 not in seen["exclude"]      # the dual allergy step stays visible
+    assert 3 in seen["exclude"]          # the hands-on instillation step does not
+    assert seen["record_done"] == [2]    # and the chart half is declared
+
+
+def test_a_chart_half_click_is_not_reported_as_a_described_technique():
+    """The dual-source chip logs "record checked", which is a MARKER, not something the
+    student typed. Left unfiltered the debrief coach is told they "described" it as their
+    technique and coaches them on it — the same reason "performed" is already filtered."""
+    from tools.api.routers.cases import _readable_action_line
+
+    line = _readable_action_line(
+        "[Examination performed: Check allergy → record checked · Result: No drug allergy recorded on file.]"
+    )
+    assert line == "Performed: Check allergy (result: No drug allergy recorded on file.)"
+    # A real typed technique must still reach the coach.
+    typed = _readable_action_line("[Examination performed: Measure IOP → I took 3 readings · Result: R 18]")
+    assert "technique described: I took 3 readings" in typed
+
+
 def test_action_grades_against_model_answer():
     # ricoe C6: the action panel returns a real-time GRADE vs the crafted model answer,
     # not a hardcoded "good job". The verdict/covered/missing/model_answer are deterministic.

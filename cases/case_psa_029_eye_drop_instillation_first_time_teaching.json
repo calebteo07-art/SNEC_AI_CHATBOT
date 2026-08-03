@@ -21,6 +21,7 @@
   "history": {
     "hpc": "Mr Yeo says 'Doctor give me eye drop, but I never use before, dunno how.' He needs his charted drop instilled and to be taught the technique so he can do it himself at home.",
     "pmhx": "No previous eye drop use. No drug allergies (confirm).",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Not relevant to this station",
     "medications": [
       "Newly charted eye drop"

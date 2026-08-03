@@ -3492,6 +3492,20 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 .aurora-pchip:disabled { cursor:default; }
 .aurora-pchip[data-locked="true"] { opacity: .5; border-style: dashed; cursor: not-allowed; }
 .aurora-pchip[data-locked="true"] .ic { opacity: .8; }
+/* Half done — a dual-source step whose chart half is recorded, waiting on the patient.
+   Deliberately AMBER, not the done-green and not the locked-grey: the step is in flight,
+   and the amber points at the warm patient pane where the other half happens. Full opacity
+   (a locked chip is faded; this one is a state to notice, not a thing out of reach). */
+.aurora-pchip[data-half="record"] { background: rgba(245,166,35,.16); border-color: rgba(217,138,0,.5); color: #8A5600; opacity: 1; }
+.aurora-pchip[data-half="record"] .ic { opacity: 1; color: #DF8500; }
+/* Keep this ABOVE the .aurora-eyebot override block's specificity by matching it: the pane
+   re-colours every chip blue, which would swallow the amber. */
+.aurora-eyebot .aurora-pchip[data-half="record"] { background: rgba(245,166,35,.16); border-color: rgba(217,138,0,.5); color: #8A5600; }
+.aurora-eyebot .aurora-pchip[data-half="record"] .ic { color: #DF8500; }
+
+/* The one line that says which half is outstanding. Sits above the tray, in the same amber,
+   so the chip and the explanation read as one state. */
+.aurora-station-dual { margin: 9px 2px 0; padding: 7px 11px; border-radius: 10px; font-size: .84rem; line-height: 1.35; color: #8A5600; background: rgba(245,166,35,.13); border: 1px solid rgba(217,138,0,.34); }
 
 /* Procedure mode — the composer's "type your technique" state. Shares the composer
    row so nothing new "appears"; a soft caption sits above it. */

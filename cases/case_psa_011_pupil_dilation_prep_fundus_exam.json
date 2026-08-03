@@ -20,6 +20,7 @@
   "history": {
     "hpc": "Mr Goh is attending for his annual diabetic eye screening as referred by his polyclinic. The doctor has reviewed his VA and IOP and ordered pupil dilation in both eyes so the fundus can be examined for signs of diabetic retinopathy. Mr Goh drove himself to the clinic and mentions he needs to drive back to work after this appointment.",
     "pmhx": "Type 2 diabetes mellitus for 8 years, HbA1c last checked at 7.8%. No previous eye surgery. No known glaucoma.",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Father has type 2 diabetes and diabetic retinopathy.",
     "medications": [
       "Metformin 1g BD",

@@ -20,6 +20,7 @@
   "history": {
     "hpc": "Mr Subramaniam says 'Doctor want to open up my eye to check the back, is it? Two days my eye blur already.' This is his first visit. He declined the near vision test earlier. Importantly, he tells you 'I allergic to one of the eye drop — the one that make eye big, Phenylephrine.' Following the first eye examination, the doctor has ordered the patient's eyes to be dilated for a fundus examination, and Goldmann applanation tonometry has been done.",
     "pmhx": "First visit. Known allergy to Phenylephrine eye drops. No other allergies stated.",
+    "allergies": "Allergy recorded: Phenylephrine eye drops. No other allergies stated.",
     "family_hx": "To be elicited as part of the assessment",
     "medications": [
       "To be confirmed; note the Phenylephrine allergy"

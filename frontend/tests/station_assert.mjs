@@ -110,6 +110,83 @@ await ctx.route("**/api/cases/C002/station", (r) => r.fulfill(J({
   ],
 })));
 
+// C003 — a DUAL-SOURCE step. Step 2 is one critical checklist row that names TWO sources
+// ("verify with the medical record/EMR AND ask the patient"), so `also_ask` is set: the chip
+// is only the chart half. It used to tick on one click, and the patient composer was locked
+// while it was the gate, so the asking half was impossible. The examiner mock credits the
+// asking ONLY after the client declares record_done — mirroring the backend's note.
+await ctx.route("**/api/cases/C003/station", (r) => r.fulfill(J({
+  case: { case_id: "C003", title: "Drops before the scan", difficulty: "beginner", topic: "eye_drops", estimated_minutes: 10,
+          patient: { name: "Mdm Chua", age: 66, presenting_complaint: "Here for my drops before the scan." } },
+  checklist: {
+    procedure_name: "Instillation of Eye Drops", source: "checklist", total_steps: 3, critical_count: 1,
+    phases: [
+      { phase: 1, name: "Preparation & Identification", steps: [
+        { step_number: 1, action: "Identify patient — name + NRIC", critical: false, category: "patient_identification", notes: null } ] },
+      { phase: 2, name: "Clinical Assessment", steps: [
+        { step_number: 2, action: "Check that the patient is not allergic to the selected eye drops by verifying with the patient’s medical record/EMR and by asking the patient.", critical: true, category: "medication", notes: null },
+        { step_number: 3, action: "Instil one drop into the lower fornix", critical: false, category: "medication", notes: null } ] },
+    ],
+  },
+  examination_actions: [
+    { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 1, kind: "verbal" },
+    { key: "s2", label: "Check allergy", reveal_text: "No drug allergy recorded on file.", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 2, kind: "manual", quick: true, also_ask: true },
+    { key: "s3", label: "Instill drops", reveal_text: "", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 3, kind: "manual" },
+  ],
+})));
+let c003RecordDone = [];
+await ctx.route("**/api/cases/C003/observe", async (r) => {
+  const body = JSON.parse(r.request().postData() || "{}");
+  const ticked = new Set(body.already_ticked || []);
+  c003RecordDone = body.record_done || [];
+  // The examiner judges the ASKING from the transcript; record_done only excuses the half it
+  // cannot see. Exam-panel markers are not the student asking the patient — excluding them is
+  // what makes this prove the order instead of passing on the chip click alone.
+  const asked = (body.messages || []).some(
+    (m) => m.role === "user" && /allerg/i.test(m.content) && !m.content.startsWith("[Examination performed"),
+  );
+  const out = [];
+  if (!ticked.has(1)) out.push(1);
+  else if (!ticked.has(2) && c003RecordDone.includes(2) && asked) out.push(2);
+  await r.fulfill(J({ newly_satisfied: out }));
+});
+await ctx.route("**/api/cases/C003/chat", (r) => r.fulfill({
+  status: 200, contentType: "text/event-stream",
+  body: 'data: {"text":"No, "}\n\ndata: {"text":"no allergy that I know."}\n\ndata: [DONE]\n\n',
+}));
+
+// C004 — the SAME dual step reached in the other order: the student asks the patient first,
+// and this examiner credits the step from the transcript ALONE (no record_done). That is the
+// realistic over-credit case, and the only thing standing between it and a critical step
+// ticking with the chart never opened is the client-side hold in lib/dualStep.admit.
+await ctx.route("**/api/cases/C004/station", (r) => r.fulfill(J({
+  case: { case_id: "C004", title: "Drops before the scan", difficulty: "beginner", topic: "eye_drops", estimated_minutes: 10,
+          patient: { name: "Mdm Chua", age: 66, presenting_complaint: "Here for my drops before the scan." } },
+  checklist: {
+    procedure_name: "Instillation of Eye Drops", source: "checklist", total_steps: 2, critical_count: 1,
+    phases: [
+      { phase: 2, name: "Clinical Assessment", steps: [
+        { step_number: 1, action: "Check that the patient is not allergic to the selected eye drops by verifying with the patient’s medical record/EMR and by asking the patient.", critical: true, category: "medication", notes: null },
+        { step_number: 2, action: "Instil one drop into the lower fornix", critical: false, category: "medication", notes: null } ] },
+    ],
+  },
+  examination_actions: [
+    { key: "s1", label: "Check allergy", reveal_text: "Allergy recorded: Phenylephrine eye drops.", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 1, kind: "manual", quick: true, also_ask: true },
+    { key: "s2", label: "Instill drops", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 2, kind: "manual" },
+  ],
+})));
+await ctx.route("**/api/cases/C004/observe", async (r) => {
+  const body = JSON.parse(r.request().postData() || "{}");
+  const asked = (body.messages || []).some(
+    (m) => m.role === "user" && /allerg/i.test(m.content) && !m.content.startsWith("[Examination performed"),
+  );
+  await r.fulfill(J({ newly_satisfied: asked ? [1] : [] }));
+});
+await ctx.route("**/api/cases/C004/chat", (r) => r.fulfill({
+  status: 200, contentType: "text/event-stream",
+  body: 'data: {"text":"I am allergic "}\n\ndata: {"text":"to one drop, I think."}\n\ndata: [DONE]\n\n',
+}));
+
 const errs = [];
 const p = await ctx.newPage();
 p.on("pageerror", (e) => errs.push(String(e?.message ?? e).slice(0, 160)));
@@ -560,6 +637,95 @@ ok("no manual actions → EyeBot pane collapses (patient chat only)");
 if (await p.locator('[data-testid="patient-pane"] .aurora-pane-face img').count()) die("no-face case must not render a face img");
 if (!(await p.locator('[data-testid="patient-pane"] .aurora-pane-face svg').count())) die("no-face patient pane must fall back to the talking-head SVG");
 ok("patient pfp falls back to the talking-head SVG when no face (graceful)");
+
+// 7d. DUAL-SOURCE step (C003). One critical checklist row naming TWO sources needs BOTH:
+//     the chart half at the chip, the asking half in the consult. The reported bug was one
+//     click ticking it while revealing nothing — and the composer being locked out of the
+//     half it needed. Every hop is asserted, in the click-first order.
+await p.goto(base + "/cases/C003", { waitUntil: "domcontentloaded" });
+await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
+await p.locator('[data-testid="briefing-skip"]').click();
+// Talk once to clear the verbal step 1 so the dual step becomes the gate.
+await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
+await p.locator(".aurora-station-composer-send").click();
+await p.waitForSelector('.aurora-station-step[data-current="true"]:has-text("not allergic")', { timeout: 8000 });
+
+// The regression that made the step impossible: a manual chip's step used to lock the
+// composer. A dual step must leave BOTH panes live.
+if (await p.locator('[data-testid="patient-lock"]').count()) die("a dual-source step must NOT lock the patient chat — asking is half of it");
+if (!(await p.locator('[data-testid="patient-pane"] .aurora-station-composer-input').count())) die("patient composer must stay available on a dual-source step");
+const dualTurn = await p.getAttribute(".aurora-station-grid", "data-turn");
+if (dualTurn !== "patient") die(`dual-source gate should keep the patient turn, got "${dualTurn}"`);
+ok("dual-source step keeps the patient composer live (both halves reachable)");
+
+// Click the chip: it must REVEAL the record and NOT tick the step.
+await p.locator('.aurora-pchip:has-text("Check allergy")').click();
+await p.waitForSelector('[data-testid="dual-hint"]', { timeout: 8000 });
+const revealText = await p.locator(".aurora-station-reveal").last().innerText();
+if (!revealText.includes("No drug allergy recorded on file.")) die(`the chip must reveal the allergy record, got "${revealText}"`);
+if (await p.locator('.aurora-station-step[data-ticked="true"]:has-text("not allergic")').count()) die("one click must NOT tick a step that also needs the patient asked");
+const halfChip = p.locator('.aurora-pchip:has-text("Check allergy")');
+if ((await halfChip.getAttribute("data-half")) !== "record") die("the chip must read half-done once the record is checked");
+if (!(await halfChip.isDisabled())) die("a half-done chip must stop taking clicks (it would re-post the same reveal)");
+const hint = await p.locator('[data-testid="dual-hint"]').innerText();
+if (!/ask/i.test(hint)) die(`the hint must name the outstanding half, got "${hint}"`);
+if (/\d/.test(hint)) die(`the hint must not leak a step number: "${hint}"`);
+// The half state must SURVIVE the pane's chip override (.aurora-eyebot .aurora-pchip
+// re-colours every chip blue). Assert the computed amber rather than trusting the cascade.
+// waitForFunction, not a one-shot read: .aurora-pchip TRANSITIONS `background .2s`, so a
+// read taken the instant data-half flips returns the interpolating value — which STARTS at
+// the pane's blue and fails a working rule. Same trap as the spotlight opacity above.
+await p.waitForFunction(
+  () => /^rgba?\(245,\s*166,\s*35/.test(getComputedStyle(document.querySelector('.aurora-pchip[data-half="record"]')).backgroundColor),
+  null,
+  { timeout: 4000 },
+).catch(async () => {
+  const got = await p.evaluate(() => getComputedStyle(document.querySelector('.aurora-pchip[data-half="record"]')).backgroundColor);
+  die(`half-done chip must settle on amber, not the pane's blue: ${got}`);
+});
+ok("chip reveals the record, marks itself half-done, and explains the missing half");
+
+// Now ask the patient. The examiner credits the asking (it was sent record_done), so the
+// step finally ticks — and the half-done affordance clears.
+await p.locator(".aurora-station-composer-input").fill("Any allergies to eye drops that you know of?");
+await p.locator(".aurora-station-composer-send").click();
+await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("not allergic")', { timeout: 8000 });
+if (!c003RecordDone.includes(2)) die(`the client must declare the chart half to the examiner, got record_done=${JSON.stringify(c003RecordDone)}`);
+if (await p.locator('[data-testid="dual-hint"]').count()) die("the hint must clear once both halves are done");
+if ((await halfChip.getAttribute("data-done")) !== "true") die("the chip must read done once both halves are in");
+ok("record then patient → the critical step ticks");
+
+// 7e. The OTHER order (C004): asked first, chart never opened. The examiner here credits the
+//     step from the transcript alone, so the client-side hold is the only thing stopping a
+//     critical step from ticking with the record unread. Without it this whole fix is
+//     bypassable by simply talking first.
+await p.goto(base + "/cases/C004", { waitUntil: "domcontentloaded" });
+await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
+await p.locator('[data-testid="briefing-skip"]').click();
+await p.locator(".aurora-station-composer-input").fill("Do you have any allergies to eye drops?");
+await p.locator(".aurora-station-composer-send").click();
+// Wait for the examiner's credit to LAND — either as a tick (the regression) or as the
+// half-done hint (correct). Waiting on the hint alone would report a broken hold as an
+// opaque locator timeout instead of naming what went wrong.
+await p.waitForFunction(
+  () => !!document.querySelector('[data-testid="dual-hint"]')
+     || !!document.querySelector('.aurora-station-step[data-ticked="true"]'),
+  null,
+  { timeout: 8000 },
+).catch(() => die("the examiner's credit never landed: no tick and no half-done hint"));
+if (await p.locator('.aurora-station-step[data-ticked="true"]:has-text("not allergic")').count()) die("asking alone must NOT tick a step that also needs the record checked");
+const askChip = p.locator('.aurora-pchip:has-text("Check allergy")');
+if ((await askChip.getAttribute("data-half")) !== "asked") die("the chip must show the asking is done and the record is not");
+if (await askChip.isDisabled()) die("the chip must stay clickable — checking the record is the half still outstanding");
+const askHint = await p.locator('[data-testid="dual-hint"]').innerText();
+if (!/record|chart|EMR/i.test(askHint)) die(`the hint must name the record as outstanding, got "${askHint}"`);
+// Now open the chart: the held credit is admitted and the step ticks on this click alone.
+await askChip.click();
+await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("not allergic")', { timeout: 8000 });
+const askReveal = await p.locator(".aurora-station-reveal").last().innerText();
+if (!askReveal.includes("Phenylephrine")) die(`the chip must still reveal the record it read, got "${askReveal}"`);
+if (await p.locator('[data-testid="dual-hint"]').count()) die("the hint must clear once both halves are done");
+ok("patient then record → the held credit is admitted and the step ticks");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });

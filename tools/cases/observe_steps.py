@@ -40,7 +40,8 @@ def _schema() -> dict:
 
 
 def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: list[int],
-            exclude_steps=None, focus_step: int | None = None) -> list[int]:
+            exclude_steps=None, focus_step: int | None = None,
+            record_done: list[int] | None = None) -> list[int]:
     """Return newly-satisfied step numbers (excluding already-ticked and excluded steps).
 
     exclude_steps: step numbers the conversational examiner must never tick — the case's
@@ -50,6 +51,12 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
     focus_step: the student has explicitly claimed they already did this step (the station's
     stuck-valve). Ask for one lenient re-read of THAT step only — strictness everywhere else
     is unchanged, so this can't become a way to tick the whole list.
+
+    record_done: dual-source steps (record AND ask — see examination_actions.is_dual_step)
+    whose CHART half the student has already done in the action panel. The examiner sees the
+    consult only, so without this a strict reading of "verify with the EMR and ask the
+    patient" can never be satisfied from the transcript. It removes exactly one half; the
+    asking is still judged on the student's own words.
     """
     if MOCK_MODE:
         return []
@@ -78,10 +85,22 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
             "words reasonably cover it, even if indirectly. Your strictness for every OTHER step "
             "is unchanged."
         )
+    remaining_nums = {int(s.get("step_number", 0)) for s in remaining}
+    done_halves = sorted({int(n) for n in (record_done or [])} & remaining_nums)
+    record_note = ""
+    if done_halves:
+        which = ", ".join(f"step {n}" for n in done_halves)
+        record_note = (
+            f"\n\nNOTE: for {which}, the student has ALREADY checked the medical record / EMR "
+            "in the action panel. You cannot see that in the transcript, so do NOT hold the "
+            "record half against them. Judge ONLY whether they also asked the patient — "
+            "include the step if they did, leave it out if they did not."
+        )
     prompt = (
         f"## Remaining checklist steps\n{steps_block}\n\n"
         f"## Recent transcript\n{convo}\n\n"
-        f"Which step numbers has the student now satisfied? JSON array only.{focus_note}"
+        f"Which step numbers has the student now satisfied? JSON array only."
+        f"{focus_note}{record_note}"
     )
 
     try:

@@ -20,6 +20,7 @@
   "history": {
     "hpc": "Mdm Fatimah is a known diabetic attending her annual diabetic eye screening. The doctor has ordered dilated fundus photography to assess for diabetic retinopathy, which requires instillation of mydriatic drops to dilate both pupils before the images can be taken. She has had this drop before without problems. She drove herself to the appointment today.",
     "pmhx": "Type 2 diabetes for 12 years, on insulin. Hypertension. No previous eye surgery. No known drug allergies.",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Sister has diabetic retinopathy",
     "medications": [
       "Insulin glargine OD",

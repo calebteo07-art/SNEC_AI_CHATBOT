@@ -21,6 +21,7 @@ import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick, performedOnly } from "@/aurora/lib/stationGate";
 import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
+import { admit, dualHalf, dualHint } from "@/aurora/lib/dualStep";
 import { timerState, formatClock } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
@@ -119,6 +120,11 @@ export function CaseSession() {
 
   const [ticked, setTicked] = useState<Set<number>>(new Set());
   const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
+  // The two halves of a dual-source step (one checklist row, both the chart AND the patient
+  // — see lib/dualStep): chartDone is recorded by the chip, askedDual is an examiner credit
+  // waiting for the chart half. A step in both ticks; a step in one is half done.
+  const [chartDone, setChartDone] = useState<Set<number>>(new Set());
+  const [askedDual, setAskedDual] = useState<Set<number>>(new Set());
   // Steps the student could not complete and skipped (see skipStep()). They pass the gate
   // so the session continues, but they are NEVER reported as performed.
   const [skipped, setSkipped] = useState<Set<number>>(new Set());
@@ -171,6 +177,11 @@ export function CaseSession() {
   // manual (action-panel-only) ones. Kept as a ref so runObserve can skip a pointless
   // examiner round-trip once they are all ticked.
   const observableStepsRef = useRef<number[]>([]);
+  // Dual-source steps and their two halves — see lib/dualStep. Refs as well as state:
+  // performAction must re-admit a pending examiner credit in the SAME tick as the click.
+  const dualStepsRef = useRef<Set<number>>(new Set());
+  const chartDoneRef = useRef<Set<number>>(new Set());
+  const askedDualRef = useRef<Set<number>>(new Set());
   const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observeAbort = useRef<AbortController | null>(null);
   const chatAbort = useRef<AbortController | null>(null);
@@ -179,9 +190,16 @@ export function CaseSession() {
   useEffect(() => {
     const order = (station?.checklist.phases ?? []).flatMap((p) => p.steps).map((s) => s.step_number);
     orderRef.current = order;
+    // A dual-source step is the ONE manual step the examiner may also tick — its second
+    // half is the consult, so hiding it would leave a critical step untickable forever.
+    dualStepsRef.current = new Set(
+      (station?.examination_actions ?? [])
+        .filter((a) => a.also_ask)
+        .flatMap((a) => a.satisfies_steps),
+    );
     const manual = new Set(
       (station?.examination_actions ?? [])
-        .filter((a) => a.kind === "manual")
+        .filter((a) => a.kind === "manual" && !a.also_ask)
         .flatMap((a) => a.satisfies_steps),
     );
     observableStepsRef.current = order.filter((n) => !manual.has(n));
@@ -272,8 +290,18 @@ export function CaseSession() {
   // once the gate reaches them.
   const addAuto = useCallback((stepNumbers: number[]) => {
     if (!stepNumbers.length) return;
+    // A dual-source step needs BOTH halves. The examiner may credit the asking first — hold
+    // that credit until the chart half lands (performAction re-admits it), so the order the
+    // student works in doesn't matter.
+    const { tick, hold } = admit(stepNumbers, dualStepsRef.current, chartDoneRef.current);
+    if (hold.length) {
+      const held = new Set([...askedDualRef.current, ...hold]);
+      askedDualRef.current = held;
+      setAskedDual(held);
+    }
+    if (!tick.length) return;
     const prev = tickedRef.current;
-    const next = advance(orderRef.current, prev, stepNumbers);
+    const next = advance(orderRef.current, prev, tick);
     if (next.size === prev.size) return; // nothing unlocked
     setTicked(next);
     setAutoSteps((a) => {
@@ -303,7 +331,7 @@ export function CaseSession() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         signal: ctrl.signal,
-        body: JSON.stringify({ messages: toApi(messagesRef.current.slice(-100)), already_ticked: Array.from(tickedRef.current) }),
+        body: JSON.stringify({ messages: toApi(messagesRef.current.slice(-100)), already_ticked: Array.from(tickedRef.current), record_done: Array.from(chartDoneRef.current) }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = (await res.json()) as { newly_satisfied?: number[] };
@@ -342,6 +370,9 @@ export function CaseSession() {
           messages: toApi(messagesRef.current.slice(-100)),
           already_ticked: Array.from(tickedRef.current),
           focus_step: step,
+          // The lenient re-read needs the chart half too, or a student stuck on a half-done
+          // dual step is graded as having skipped work they actually did.
+          record_done: Array.from(chartDoneRef.current),
         }),
       });
       const data = res.ok ? ((await res.json()) as { newly_satisfied?: number[] }) : { newly_satisfied: [] };
@@ -362,11 +393,13 @@ export function CaseSession() {
     if (!content || sending || isStreaming || !caseId) return;
     // Defense-in-depth: the composer is hidden while the next step is a hands-on procedure,
     // so also refuse to send then — manual steps are performed in the action panel, not by chat.
+    // A dual-source step is NOT one of those: asking the patient is half of it, so the
+    // composer must stay open (this guard used to make that step impossible to complete).
     const order = orderRef.current;
     const gi = gateIndex(order, tickedRef.current);
     const gate = gi < order.length ? order[gi] : null;
     if (gate !== null && (station?.examination_actions ?? [])
-      .some((a) => a.kind === "manual" && a.satisfies_steps.includes(gate))) return;
+      .some((a) => a.kind === "manual" && !a.also_ask && a.satisfies_steps.includes(gate))) return;
     const updated: ChatMessage[] = [...messages, { role: "user", content, channel: "patient" }];
     setMessages(updated);
     if (textArg === undefined) setInput("");
@@ -450,6 +483,21 @@ export function CaseSession() {
   const performAction = (a: ExamAction) => {
     if (sending || isStreaming) return; // don't interleave with a live patient stream
     if (a.satisfies_steps.every((n) => tickedRef.current.has(n))) return;
+    // A dual-source chip is the CHART half of its step ("…verify with the EMR AND ask the
+    // patient"). Reveal what the record says and remember the half — but do NOT tick: the
+    // step waits for the examiner to see the patient asked. If it already did, that credit
+    // is held in askedDual and admits now; otherwise the next examiner pass carries
+    // record_done and can credit the asking on its own.
+    if (a.also_ask && !a.satisfies_steps.every((n) => chartDoneRef.current.has(n))) {
+      const body = a.reveal_text ? ` → record checked · Result: ${a.reveal_text}` : " → record checked";
+      setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label}${body}]`, channel: "eyebot" }]);
+      const charted = new Set([...chartDoneRef.current, ...a.satisfies_steps]);
+      chartDoneRef.current = charted;   // set the ref first — addAuto reads it this tick
+      setChartDone(charted);
+      addAuto(a.satisfies_steps.filter((n) => askedDualRef.current.has(n)));
+      scheduleObserve();
+      return;
+    }
     // Quick (mechanical) procedures need no typed technique — tick on one click with a short
     // performed note, and skip the AI coaching call (nothing to coach) (ricoe C5).
     if (a.quick) {
@@ -610,14 +658,20 @@ export function CaseSession() {
   const hasEyebot = manualActions.length > 0;
   // The patient chat locks while the next checklist step is a hands-on procedure, so the
   // student performs it in the action panel (not by talking). Conversation-only cases (no
-  // manual actions) never lock.
-  const manualStepNumbers = new Set(manualActions.flatMap((a) => a.satisfies_steps));
+  // manual actions) never lock. A DUAL-SOURCE step is excluded: asking the patient is half
+  // of it, so it must leave both panes live (the lock made that step impossible).
+  const manualStepNumbers = new Set(
+    manualActions.filter((a) => !a.also_ask).flatMap((a) => a.satisfies_steps),
+  );
   // One source of truth for "where do I act now" — drives the pane spotlight, the badges
   // and the patient-composer lock that used to be computed separately here.
   const { turn, badge } = stationTurn(gateStep, manualStepNumbers, {
     loaded: !!station, hasResult: !!result, hasEyebot,
   });
   const patientLocked = turn === "eyebot";
+  // Which half of the gate step is still outstanding, and the chips' half-done affordance.
+  const halfOf = (step: number) => dualHalf(step, dualStepsRef.current, chartDone, askedDual, ticked);
+  const gateHint = gateStep === null || result ? "" : dualHint(halfOf(gateStep));
 
   if (loadError) {
     return (
@@ -744,6 +798,8 @@ export function CaseSession() {
             busy={sending || isStreaming}
             canSkip={turn === "eyebot" && canSkip(turn, attempts, !!result)}
             skipping={skipping}
+            dualHint={gateHint}
+            halfOf={halfOf}
             onSkip={() => void skipStep()}
             onPerform={performAction}
             onProcText={setProcText}

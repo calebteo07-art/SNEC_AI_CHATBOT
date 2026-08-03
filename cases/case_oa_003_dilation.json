@@ -20,6 +20,7 @@
   "history": {
     "hpc": "Mdm Lim is a 64-year-old with Type 2 diabetes for 12 years, attending for her annual dilated fundus exam. When the OA explains that eye drops are needed to dilate her pupils, Mdm Lim becomes visibly anxious and says: 'No, I don't want those drops. My neighbour went blind after getting eye drops at another clinic. I'm not doing it.' She is cooperative otherwise but firm in her refusal. She has had dilation before at her previous clinic 2 years ago with no problems, though she does not seem to recall this clearly.",
     "pmhx": "Type 2 diabetes mellitus for 12 years (HbA1c 8.2% last check). Hypertension. No known drug allergies. Previous uneventful dilated fundus exam 2 years ago.",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Sister has diabetic retinopathy",
     "medications": [
       "Metformin 1g BD",
