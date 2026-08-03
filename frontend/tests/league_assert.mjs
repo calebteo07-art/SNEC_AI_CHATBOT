@@ -30,6 +30,23 @@ const ok = (m) => console.log("PASS:", m);
 const bad = (m) => { console.error("FAIL:", m); failed++; };
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 
+/* WCAG relative luminance + contrast, so the "is it actually light, and is the text actually
+   readable on it" checks below are computed rather than eyeballed. The board was rebuilt onto
+   the Aurora light canvas on 2026-08-03; gold is the trap that makes that a testable rule
+   rather than a taste one — #F5C542 on white is 2.2:1, so gold may be a FILL but never text. */
+const rgb = (s) => (s ?? "").match(/[\d.]+/g)?.map(Number) ?? null;
+const lum = (c) => {
+  const [r, g, b] = c.slice(0, 3).map((v) => {
+    const x = v / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+
 /* A 30-person division with the top 7 promoting — Duolingo's shape, and the shape the
    backend actually produces (promote_count(30) === 7). The viewer sits at rank 12, below
    the line, which is the case the whole redesign exists for. `rank_delta` deliberately
@@ -134,9 +151,51 @@ const measure = (p) => p.evaluate(() => {
     };
   };
 
+  /* The page's base colour. Written as a solid final layer under the gradients, so the
+     shorthand resolves it into background-COLOR and it can be read here — the dark board
+     ended its stack with a gradient, which computes to transparent and is unreadable. */
+  const pageBg = getComputedStyle(document.querySelector(".aurora-main")).backgroundColor;
+  /* Informational text only. .lb-title is deliberately excluded: a display face may carry a
+     clipped gradient, body copy may not.
+
+     Each sample carries the backdrop it ACTUALLY sits on, found by walking up to the nearest
+     effectively-opaque ancestor. Measuring everything against the page base instead would be
+     wrong in both directions — it fails --ink-3 on a white card (4.25:1 against the canvas,
+     4.8:1 where it really renders) while saying nothing about text on a tinted row. */
+  const backdropOf = (el) => {
+    for (let n = el; n; n = n.parentElement) {
+      const c = getComputedStyle(n).backgroundColor;
+      const m = c.match(/[\d.]+/g)?.map(Number);
+      if (m && (m[3] === undefined || m[3] > 0.92)) return c;
+    }
+    return null;
+  };
+  const inkProbe = [".lg-nm", ".lg-sub", ".lg-score", ".chase-n", ".chase-l", ".dv-stakes"]
+    .map((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return { sel, color: null, on: null };
+      const cs = getComputedStyle(el);
+      // A clipped gradient reports a transparent fill; report it so the check can name it.
+      const fill = cs.webkitTextFillColor && cs.webkitTextFillColor !== cs.color
+        ? cs.webkitTextFillColor : cs.color;
+      return { sel, color: fill, on: backdropOf(el) };
+    });
+
   return {
-    vw, vh: window.innerHeight, over, targets, rasters,
+    vw, vh: window.innerHeight, over, targets, rasters, pageBg, inkProbe,
     root: one(".lb-climb"),
+    // How much chrome the reader scrolls past before the payoff.
+    chrome: (() => {
+      const climb = document.querySelector(".lb-climb");
+      const bm = document.querySelector(".bm");
+      return climb && bm ? +(bm.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
+    })(),
+    plinths: [1, 2, 3].map((pl) => {
+      const el = document.querySelector(`.bm-slot[data-place="${pl}"] .bm-plinth`);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { place: pl, left: +r.left.toFixed(1), right: +r.right.toFixed(1) };
+    }),
     slots: [slot(1), slot(2), slot(3)].filter(Boolean),
     peds: all(".bm-slot"),
     rows: all(".lg-row"),
@@ -186,6 +245,54 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
 
   if (m.rasters.length) bad(`${at}: the stage paints ${m.rasters.length} CSS raster(s) — the zero-raster rule is broken: ` + m.rasters.slice(0, 3).map((r) => `.${r.cls} ${r.bg}`).join(" · "));
   else ok(`${at}: zero CSS rasters on the stage (pure gradient + inline SVG)`);
+
+  /* ── the light rebuild (2026-08-03) ──────────────────────────────────────────────────
+     The board shipped twice as a black stage and was rejected both times. It now runs on the
+     Aurora light canvas like the rest of the student app. These four checks are the ones a
+     restyle would silently undo, and none of them is visible in a screenshot diff. */
+
+  // 1) It is actually LIGHT — and readable as a value, not as a vibe.
+  const bg = rgb(m.pageBg);
+  if (!bg || bg[3] === 0) {
+    bad(`${at}: the page has no resolvable base colour (got ${JSON.stringify(m.pageBg)}) — end the background stack with a solid colour so the theme is measurable`);
+  } else if (lum(bg) < 0.7) {
+    bad(`${at}: the stage's base luminance is ${lum(bg).toFixed(3)}, expected a light canvas (>0.7) — the League runs on the Aurora light theme, not a black stage`);
+  } else ok(`${at}: the stage is the light Aurora canvas (luminance ${lum(bg).toFixed(3)})`);
+
+  /* 2) Gold is a FILL, never text. #F5C542 on white is 2.2:1, so the single easiest way to
+        wreck this board is to carry the dark theme's gold type over to the light canvas.
+        Each sample is measured against the surface it actually renders on. */
+  {
+    const missing = m.inkProbe.filter((t) => !t.color || !t.on).map((t) => t.sel);
+    const unreadable = m.inkProbe
+      .filter((t) => t.color && t.on)
+      .map((t) => ({ ...t, c: rgb(t.color), b: rgb(t.on) }))
+      .filter((t) => t.c && t.b && (t.c[3] === 0 || contrast(t.c, t.b) < 4.5));
+    if (missing.length) bad(`${at}: could not resolve colour/backdrop for ${missing.join(", ")} — the contrast check is testing nothing`);
+    else if (unreadable.length) {
+      bad(`${at}: ${unreadable.length} text style(s) below 4.5:1 where they render: ` +
+        unreadable.map((t) => `${t.sel} ${t.color} on ${t.on} ${t.c[3] === 0 ? "(transparent fill)" : contrast(t.c, t.b).toFixed(2) + ":1"}`).join(" · "));
+    } else ok(`${at}: all ${m.inkProbe.length} informational text styles clear 4.5:1 on their own surface`);
+  }
+
+  /* 3) The plinths form ONE block. Three detached slabs with a gap between them is a bar
+        chart, not a podium — it was the loudest thing wrong with the rejected board. */
+  const [p1, p2, p3] = m.plinths;
+  if (!p1 || !p2 || !p3) bad(`${at}: could not measure all three plinths`);
+  else {
+    const seams = [Math.abs(p2.right - p1.left), Math.abs(p1.right - p3.left)];
+    if (seams.some((s) => s > 1)) {
+      bad(`${at}: the plinths are detached (seams ${seams.map((s) => s.toFixed(1)).join("px, ")}px) — the podium must read as one stepped block, not three separate bars`);
+    } else ok(`${at}: the three plinths are flush — one connected podium`);
+  }
+
+  /* 4) A chrome budget. The rejected board stacked eyebrow, title, five crest boxes, a meta
+        row, a stakes sentence, a help pill, a huge number and its label — eight centred
+        islands, ~430px, before a single rank appeared. */
+  const BUDGET = 330;
+  if (m.chrome === null) bad(`${at}: could not measure the header`);
+  else if (m.chrome > BUDGET) bad(`${at}: ${m.chrome}px of chrome above the podium, budget ${BUDGET}px — the header is spending the page on itself`);
+  else ok(`${at}: ${m.chrome}px of chrome above the podium (budget ${BUDGET}px)`);
 
   if (m.over.length) bad(`${at}: ${m.over.length} element(s) escape the viewport: ` + m.over.slice(0, 4).map((o) => `.${o.cls} [${o.left}→${o.right}] vw=${m.vw}`).join(" · "));
   else ok(`${at}: nothing escapes the viewport (vw=${m.vw})`);

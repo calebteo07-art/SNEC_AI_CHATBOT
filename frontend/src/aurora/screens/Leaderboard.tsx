@@ -6,13 +6,15 @@
    on. Here the division is earned, the week ends on a clock, and a labelled promotion line
    cuts across the list: everything above it moves up on Monday, and nobody is ever demoted.
 
-   Layout, top to bottom: division ladder + countdown + the stakes + "how the league works" →
-   the chase → the Beam (top three) → role filter → the ranked league with the promotion line.
+   Layout, top to bottom: the title → ONE standing card (ladder + chase + stakes + countdown +
+   "how the league works") → the Beam (top three) → role filter → the ranked league with the
+   promotion line.
 
-   Refined 2026-08-03 (the stage was "too dark and flat", the podium "too simple", the tiers
-   "unclear"): see the header of leaderboard.css, which names each locked rule it changes.
-   The ladder now owns the explanation of the whole mechanic, which is why `promote_count`
-   is handed to it as well as to the promotion line.
+   Rebuilt 2026-08-03 onto the AURORA LIGHT canvas after the black-stage version was rejected
+   twice — see the header of leaderboard.css, which names every locked rule it supersedes. The
+   header used to be eight separate centred islands; it is now a title and one card, which is
+   why `chase` is handed to the standing card rather than rendered beside it, and why the
+   ladder owns the explanation of the whole mechanic along with `promote_count`.
 
    There is NO visibility panel here (removed on request, 2026-08-02). The board is therefore
    everyone-by-default with no in-app way out: POST /api/leaderboard/prefs still works and the
@@ -31,7 +33,6 @@ import {
 } from "@/aurora/leaderboard/league";
 import { Beam } from "@/aurora/components/leaderboard/Beam";
 import { DivisionStrip } from "@/aurora/components/leaderboard/DivisionStrip";
-import { ChaseStat } from "@/aurora/components/leaderboard/ChaseStat";
 import { LeagueRow, PromotionLine } from "@/aurora/components/leaderboard/LeagueRow";
 import { RowSheet } from "@/aurora/components/leaderboard/RowSheet";
 import { YouBar } from "@/aurora/components/leaderboard/YouBar";
@@ -99,20 +100,20 @@ export function Leaderboard() {
   return (
     <div className="lb-climb" data-testid="leaderboard-root">
       <header className="lb-head">
-        <p className="lb-eyebrow">Weekly league</p>
         <h1 className="lb-title">The League</h1>
-        <DivisionStrip
-          division={division}
-          divisionName={data?.division_name ?? "Bronze"}
-          promoteCount={promoteCount}
-        />
       </header>
 
+      <DivisionStrip
+        division={division}
+        divisionName={data?.division_name ?? "Bronze"}
+        promoteCount={promoteCount}
+        chase={chase}
+      />
+
       {isLoading && !data ? (
-        <p className="lb-empty">Lighting the stage…</p>
+        <p className="lb-empty">Setting the stage…</p>
       ) : (
         <>
-          <ChaseStat chase={chase} />
           <Beam podium={podium} />
 
           {roles.length > 1 && (

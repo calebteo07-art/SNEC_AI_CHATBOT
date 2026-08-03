@@ -7,13 +7,18 @@
    Those ratios are kept exactly — they are right, and league_assert measures them — but scale
    is no longer the only argument. Added, in order of how much each carries:
    · REAL BLOCKS. Each plinth has a lit top face (a clipped trapezoid, so you read it from
-     slightly above) over a bevelled front face, and casts a reflection on the stage floor.
+     slightly above) over a bevelled front face, and casts a contact shadow on the floor.
      The old plinth was a flat rectangle with rounded corners.
    · METALS. Gold / silver / bronze on the plinths, numerals and rims. The runners-up used to
      differ from the champion only by a thinner portrait ring, so the podium read as one
      winner and two bystanders. Second and third now wear struck medals.
    · A CROWNED LAUREL on the champion, a rotating sunburst behind them, a shine that crosses
-     their plinth once on arrival, and embers drifting up the beam.
+     their plinth once on arrival, and embers drifting up through the bloom.
+
+   Rebuilt again 2026-08-03 onto the light canvas, and the fix that mattered most is not in
+   this file: the plinths used to sit 6-8px apart, which is a bar chart rather than a podium.
+   `gap: 0` in leaderboard.css makes the three a single stepped block and .bm-figure carries
+   its own padding instead — so the markup here is unchanged and the seams are measured.
 
    Still zero rasters — every ornament is a gradient or an inline path, so nothing can drift
    out of registration the way the deleted ped-*.webp overlays did.

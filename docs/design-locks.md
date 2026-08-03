@@ -984,6 +984,59 @@ whitespace in the wrong axis:
   out-reads gold at podium scale, and the champion losing a brightness contest to the
   runner-up is the exact failure the 2× plinth exists to prevent.
 
+### REBUILT 2026-08-03 (third pass) — the STAGE, not the degree
+
+User, after both passes above: **"leaderboard design is still horrendous"**. Direction was put
+back to the user rather than guessed a third time, and the answer was **go light, match Aurora**.
+
+**Read the evidence, not the adjective.** Two passes had both answered a dark board by *adding*
+— first elevation, then gold. The first report said "too **dark** and flat"; that was read as
+*unlit* and answered by keeping the black stage. It meant too dark. The League was the one
+student route that looked like a different product.
+
+Rules superseded **by name** (the 08-02 and first-08-03 rules above are now historical):
+
+1. ~~THE BLACK STAGE / FOUR PLANES, TWO TEMPERATURES.~~ → **THE AURORA CANVAS.** The pearl
+   Gemini gradient used by `/cases`, white cards, one two-step elevation ladder
+   (`--lift-1/--lift-2`). The base ends in a **solid colour** so the theme is measurable:
+   `league_assert` reads `.aurora-main`'s `backgroundColor` and requires luminance **> 0.7**.
+   A trailing gradient computes to transparent and makes the check vacuous.
+2. ~~STRUCK GOLD TITLE AND CHASE NUMBER.~~ → **GOLD IS A FILL, NEVER TEXT.** `#F5C542` on white
+   is **2.2:1**. Gold survives as fills (plinth fittings, promotion band, ladder rail); every
+   gold *word* uses `--gold-ink: #7A5206` (~6:1). Pinned: the harness samples six informational
+   text styles against **the surface each actually renders on**, resolved by walking to the
+   nearest opaque ancestor — measuring everything against the page base is wrong in both
+   directions (it fails `--ink-3` on a white card at 4.25:1 where it really renders 4.8:1).
+   The title carries the **Gemini** gradient, not gold: environment = Gemini · division = its
+   metal · promotion = gold · you = Gemini. On the old board the title, chase, plinth, all 27
+   scores, crown, chips and promotion line were one colour, so none of them ranked.
+3. ~~PODIUM METALS PITCHED DARKER THAN THE LADDER'S.~~ → **THE BLOCK IS A PALE MATERIAL WITH
+   METAL FITTINGS.** Filling a 300×164px plinth with `#E8B02F` makes the loudest thing on the
+   page a mustard slab — it was the ugliest element on *both* rejected boards, and it is what
+   "answer 'too simple' by saturating harder" produces. The face is a light metallic wash
+   (`--mw-hi/--mw-lo`); full-strength metal is confined to the top face, the base bar, the
+   numeral and the champion's ring/crown/laurel — fittings, landing on a person, not a wall.
+4. ~~SCALE, PLUS ORNAMENT.~~ → **SCALE, PLUS STRUCTURE.** Ratios unchanged and still asserted
+   (portrait **1.7×**, plinth **2×** — 164/82 desktop, 132/66, 112/56 phone). But the plinths
+   sat **6–8px apart**, which is a bar chart. `gap: 0`; `.bm-figure` carries its own padding;
+   only the block's **outer** corners round. `league_assert` measures both seams (≤1px).
+5. **The header is one card, and it is budgeted.** Eyebrow + title + five crest boxes + meta
+   row + stakes + help pill + chase + label was **eight centred islands, ~430px** before a
+   single rank. Now a title and one standing card, with the ladder as a **connected track**
+   (crests threaded on a rail filled to `--dv-step`) — five bordered boxes read as five
+   buttons. The redundant eyebrow and the "Silver division" line are gone: the lit rung is
+   labelled and says "You are here". Pinned as a **chrome budget** — `.bm`'s top offset from
+   `.lb-climb` must stay **≤330px** at every viewport (was 391–437).
+
+⚠ **Nothing absolutely positioned above a plinth may overlap the figure.** `.bm-top` protrudes
+upward by its negative `top` and paints *after* `.bm-figure`, so `.bm-plinth`'s `margin-top`
+must exceed that protrusion (**20px**, 24px desktop). At 10px the metal band clipped the
+descender off the champion's thousands comma and **9,800 rendered as "9.800"** — which in a
+country where `.` is the decimal separator reads as nine-point-eight. Diagnosed only by
+clipping to the element at 5× device scale; at page zoom the tail is sub-pixel and *every*
+screenshot looks fine, which is why three earlier hypotheses (font, `tabular-nums`, optical
+sizing) all survived a casual look and were all wrong.
+
 **Also locked** — each of these is a defect this rebuild fixed, so re-breaking one is a
 regression, not a restyle:
 - **ZERO baked raster on the stage.** Pure CSS + inline SVG; `bg.webp` + `ped-{gold,silver,
