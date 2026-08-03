@@ -32,6 +32,36 @@ async function boot(page, path, label) {
   }
 }
 
+/* Every visible .cs-badge at >= 4.5:1. A badge is 9.5px uppercase — SMALL text, so 4.5
+   is the bar, not 3.0. This exists because the obvious implementation (hue text on a
+   tint of the same hue) lands at 4.1:1 for blue and 3.97:1 for teal: plausible-looking,
+   and wrong. The tint is alpha, so it is composited over white before measuring. */
+async function badgeContrast(page, where) {
+  const bad = await page.evaluate(() => {
+    const lum = (c) => {
+      const [r, g, b] = c.map((v) => {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const parse = (s) => (s.match(/[\d.]+/g) ?? []).map(Number);
+    const over = (c, bg) => { const a = c.length > 3 ? c[3] : 1; return [0, 1, 2].map((i) => c[i] * a + bg[i] * (1 - a)); };
+    const out = [];
+    for (const el of document.querySelectorAll(".cs-badge")) {
+      if (el.offsetParent === null) continue;
+      const cs = getComputedStyle(el);
+      const bg = over(parse(cs.backgroundColor), [255, 255, 255]);   // panels are --cs-surface
+      const fg = over(parse(cs.color), bg);
+      const [a, b] = [lum(fg), lum(bg)].sort((x, y) => y - x);
+      const ratio = (a + 0.05) / (b + 0.05);
+      if (ratio < 4.5) out.push({ t: el.textContent.trim().slice(0, 18), r: Math.round(ratio * 100) / 100 });
+    }
+    return out;
+  });
+  check(bad.length === 0, `${where}: badges under 4.5:1 — ${JSON.stringify(bad)}`);
+}
+
 /* ─────────────────────────── desktop ─────────────────────────── */
 {
   const ctx = await seededContext(browser, BASE, admin, { width: 1440, height: 900 });
@@ -121,9 +151,64 @@ async function boot(page, path, label) {
     // than counting immediately.
     try {
       await page.waitForSelector(sel, { timeout: 10000 });
+      await badgeContrast(page, href);
     } catch {
       fails.push(`${href} did not render ${sel}`);
     }
+  }
+
+  // 7. The student drill-down — the densest surface in the console, and the one that
+  // silently regressed: DivergingBar's CSS lived under .aurora-admin, a scope this
+  // rebuild deletes. Unstyled, .cs-diverge-fill falls back to static position and draws
+  // from the LEFT EDGE of the track, which renders every student as far below cohort.
+  // A build stays green through that, so assert the GEOMETRY: an above-cohort fill
+  // starts at the axis and a below-cohort fill ends at it.
+  await page.goto(`${BASE}/admin/students`, { waitUntil: "domcontentloaded" });
+  try {
+    const row = "[data-testid=admin-roster] .cs-trow[data-clickable=true]";
+    await page.waitForSelector(row, { timeout: 10000 });
+    await page.locator(row).first().click();
+    await page.waitForSelector("[data-testid=mastery-panel]", { timeout: 10000 });
+
+    const rows = await page.locator("[data-testid=mastery-row]").count();
+    check(rows > 0, "the drill-down opened but rendered no mastery rows");
+
+    const drift = await page.evaluate(() => {
+      const out = [];
+      for (const track of document.querySelectorAll(".cs-diverge")) {
+        const fill = track.querySelector(".cs-diverge-fill");
+        if (!fill) continue;
+        const tone = ([...fill.classList].find((c) => /^cs-diverge-(above|below|level|none)$/.test(c)) ?? "").replace("cs-diverge-", "");
+        const t = track.getBoundingClientRect();
+        const f = fill.getBoundingClientRect();
+        if (f.width === 0 || t.width === 0) continue;   // level/none draw nothing
+        const mid = t.left + t.width / 2;
+        if (tone === "above" && f.left < mid - 1) out.push({ tone, offBy: Math.round(mid - f.left) });
+        if (tone === "below" && f.right > mid + 1) out.push({ tone, offBy: Math.round(f.right - mid) });
+        if (tone === "level" || tone === "none") out.push({ tone, offBy: "drew a bar with no magnitude" });
+      }
+      return out;
+    });
+    check(drift.length === 0, `diverging bars not anchored to the axis: ${JSON.stringify(drift)}`);
+
+    // 8. No squashed flex children. .cs-modal is a max-height flex column, and
+    // flex-shrink defaults to 1 — past 88dvh every child compresses to share the
+    // deficit instead of the modal scrolling. The DOM stays correct and every test id
+    // still resolves, so only geometry catches it: a child whose scrollHeight exceeds
+    // its clientHeight is rendering less than it holds.
+    const squashed = await page.evaluate(() =>
+      [...document.querySelectorAll(".cs-modal > *")]
+        .filter((el) => el.scrollHeight - el.clientHeight > 1)
+        .map((el) => ({
+          cls: el.className || el.tagName,
+          shown: el.clientHeight,
+          needs: el.scrollHeight,
+        })));
+    check(squashed.length === 0, `modal children squashed below their content: ${JSON.stringify(squashed)}`);
+
+    await badgeContrast(page, "student drill-down");
+  } catch (e) {
+    fails.push(`student drill-down: ${String(e.message).split("\n")[0]}`);
   }
 
   } catch (e) { fails.push(`desktop: threw — ${String(e.message).split("\n")[0]}`); }

@@ -170,7 +170,9 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
 
         {data && (
           <>
-            <div className="cs-strip">
+            {/* A tighter track than the Overview strip: five cells, and the default
+                168px minimum orphans the fifth onto a row of its own. */}
+            <div className="cs-strip" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(126px, 1fr))" }}>
               {[
                 { label: "Sessions", val: String(data.session_count) },
                 { label: "Streak", val: `${data.streak}d` },
@@ -184,8 +186,6 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
               <Badge hue="purple">{data.role}</Badge>
               <Badge hue={data.learning_velocity === "declining" ? "coral" : "blue"}>{data.learning_velocity}</Badge>
             </div>
-
-            <EngagementBlock sessions={data.sessions} />
 
             {/* Omitted entirely when `mastery` is null — the mastery reads failed, or this
                 student is not in the cohort population (a promoted trainer is on the
@@ -234,6 +234,12 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                 )}
               </Panel>
             )}
+
+            {/* Below the mastery read, not above it. The calendar is ~330px of mostly
+                empty grid; leading with it pushed the one comparison a trainer opens
+                this modal for under the fold. It sits with the sessions table now,
+                which is the thing it actually annotates. */}
+            <EngagementBlock sessions={data.sessions} />
 
             <div className="cs-seg" style={{ alignSelf: "flex-start", maxWidth: "100%", overflowX: "auto" }} role="tablist" aria-label="Student detail section">
               {(["sessions", "cases", "topics"] as SubTab[]).map((t) => (

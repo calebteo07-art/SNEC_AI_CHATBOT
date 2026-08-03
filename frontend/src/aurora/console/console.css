@@ -276,6 +276,12 @@
   max-height: 88dvh; overflow-y: auto; padding: 18px;
   display: flex; flex-direction: column; gap: 14px;
 }
+/* flex-shrink defaults to 1, so once the student drill-down's content exceeds 88dvh
+   every child SQUASHES to share the deficit instead of the modal scrolling: the mastery
+   panel rendered 24px tall holding 140px of content, the sub-tabs 10px, the sessions
+   table 9px, and the rows spilled over each other. Content was all present and correct
+   — a build, a typecheck and a test id all pass straight through this. */
+.cs-modal > * { flex: none; }
 .cs-textarea {
   width: 100%; border-radius: 10px; border: 1px solid var(--cs-hair-2);
   background: var(--cs-surface); padding: 11px 12px; font: inherit; font-size: 13px;
@@ -314,6 +320,31 @@
 /* level/none have no magnitude to draw. Hidden, not zero-width — a hairline at the
    axis reads as a small real delta. */
 .cs-diverge-level, .cs-diverge-none { display: none; }
+
+/* ── EngagementBlock, borrowed ───────────────────────────────
+   Shared with the student app and written for the DARK admin surface it used to live
+   on: its empty calendar cells are a white overlay plus a white inset hairline, which
+   is invisible on this light console — the grid renders as floating date numbers with
+   no calendar under them. And `aspect-ratio: 1` across seven columns of an 860px modal
+   inflates each cell to ~112px, so five weeks fill 580px of vertical space.
+
+   Overridden here rather than edited at source: the component is still used, unchanged,
+   by the student app. */
+.cs .aurora-cal { max-width: 428px; }
+.cs .aurora-cal-cell {
+  background: rgba(19, 22, 40, 0.045);
+  box-shadow: inset 0 0 0 1px rgba(19, 22, 40, 0.065);
+}
+.cs .aurora-cal-cell.is-today { box-shadow: inset 0 0 0 1.6px var(--cs-blue); }
+.cs .aurora-cal-date, .cs .aurora-cal-mo, .cs .aurora-prog-count { color: var(--cs-ink-3); }
+.cs .aurora-cal-cell.is-active .aurora-cal-date { color: #fff; }
+.cs .aurora-cal-cell.is-active .aurora-cal-mo { color: rgba(255, 255, 255, 0.9); }
+/* Match the console's own eyebrow rather than shipping a second heading scale. */
+.cs .aurora-activity-head {
+  font-family: var(--font-sans); font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase; font-weight: 700; color: var(--cs-ink-3); margin: 0 0 8px;
+}
+.cs .aurora-muted { color: var(--cs-ink-3); font-size: 12px; line-height: 1.45; }
 
 .cs-misslist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
 .cs-misslist li {
