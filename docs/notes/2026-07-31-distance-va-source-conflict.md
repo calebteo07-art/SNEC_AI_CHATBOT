@@ -1,7 +1,37 @@
-# Distance VA — three SNEC sources, two still conflict (PARTLY RESOLVED)
+# Distance VA — CC-D0008 adopted app-wide (SHIPPED, one DB step outstanding)
 
-**Status:** narrowed. SNEC supplied a third document on 2026-08-03. No content shipped yet.
+**Status:** CC-D0008 is the authority app-wide (user decision, 2026-08-03). Content
+swept and shipped. Two clarifications still with SNEC, neither blocking.
 **Verified** against the `.docx` of all three sources, not against the ingested Supabase rows.
+
+## What shipped
+
+- `workflows/ophthalmology_kb.md` — added the Snellen ↔ LogMAR ladder; split the
+  low-vision scenarios so the pinhole is attempted **on the 6/60 line** before 6/120,
+  and 6/120 is tried without then with the pinhole.
+- `tools/flashcards/static_cards.py` — the `distance_va` deck now teaches the ladder
+  and the 6/60 pinhole step; dropped the "6 metres is the testing distance" model and
+  3 redundant cards to hold the topic at exactly 50.
+- 40 case files — every reading presented **as a LogMAR value** now names a real M&S
+  chart line (6/9 → 6/9.5, 6/18 → 6/19, 6/36 → 6/38, with LogMAR values corrected).
+  `case_psa_007_snellen_va_pinhole` is deliberately **excluded**: it uses a Snellen
+  projector, where 6/9 is a real line and 0.18 is its correct conversion.
+- `tools/cases/resolve_checklist.py` — `SUPERSEDED_CHECKLISTS` maps the SOP row to the
+  current one, so a station can never grade against it even if the row lingers in the DB.
+- `tools/kb/run_ingestion.py` — the SOP PDF is now ingested as a reference document
+  only, not as a competing checklist.
+- `tests/content/test_distance_va_alignment.py` — 15 tests pinning all of the above.
+
+## Outstanding (needs the user / SNEC)
+
+1. **Supabase:** the `Distance Vision Testing LogMAR (SOP)` row still exists and should
+   be deleted; CC-D0008 should be ingested to replace the V2-derived row. Both need a
+   live ingestion run (paid embeddings) with CC-D0008 staged in the Module folder, so
+   they were not done autonomously. The resolver guard makes the stale row harmless
+   meanwhile.
+2. **SNEC follow-up** (drafted, not sent): reading direction, the two pinhole steps vs
+   the later SOP revision, whether 4 m is simply the room length, the orange-sticker
+   occluder, and whether children follow an identical procedure.
 
 ## The three documents
 

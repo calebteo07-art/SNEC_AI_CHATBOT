@@ -28,8 +28,8 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.2)",
-      "left": "6/36 (LogMAR 0.8)"
+      "right": "6/9.5 (LogMAR 0.2)",
+      "left": "6/38 (LogMAR 0.8)"
     },
     "iop": {
       "right": "15 mmHg (NCT)",
@@ -40,7 +40,7 @@
   },
   "investigations": {
     "biometry": "A-scan/optical biometry completed at previous visit — IOL power calculated for left eye and ready for surgery day",
-    "va_distance": "RE: LogMAR 0.2 (6/9). LE: LogMAR 0.8 (6/36).",
+    "va_distance": "RE: LogMAR 0.2 (6/9.5). LE: LogMAR 0.8 (6/38).",
     "medication_review": "Patient is on warfarin for atrial fibrillation — this is a significant finding requiring doctor/anaesthetist input regarding whether to continue, adjust, or bridge anticoagulation around the time of surgery"
   },
   "diagnosis": "Left eye dense cataract, listed for phacoemulsification with IOL under local anaesthesia in 2 weeks. Patient is on warfarin for atrial fibrillation — this must be flagged to the doctor for a peri-operative anticoagulation plan before the day of surgery, as it cannot be decided on the day itself.",

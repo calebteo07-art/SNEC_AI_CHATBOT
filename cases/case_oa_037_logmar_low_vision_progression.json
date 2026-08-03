@@ -28,8 +28,8 @@
   },
   "examination_findings": {
     "va": {
-      "right": "Cannot read 6/60 line; CF (Count Fingers) at 1 metre",
-      "left": "6/36 unaided, improves to 6/24 with pinhole"
+      "right": "Cannot read 6/60 or 6/120 even with pinhole; CF (Count Fingers) at 1 metre",
+      "left": "6/38 unaided, improves to 6/24 with pinhole"
     },
     "iop": {
       "right": "15 mmHg (NCT)",
@@ -39,14 +39,14 @@
     "fundus": "Right fundus poor view due to dense cataract; left fundus hazy view, to be assessed by doctor"
   },
   "investigations": {
-    "va_distance": "Modified LogMAR: RE unable to read all 5 letters on the 6/60 line even with pinhole, so proceeded to 6/120 — still unable, then tested CF at 1m. LE read partial 6/36, pinhole applied (VA worse than 6/12) with slight improvement to 6/24.",
+    "va_distance": "Modified LogMAR: RE read no letters on the 6/60 (1.0) line, so the pinhole was applied to that line — still nothing. Proceeded to 6/120 (1.3) with no pinhole, then with pinhole — unable both times, so tested CF at 1m. LE read partial 6/38, pinhole applied (VA worse than 6/12) with slight improvement to 6/24.",
     "pinhole": "RE: no meaningful improvement with pinhole. LE: slight improvement only.",
     "iop_nct": "RE 15 mmHg, LE 16 mmHg — within normal range, both eyes."
   },
   "diagnosis": "Reduced vision both eyes from dense cataract (media opacity), worse in the right eye. The lack of meaningful pinhole improvement and the dense lens opacity point to a media/lens cause rather than a simple refractive error. For doctor review and likely cataract surgery work-up.",
   "management": {
     "immediate": [
-      "Follow the Modified LogMAR low-vision sequence correctly: when patient cannot read all 5 letters on 6/60, proceed to 6/120, then CF, HM, PL, NPL in order",
+      "Follow the Modified LogMAR low-vision sequence correctly: if no letters are read at 6/60, try the pinhole on that line first; only if that fails proceed to 6/120 with no pinhole, then with pinhole, then CF, HM, PL, NPL in order",
       "Apply pinhole appropriately when VA is reduced, and document whether it improves",
       "Perform NCT for IOP in both eyes as part of routine assessment",
       "Wipe occluder and machine contact parts with alcohol wipes and perform hand hygiene before and after",
@@ -79,7 +79,7 @@
       "points": 10,
       "key_points": [
         "Tests right eye first by convention, occluding the other eye, with hand hygiene and alcohol-wiped occluder",
-        "Correctly follows the low-vision progression: 6/60 to 6/120 to CF when the patient cannot read all 5 letters",
+        "Correctly follows the low-vision progression: pinhole on 6/60, then 6/120 without and with pinhole, then CF",
         "Applies pinhole because VA is reduced and documents the (minimal) improvement",
         "Performs and documents NCT for IOP in both eyes"
       ]

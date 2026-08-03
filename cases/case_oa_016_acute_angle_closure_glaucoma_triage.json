@@ -27,7 +27,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.2)",
+      "right": "6/9.5 (LogMAR 0.2)",
       "left": "CF (Count Fingers) at 0.5 metre"
     },
     "iop": {
@@ -39,7 +39,7 @@
   },
   "investigations": {
     "iop_nct": "RE: 19 mmHg. LE: 56 mmHg — markedly elevated, multiple readings consistent.",
-    "va_distance": "RE: LogMAR 0.2 (6/9). LE: CF at 0.5m — unable to read LogMAR chart.",
+    "va_distance": "RE: LogMAR 0.2 (6/9.5). LE: CF at 0.5m — unable to read LogMAR chart.",
     "pain_assessment": "8/10 left peri-orbital and headache pain, associated with nausea and two episodes of vomiting — classic triad for acute angle closure glaucoma"
   },
   "diagnosis": "Acute Angle-Closure Glaucoma (AACG), left eye, precipitated by pupil dilation in a dark environment (cinema) in a hyperopic patient with anatomically narrow angles. Triage Category 1 — must be seen by doctor within 10 minutes.",

@@ -30,7 +30,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.2) — unchanged from last visit",
+      "right": "6/9.5 (LogMAR 0.2) — unchanged from last visit",
       "left": "6/12 (LogMAR 0.3) — slightly reduced from 6/9 at last visit"
     },
     "iop": {
@@ -42,7 +42,7 @@
   },
   "investigations": {
     "amsler_grid": "Right eye: patient reports straight lines, no distortion or missing areas, central dot visible — unchanged from baseline. Left eye: patient reports the horizontal and vertical lines near the centre appear wavy/bent, and there is a small area near the centre that looks slightly grey — this is a NEW finding compared to his last Amsler grid recorded 6 months ago.",
-    "va_distance": "RE: LogMAR 0.2 (6/9), unchanged. LE: LogMAR 0.3 (6/12), reduced from previous 6/9."
+    "va_distance": "RE: LogMAR 0.2 (6/9.5), unchanged. LE: LogMAR 0.3 (6/12), reduced from previous 6/9."
   },
   "diagnosis": "New metamorphopsia (wavy lines) and a central grey/missing area on Amsler grid testing in the left eye, together with a drop in VA from 6/9 to 6/12 — concerning for possible conversion of dry AMD to wet (neovascular) AMD in the left eye. Requires urgent doctor review and likely OCT imaging today.",
   "management": {

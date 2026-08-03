@@ -110,10 +110,13 @@ MODULE_1_CATALOG = [
         "category": "clinical_procedure", "is_checklist": True,
         "checklist_type": "OT", "procedure_name": "Auto Kerato-Refractometry (SOP)",
     },
+    # Ingested as a reference document only, NOT as a checklist. CC-D0008 (the Nursing
+    # competency assessment) supersedes this SOP on reading direction, test distance and
+    # the pinhole steps at 6/60 and 6/120; ingesting it as a checklist created a second,
+    # contradictory graded row. See docs/notes/2026-07-31-distance-va-source-conflict.md
     {
         "filename": "NU-PR-OPD-D0039 Visual Acuity-Distance Vision Testing Using LogMAR (Modified) Method.pdf",
-        "category": "clinical_procedure", "is_checklist": True,
-        "checklist_type": "PSA", "procedure_name": "Distance Vision Testing LogMAR (SOP)",
+        "category": "clinical_procedure",
     },
     {"filename": "oittalk.pdf", "category": "clinical_procedure"},
     {"filename": "OTOAInfectionControl_Jan2023.pdf", "category": "clinical_procedure"},

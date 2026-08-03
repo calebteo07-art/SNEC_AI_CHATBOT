@@ -38,7 +38,7 @@
     "fundus": "Not yet assessed by doctor — patient describes a superior-temporal field defect ('curtain from above and to the side'), correlating with an inferior-nasal retinal detachment if confirmed; urgent dilated fundus examination required"
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.2 (6/9) with glasses, baseline. LE: LogMAR 0.6 (6/24) with glasses — significantly reduced compared to his usual vision, raising concern that the macula may be involved or threatened.",
+    "va_distance": "RE: LogMAR 0.2 (6/9.5) with glasses, baseline. LE: LogMAR 0.6 (6/24) with glasses — significantly reduced compared to his usual vision, raising concern that the macula may be involved or threatened.",
     "iop_nct": "RE: 14 mmHg. LE: 13 mmHg. Both normal.",
     "symptom_correlation": "New onset flashes + sudden shower of floaters + progressive curtain-like field loss in a high myope with positive family history — classic symptom triad for rhegmatogenous retinal detachment"
   },

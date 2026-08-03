@@ -29,8 +29,8 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.2)",
-      "left": "6/18 (LogMAR 0.5)"
+      "right": "6/9.5 (LogMAR 0.2)",
+      "left": "6/19 (LogMAR 0.5)"
     },
     "iop": {
       "right": "15 mmHg (NCT)",
