@@ -5,23 +5,15 @@
    The three things worth testing here are the three that bit us in review:
      1. the SGT week close (the backend closes on Monday 00:00 UTC+8; a viewer-local
         countdown drifts by up to 15h and lies to half the cohort),
-     2. the promotion line landing INSIDE the podium (promote_count <= 3),
+     2. where the cut falls — including the case the board actually ships (podiumCount 0,
+        every rank in one list) and the old split it replaced,
      3. "no snapshot" vs "no change" — a new student must never be shown a fake zero.
 */
 import assert from "node:assert";
 import {
   msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex,
-  nextDivisionName, DIVISION_NAMES, splitPodium,
+  nextDivisionName, DIVISION_NAMES,
 } from "../src/aurora/leaderboard/league.ts";
-
-// ── -1) the podium split (inherited from the retired tiers.ts) ──
-// A cohort smaller than the podium must not throw — the Beam renders open slots instead.
-assert.strictEqual(splitPodium([1, 2, 3, 4, 5]).podium.length, 3);
-assert.strictEqual(splitPodium([1, 2, 3, 4, 5]).rest.length, 2);
-assert.strictEqual(splitPodium([1]).podium.length, 1);
-assert.strictEqual(splitPodium([1]).rest.length, 0);
-assert.strictEqual(splitPodium([]).podium.length, 0);
-assert.strictEqual(splitPodium([]).rest.length, 0);
 
 // ── 0) divisions mirror tools/gamification/league.py ──
 assert.deepStrictEqual([...DIVISION_NAMES], ["Bronze", "Silver", "Gold", "Platinum", "Diamond"]);
@@ -54,6 +46,15 @@ assert.strictEqual(countdownLabel(0), "0m");
 assert.strictEqual(countdownLabel(-5), "0m");   // never renders a negative
 
 // ── 2) the promotion line ──
+/* THE SHIPPING CASE. The podium was deleted on 2026-08-03 and every rank is a row, so the
+   board passes podiumCount 0: 30 rows, top 7 promote, cut before index 7 (i.e. above rank 8).
+   Off by one here and the board promotes the wrong student — the most consequential pixel
+   on the page. */
+assert.strictEqual(promotionLineIndex(0, 30, 7), 7);
+assert.strictEqual(promotionLineIndex(0, 8, 7), 7);   // exactly one row below the cut
+assert.strictEqual(promotionLineIndex(0, 7, 7), null); // everyone visible promotes — don't draw
+assert.strictEqual(promotionLineIndex(0, 30, 0), null);
+// The general form still holds for a caller that renders the leaders elsewhere.
 // podium 3, rest 27, top 7 promote → the line sits after 4 ranked rows (ranks 4-7).
 assert.strictEqual(promotionLineIndex(3, 27, 7), 4);
 // promote_count landing inside the podium → the line sits at the very top of the list.

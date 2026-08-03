@@ -1114,6 +1114,84 @@ deleted**. Gates: `league_logic.mjs`, `league_assert.mjs`, `aurora_assert.mjs`.
 Spec `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md`, plans
 `2026-08-01-league-backend.md` + `2026-08-02-league-frontend.md`.
 
+### REBUILT 2026-08-03 (fourth pass) — the GENRE, not the palette · **THIS IS THE LIVE LOCK**
+
+User, on the light board above: **"the leaderboard page frontend is still horendous, very
+obvious ai slop, and did not seem like a game leaderboard."**
+
+**Measured before touching anything** — the second half of that sentence was literally true:
+
+| viewport | first ranked row began at | ranked rows visible |
+|---|---|---|
+| 390×844 phone | y ≈ **700** | **1**, half-cut |
+| 1280×900 desktop | y ≈ **790** | **1**, half-cut |
+
+Three passes had tuned ornament and then palette on a page whose ranks were below the fold. A
+ladder screen where you cannot see the ladder is not a leaderboard; a stack of soft white
+rounded cards with 5 % shadows on a four-stop pastel mesh is the house style of every generated
+dashboard. **Light stays** (that call was right, and it is measured). Everything else changed.
+
+Rules superseded **by name** — the four numbered rules of the third pass are now historical:
+
+1. ~~THE AURORA CANVAS, AS A CARD STACK.~~ → **ONE BOARD ON A QUIET FIELD.** The canvas drops
+   from four radial tints + a fixed drifting bloom to **one tint over a solid**. The list is a
+   **single surface**: one radius, one border, one shadow, `overflow: hidden`, rows separated
+   by a 1px rule with **no gaps and no per-row card chrome**. Pinned: every seam between
+   `.lg-list > li` must be ≤1.5px, and a row's own `border-radius` must be `0px` with
+   `box-shadow: none`.
+2. ~~THE PLINTH IS A PALE MATERIAL WITH METAL FITTINGS / SCALE PLUS STRUCTURE.~~ → **THE PODIUM
+   IS DELETED.** The 1.7× portrait and 2× plinth were held to the pixel across three passes —
+   the wrong thing, measured precisely. Three cream plinths and three identical mascots cost
+   **~380px** to say what a metal rank plate and a crown say inside a 56px row. **Ranks 1-3 are
+   the first three rows**, wearing struck gold/silver/bronze plates, with the crown on rank 1.
+   `splitPodium` is gone; the list starts at rank 1. Pinned: first `.lg-rk` reads `"1"`, plates
+   are on exactly ranks 1-3, exactly one crown and it is on rank 1.
+3. ~~THE HEADER IS ONE CARD, BUDGETED AT 330px.~~ → **THE TIER BAND.** The head is made of the
+   division's **own metal** — climbing visibly re-skins the top of the page, which is the
+   reward five identical white cards could never pay. Crest, tier name, trophy-road pips, and
+   one readout strip carrying the chase and the clock. The stakes paragraph and the "How the
+   league works" pill are **off the default view**; the rules live behind a **(?)** in a sheet.
+   Budget is now **≤250px to the first ranked row**, plus a floor on rows visible without
+   scrolling (**≥7** on a ≥700px-tall viewport, ≥3 on a landscape phone).
+4. ~~THE PROMOTION LINE.~~ → **THE PROMOTION ZONE.** A hairline with a caption mid-list is a
+   footnote. The cut is a filled gold **region** at the top of the board, headed by its own
+   label (`PROMOTION ZONE · TOP 7 ADVANCE TO GOLD`) and ended by a struck 4px bar with **no
+   caption** — the mechanic is a place you can be, not a sentence you read.
+
+⚠ **Sample metal as PAINT, never as a data attribute.** The old "five distinct metals" check
+read `data-metal` off five list items and would have passed just as happily on five identical
+grey dots. It now compares five computed `backgroundColor`s, and earned/current/locked are
+required to differ by **size and opacity**, not by hue alone.
+
+⚠ **A gradient-only background makes a contrast probe vacuous.** `.tb-head` and `.lg-zone`
+declare a solid `background-color` *under* their sweep (the **darker** stop, the conservative
+case for dark ink) or the probe walks past them to the page and measures nothing.
+
+⚠ **The sticky you-bar must clear the bottom bar, and a higher z-index does not do it.** At
+390×844 `bottom: 18px + safe-area` put it at 776-826 while the nav occupies 788-844:
+`elementFromPoint` at the bar's own centre returned a nav link *while the bar held z-index 40
+over the rail's 30* — different stacking contexts. It now sits on `--bar-h`, the shell's single
+source of truth (already includes the safe-area inset, absent on desktop). Pinned by **hit
+test**, not by z-index. The old harness only counted the bar; it never tapped it.
+
+⚠ **"Off-screen" must mean off-screen to the READER.** The dense board puts rank 12 at y=817 in
+an 844px viewport — 49 % visible to an `IntersectionObserver`, 0 % visible to a student because
+the nav covers it. The observer carries `rootMargin: 0 0 -96px 0`. The you-bar is now tested in
+**both** directions (appears when away, retires after jumping back).
+
+**Kept from the third pass, unchanged and still pinned**: light canvas (base luminance > 0.7,
+stack ends in a solid); **gold is a fill, never a glyph** (`--gold-ink #7A5206`, ~6:1) sampled
+against the surface each style actually renders on; hue is division identity **only** (band +
+top-three plates), gold everywhere else means the mechanic; **zero rasters**; no
+`background-attachment: fixed`; motion frozen under both reduce signals; ≥44px touch targets;
+the unfiltered-only promotion zone; "no snapshot" ≠ "no change"; no visibility panel; the
+Monday ceremony's server-side show-once.
+
+**Deleted**: `Beam.tsx`, `DivisionStrip.tsx`, `ChaseStat.tsx`, `Laurel`/`Medal`/`Lock` from
+`Metals.tsx`, `splitPodium` from `league.ts`, and every `.bm-*` / `.dv-*` rule. **Added**:
+`TierBand.tsx`, `RulesSheet.tsx`. Gate: `league_assert.mjs` — **115 assertions**, of which the
+podium's DOM-order / 1.7× / 2× / seam checks are replaced by the geometry ones above.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.

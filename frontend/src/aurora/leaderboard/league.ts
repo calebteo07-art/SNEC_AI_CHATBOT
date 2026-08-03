@@ -25,15 +25,6 @@ export interface Arrow {
   label: string;
 }
 
-/** Top 3 → the Beam, the rest → the ranked league. Safe for cohorts of 0-2.
- *
- *  Inherited from the retired tiers.ts, which this module replaces. The rest of that file —
- *  lifetime XP tiers, the per-row tier ring, the rival gaps — went with the redesign: division
- *  carries prestige now, and computeChase subsumed the rival math. */
-export function splitPodium<T>(entries: T[]): { podium: T[]; rest: T[] } {
-  return { podium: entries.slice(0, 3), rest: entries.slice(3) };
-}
-
 /** Mirrors DIVISIONS in tools/gamification/league.py. The board reads `division_name` off
  *  the payload for the CURRENT division; this list exists so the promotion line can name the
  *  one above it ("advance to Silver") without a second round-trip. */
@@ -78,8 +69,13 @@ export function countdownLabel(ms: number): string {
   return `${Math.floor(t / 60_000)}m`;
 }
 
-/** Index in the ranked list (the rows BELOW the podium) before which the promotion line is
- *  drawn, or null when drawing it would mislead.
+/** Index in the ranked list before which the cut is drawn, or null when drawing it would
+ *  mislead.
+ *
+ *  `podiumCount` is how many top finishers the list does NOT contain. The podium was deleted
+ *  on 2026-08-03 and every rank is now a row, so the board passes 0 — but the parameter stays
+ *  because the arithmetic is the general one, and a caller that renders the leaders elsewhere
+ *  would need it again.
  *
  *  Two null cases, both real: the top division promotes nobody, and a line at or past the
  *  end of the rendered rows would say "everyone here promotes" — which is false whenever

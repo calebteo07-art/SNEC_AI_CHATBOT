@@ -45,7 +45,7 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "flashcards", route: "/flashcards", target: ".flash-setup", fallback: '[data-testid="flash-fan"]',
     title: "Spin up a deck ⚡",
     body: "Pick any topic for a 10-card round — instant scoring, a growing streak flame, and a model answer on every card." },
-  { id: "leaderboard", route: "/leaderboard", target: '[data-testid="podium"]', fallback: '[data-testid="leaderboard-root"]',
+  { id: "leaderboard", route: "/leaderboard", target: '[data-testid="tier-band"]', fallback: '[data-testid="leaderboard-root"]',
     title: "See where you stand \u{1F3C6}",
     body: "Climb the ranks, chase the podium, and compare within your own cohort." },
   // .cs-shell, not the deleted .aurora-admin. A tour step whose target never matches

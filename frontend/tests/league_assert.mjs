@@ -1,19 +1,31 @@
-/* The League — behavioural gate for the Beam board (spec 2026-08-01 §6, plan 2026-08-02).
+/* The League — behavioural gate for the ladder board (spec 2026-08-01 §6).
+
+   Rewritten 2026-08-03 with the third rebuild. The previous version measured the podium to the
+   pixel — DOM order 1-2-3 painting 2-1-3, a 1.7x champion portrait, a 2x plinth, flush seams —
+   and every one of those checks passed on the board the user rejected as "very obvious ai
+   slop, and did not seem like a game leaderboard". They were precise measurements of the wrong
+   thing. The podium is deleted; so are its checks, and what replaces them is the property they
+   were failing to protect:
+
+     THE RANKS ARE ON SCREEN. On the shipped board the first ranked row began at y≈700 on a
+     390x844 phone and y≈790 on a 1280x900 desktop — one visible row, half-cut. That is the
+     defect, it is purely geometric, and nothing but a live layout can see it.
 
    What only a real browser can prove, and why each check exists:
-   · the podium's DOM order is 1-2-3 while it PAINTS 2-1-3. The board this replaces was
-     literally ordered 2-1-3, so screen readers announced second place first. Only a live
-     layout can show DOM order and visual order disagreeing on purpose.
-   · the scale contrast is real (champion 1.7x portrait, 2x plinth). The old podium raised
-     #1 by twelve pixels; "it looks taller" is exactly the claim a unit test cannot make.
-   · the promotion line lands on the right student. Off by one row and the board lies about
-     who is promoted — the single most consequential pixel here.
-   · ZERO baked raster on the stage. The four deleted webps are why the old podium drifted;
+   · the first rank is above the fold and enough of the ladder is visible to BE a ladder.
+   · the board is ONE surface. Twenty-seven rows with their own radius, border and drop shadow
+     is a settings screen; rows that share edges under one clip is a board. Measured as seams.
+   · rank 1 is IN the list. The podium split (list starts at rank 4) is the regression this
+     rebuild exists to undo, and it is one line away from returning.
+   · the promotion zone holds exactly promote_count rows and the cut lands on the right
+     student. Off by one and the board lies about who is promoted.
+   · the tier band is made of the division's METAL, and the ink on it is readable. Five
+     distinct metals sampled as PAINT, not as data attributes — the old check read
+     `data-metal` off the DOM, which would have passed on five identical grey pips.
+   · ZERO baked raster on the board. The four deleted webps are why the old podium drifted;
      this fails the moment someone reintroduces one.
-   · the divisions are READABLE — five distinct metals, earned/current/locked all legible, a
-     stakes line naming the cut and the destination, and rules that actually state the rules.
-     Added 2026-08-03 after "the league tiers are unclear and do not make sense to users";
-     every one of these is a content guarantee a screenshot diff cannot make.
+   · the rules still exist and still state the rules — they moved behind the (?), and a
+     disclosure nobody can reach is the same as no explanation at all.
    · motion freezes under BOTH reduce signals (OS pref and the in-app data-motion toggle).
    · the ceremony shows once and does not come back (/ship-check: state invariants need the
      repeat case covered behaviourally, not just in pytest).
@@ -28,12 +40,11 @@ const base = process.argv[2] ?? "http://127.0.0.1:3100";
 let failed = 0;
 const ok = (m) => console.log("PASS:", m);
 const bad = (m) => { console.error("FAIL:", m); failed++; };
-const near = (a, b, tol) => Math.abs(a - b) <= tol;
 
 /* WCAG relative luminance + contrast, so the "is it actually light, and is the text actually
-   readable on it" checks below are computed rather than eyeballed. The board was rebuilt onto
-   the Aurora light canvas on 2026-08-03; gold is the trap that makes that a testable rule
-   rather than a taste one — #F5C542 on white is 2.2:1, so gold may be a FILL but never text. */
+   readable on it" checks below are computed rather than eyeballed. Gold is the trap that makes
+   that a testable rule rather than a taste one — #F5C542 on white is 2.2:1, so gold may be a
+   FILL but never text. */
 const rgb = (s) => (s ?? "").match(/[\d.]+/g)?.map(Number) ?? null;
 const lum = (c) => {
   const [r, g, b] = c.slice(0, 3).map((v) => {
@@ -67,9 +78,9 @@ const ENTRIES = NAMES.map((name, i) => ({
   avatar_config: i % 3 === 0 ? { background: "galaxy" } : null,
   is_you: name === "You",
   division: 2,
-  // i===4 (rank 5) is null ON PURPOSE and must stay in the LIST, not the podium: the
-  // "no snapshot" arrow is only observable on a ranked row, and an earlier version of this
-  // fixture put the only null on rank 1 — so the check below passed while testing nothing.
+  // i===4 (rank 5) is null ON PURPOSE: the "no snapshot" arrow has to be observable, and an
+  // earlier fixture put the only null on a rank the podium hid — so the check below passed
+  // while testing nothing. Every rank is a row now, but the redundancy is free.
   rank_delta: i === 0 || i === 4 ? null : i % 4 === 1 ? 3 : i % 4 === 2 ? -2 : 0,
 }));
 
@@ -96,7 +107,7 @@ async function boardCtx(b, vp, { board = BOARD, result = null, extra = {} } = {}
 async function openBoard(ctx) {
   const p = await ctx.newPage();
   await p.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
-  await p.waitForSelector('[data-testid="podium-slot"]', { timeout: 20000 });
+  await p.waitForSelector(".lg-row", { timeout: 20000 });
   await p.waitForFunction(() => {
     const finite = document.getAnimations().filter((a) => {
       const t = a.effect?.getComputedTiming?.();
@@ -104,17 +115,19 @@ async function openBoard(ctx) {
     });
     return finite.every((a) => a.playState === "finished" || a.playState === "idle");
   }, null, { timeout: 15000 });
-  // The board auto-scrolls to your row ~900ms in. Settle it, then return to the top so
+  // The board auto-scrolls to your row ~700ms in. Settle it, then return to the top so
   // geometry is measured against a known scroll position.
-  await p.waitForTimeout(1200);
+  await p.waitForTimeout(1100);
   await p.evaluate(() => document.querySelector(".aurora-main-scroll")?.scrollTo(0, 0));
+  await p.waitForTimeout(120);
   return p;
 }
 
 const measure = (p) => p.evaluate(() => {
-  const R = (el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, right: r.right, bottom: r.bottom }; };
+  const R = (el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, right: r.right, bottom: r.bottom, top: r.top }; };
   const one = (s) => { const el = document.querySelector(s); return el ? R(el) : null; };
   const all = (s) => [...document.querySelectorAll(s)].map(R);
+  const txt = (s) => document.querySelector(s)?.textContent?.trim() ?? null;
   const vw = document.documentElement.clientWidth;
 
   const over = [];
@@ -127,7 +140,7 @@ const measure = (p) => p.evaluate(() => {
   const targets = [...document.querySelectorAll(".lb-climb button, .lb-climb a, .lb-climb input")]
     .map((el) => { const r = el.getBoundingClientRect(); return { cls: (el.className || "").toString().slice(0, 26), w: +r.width.toFixed(1), h: +r.height.toFixed(1) }; });
 
-  // Zero-raster proof: no element ON THE STAGE may paint a bitmap. Student portraits are
+  // Zero-raster proof: no element ON THE BOARD may paint a bitmap. Student portraits are
   // <img>, which is legitimate — this only forbids CSS background images, which is what the
   // four deleted webps were and the only way the old overlay-vs-art drift could return.
   const rasters = [];
@@ -138,30 +151,16 @@ const measure = (p) => p.evaluate(() => {
     if (bg && bg.includes("url(")) rasters.push({ cls: (el.className || "").toString().slice(0, 40), bg: bg.slice(0, 70) });
   }
 
-  const slot = (place) => {
-    const el = document.querySelector(`.bm-slot[data-place="${place}"]`);
-    if (!el) return null;
-    const face = el.querySelector(".bm-face");
-    const plinth = el.querySelector(".bm-plinth");
-    return {
-      place,
-      x: el.getBoundingClientRect().x,
-      face: face ? face.getBoundingClientRect().width : 0,
-      plinth: plinth ? plinth.getBoundingClientRect().height : 0,
-    };
-  };
-
   /* The page's base colour. Written as a solid final layer under the gradients, so the
      shorthand resolves it into background-COLOR and it can be read here — the dark board
      ended its stack with a gradient, which computes to transparent and is unreadable. */
   const pageBg = getComputedStyle(document.querySelector(".aurora-main")).backgroundColor;
-  /* Informational text only. .lb-title is deliberately excluded: a display face may carry a
-     clipped gradient, body copy may not.
 
-     Each sample carries the backdrop it ACTUALLY sits on, found by walking up to the nearest
-     effectively-opaque ancestor. Measuring everything against the page base instead would be
-     wrong in both directions — it fails --ink-3 on a white card (4.25:1 against the canvas,
-     4.8:1 where it really renders) while saying nothing about text on a tinted row. */
+  /* Each text sample carries the backdrop it ACTUALLY sits on, found by walking up to the
+     nearest effectively-opaque ancestor. Measuring everything against the page base instead
+     would be wrong in both directions — it fails --ink-3 on a white card (4.25:1 against the
+     canvas, 4.8:1 where it really renders) while saying nothing about the tier name on a
+     metal band or the zone label on gold. */
   const backdropOf = (el) => {
     for (let n = el; n; n = n.parentElement) {
       const c = getComputedStyle(n).backgroundColor;
@@ -170,7 +169,8 @@ const measure = (p) => p.evaluate(() => {
     }
     return null;
   };
-  const inkProbe = [".lg-nm", ".lg-sub", ".lg-score", ".chase-n", ".chase-l", ".dv-stakes"]
+  const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".tb-clock",
+    ".lg-zone", ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk"]
     .map((sel) => {
       const el = document.querySelector(sel);
       if (!el) return { sel, color: null, on: null };
@@ -181,43 +181,77 @@ const measure = (p) => p.evaluate(() => {
       return { sel, color: fill, on: backdropOf(el) };
     });
 
+  /* The visible window for board content. The shell scrolls an inner element, so
+     window.innerHeight would over-count by the bottom nav on a phone. */
+  const scroller = document.querySelector(".aurora-main-scroll");
+  const view = scroller ? scroller.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+  const rows = all(".lg-row");
+
+  const rowStyle = (() => {
+    const el = document.querySelector(".lg-row");
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    return { radius: cs.borderTopLeftRadius, shadow: cs.boxShadow, h: +el.getBoundingClientRect().height.toFixed(1) };
+  })();
+
   return {
-    vw, vh: window.innerHeight, over, targets, rasters, pageBg, inkProbe,
+    vw, vh: window.innerHeight, over, targets, rasters, pageBg, inkProbe, rowStyle,
     root: one(".lb-climb"),
-    // How much chrome the reader scrolls past before the payoff.
+
+    /* THE check. How far down the page the ladder begins, and how much of it you can see
+       without scrolling. This is the defect the rebuild exists to fix and it is the one the
+       previous harness had no opinion about at all. */
     chrome: (() => {
       const climb = document.querySelector(".lb-climb");
-      const bm = document.querySelector(".bm");
-      return climb && bm ? +(bm.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
+      const row = document.querySelector(".lg-row");
+      return climb && row ? +(row.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
     })(),
-    plinths: [1, 2, 3].map((pl) => {
-      const el = document.querySelector(`.bm-slot[data-place="${pl}"] .bm-plinth`);
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { place: pl, left: +r.left.toFixed(1), right: +r.right.toFixed(1) };
-    }),
-    slots: [slot(1), slot(2), slot(3)].filter(Boolean),
-    peds: all(".bm-slot"),
-    rows: all(".lg-row"),
-    names: all(".bm-name"),
-    // DOM order of the plinths, and the order they actually PAINT in (left to right).
-    domOrder: [...document.querySelectorAll(".bm-slot")].map((e) => e.dataset.place).join(" "),
-    paintOrder: [...document.querySelectorAll(".bm-slot")]
-      .sort((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x)
-      .map((e) => e.dataset.place).join(" "),
-    rungs: [...document.querySelectorAll(".dv-rung")].map((e) => e.dataset.state),
-    rungMetals: [...document.querySelectorAll(".dv-rung")].map((e) => e.dataset.metal),
-    stakes: document.querySelector('[data-testid="lb-stakes"]')?.textContent?.trim() ?? null,
-    clock: document.querySelector('[data-testid="lb-reset"]')?.textContent?.trim() ?? null,
-    // Where the promotion line sits, by the RANK of the row directly under it.
-    lineNextRank: (() => {
-      const line = document.querySelector('[data-testid="promotion-line"]');
-      const next = line?.nextElementSibling?.querySelector(".lg-rk");
+    chromeParts: ["tb", "tb-head", "tb-readout", "lb-filter", "lg-zone"].map((c) => {
+      const el = document.querySelector("." + c);
+      return `${c}=${el ? el.getBoundingClientRect().height.toFixed(0) : "?"}`;
+    }).join(" "),
+    rowsInView: rows.filter((r) => r.top >= view.top - 0.5 && r.bottom <= view.bottom + 0.5).length,
+
+    /* Seams. Every child of the board, in order — rows, the zone header, the cut — must share
+       edges. A positive gap anywhere means the board went back to being a stack of cards. */
+    seams: (() => {
+      const kids = [...document.querySelectorAll(".lg-list > li")].map((el) => el.getBoundingClientRect());
+      const out = [];
+      for (let i = 0; i + 1 < kids.length; i++) out.push(+(kids[i + 1].top - kids[i].bottom).toFixed(2));
+      return out;
+    })(),
+
+    firstRank: document.querySelector(".lg-row .lg-rk")?.textContent?.trim() ?? null,
+    rowCount: rows.length,
+    crowns: document.querySelectorAll(".lg-crown").length,
+    crownRank: (() => {
+      const c = document.querySelector(".lg-crown");
+      return c ? c.closest(".lg-item")?.querySelector(".lg-rk")?.textContent?.trim() ?? null : null;
+    })(),
+    plated: [...document.querySelectorAll(".lg-item[data-place] .lg-rk")].map((e) => e.textContent.trim()),
+
+    // The promotion zone, as a region.
+    zoneText: txt('[data-testid="promotion-zone"]'),
+    promoRanks: [...document.querySelectorAll(".lg-item[data-promo] .lg-rk")].map((e) => Number(e.textContent)),
+    cutNextRank: (() => {
+      const cut = document.querySelector('[data-testid="promotion-line"]');
+      const next = cut?.nextElementSibling?.querySelector(".lg-rk");
       return next ? Number(next.textContent) : null;
     })(),
-    promoRanks: [...document.querySelectorAll(".lg-item[data-promo] .lg-rk")].map((e) => Number(e.textContent)),
+
+    /* The tier band. Sampled as PAINT: the previous harness read `data-metal` off five list
+       items, which would pass just as happily on five identical grey dots. */
+    bandMetal: document.querySelector(".tb")?.dataset.metal ?? null,
+    bandBg: (() => { const el = document.querySelector(".tb-head"); return el ? getComputedStyle(el).backgroundColor : null; })(),
+    pips: [...document.querySelectorAll(".tb-pip")].map((el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return { state: el.dataset.state, bg: cs.backgroundColor, op: +cs.opacity, w: +r.width.toFixed(1) };
+    }),
+
+    clock: txt('[data-testid="lb-reset"]'),
     arrowDirs: [...document.querySelectorAll(".lg-mv")].map((e) => e.dataset.dir),
-    chase: document.querySelector(".chase-n")?.textContent?.trim() ?? null,
+    chase: txt(".chase-n"),
   };
 });
 
@@ -230,38 +264,105 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   const m = await measure(p);
   const at = `${vp.tag} ${vp.width}x${vp.height}`;
 
-  if (m.domOrder !== "1 2 3") bad(`${at}: podium DOM order is "${m.domOrder}", expected "1 2 3" (the champion must be announced first)`);
-  else ok(`${at}: podium DOM order is 1-2-3`);
-  if (m.paintOrder !== "2 1 3") bad(`${at}: podium paints "${m.paintOrder}", expected "2 1 3" (champion centre)`);
-  else ok(`${at}: podium paints 2-1-3, champion centre`);
+  /* ── the ladder is visible ──────────────────────────────────────────────────────────
+     The rejected board spent 700-790px on a headline, a card of prose and a podium before
+     rank 1. Two checks, because they fail differently: the budget catches a header that grows,
+     the row count catches a board whose rows are too tall to scan. */
+  const BUDGET = 250;
+  if (m.chrome === null) bad(`${at}: could not measure the distance to the first rank`);
+  else if (m.chrome > BUDGET) bad(`${at}: the first rank starts ${m.chrome}px down, budget ${BUDGET}px — the page is spending its height on itself [${m.chromeParts}]`);
+  else ok(`${at}: the first rank starts ${m.chrome}px down (budget ${BUDGET}px)`);
 
-  const [s1, s2] = [m.slots.find((s) => s.place === "1") ?? m.slots[0], m.slots.find((s) => s.place === "2") ?? m.slots[1]];
-  const faceRatio = s2.face ? s1.face / s2.face : 0;
-  const plinthRatio = s2.plinth ? s1.plinth / s2.plinth : 0;
-  if (!near(faceRatio, 1.7, 0.12)) bad(`${at}: champion portrait is ${faceRatio.toFixed(2)}x the runner-up, expected ~1.7x (${s1.face}px vs ${s2.face}px)`);
-  else ok(`${at}: champion portrait is ${faceRatio.toFixed(2)}x the runner-up`);
-  if (!near(plinthRatio, 2.0, 0.08)) bad(`${at}: champion plinth is ${plinthRatio.toFixed(2)}x, expected ~2x (${s1.plinth}px vs ${s2.plinth}px)`);
-  else ok(`${at}: champion plinth is ${plinthRatio.toFixed(2)}x the runners-up`);
+  const WANT_ROWS = vp.height >= 700 ? 7 : 3;
+  if (m.rowsInView < WANT_ROWS) bad(`${at}: only ${m.rowsInView} ranked row(s) fit on screen, expected ≥${WANT_ROWS} — a ladder you cannot see is not a leaderboard`);
+  else ok(`${at}: ${m.rowsInView} ranked rows visible without scrolling (≥${WANT_ROWS})`);
 
-  if (m.rasters.length) bad(`${at}: the stage paints ${m.rasters.length} CSS raster(s) — the zero-raster rule is broken: ` + m.rasters.slice(0, 3).map((r) => `.${r.cls} ${r.bg}`).join(" · "));
-  else ok(`${at}: zero CSS rasters on the stage (pure gradient + inline SVG)`);
+  /* Rank 1 is IN the list. The deleted podium sliced the top three off and started the board
+     at rank 4; restoring `splitPodium` is a one-line regression. */
+  if (m.firstRank !== "1") bad(`${at}: the board starts at rank ${JSON.stringify(m.firstRank)}, expected "1" — every rank belongs in the list`);
+  else if (m.rowCount !== ENTRIES.length) bad(`${at}: the board rendered ${m.rowCount} rows for a division of ${ENTRIES.length}`);
+  else ok(`${at}: the board starts at rank 1 and holds all ${m.rowCount} ranks`);
 
-  /* ── the light rebuild (2026-08-03) ──────────────────────────────────────────────────
-     The board shipped twice as a black stage and was rejected both times. It now runs on the
-     Aurora light canvas like the rest of the student app. These four checks are the ones a
-     restyle would silently undo, and none of them is visible in a screenshot diff. */
+  /* ONE surface. Rows share edges and carry no card chrome of their own; the list owns the
+     radius and the clip. Twenty-seven floating cards is what read as a settings screen. */
+  const gaps = m.seams.filter((s) => s > 1.5);
+  if (!m.seams.length) bad(`${at}: could not measure the board's seams`);
+  else if (gaps.length) bad(`${at}: ${gaps.length} gap(s) between board rows (max ${Math.max(...gaps)}px) — the board must be one surface, not a stack of cards`);
+  else ok(`${at}: all ${m.seams.length} seams are flush — the board is one surface`);
 
-  // 1) It is actually LIGHT — and readable as a value, not as a vibe.
+  if (!m.rowStyle) bad(`${at}: could not read a row's style`);
+  else if (m.rowStyle.radius !== "0px" || m.rowStyle.shadow !== "none") {
+    bad(`${at}: rows carry their own card chrome (radius ${m.rowStyle.radius}, shadow ${m.rowStyle.shadow.slice(0, 40)}) — the list owns the radius, the rows are bands across it`);
+  } else if (m.rowStyle.h > 68) {
+    bad(`${at}: a row is ${m.rowStyle.h}px tall — over 68px the board stops being scannable`);
+  } else ok(`${at}: rows are flat ${m.rowStyle.h}px bands with no card chrome`);
+
+  /* ── the promotion zone ─────────────────────────────────────────────────────────────
+     A filled region with a labelled head and a struck cut, replacing a hairline with a
+     caption. Exactly the top 7 are inside it, and the cut lands above rank 8. */
+  if (m.cutNextRank !== PROMOTE + 1) bad(`${at}: the cut sits above rank ${m.cutNextRank}, expected ${PROMOTE + 1}`);
+  else ok(`${at}: the cut sits above rank ${PROMOTE + 1} (top ${PROMOTE} promote)`);
+  const wantPromo = Array.from({ length: PROMOTE }, (_, i) => i + 1);
+  if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: the promotion zone holds ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)}`);
+  else ok(`${at}: exactly ranks 1-${PROMOTE} are inside the promotion zone`);
+
+  /* The zone's label carries the whole mechanic, which is why nothing above the board needs a
+     sentence about it. Asserted on CONTENT, not on the element existing — a generic label
+     ("keep climbing!") would still render. */
+  if (!m.zoneText) bad(`${at}: the promotion zone has no label — nothing on the board says what the gold region means`);
+  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.zoneText)) bad(`${at}: the zone label does not name the promotion count (top ${PROMOTE}): "${m.zoneText}"`);
+  else if (!/Gold/.test(m.zoneText)) bad(`${at}: the zone label does not name the division being climbed into: "${m.zoneText}"`);
+  else ok(`${at}: the zone label names both the cut and the destination`);
+
+  /* ── the top three keep their recognition, in the list ──────────────────────────────
+     This is what the 380px podium was paying for. If it is worth deleting the podium, the
+     replacement has to actually be there. */
+  if (String(m.plated) !== String(["1", "2", "3"])) bad(`${at}: metal rank plates are on ${JSON.stringify(m.plated)}, expected ranks 1-3`);
+  else ok(`${at}: ranks 1-3 wear metal rank plates`);
+  if (m.crowns !== 1) bad(`${at}: ${m.crowns} crowns on the board, expected exactly 1`);
+  else if (m.crownRank !== "1") bad(`${at}: the crown is on rank ${m.crownRank}, expected rank 1`);
+  else ok(`${at}: the champion, and only the champion, wears the crown`);
+
+  /* ── the tier band ──────────────────────────────────────────────────────────────────
+     The head of the board is made of the division's metal, so climbing re-skins the page. */
+  if (m.bandMetal !== "silver") bad(`${at}: the tier band reads metal "${m.bandMetal}", expected "silver" for division 2`);
+  else {
+    const band = rgb(m.bandBg);
+    if (!band || band[3] === 0) bad(`${at}: the tier band has no resolvable colour (${JSON.stringify(m.bandBg)}) — declare a solid under the sweep or the band is unmeasurable`);
+    else if (lum(band) > 0.86) bad(`${at}: the tier band's luminance is ${lum(band).toFixed(3)} — that is white, not metal; the head must carry the division's material`);
+    else ok(`${at}: the tier band is cast in the division's metal (luminance ${lum(band).toFixed(3)})`);
+  }
+
+  /* Five DISTINCT metals on the trophy road, sampled as painted colour. The rule this
+     overturned was "division by luminance, never hue", which painted the Silver rung gold;
+     collapsing them back to one material is the regression, and it is invisible in a
+     screenshot diff if only the CSS changes. */
+  if (m.pips.length !== 5) bad(`${at}: the trophy road has ${m.pips.length} pips, expected 5`);
+  else {
+    const hues = new Set(m.pips.map((q) => q.bg));
+    if (hues.size !== 5) bad(`${at}: the five divisions paint ${hues.size} distinct colour(s) — divisions are identified by material, not by luminance`);
+    else ok(`${at}: five divisions paint five distinct metals`);
+
+    // Earned / current / locked must all read, and not by hue alone.
+    const now = m.pips.find((q) => q.state === "now");
+    const past = m.pips.find((q) => q.state === "past");
+    const next = m.pips.find((q) => q.state === "next");
+    if (!now || !past || !next) bad(`${at}: the trophy road shows only ${[...new Set(m.pips.map((q) => q.state))].join("/")} — earned, current and locked must all be present`);
+    else if (now.w <= past.w) bad(`${at}: the current division is not larger than an earned one (${now.w}px vs ${past.w}px)`);
+    else if (next.op >= past.op - 0.15) bad(`${at}: a locked division is not visibly dimmer than an earned one (opacity ${next.op} vs ${past.op})`);
+    else ok(`${at}: earned / current / locked differ by size and opacity, not by hue alone`);
+  }
+
+  /* ── the light canvas, and readable ink on every surface ────────────────────────────
+     The board shipped twice as a black stage and was rejected both times. "Light" is a value
+     here, not a vibe. */
   const bg = rgb(m.pageBg);
   if (!bg || bg[3] === 0) {
     bad(`${at}: the page has no resolvable base colour (got ${JSON.stringify(m.pageBg)}) — end the background stack with a solid colour so the theme is measurable`);
   } else if (lum(bg) < 0.7) {
-    bad(`${at}: the stage's base luminance is ${lum(bg).toFixed(3)}, expected a light canvas (>0.7) — the League runs on the Aurora light theme, not a black stage`);
-  } else ok(`${at}: the stage is the light Aurora canvas (luminance ${lum(bg).toFixed(3)})`);
+    bad(`${at}: the board's base luminance is ${lum(bg).toFixed(3)}, expected a light canvas (>0.7)`);
+  } else ok(`${at}: the board runs on the light Aurora canvas (luminance ${lum(bg).toFixed(3)})`);
 
-  /* 2) Gold is a FILL, never text. #F5C542 on white is 2.2:1, so the single easiest way to
-        wreck this board is to carry the dark theme's gold type over to the light canvas.
-        Each sample is measured against the surface it actually renders on. */
   {
     const missing = m.inkProbe.filter((t) => !t.color || !t.on).map((t) => t.sel);
     const unreadable = m.inkProbe
@@ -272,74 +373,14 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
     else if (unreadable.length) {
       bad(`${at}: ${unreadable.length} text style(s) below 4.5:1 where they render: ` +
         unreadable.map((t) => `${t.sel} ${t.color} on ${t.on} ${t.c[3] === 0 ? "(transparent fill)" : contrast(t.c, t.b).toFixed(2) + ":1"}`).join(" · "));
-    } else ok(`${at}: all ${m.inkProbe.length} informational text styles clear 4.5:1 on their own surface`);
+    } else ok(`${at}: all ${m.inkProbe.length} text styles clear 4.5:1 on the surface they render on`);
   }
 
-  /* 3) The plinths form ONE block. Three detached slabs with a gap between them is a bar
-        chart, not a podium — it was the loudest thing wrong with the rejected board. */
-  const [p1, p2, p3] = m.plinths;
-  if (!p1 || !p2 || !p3) bad(`${at}: could not measure all three plinths`);
-  else {
-    const seams = [Math.abs(p2.right - p1.left), Math.abs(p1.right - p3.left)];
-    if (seams.some((s) => s > 1)) {
-      bad(`${at}: the plinths are detached (seams ${seams.map((s) => s.toFixed(1)).join("px, ")}px) — the podium must read as one stepped block, not three separate bars`);
-    } else ok(`${at}: the three plinths are flush — one connected podium`);
-  }
-
-  /* 4) A chrome budget. The rejected board stacked eyebrow, title, five crest boxes, a meta
-        row, a stakes sentence, a help pill, a huge number and its label — eight centred
-        islands, ~430px, before a single rank appeared. */
-  const BUDGET = 330;
-  if (m.chrome === null) bad(`${at}: could not measure the header`);
-  else if (m.chrome > BUDGET) bad(`${at}: ${m.chrome}px of chrome above the podium, budget ${BUDGET}px — the header is spending the page on itself`);
-  else ok(`${at}: ${m.chrome}px of chrome above the podium (budget ${BUDGET}px)`);
+  if (m.rasters.length) bad(`${at}: the board paints ${m.rasters.length} CSS raster(s) — the zero-raster rule is broken: ` + m.rasters.slice(0, 3).map((r) => `.${r.cls} ${r.bg}`).join(" · "));
+  else ok(`${at}: zero CSS rasters on the board (pure gradient + inline SVG)`);
 
   if (m.over.length) bad(`${at}: ${m.over.length} element(s) escape the viewport: ` + m.over.slice(0, 4).map((o) => `.${o.cls} [${o.left}→${o.right}] vw=${m.vw}`).join(" · "));
   else ok(`${at}: nothing escapes the viewport (vw=${m.vw})`);
-
-  if (m.peds.length !== 3) bad(`${at}: expected 3 podium slots, got ${m.peds.length}`);
-  else {
-    const clipped = m.peds.filter((r) => r.x < -0.5 || r.right > m.vw + 0.5);
-    if (clipped.length) bad(`${at}: ${clipped.length}/3 plinths clipped`);
-    else ok(`${at}: all 3 plinths fully visible`);
-  }
-
-  // The promotion line: 7 promote, 3 are on the podium, so it sits directly above rank 8
-  // and exactly ranks 4-7 are tinted.
-  if (m.lineNextRank !== PROMOTE + 1) bad(`${at}: promotion line sits above rank ${m.lineNextRank}, expected ${PROMOTE + 1}`);
-  else ok(`${at}: promotion line sits above rank ${PROMOTE + 1} (top ${PROMOTE} promote)`);
-  const wantPromo = [4, 5, 6, 7];
-  if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: rows in the promotion zone are ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)}`);
-  else ok(`${at}: exactly ranks 4-7 are marked promoting`);
-
-  if (m.rungs.length !== 5) bad(`${at}: division ladder has ${m.rungs.length} rungs, expected 5`);
-  else if (m.rungs.filter((s) => s === "now").length !== 1) bad(`${at}: division ladder lights ${m.rungs.filter((s) => s === "now").length} rungs, expected exactly 1`);
-  else ok(`${at}: division ladder shows 5 rungs with exactly one lit`);
-
-  /* The tiers were reported as "unclear and do not make sense to users" (2026-08-03). Three
-     things fixed that, and all three are cheap to lose in a restyle, so all three are pinned.
-
-     Five DISTINCT metals: the rule this refit overturned was "division by luminance, never
-     hue", which painted the Silver rung gold. Collapsing them back to one material is the
-     regression, and it is invisible in a screenshot diff if only the CSS changes. */
-  const uniqMetals = new Set(m.rungMetals.filter(Boolean));
-  if (uniqMetals.size !== 5) bad(`${at}: the ladder carries ${uniqMetals.size} distinct metals, expected 5 — divisions are identified by material, not by luminance`);
-  else ok(`${at}: five divisions wear five distinct metals`);
-
-  // All three ladder states are legible at once: what you earned, where you are, what's locked.
-  const states = new Set(m.rungs);
-  if (!(states.has("past") && states.has("now") && states.has("next"))) {
-    bad(`${at}: the ladder shows only ${[...states].join("/")} — earned, current and locked must all read at a glance`);
-  } else ok(`${at}: the ladder distinguishes earned / current / locked`);
-
-  /* The stakes sentence. The board used to make the reader infer the whole mechanic from a
-     line halfway down a 30-row list; this states the number AND the destination above the
-     fold. Asserted on CONTENT, not on the element existing, because an empty or generic
-     sentence ("keep climbing!") is the failure mode — it would still render. */
-  if (!m.stakes) bad(`${at}: no stakes line — nothing above the fold says what promotion requires`);
-  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.stakes)) bad(`${at}: the stakes line does not name the promotion count (top ${PROMOTE}): "${m.stakes}"`);
-  else if (!/Gold/.test(m.stakes)) bad(`${at}: the stakes line does not name the division being climbed into: "${m.stakes}"`);
-  else ok(`${at}: the stakes line names both the cut and the destination`);
 
   if (!m.clock || !/Closes in/.test(m.clock)) bad(`${at}: no countdown to the week close (got ${JSON.stringify(m.clock)})`);
   else ok(`${at}: countdown renders — "${m.clock}"`);
@@ -347,8 +388,8 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   // All four arrow states must be representable; "none" (no snapshot) must never be
   // collapsed into "flat" (no change).
   const dirs = new Set(m.arrowDirs);
-  const missing = ["up", "down", "flat", "none"].filter((d) => !dirs.has(d));
-  if (missing.length) bad(`${at}: no row rendered a "${missing.join('"/"')}" movement arrow — the fixture no longer exercises every state`);
+  const gone = ["up", "down", "flat", "none"].filter((d) => !dirs.has(d));
+  if (gone.length) bad(`${at}: no row rendered a "${gone.join('"/"')}" movement arrow — the fixture no longer exercises every state`);
   else ok(`${at}: movement arrows render up/down/flat/none`);
 
   if (vp.touch) {
@@ -360,11 +401,10 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   await ctx.close();
 }
 
-/* ── 2) the "no snapshot" arrow, which only rank 1 carries in the fixture ────────────── */
+/* ── 2) "no snapshot" is not "no change" ─────────────────────────────────────────────── */
 {
   const ctx = await boardCtx(b, DESKTOP);
   const p = await openBoard(ctx);
-  // Rank 1 is on the podium, so put a null-delta student into the LIST to read it there.
   const noneCount = await p.evaluate(() =>
     [...document.querySelectorAll('.lg-mv[data-dir="none"]')].length);
   const glyphs = await p.evaluate(() => ({
@@ -379,7 +419,7 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   await ctx.close();
 }
 
-/* ── 3) interactions: peek sheet, sticky you-bar ─────────────────────────────────────── */
+/* ── 3) interactions: peek sheet, rules sheet, sticky you-bar ────────────────────────── */
 {
   const ctx = await boardCtx(b, VIEWPORTS[1]);
   const p = await openBoard(ctx);
@@ -393,11 +433,33 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
     else ok("row → peek sheet opens on tap and closes on Escape");
   }
 
-  // Your row is rank 12 — scrolling to the top of a 30-row board puts it off-screen.
-  await p.evaluate(() => document.querySelector(".aurora-main-scroll")?.scrollTo(0, 0));
-  await p.waitForTimeout(400);
-  if (await p.locator('[data-testid="youbar"]').count() !== 1) bad("the sticky you-bar is missing while your row is off-screen");
-  else ok("the sticky you-bar appears while your row is off-screen");
+  /* The you-bar, tested in BOTH directions. One direction is not enough: a bar that never
+     retires passes an "it appears" check while permanently covering a row, and a bar wired to
+     a bare `isIntersecting` passes it too while hiding for a row that is only visible
+     underneath the bottom nav — which is exactly what the dense board produced (rank 12 lands
+     at y=817 in an 844px viewport, scored 49% visible, readable 0%). */
+  await p.evaluate(() => { const s = document.querySelector(".aurora-main-scroll"); s?.scrollTo(0, s.scrollHeight); });
+  await p.waitForTimeout(450);
+  if (await p.locator('[data-testid="youbar"]').count() !== 1) bad("the sticky you-bar is missing while your row is scrolled off-screen");
+  else {
+    /* It must clear the bottom bar. Checked by HIT TEST rather than by z-index, because the
+       bar lost this exact fight while holding the higher z-index (40 over the rail's 30) —
+       different stacking contexts — and a control the reader cannot tap is not a control. */
+    const hit = await p.evaluate(() => {
+      const r = document.querySelector('[data-testid="youbar"]').getBoundingClientRect();
+      const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return el?.closest('[data-testid="youbar"]') ? null
+        : `${el?.tagName}.${(el?.className || "").toString().slice(0, 30)}`;
+    });
+    if (hit) bad(`the you-bar is covered — a tap at its own centre lands on ${hit}`);
+    else ok("the you-bar clears the bottom bar and receives its own taps");
+
+    // …and tapping it takes you back, after which the bar has no reason to exist.
+    await p.locator('[data-testid="youbar"]').click();
+    await p.waitForTimeout(1000);
+    if (await p.locator('[data-testid="youbar"]').count() !== 0) bad("the you-bar stayed up after jumping back to your row — it must retire once the row is readable");
+    else ok("the you-bar appears while your row is off-screen, jumps back to it, and retires");
+  }
 
   /* The board carries NO visibility panel (removed 2026-08-02 by request). Asserted as an
      absence rather than dropped silently: the panel has now been added and removed twice, and
@@ -407,25 +469,30 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
     bad("a visibility panel is rendering on the board — it was removed on request");
   } else ok("no visibility panel on the board");
 
-  /* "How the league works" — the rules, on demand. Before this existed nothing on the board
-     defined a division, so the ladder was five unexplained badges. Checked for the four
-     load-bearing facts rather than for the element: a disclosure that opens onto vague copy
-     would pass an existence check while failing the reader. */
-  const help = p.locator(".dv-help");
-  if (await help.count() !== 1) bad('no "how the league works" explainer on the board');
+  /* The rules moved off the default view and behind the (?). Checked for the four load-bearing
+     facts rather than for the element: a sheet that opens onto vague copy would pass an
+     existence check while failing the reader. Checked REACHABLE, because rules nobody can
+     open are the same as no rules at all. */
+  if (await p.locator(".tb-help").count() !== 1) bad("no (?) control on the tier band — the league rules are unreachable");
   else {
-    await help.locator("summary").click();
-    await p.waitForTimeout(200);
-    const txt = (await help.locator("ul").textContent()) ?? "";
-    const want = [
-      [/this week/i, "that ranking is weekly, not all-time"],
-      [/Monday/i, "when the week closes"],
-      [/never|nobody is ever demoted/i, "that nobody is demoted"],
-      [/Bronze.*Diamond/i, "the five divisions in order"],
-    ];
-    const gaps = want.filter(([re]) => !re.test(txt)).map(([, why]) => why);
-    if (gaps.length) bad(`the league rules never explain: ${gaps.join("; ")}`);
-    else ok("the explainer covers weekly scoring, the Monday close, no-demotion and all five divisions");
+    await p.locator(".tb-help").click();
+    await p.waitForTimeout(220);
+    if (await p.locator('[data-testid="rules-sheet"]').count() !== 1) bad("the (?) did not open the rules sheet");
+    else {
+      const txt = (await p.locator(".rules").textContent()) ?? "";
+      const want = [
+        [/this week/i, "that ranking is weekly, not all-time"],
+        [/Monday/i, "when the week closes"],
+        [/never|nobody is ever demoted/i, "that nobody is demoted"],
+        [/Bronze.*Diamond/i, "the five divisions in order"],
+      ];
+      const gaps = want.filter(([re]) => !re.test(txt)).map(([, why]) => why);
+      if (gaps.length) bad(`the league rules never explain: ${gaps.join("; ")}`);
+      else ok("the (?) opens rules covering weekly scoring, the Monday close, no-demotion and all five divisions");
+      await p.keyboard.press("Escape");
+      await p.waitForTimeout(150);
+      if (await p.locator('[data-testid="rules-sheet"]').count() !== 0) bad("the rules sheet did not close on Escape");
+    }
   }
   await ctx.close();
 }
@@ -435,51 +502,51 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   // (a) the OS media query
   const ctx = await boardCtx(b, DESKTOP, { extra: { reducedMotion: "reduce" } });
   const p = await openBoard(ctx);
-  const namesOf = (p) => p.evaluate(() =>
-    [".bm-slot", ".bm-ray", ".lg-item", ".lb-climb"].map((s) => {
-      const el = s === ".lb-climb" ? document.querySelector(s) : document.querySelector(s);
-      if (!el) return `${s}:missing`;
-      const cs = s === ".lb-climb" ? getComputedStyle(el, "::before") : getComputedStyle(el);
-      return `${s}:${cs.animationName}`;
-    }));
+  const namesOf = (p) => p.evaluate(() => [
+    `.lg-item:${document.querySelector(".lg-item") ? getComputedStyle(document.querySelector(".lg-item")).animationName : "missing"}`,
+    `.lg-row[data-you]::before:${document.querySelector(".lg-row[data-you]")
+      ? getComputedStyle(document.querySelector(".lg-row[data-you]"), "::before").animationName : "missing"}`,
+  ]);
   const osNames = await namesOf(p);
-  if (osNames.some((n) => !n.endsWith(":none"))) bad(`prefers-reduced-motion did not freeze the stage: ${osNames.join(" ")}`);
-  else ok("prefers-reduced-motion freezes the beam, the plinths, the rows and the star field");
+  if (osNames.some((n) => !n.endsWith(":none"))) bad(`prefers-reduced-motion did not freeze the board: ${osNames.join(" ")}`);
+  else ok("prefers-reduced-motion freezes the rows and your row's marker");
 
   // (b) the in-app toggle, which the OS query cannot cover
   await p.evaluate(() => { document.documentElement.dataset.motion = "reduce"; });
   const appNames = await namesOf(p);
-  if (appNames.some((n) => !n.endsWith(":none"))) bad(`html[data-motion="reduce"] did not freeze the stage: ${appNames.join(" ")}`);
-  else ok('html[data-motion="reduce"] freezes the stage too');
+  if (appNames.some((n) => !n.endsWith(":none"))) bad(`html[data-motion="reduce"] did not freeze the board: ${appNames.join(" ")}`);
+  else ok('html[data-motion="reduce"] freezes the board too');
   await ctx.close();
 }
 
-/* ── 5) a cohort of one still gets a stage ───────────────────────────────────────────── */
+/* ── 5) a cohort of one still gets a board ───────────────────────────────────────────── */
 {
   const solo = { ...BOARD, entries: [{ ...ENTRIES[0], name: "You", is_you: true, rank: 1, rank_delta: null }],
                  pool_size: 1, promote_count: 0 };
   const ctx = await boardCtx(b, VIEWPORTS[1], { board: solo });
   const p = await openBoard(ctx);
-  const slots = await p.locator('[data-testid="podium-slot"]').count();
-  const line = await p.locator('[data-testid="promotion-line"]').count();
-  if (slots !== 3) bad(`a cohort of one rendered ${slots} podium slots, expected 3 (two open)`);
-  else ok("a cohort of one still renders all three places");
-  if (line !== 0) bad("a cohort of one drew a promotion line — nobody can be promoted out of a pool of one");
-  else ok("no promotion line when promote_count is 0");
+  const rows = await p.locator('[data-testid="lb-row"]').count();
+  const cut = await p.locator('[data-testid="promotion-line"]').count();
+  const zone = await p.locator('[data-testid="promotion-zone"]').count();
+  if (rows !== 1) bad(`a cohort of one rendered ${rows} rows, expected 1`);
+  else ok("a cohort of one still renders a board");
+  if (cut !== 0 || zone !== 0) bad("a cohort of one drew a promotion zone — nobody can be promoted out of a pool of one");
+  else ok("no promotion zone when promote_count is 0");
   await ctx.close();
 }
 
-/* ── 6) the promotion line is NOT drawn on a role-filtered view ──────────────────────── */
+/* ── 6) the promotion zone is NOT drawn on a role-filtered view ──────────────────────── */
 {
   const ctx = await boardCtx(b, DESKTOP);
   const p = await openBoard(ctx);
-  if (await p.locator('[data-testid="promotion-line"]').count() !== 1) bad("no promotion line on the unfiltered board");
+  if (await p.locator('[data-testid="promotion-line"]').count() !== 1) bad("no cut on the unfiltered board");
   else {
     await p.locator('.lb-filter .lb-chip:has-text("OT")').click();
     await p.waitForTimeout(500);
-    if (await p.locator('[data-testid="promotion-line"]').count() !== 0) {
-      bad("the promotion line survived a role filter — promote_count describes the whole division, so a filtered line points at the wrong student");
-    } else ok("the promotion line is withheld on a role-filtered view");
+    const left = await p.locator('[data-testid="promotion-line"], [data-testid="promotion-zone"]').count();
+    if (left !== 0) {
+      bad("the promotion zone survived a role filter — promote_count describes the whole division, so a filtered cut points at the wrong student");
+    } else ok("the promotion zone is withheld on a role-filtered view");
   }
   await ctx.close();
 }
@@ -520,7 +587,7 @@ for (const vp of [...VIEWPORTS, DESKTOP]) {
   // THE REPEAT CASE (/ship-check): a fresh load must not re-show it.
   const p2 = await ctx.newPage();
   await p2.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
-  await p2.waitForSelector('[data-testid="podium-slot"]', { timeout: 20000 });
+  await p2.waitForSelector(".lg-row", { timeout: 20000 });
   await p2.waitForTimeout(700);
   if (await p2.locator('[data-testid="league-result"]').count() !== 0) bad("the ceremony re-fired on a second load — the show-once invariant is broken");
   else ok("the ceremony does not re-fire on a second load (show-once holds)");
