@@ -42,7 +42,12 @@ const ROUTES = [
   { path: "/cases", name: "osce-list", who: student },
   { path: "/flashcards", name: "flashcards", who: student },
   { path: "/leaderboard", name: "leaderboard", who: student },
-  { path: "/admin", name: "admin", who: admin },
+  // The console left the student shell entirely — it is its own full-bleed surface with
+  // a bottom tab bar, so every one of its screens needs sweeping, not just the landing.
+  { path: "/admin", name: "console-home", who: admin },
+  { path: "/admin/students", name: "console-roster", who: admin },
+  { path: "/admin/accounts", name: "console-accts", who: admin },
+  { path: "/admin/audit", name: "console-audit", who: admin },
 ];
 
 /* Documented exceptions to the 44x44 rule. An UNEXPLAINED exception is a bug, not a
@@ -218,7 +223,9 @@ for (const v of [...VIEWPORTS, DESKTOP]) {
       if (resp && resp.status() >= 400) throw new Error(`HTTP ${resp.status()}`);
       // Wait for the shell to actually exist -- a route that renders nothing must FAIL,
       // not silently pass with zero findings (the old audit's defining bug).
-      await p.waitForSelector(".aurora-shell, .aurora-checkin-screen", { timeout: 20000 });
+      // .cs-shell is the console: it deliberately renders NO .aurora-shell, so without
+      // it here every /admin route reports DID NOT LOAD.
+      await p.waitForSelector(".aurora-shell, .aurora-checkin-screen, .cs-shell", { timeout: 20000 });
       await p.waitForTimeout(2200); // entrance animations + data settle
       res = await p.evaluate(probe, { allow: TARGET_ALLOW, touch: !!v.touch });
       if (wantShots) await p.screenshot({ path: `${OUT}/${route.name}-${v.tag}.png` });
