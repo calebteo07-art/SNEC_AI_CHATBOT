@@ -644,6 +644,27 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   (`station_help_logic.mjs`); the rail's CSS fallback `var(--beat-ms, …)` and
   `station_assert.mjs`'s auto-advance timeout (one beat + slack) both track the constant —
   a stale fallback silently desyncs the rail from the timer it is meant to read out.
+- **Dual-source steps (2026-08-04, user-reported: "check allergy … just states examination
+  performed, doesn't show if got allergy or not, and checklist says check emr / ask patient,
+  but needs to be both")** — criterion changed: *a manual chip is no longer always the WHOLE
+  step.* A checklist row whose text names both the chart and the patient
+  (`examination_actions.is_dual_step`, true today only for the two drop checklists' CRITICAL
+  allergy row) is marked `also_ask`, and that chip is only its **chart half**: it reveals
+  `history.allergies` and marks itself half-done (amber, `data-half="record"`, ◐, disabled)
+  without ticking, while the consult supplies the other half via `/observe`. Consequently a
+  dual step is the ONE manual step that does **not** lock the patient composer and is **not**
+  hidden from the examiner — locking it made the step impossible to finish, and hiding it made
+  a critical step untickable (×0.6 safety cap) forever. `lib/dualStep.ts` owns the AND and is
+  unit-tested; both halves may arrive in either order. **Acceptance when refining**: the
+  half-done state is explained in words, not colour alone (`[data-testid="dual-hint"]` names
+  the OUTSTANDING half, ≤110 chars, no step number, no clinical content — the anti-spoiler
+  rule still holds); one click never ticks a dual step and the asking alone never does either;
+  the composer stays live while a dual step is the gate; the amber survives the pane's blue
+  chip override (assert the **settled** computed colour — `.aurora-pchip` transitions
+  `background`, so a one-shot read measures the transition and fails a working rule); every
+  case whose checklist has the row carries an authored `history.allergies`
+  (`test_allergy_record_authored.py` fails closed). **Out of scope**: which steps are manual
+  vs verbal otherwise, gating order, the two-scheme grade, the skip valve's own semantics.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in

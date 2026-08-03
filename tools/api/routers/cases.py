@@ -23,7 +23,7 @@ from tools.cases.topic_sets import resolve_set, sets_for, label_for, case_visibl
 from tools.cases.tier_gate import build_census, evaluate
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
-from tools.cases.examination_actions import build_actions, has_manual_actions
+from tools.cases.examination_actions import build_actions, examiner_excluded_steps, has_manual_actions
 from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
 from tools.cases.action_model_answer import grade_action
@@ -279,6 +279,9 @@ class ExaminationAction(BaseModel):
     step_number: int = 0
     kind: str = "manual"  # "manual" → shortcut chip; "verbal" → stays in the live chat
     quick: bool = False   # manual + no assessable technique → ticks on one click, no typing
+    # Dual-source step: the chip is only the chart half, the patient must be asked too.
+    # The frontend holds the tick until both halves land (see dualStep.ts).
+    also_ask: bool = False
 
 class StationChecklist(BaseModel):
     procedure_name: str
@@ -297,6 +300,9 @@ class ObserveRequest(BaseModel):
     already_ticked: list[int] = []
     # Stuck-valve: the student claims they already did this step — re-check it leniently.
     focus_step: int | None = None
+    # Dual-source steps whose CHART half is done in the action panel — the examiner can't
+    # see that in the transcript, so it judges only whether the patient was also asked.
+    record_done: list[int] = []
 
 class ObserveResponse(BaseModel):
     newly_satisfied: list[int]
@@ -585,6 +591,15 @@ def _station_checklist(case: dict) -> dict:
     return build_rubric_checklist(case)
 
 
+def _case_actions(case: dict, steps: list[dict]) -> list[dict]:
+    """build_actions for one case — ONE place, so /station and /observe can't classify the
+    same case differently (the examiner's exclusion set is derived from this)."""
+    return build_actions(
+        case.get("examination_findings", {}), steps,
+        allergy_record=str((case.get("history") or {}).get("allergies") or ""),
+    )
+
+
 @router.get("/api/cases/{case_id}/station", response_model=StationResponse)
 async def get_case_station(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Everything the OSCE station UI needs: case, phased checklist, exam actions."""
@@ -617,7 +632,7 @@ async def get_case_station(case_id: str, current_user: CurrentUser = Depends(get
         for g in group_by_phase(steps)
     ]
     critical_count = sum(1 for p in parsed_steps if p.critical)
-    actions = [ExaminationAction(**a) for a in build_actions(case.get("examination_findings", {}), steps)]
+    actions = [ExaminationAction(**a) for a in _case_actions(case, steps)]
 
     return StationResponse(
         case=CaseInfo(
@@ -651,12 +666,12 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     # Hands-on procedures tick ONLY via the action panel — the conversational examiner must
     # never auto-tick them, so exclude every manual step number from what it may satisfy.
-    manual_steps = {
-        n for a in build_actions(case.get("examination_findings", {}), cl["steps"])
-        if a.get("kind") == "manual" for n in a.get("satisfies_steps", [])
-    }
+    # A DUAL-SOURCE step is the exception: its second half is the consult (see
+    # examiner_excluded_steps), and body.record_done says its chart half is already done.
+    excluded = examiner_excluded_steps(_case_actions(case, cl["steps"]))
     newly = await asyncio.to_thread(
-        observe, cl["steps"], messages, body.already_ticked, manual_steps, body.focus_step
+        observe, cl["steps"], messages, body.already_ticked, excluded, body.focus_step,
+        body.record_done,
     )
     return ObserveResponse(newly_satisfied=newly)
 
@@ -825,7 +840,9 @@ def _readable_action_line(content: str) -> str:
         label, _, body = inner.partition(" → ")
         technique, _, result = body.partition(" · Result: ")
         line = f"Performed: {label.strip()}"
-        if technique.strip() and technique.strip() != "performed":
+        # "performed" / "record checked" are the one-click MARKERS the panel writes, not a
+        # technique the student typed — reporting them as one coaches on a phantom answer.
+        if technique.strip() and technique.strip() not in ("performed", "record checked"):
             line += f" — technique described: {technique.strip()}"
         if result.strip():
             line += f" (result: {result.strip()})"

@@ -37,6 +37,8 @@ export interface ExamAction {
   kind: "manual" | "verbal";
   /** Manual chip with no assessable technique — ticks on one click, no typed explanation. */
   quick?: boolean;
+  /** Dual-source step: this chip is only the CHART half, the patient must be asked too. */
+  also_ask?: boolean;
 }
 
 export function ActionPalette({
@@ -44,12 +46,15 @@ export function ActionPalette({
   ticked,
   current,
   activeKey,
+  halfOf,
   onPerform,
 }: {
   actions: ExamAction[];
   ticked: Set<number>;
   current: number | null;
   activeKey: string | null;
+  /** Half-done state of one step for a dual-source chip (see lib/dualStep). */
+  halfOf?: (step: number) => "none" | "record" | "asked";
   onPerform: (action: ExamAction) => void;
 }) {
   const manual = actions.filter((a) => a.kind === "manual");
@@ -63,6 +68,11 @@ export function ActionPalette({
           const earliest = a.satisfies_steps.find((n) => !ticked.has(n));
           const locked = !done && earliest !== undefined && earliest !== current;
           const active = a.key === activeKey;
+          // A dual-source chip whose CHART half is already recorded has nothing left to do
+          // here — the rest of the step happens in the consult, so it reads half-done and
+          // stops taking clicks (re-clicking would just re-post the same reveal).
+          const half = earliest === undefined ? "none" : halfOf?.(earliest) ?? "none";
+          const charted = half === "record";
           return (
             <button
               key={a.key}
@@ -73,12 +83,13 @@ export function ActionPalette({
               data-locked={locked ? "true" : "false"}
               data-crit={a.critical ? "true" : "false"}
               data-quick={a.quick ? "true" : "false"}
-              disabled={done || locked}
+              data-half={half}
+              disabled={done || locked || charted}
               onClick={() => onPerform(a)}
-              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : a.quick ? `Mark ${a.label} done` : `Perform ${a.label}`}
-              title={locked ? "Finish the steps above first" : a.quick ? "Click to mark done — no typing needed" : a.reveal_text || a.label}
+              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : charted ? `${a.label} — record checked, now ask the patient` : a.quick ? `Mark ${a.label} done` : `Perform ${a.label}`}
+              title={locked ? "Finish the steps above first" : charted ? "Record checked — now ask the patient" : a.also_ask ? "Check the record, then ask the patient — this step needs both" : a.quick ? "Click to mark done — no typing needed" : a.reveal_text || a.label}
             >
-              <span className="ic" aria-hidden>{done ? "✓" : active ? "✎" : locked ? "🔒" : a.quick ? "⚡" : "+"}</span>
+              <span className="ic" aria-hidden>{done ? "✓" : charted ? "◐" : active ? "✎" : locked ? "🔒" : a.quick ? "⚡" : "+"}</span>
               {a.label}
             </button>
           );

@@ -21,6 +21,7 @@
   "history": {
     "hpc": "Mdm Yeo says 'Last time the doctor say my eye angle very narrow, must be careful.' She is charted for dilation today but mentions this narrow-angle history, which must be acted on before instilling any dilating drop.",
     "pmhx": "Known narrow anterior chamber angles. No drug allergies (confirm).",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Glaucoma in the family",
     "medications": [
       "Nil regular"

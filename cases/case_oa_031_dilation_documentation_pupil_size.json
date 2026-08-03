@@ -21,6 +21,7 @@
   "history": {
     "hpc": "Mr Ramesh says 'Doctor only want to dilate my right eye today.' Only the right eye is to be dilated. This station focuses on correct technique and documentation of the dilation.",
     "pmhx": "No narrow-angle history. No drug allergies (confirm).",
+    "allergies": "No drug allergy recorded on file.",
     "family_hx": "Nil significant",
     "medications": [
       "Nil regular"

@@ -55,6 +55,8 @@ export function EyeBotPanel({
   busy,
   canSkip,
   skipping,
+  dualHint,
+  halfOf,
   onSkip,
   onPerform,
   onProcText,
@@ -77,6 +79,10 @@ export function EyeBotPanel({
   /** Enough tries on the same procedure with no tick — offer the way out (stationTurn.canSkip). */
   canSkip: boolean;
   skipping: boolean;
+  /** Copy for a half-done dual-source step, "" when nothing is outstanding (lib/dualStep). */
+  dualHint: string;
+  /** Half-done state of one step, for the chip affordance (lib/dualStep). */
+  halfOf?: (step: number) => "none" | "record" | "asked";
   onSkip: () => void;
   onPerform: (action: ExamAction) => void;
   onProcText: (value: string) => void;
@@ -153,11 +159,18 @@ export function EyeBotPanel({
 
       {showActions && (
         <>
+          {/* A dual-source step (record AND ask) has done half of itself and will not tick
+              until the other half lands. Say so — an unexplained critical step that refuses
+              to tick is exactly what made this feel broken. */}
+          {dualHint && (
+            <p className="aurora-station-dual" data-testid="dual-hint">{dualHint}</p>
+          )}
           <ActionPalette
             actions={actions}
             ticked={ticked}
             current={current}
             activeKey={activeProcedure?.key ?? null}
+            halfOf={halfOf}
             onPerform={onPerform}
           />
           {activeProcedure && (
