@@ -6,9 +6,10 @@
    fight one accent". That rule is what broke them: a SILVER rung painted gold is a
    contradiction the reader has to resolve before they can read the ladder at all.
 
-   The rule now: hue is identity ONLY here, on the ladder and the podium. Gold everywhere
-   else on the board still means the mechanic (promotion, your row, the champion), so the two
-   never collide — a gold *crest* is the Gold division, gold *anything else* is "this is live".
+   The rule now: hue is identity ONLY here, on the tier band and the top three's rank plates.
+   Gold everywhere else on the board still means the mechanic (the promotion zone, the cut,
+   your row), so the two never collide — a gold *crest* is the Gold division, gold *anything
+   else* is "this is live".
 
    Still zero rasters: every crest is a path, so nothing can drift out of registration the way
    the deleted ped-*.webp overlays did. league_assert fails on any background-image: url(). */
@@ -35,11 +36,11 @@ const STOPS: Record<Metal, readonly [string, string, string]> = {
   diamond: ["#B4F0FB", "#2FB3D4", "#12586F"],
 };
 
-/** A shield crest. `flat` drops the bevel for the tiny in-row usage.
+/** A shield crest. `dim` fades a division you haven't reached.
  *
- *  Gradient ids are namespaced by metal and each metal renders once per ladder, so the ids
- *  stay unique. Two crests of the SAME metal would share one gradient definition — identical
- *  content, so that is harmless rather than a bug waiting to happen. */
+ *  Gradient ids are namespaced by metal, and only one crest — the current division's, on the
+ *  tier band — renders at a time. Two crests of the SAME metal would share one gradient
+ *  definition: identical content, so that is harmless rather than a bug waiting to happen. */
 export function Crest({ metal, size = 26, dim = false }: { metal: Metal; size?: number; dim?: boolean }) {
   const [hi, mid, lo] = STOPS[metal];
   const gid = `crest-${metal}`;
@@ -71,80 +72,17 @@ export function Crest({ metal, size = 26, dim = false }: { metal: Metal; size?: 
   );
 }
 
-/** A laurel wreath, open at the top so the crown sits in the gap.
+/** The champion's crown, worn on the top row's portrait.
  *
- *  Two branches of tangential leaves on a visible stem. The tangent is what makes it a
- *  laurel: the first attempt pointed every leaf radially OUTWARD at an even spacing, which
- *  renders a sunflower — petals round a face, not a wreath. Leaves therefore lie nearly along
- *  the arc (62 degrees off radial) and taper toward the tips.
- *
- *  Placed by angle rather than drawn as one path: twelve ellipses plus two arcs is less code
- *  than the equivalent path data, and the wreath stays adjustable by editing one array. */
-const LEAF = [
-  { a: 48, s: 1 }, { a: 70, s: 1.06 }, { a: 92, s: 1 },
-  { a: 114, s: 0.9 }, { a: 136, s: 0.78 }, { a: 156, s: 0.62 },
-];
-const R = 48;
-/** Endpoint of the stem arc at `deg` from the top, clockwise. */
-const pt = (deg: number, sign: 1 | -1) => {
-  const r = (deg * Math.PI) / 180;
-  return `${(sign * R * Math.sin(r)).toFixed(1)} ${(-R * Math.cos(r)).toFixed(1)}`;
-};
-
-export function Laurel() {
-  return (
-    <svg className="bm-laurel" viewBox="0 0 120 120" aria-hidden focusable="false">
-      <defs>
-        <linearGradient id="bm-laurel-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F7CE63" />
-          <stop offset="0.6" stopColor="#DFA326" />
-          <stop offset="1" stopColor="#7A5206" />
-        </linearGradient>
-      </defs>
-      <g transform="translate(60 60)">
-        {/* The stems, so the leaves read as growing off a branch rather than floating. */}
-        <path
-          d={`M ${pt(44, 1)} A ${R} ${R} 0 0 1 ${pt(160, 1)}`}
-          fill="none" stroke="url(#bm-laurel-g)" strokeWidth="1.8" strokeLinecap="round" opacity=".75"
-        />
-        <path
-          d={`M ${pt(44, -1)} A ${R} ${R} 0 0 0 ${pt(160, -1)}`}
-          fill="none" stroke="url(#bm-laurel-g)" strokeWidth="1.8" strokeLinecap="round" opacity=".75"
-        />
-        <g fill="url(#bm-laurel-g)">
-          {LEAF.flatMap(({ a, s }) => [{ a, s, m: 1 as const }, { a: -a, s, m: -1 as const }]).map(
-            ({ a, s, m }) => (
-              <ellipse
-                key={a} cx="0" cy="0" rx="5.4" ry="12.6"
-                transform={`rotate(${a}) translate(0 ${-R}) rotate(${-62 * m}) scale(${s})`}
-              />
-            ),
-          )}
-        </g>
-      </g>
-    </svg>
-  );
-}
-
-/** A padlock for a division you haven't reached. An inline path rather than the 🔒 emoji,
- *  which renders full-colour on some platforms and monochrome on others — a ladder of metals
- *  is exactly where that inconsistency shows. */
-export function Lock() {
-  return (
-    <svg className="dv-lock" viewBox="0 0 12 14" aria-hidden focusable="false">
-      <path d="M3.2 6V4.4a2.8 2.8 0 0 1 5.6 0V6" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <rect x="1.6" y="6" width="8.8" height="7" rx="1.6" fill="currentColor" />
-    </svg>
-  );
-}
-
-/** The champion's crown. Kept from the board this refines — it was the one piece of ornament
- *  that already worked; it just had nothing around it. */
+ *  All that survives of the deleted podium's ornament, and deliberately so: a laurel, a
+ *  sunburst, drifting embers and a struck medal per runner-up were four flourishes competing
+ *  to say one thing. Rank 1 wears a crown; ranks 2 and 3 wear their metal on the rank plate.
+ *  Nothing else on the board is decorative. */
 export function Crown() {
   return (
-    <svg className="bm-crown" viewBox="0 0 64 40" aria-hidden focusable="false">
+    <svg className="lg-crown" viewBox="0 0 64 40" aria-hidden focusable="false">
       <defs>
-        <linearGradient id="bm-crown-g" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="lg-crown-g" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#FFE9A0" />
           <stop offset="0.55" stopColor="#E8B02F" />
           <stop offset="1" stopColor="#8A5E08" />
@@ -154,42 +92,12 @@ export function Crown() {
           stroke that worked on the black stage is invisible on the light canvas. */}
       <path
         d="M6 34 L2 10 L18 20 L32 4 L46 20 L62 10 L58 34 Z"
-        fill="url(#bm-crown-g)" stroke="#7A5206" strokeOpacity=".55" strokeWidth="1.4"
+        fill="url(#lg-crown-g)" stroke="#7A5206" strokeOpacity=".55" strokeWidth="1.4"
         strokeLinejoin="round"
       />
       <circle cx="32" cy="4" r="3.2" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
       <circle cx="2" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
       <circle cx="62" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
-    </svg>
-  );
-}
-
-/** A struck medal for 2nd and 3rd, hung on the portrait's lower edge.
- *
- *  The runners-up previously carried no ornament at all — only a thinner rim — so the podium
- *  read as "one winner and two bystanders". A medal each is what makes it a podium. */
-export function Medal({ place }: { place: 2 | 3 }) {
-  const metal: Metal = place === 2 ? "silver" : "bronze";
-  const [hi, mid, lo] = STOPS[metal];
-  const gid = `bm-medal-${place}`;
-  return (
-    <svg className="bm-medal" viewBox="0 0 34 34" aria-hidden focusable="false">
-      <defs>
-        <linearGradient id={gid} x1="0.2" y1="0" x2="0.8" y2="1">
-          <stop offset="0" stopColor={hi} />
-          <stop offset="0.5" stopColor={mid} />
-          <stop offset="1" stopColor={lo} />
-        </linearGradient>
-      </defs>
-      <circle cx="17" cy="17" r="15" fill={`url(#${gid})`} stroke={lo} strokeOpacity=".6" strokeWidth="1.4" />
-      <circle cx="17" cy="17" r="11" fill="none" stroke={hi} strokeOpacity=".55" strokeWidth="1" />
-      <text
-        x="17" y="17" textAnchor="middle" dominantBaseline="central"
-        fontSize="15" fontWeight="700" fill={lo} fillOpacity=".92"
-        fontFamily="var(--disp)"
-      >
-        {place}
-      </text>
     </svg>
   );
 }

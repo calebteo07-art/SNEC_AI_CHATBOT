@@ -184,7 +184,7 @@ async function studentCtx(customized) {
   })));
   const p = await ctx.newPage();
   await p.goto(`${BASE}/leaderboard`, { waitUntil: "networkidle" });
-  await p.waitForSelector('[data-testid="podium"], .lg-row', { timeout: 12000 }).catch(() => {});
+  await p.waitForSelector(".lg-row", { timeout: 12000 }).catch(() => {});
   if ((await p.locator('[data-testid="edit-selena"]').count()) === 0) ok("leaderboard — no legacy edit-selena control");
   else fail("leaderboard — an edit-selena control still exists");
   if ((await p.locator("text=Edit Selena").count()) === 0 && (await p.locator("text=Edit Eyecon").count()) === 0) ok("leaderboard — no 'Edit Eyecon/Selena' copy");
@@ -193,9 +193,10 @@ async function studentCtx(customized) {
   // Task 6 + regression: rank-1 has topper:"crown" AND a stale portrait_url. The <Eyecon>
   // composite must render the crown topper overlay layer from avatar_config, and must NOT
   // fall back to the stale retired portrait image.
-  // .bm-face is the Beam (top three), .lg-face a ranked league row — the classes the
-  // 2026-08-02 rebuild replaced .lb-ped-face / .lb-face with.
-  const srcs = await p.locator(".bm-face .eyecon-layer, .lg-face .eyecon-layer").evaluateAll(
+  // .lg-face is a ranked league row. It is the ONLY portrait on the board since the podium
+  // was deleted (2026-08-03) — the top three are rows like everyone else, so the old
+  // ".bm-face" half of this selector no longer exists.
+  const srcs = await p.locator(".lg-face .eyecon-layer").evaluateAll(
     (els) => els.map((e) => e.getAttribute("src")),
   );
   if (srcs.some((s) => (s ?? "").includes("/avatar/overlay/topper/crown.webp"))) {
