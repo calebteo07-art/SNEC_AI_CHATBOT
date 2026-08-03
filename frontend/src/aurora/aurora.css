@@ -2928,17 +2928,47 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-option:nth-child(1) { animation-delay: .02s; } .flash-option:nth-child(2) { animation-delay: .08s; }
 .flash-option:nth-child(3) { animation-delay: .14s; } .flash-option:nth-child(4) { animation-delay: .20s; }
 .flash-option:nth-child(5) { animation-delay: .26s; } .flash-option:nth-child(6) { animation-delay: .32s; }
-.flash-option:hover:not(:disabled) { transform: translateY(-2px); background: #2b3542;
-  border-color: hsl(var(--flash-topic-hue) 85% 60% / .5);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 0 #10141a, 0 12px 22px -8px rgba(0,0,0,.6); }
+/* Hover is a POINTER affordance, and only for options that are NOT already picked. Both
+   guards are load-bearing (Branda, 2026-08-03 — "an option appears selected, but upon
+   submission it is not recorded as selected"):
+     @media (hover: hover) — on touch, `:hover` latches onto the last-tapped element until
+       you tap somewhere else. Tap to select, tap again to deselect, and the tile kept a
+       violet border and still READ as selected while `selected` no longer held it.
+     :not(.is-picked)      — this selector is (0,3,0) and `.is-picked` is (0,2,0), so hover
+       WON, and its box-shadow carries no ring: pointing at a selected tile stripped the
+       very ring that marked it. Measured on the built app, a hovered picked option and a
+       hovered unpicked one computed to the identical border with no ring on either.
+   Pinned by frontend/tests/flashcards_option_state_logic.mjs — headless `:hover` is too
+   non-deterministic to gate in a browser harness, so the cascade is gated at the source. */
+@media (hover: hover) {
+  .flash-option:hover:not(:disabled):not(.is-picked) { transform: translateY(-2px); background: #2b3542;
+    border-color: hsl(var(--flash-topic-hue) 85% 60% / .5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 0 #10141a, 0 12px 22px -8px rgba(0,0,0,.6); }
+}
 .flash-option:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 #10141a; }
 .flash-option:disabled { cursor: default; }
 .flash-lamp { position: relative; flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px;
   display: grid; place-items: center; font: 900 18px var(--font-sans); color: #eef3f9;
   background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: all .18s ease; }
 .flash-otext { font: 700 clamp(17px, 1.9vw, 20px)/1.35 var(--font-sans); color: var(--fc-ink); }
-.flash-option.is-picked { transform: translateX(3px); border-color: hsl(var(--flash-topic-hue) 88% 62%);
+/* PICKED — a multi-select card's only "I chose this" state (a single-select card locks on
+   tap, so is-picked never renders for it). Selection used to be a hairline border and a
+   ring, which is what made "which ones did I pick?" hard on a phone. The tile now lifts
+   AND the lamp fills. */
+.flash-option.is-picked { transform: translateX(3px); background: #2f3a4a;
+  border-color: hsl(var(--flash-topic-hue) 88% 62%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 0 #10141a, 0 0 0 3px hsl(var(--flash-topic-hue) 88% 60% / .5); }
+/* The lamp is the signal hover can never impersonate — hover styles the TILE and never the
+   chip — so a filled lamp is what keeps "selected" true under a sticky mobile hover. A ✓
+   replaces the letter (McqCard): a checkbox that reads as checked at a glance.
+   The FILL IS DELIBERATELY NOT THE TOPIC HUE. `--flash-topic-hue` spans 184–260° (cyan →
+   violet) and at 88%/62% its luminance swings from .16 (violet) to .59 (cyan) — a white ✓
+   is ~5:1 on the violet topics and ~1.6:1 on the cyan ones, i.e. invisible on a third of the
+   bank. A fixed near-white chip with dark ink is ~15:1 on every topic and hue-independent by
+   construction. Topic identity stays on the tile's border + ring, where nothing has to be
+   read against it. Do not "restore" the hue here without re-checking the cyan end. */
+.flash-option.is-picked .flash-lamp { background: #eef3f9; color: #101722;
+  box-shadow: inset 0 0 0 1px #fff, 0 0 12px hsl(var(--flash-topic-hue) 88% 60% / .55); }
 .flash-option.is-correct { color: #052611; background: linear-gradient(180deg, var(--fc-green), var(--fc-green-d)); border-color: transparent;
   box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 5px 0 #0f8f34, 0 10px 24px -8px rgba(46,232,90,.65); }
 .flash-option.is-correct .flash-lamp { background: rgba(0,0,0,.24); color: #eafff0; }
