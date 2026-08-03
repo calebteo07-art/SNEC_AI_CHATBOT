@@ -943,6 +943,29 @@ than quietly ignored. The originals are kept below so the trade being made stays
    top faces (`.bm-top`), metal bevels and floor reflections; the champion gained a crowned
    laurel, a masked sunburst, a one-shot shine and drifting embers.
 
+**Second pass, same day** — "make sure white space is reduced, and entire leaderboard page
+should be more flamboyant". The flamboyance had stopped at the podium and the page was spending
+whitespace in the wrong axis:
+- **The dead axis was HORIZONTAL.** A 660px column on a 1280px screen left ~300px of empty
+  margin either side *while reading cramped vertically*. The column is now **760px**, and
+  **830px** at `(min-width: 860px) and (min-height: 640px)` — height-guarded because 932×430
+  phone-landscape also clears 860px wide and 164px plinths do not fit a 430px screen. The
+  plinths are `fr` units so they widen for free; their heights are told (**164/82 desktop**,
+  still exactly 2×).
+- **Vertical rhythm tightened throughout**: root gap 18→12, `.bm` padding 34/32→18/22, plinth
+  margin 26→18, list gap 8→7, promotion line 14/12→10/8. `.dv-help` was a full-width 44px bar
+  even when shut — it is now a `fit-content` pill that only becomes a panel when `[open]`.
+- **Flamboyance is page-wide, not podium-only.** Title and chase number are **struck gold**
+  (a three-stop gradient clipped to the glyphs — `background-clip:text` kills `text-shadow`, so
+  the glow is a `drop-shadow` filter), the eyebrow wears flanking rules, ranks ride **struck
+  discs** (gold-tinted inside the promotion zone, solid gold on your row), the promotion line is
+  a **struck banner** rather than an outline, and the current rung + your row **breathe** on
+  `::after` layers so neither restates its element's own shadow stack.
+- ⚠ **A stale screenshot reads exactly like a no-op change.** Mid-pass a render looked
+  completely unaffected while the built CSS provably contained every new rule. `_league_shot.mjs`
+  now prints computed values (column width, text-fill, disc width, plinth height) alongside the
+  png, so "did it apply" is a fact and not a judgement about an image.
+
 **Also locked by this pass:**
 - **The tiers must EXPLAIN THEMSELVES.** Five distinct metals, earned/current/locked all
   legible without colour alone (✓ badge, "You are here", inline `Lock`), a **stakes line**
