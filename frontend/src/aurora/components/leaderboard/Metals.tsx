@@ -6,16 +6,24 @@
    fight one accent". That rule is what broke them: a SILVER rung painted gold is a
    contradiction the reader has to resolve before they can read the ladder at all.
 
-   The rule now: hue is identity ONLY here, on the tier band and the top three's rank plates.
-   Gold everywhere else on the board still means the mechanic (the promotion zone, the cut,
-   your row), so the two never collide — a gold *crest* is the Gold division, gold *anything
-   else* is "this is live".
+   The rule now: hue is identity ONLY here, on the tier band and on the podium. Gold everywhere
+   else on the board still means the mechanic (the promotion zone, the cut, your row), so the
+   two never collide — a gold *crest* is the Gold division, a gold *plinth* is first place, and
+   gold *anything else* is "this is live".
 
    Still zero rasters: every crest is a path, so nothing can drift out of registration the way
    the deleted ped-*.webp overlays did. league_assert fails on any background-image: url(). */
 
 export const METALS = ["bronze", "silver", "gold", "platinum", "diamond"] as const;
 export type Metal = (typeof METALS)[number];
+
+/** The medal a finishing PLACE wears on the podium.
+ *
+ *  A separate axis from the division metals above, even though three of the names collide:
+ *  first place is gold whether the division is Bronze or Diamond. Keeping them in one lookup
+ *  would make "gold" ambiguous at exactly the moment a Gold-division board renders a gold
+ *  band above a gold plinth and the reader has to work out which gold means what. */
+export const PLACE_METALS: Record<number, Metal> = { 1: "gold", 2: "silver", 3: "bronze" };
 
 /** hi / mid / low stops, pitched for the LIGHT canvas (2026-08-03).
  *
@@ -72,32 +80,37 @@ export function Crest({ metal, size = 26, dim = false }: { metal: Metal; size?: 
   );
 }
 
-/** The champion's crown, worn on the top row's portrait.
+/** The champion's crown, worn above first place on the podium.
  *
- *  All that survives of the deleted podium's ornament, and deliberately so: a laurel, a
- *  sunburst, drifting embers and a struck medal per runner-up were four flourishes competing
- *  to say one thing. Rank 1 wears a crown; ranks 2 and 3 wear their metal on the rank plate.
- *  Nothing else on the board is decorative. */
+ *  ONE flourish, deliberately. The 08-03 stage carried a laurel, a sunburst, drifting embers
+ *  and a struck medal per runner-up — four ornaments competing to say the single thing a crown
+ *  says by itself, which is most of why that podium read as decorated rather than designed.
+ *  Second and third are told apart by their metal and their plinth height instead.
+ *
+ *  Drawn heavier than the 08-03 version to match the arcade material: a 2.6px dark outline and
+ *  a hard inner bevel, because a 1.4px stroke at 20px wide is a hairline and hairlines are the
+ *  exact tell this rebuild exists to remove. */
 export function Crown() {
   return (
-    <svg className="lg-crown" viewBox="0 0 64 40" aria-hidden focusable="false">
+    <svg className="pod-crown" viewBox="0 0 64 44" aria-hidden focusable="false">
       <defs>
-        <linearGradient id="lg-crown-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FFE9A0" />
-          <stop offset="0.55" stopColor="#E8B02F" />
-          <stop offset="1" stopColor="#8A5E08" />
+        <linearGradient id="pod-crown-g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#FFF0BE" />
+          <stop offset="0.42" stopColor="#FFD34D" />
+          <stop offset="1" stopColor="#D08A0A" />
         </linearGradient>
       </defs>
       {/* Outlined dark, and the jewels sit ON the gold rather than against the page — a pale
-          stroke that worked on the black stage is invisible on the light canvas. */}
+          rim-light stroke works on a black stage and vanishes on the light canvas. */}
       <path
-        d="M6 34 L2 10 L18 20 L32 4 L46 20 L62 10 L58 34 Z"
-        fill="url(#lg-crown-g)" stroke="#7A5206" strokeOpacity=".55" strokeWidth="1.4"
-        strokeLinejoin="round"
+        d="M6 36 L2 12 L18 22 L32 5 L46 22 L62 12 L58 36 Z"
+        fill="url(#pod-crown-g)" stroke="#6A4405" strokeWidth="2.6" strokeLinejoin="round"
       />
-      <circle cx="32" cy="4" r="3.2" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
-      <circle cx="2" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
-      <circle cx="62" cy="10" r="2.4" fill="#FFF3CE" stroke="#7A5206" strokeOpacity=".5" strokeWidth="1" />
+      {/* The lit facet: the left half of each peak catches the key light from above. */}
+      <path d="M6 36 L2 12 L18 22 L32 5 L32 36 Z" fill="#FFF6D8" fillOpacity=".34" />
+      <circle cx="32" cy="5" r="3.6" fill="#FFF8E2" stroke="#6A4405" strokeWidth="2" />
+      <circle cx="2" cy="12" r="2.8" fill="#FFF8E2" stroke="#6A4405" strokeWidth="2" />
+      <circle cx="62" cy="12" r="2.8" fill="#FFF8E2" stroke="#6A4405" strokeWidth="2" />
     </svg>
   );
 }

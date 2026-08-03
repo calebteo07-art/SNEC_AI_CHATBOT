@@ -1,103 +1,140 @@
-/* The League — a ladder screen, not a page about a ladder.
+/* The League — "STRUCK": bright arcade on a light stage.
 
-   Third rebuild. The first two changed the DEGREE (more ornament on a black stage); the third
-   changed the PALETTE (black → the Aurora light canvas). All three were rejected. The fourth
-   report finally named the genre: "very obvious ai slop, and did not seem like a game
-   leaderboard". Measured on the shipped build, that was literally true —
+   FIFTH pass. The four before it, and what each actually proved:
 
-     390x844 phone   : the first ranked row began at y≈700. ONE row visible, half-cut.
-     1280x900 desktop: the first ranked row began at y≈790.
+     1. black stage + ornament     -> "too dark and flat with no layers"
+     2. black stage + flamboyance  -> "leaderboard design is still horrendous"
+     3. Aurora light + podium      -> "very obvious ai slop, did not seem like a game leaderboard"
+     4. light, podium DELETED,
+        dense visible ladder       -> "still horendous ... world class game standard"
 
-   …because the page spent its height on a gradient headline, a white card explaining the
-   mechanic in two sentences plus a five-box ladder plus a disclosure pill, and a 380px podium.
-   A stack of soft white rounded cards with 5% shadows on a four-stop pastel mesh is also,
-   precisely, the house style of every generated dashboard — which is the "slop" half.
+   Pass 4 fixed something real: the ranks had been below the fold (ONE visible row at 390x844,
+   rank 1 at y~700). That fix is kept and still gated. But it answered only half the report,
+   and this file is the other half.
 
-   SUPERSEDES the light rebuild's four rules, and the dark board's before them:
+   THE DIAGNOSIS: the canvas was never the problem. Every OBJECT was flat — 1px hairlines at
+   ~10% ink, 4-6% blurred shadows, pastel fills, smooth washes. That combination IS the house
+   style of a generated dashboard, which is why four passes of re-colouring and re-arranging
+   could not shake the word "slop". A game object is built from five moves, and everything here
+   obeys all five:
 
-   1. THE AURORA CANVAS, AS A CARD STACK  ->  ONE BOARD ON A QUIET FIELD.
-      Light stays (it was the right call and it is measured — base luminance > 0.7). But the
-      canvas drops from four radial tints plus a drifting bloom to one tint over a solid, and
-      the rows stop being 27 floating cards. The list is a SINGLE surface: one radius, one
-      border, one shadow, hairline-separated rows, no gaps. A board, not a feed.
+     1. A DARK DEFINING OUTLINE, in --mat-ink #2A1F3D — a warm near-black violet, never grey
+        and never pure #000. Grey on a coloured fill reads as a CSS border; this reads as
+        painted plastic. This one token does more work than everything else combined.
+     2. A HARD LIP: an offset box-shadow with ZERO BLUR, plus a second shadow at the same
+        offset carrying the outline as SPREAD — so the keyline wraps the lip's left and right
+        crescents instead of stopping where the box does. Blur may describe the ground; it may
+        never describe an edge.
+     3. HARD-STOP FILLS. A gradient easing across a whole box is a wash; one that holds a
+        colour and then steps at 17%/62% is a moulded surface.
+     4. A LIT TOP EDGE + a dark base, inset. They establish one key light from above, which is
+        what makes the lip below read as thickness rather than as a drop shadow.
+     5. A DRAWN FLOOR. Objects that float were why three plinths read as a bar chart.
 
-   2. THE PODIUM  ->  DELETED. THE TOP THREE ARE THE TOP THREE ROWS.
-      The 1.7x portrait and 2x plinth were held to the pixel across three passes. They were the
-      wrong thing measured precisely: three cream plinths and three identical mascots cost
-      ~380px to show what a metal rank plate and a crown show inside a 56px row. Ranks 1-3 now
-      wear struck plates, the champion wears the crown, and the list starts at rank 1.
+   THE LIP LADDER — exactly four depths, so "material everywhere" cannot collapse into "the
+   whole page is buttons". A fifth object gets a lip only if another gives one up:
 
-   3. THE STANDING CARD  ->  THE TIER BAND.
-      The head is now made of the division's own METAL — climbing visibly re-skins the top of
-      the page, which is the reward five identical white cards could never pay. Crest, tier
-      name, trophy-road pips, and one readout strip carrying the chase and the clock. The
-      stakes paragraph and the "How the league works" pill are gone from the default view; the
-      rules live behind the (?) in a sheet.
+     structural  5px lip / 2.5px outline   .lg-list  .tb  .pod-block
+     medallion   3px lip / 2px outline     .pod-face  .lg-face  .lb-filter
+     pill        2px lip / 1.5px outline   .lg-rk  .lg-score  .lg-mv[up]  .tb-help  .lg-you
+     flat        no lip, no outline        .lg-row  .lg-item  .lg-cut  .lg-zone
 
-   4. THE PROMOTION LINE  ->  THE PROMOTION ZONE.
-      A hairline with a caption in the middle of a list is a footnote. The cut is now a filled
-      gold REGION at the top of the board, headed by its own label and ended by a struck 4px
-      bar. The mechanic is a place you can be, not a sentence you read.
+   `.lg-row` keeps border-radius 0 / box-shadow none — gate-pinned, and correct: the ladder must
+   never compete with the objects riding on it. Its material is carried by the five struck
+   objects INSIDE it (rank token, movement pill, avatar medallion, name, score pill) and by the
+   machined groove between rows. A 9%-alpha hairline instantiated 27 times across half the
+   viewport was the largest single surface exempting itself from the recipe.
 
-   Kept, and still load-bearing: gold is a FILL, never a glyph (#F5C542 on white is 2.2:1;
-   every gold word is --gold-ink, ~6:1, and the harness samples each text style against the
-   surface it actually renders on). Hue is division identity ONLY — on the band and the top
-   three's plates; gold anywhere else means the mechanic. ZERO rasters (every ornament is a
-   gradient or an inline path; league_assert fails on any background-image: url()). No
-   `background-attachment: fixed`. Motion frozen under BOTH reduce signals.
+   THE PODIUM IS BACK (2026-08-04, by request) under a budget instead of an argument:
+   league_assert counts RANKS VISIBLE — the three on the stage plus the rows beneath — and fails
+   below 8. It measures 9 at 390x844. Pass 4's deletion was right about the geometry and wrong
+   about the ceremony; this keeps the geometry honest and gives the ceremony back. Pass 4's
+   ratio pins (1.7x portrait, 2x plinth) are deliberately NOT restored — they were held to the
+   pixel across three rejected passes, which is what precise measurement of the wrong thing
+   looks like.
 
-   Scoped under .lb-climb, mobile-first, 360px-safe, with a phone-landscape tier (width alone
-   cannot identify a phone). */
+   Kept, and still load-bearing:
+   · LIGHT. Base luminance > 0.7 and the stack ENDS IN A SOLID so it is measurable.
+   · GOLD SPLITS BY JOB, and the split is load-bearing: --gold-ink #7A5206 is 6.9:1 on white but
+     only 3.0:1 on the gold FILL. Any glyph landing on gold uses --ink-on-gold #3A2600 (6.7:1).
+     One token for both is exactly what makes 2.2:1 gold lettering plausible.
+   · Every element with a gradient background ALSO declares a solid background-color (the DARKER
+     stop), or the contrast probe walks past it to the page and measures nothing.
+   · HUE IS IDENTITY only on the tier band and the podium; gold elsewhere means the mechanic;
+     green means upward movement. No fourth colour system.
+   · ZERO RASTERS — every ornament is a gradient, a clip-path or an inline SVG.
+   · NOTHING ROTATES ITS OWN BOX. A rotated square reports a bounding box 1.41x its width and
+     escapes the 360px overflow sweep even under overflow:hidden (clipping stops the paint, not
+     getBoundingClientRect). Skews live on pseudo-elements inside a clipping parent.
+   · Motion frozen under BOTH reduce signals. 360px-safe. Touch targets >= 44px.
 
-/* The canvas. One tint over a solid, and that is the whole thing. The rejected board carried
-   four radial stops plus a fixed drifting bloom, which is the pastel mesh that reads as
-   generated. The board is the object here; the page behind it should be quiet.
-   The stack ENDS IN A SOLID COLOUR on purpose: a trailing gradient computes to a transparent
-   background-color and the theme becomes unmeasurable. */
+   Phone-landscape and desktop are TWO COLUMNS: band + stage left, ladder right. A wide-and-short
+   viewport has horizontal room a single column throws away — at 844x390 stacked, the list would
+   start at y~321 and show ZERO rows. Every media query carries a HEIGHT term, because a 932px
+   landscape phone clears any min-width:860px desktop breakpoint. */
+
+/* ── the canvas ──────────────────────────────────────────────────────────────
+   Quiet on purpose: the objects are loud now, and a busy field behind loud objects is mud.
+   Transparent stops are written rgba(c, 0), never `transparent` — the keyword interpolates
+   through grey and dirties the bloom. No dot grid: 5%-alpha graph paper is the Figma/Notion
+   canvas and the most literal generated-design tell available. */
 .aurora-main:has(.lb-climb) {
   background:
-    radial-gradient(64% 32% at 50% 0%, rgba(66, 133, 244, .10) 0%, transparent 72%),
-    #F1F3F8;
+    radial-gradient(78% 40% at 50% -6%, rgba(245, 198, 63, .15) 0%, rgba(245, 198, 63, 0) 68%),
+    radial-gradient(60% 34% at 50% 34%, rgba(66, 133, 244, .08) 0%, rgba(66, 133, 244, 0) 74%),
+    #F2F4F9;
   background-repeat: no-repeat;
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 .lb-climb {
-  --card: #FFFFFF;
+  /* THE outline, and the lip ladder. */
+  --mat-ink: #2A1F3D;
+  --mat-out: 2.5px;
+  --mat-lip: 5px;
+
   --ink: #1F1F1F;
   --ink-2: #5F6368;
   --ink-3: #6E7378;
-  --hair: rgba(31, 31, 31, .10);
-  --rule: rgba(31, 31, 31, .075);
 
-  /* Gold, split by JOB. --gold/--gold-hi are fills; --gold-ink is the only one that may
-     colour a glyph. Keeping one token for both is what made #F5C542 text plausible. */
-  --gold: #E8B02F;
-  --gold-hi: #FFE29C;
-  --gold-deep: #C08E17;
+  /* Gold, split by JOB. --ink-on-gold is the only ink allowed ON a gold fill; --gold-ink is a
+     gold-toned WORD and belongs on white surfaces only. */
+  --gold-hi: #FFF0BE;
+  --gold-mid: #F5C63F;
+  --gold-lo: #DFA828;
+  --gold-lip: #9A6A08;
+  --ink-on-gold: #3A2600;
   --gold-ink: #7A5206;
 
-  --rr: 16px;
+  --chip-hi: #FFFFFF;
+  --chip-mid: #EDF1F8;
+  --chip-lo: #DCE3EE;
+  --chip-lip: #B6C0D2;
+  --plate-lip: #C9D0DE;
 
-  /* TWO families. The board this replaces had three (Bricolage + Bungee + the body sans); an
-     arcade face was the single loudest reason it read like a placeholder. */
+  --up-fill: #D8F2E2;
+  --up-ink: #14602A;
+  /* A deepened Gemini blue. The gradient `var(--gemini)` has no background-color at all, so
+     white-on-it measures against the page and its own #4285F4 head is 3.56:1 — this is 6.6:1
+     and declares a solid the probe can actually read. */
+  --you-blue: #1A56C4;
+
   --disp: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
 
   position: relative;
-  /* A ladder is a COLUMN. 760px let the rows stretch into a spreadsheet on desktop; at 620 the
-     board keeps the same proportions on a monitor that it has on a phone. */
-  max-width: 620px;
+  /* A ladder is a COLUMN. Capped at EVERY width — read full-bleed at 900px it is a spreadsheet. */
+  max-width: 640px;
   margin: 0 auto;
-  padding: 14px 16px 92px;
+  padding: 10px 16px calc(var(--bar-h, 0px) + 28px);
   color: var(--ink);
   font-family: var(--font-body);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
 }
 /* Numbers never jitter as they count or re-rank. */
-.lb-climb .chase-n, .lb-climb .lg-rk, .lb-climb .lg-score, .lb-climb .youbar-rk,
-.lb-climb .youbar-score, .lb-climb .sheet-rk,
+.lb-climb .chase-n, .lb-climb .lg-rk, .lb-climb .lg-score, .lb-climb .pod-num,
+.lb-climb .pod-score, .lb-climb .youbar-rk, .lb-climb .youbar-score, .lb-climb .sheet-rk,
 .lb-climb .sheet-stats dd { font-variant-numeric: tabular-nums; }
 
 .lg-sr, .tb-sr {
@@ -106,370 +143,620 @@
 }
 
 /* ── the tier band ────────────────────────────────────────────────────────────
-   The head of the board, made of the division's own material. Five metal skins, each a pale
-   brushed field the dark ink clears 9:1 on — saturated enough to read as metal, light enough
-   that the page is still the Aurora light theme. */
-/* The mid stop is what makes the sweep visible. Pitched one step deeper than the first pass,
-   where the band rendered as a pale grey header rather than as metal — the sheen was there but
-   the range between --m-hi and --m-lo was too narrow to see. Dark ink still clears 8:1 on
-   every one of these, and the page's "is it light" rule is measured on the canvas, not here. */
-.tb[data-metal="bronze"] { --m-hi: #F8E4D0; --m-lo: #DEAF80; --m-edge: #C68A55; --m-pip: #B4652C; }
-.tb[data-metal="silver"] { --m-hi: #EDF1F8; --m-lo: #B8C4D4; --m-edge: #9BA9BB; --m-pip: #7A8798; }
-.tb[data-metal="gold"] { --m-hi: #FDEFC6; --m-lo: #EDC65C; --m-edge: #D4A62F; --m-pip: #C08E17; }
-.tb[data-metal="platinum"] { --m-hi: #E9ECFC; --m-lo: #B3BAEA; --m-edge: #949CD8; --m-pip: #6970BE; }
-.tb[data-metal="diamond"] { --m-hi: #DEF5FB; --m-lo: #96DCEC; --m-edge: #5FC0D6; --m-pip: #1F94B2; }
+   The head, cast in the division's own material, so climbing visibly re-skins the top of the
+   page — the reward five identical white cards could never pay. --f-lo is the declared solid
+   the contrast probe resolves against; every one of the five clears 5.6:1 for --ink. */
+.tb[data-metal="bronze"] { --f-hi: #FFE3C2; --f-mid: #E29A5E; --f-lo: #CE8746; --f-lip: #8E5220; }
+.tb[data-metal="silver"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; }
+.tb[data-metal="gold"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; }
+.tb[data-metal="platinum"] { --f-hi: #EAEDFF; --f-mid: #A9B2E8; --f-lo: #8B95D6; --f-lip: #5B64A8; }
+.tb[data-metal="diamond"] { --f-hi: #D6F7FF; --f-mid: #7FDCF0; --f-lo: #4CC3DC; --f-lip: #1B8AA6; }
 
+/* THE RECIPE, structural tier. The second lip shadow carries the outline as SPREAD rather than
+   as a second Y offset, so the keyline wraps the lip's side crescents too. */
 .tb {
-  border-radius: var(--rr);
-  overflow: hidden;
-  border: 1px solid var(--m-edge);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 14px 30px -20px rgba(16, 24, 40, .34);
+  position: relative; box-sizing: border-box; overflow: hidden;
+  border: var(--mat-out) solid var(--mat-ink);
+  border-radius: 16px;
+  background-color: var(--f-lo);
+  box-shadow:
+    0 var(--mat-lip) 0 0 var(--f-lip),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .34);
 }
-/* Brushed, not flat: a 135deg sweep with the highlight returning at the far corner is what
-   separates "a metal band" from "a coloured rectangle". */
-/* background-COLOR is declared under the sweep on purpose, and it is the DARKER stop: a
-   gradient alone computes to a transparent background-color, and the harness's contrast probe
-   would then resolve the tier name against the page instead of against the band it sits on —
-   passing while measuring nothing. --m-lo is the conservative case for dark ink. */
 .tb-head {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center; gap: 11px; padding: 10px 12px;
-  background-color: var(--m-lo);
-  background-image: linear-gradient(135deg, var(--m-hi) 0%, var(--m-lo) 52%, var(--m-hi) 100%);
+  align-items: center; gap: 10px; padding: 9px 11px;
+  background-color: var(--f-lo);
+  background-image: linear-gradient(180deg,
+    var(--f-hi) 0%, var(--f-hi) 30%,
+    var(--f-mid) 30.01%, var(--f-mid) 74%,
+    var(--f-lo) 74.01%, var(--f-lo) 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(42, 31, 61, .18);
 }
-.tb-crest { display: grid; place-items: center; filter: drop-shadow(0 2px 4px rgba(16, 24, 40, .28)); }
+.tb-crest { display: grid; place-items: center; filter: drop-shadow(0 2px 0 rgba(42, 31, 61, .3)); }
 .tb-name {
-  margin: 0; min-width: 0; font-family: var(--disp); font-weight: 700; line-height: 1.05;
-  letter-spacing: -.02em; font-size: clamp(20px, 5.6vw, 26px); color: var(--ink);
+  margin: 0; min-width: 0; font-family: var(--disp); font-weight: 800; line-height: 1.05;
+  letter-spacing: -.025em; font-size: clamp(19px, 5.4vw, 25px); color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-/* Solid, not an alpha: over the darkest band (#A6E2F0) a 62%-alpha ink lands at 4.3:1. */
-.tb-league { font-weight: 500; font-size: .68em; color: #3C4043; }
+/* Solid, not an alpha: over the darkest band a 62%-alpha ink lands at 4.3:1. */
+.tb-league { font-weight: 600; font-size: .66em; color: #2E3440; }
 
 /* The trophy road. Locked divisions still show their metal at low opacity — a road that hides
-   what is ahead of you is not a road. Three states, and none of them relies on hue alone:
-   earned is solid, current is larger and ringed, locked is faded. The inset hairline is what
-   keeps a silver pip visible on a silver band. */
-.tb-pips { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 6px; }
+   what is ahead of you is not a road. Three states, none relying on hue alone: earned is solid,
+   current is larger and ringed, locked is faded. The dark outline is what keeps a silver pip
+   visible on a silver band. */
+.tb-pips { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 5px; }
 .tb-pip {
-  width: 9px; height: 9px; border-radius: 50%; background: var(--pm);
-  box-shadow: inset 0 0 0 1px rgba(31, 31, 31, .25);
+  box-sizing: border-box; width: 11px; height: 11px; border-radius: 50%;
+  background-color: var(--pm); border: 1.5px solid var(--mat-ink);
+  box-shadow: 0 2px 0 0 rgba(42, 31, 61, .3);
 }
-.tb-pip[data-metal="bronze"] { --pm: #B4652C; }
-.tb-pip[data-metal="silver"] { --pm: #8C9BAD; }
-.tb-pip[data-metal="gold"] { --pm: #DFA326; }
-.tb-pip[data-metal="platinum"] { --pm: #7C86C9; }
-.tb-pip[data-metal="diamond"] { --pm: #2FB3D4; }
-.tb-pip[data-state="next"] { opacity: .32; }
+.tb-pip[data-metal="bronze"] { --pm: #E29A5E; }
+.tb-pip[data-metal="silver"] { --pm: #C6D2E2; }
+.tb-pip[data-metal="gold"] { --pm: #F5C63F; }
+.tb-pip[data-metal="platinum"] { --pm: #A9B2E8; }
+.tb-pip[data-metal="diamond"] { --pm: #7FDCF0; }
+.tb-pip[data-state="next"] { opacity: .3; }
 .tb-pip[data-state="now"] {
-  width: 14px; height: 14px;
-  box-shadow: inset 0 0 0 1px rgba(31, 31, 31, .3), 0 0 0 2.5px rgba(255, 255, 255, .9),
-              0 0 0 4px var(--pm);
+  width: 17px; height: 17px; border-width: 2px;
+  box-shadow: 0 2px 0 0 rgba(42, 31, 61, .35), 0 0 0 3px rgba(255, 255, 255, .95);
 }
 
 .tb-help {
-  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
-  cursor: pointer; font-family: var(--disp); font-weight: 700; font-size: 15px;
-  color: var(--ink); background: rgba(255, 255, 255, .74);
-  border: 1px solid rgba(31, 31, 31, .16);
+  box-sizing: border-box; display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  font-family: var(--disp); font-weight: 800; font-size: 15px; color: var(--ink);
+  background-color: var(--chip-hi);
+  border: 1.5px solid var(--mat-ink);
+  box-shadow: 0 2px 0 0 var(--chip-lip), 0 2px 0 1.5px var(--mat-ink);
+  transition: transform .1s ease, box-shadow .1s ease;
 }
-.tb-help:hover { background: #fff; border-color: rgba(31, 31, 31, .3); }
+.tb-help:active { transform: translateY(2px); box-shadow: 0 0 0 0 var(--chip-lip), 0 0 0 1.5px var(--mat-ink); }
 
-/* The readout strip: the one number worth acting on, and the deadline it runs against. Solid
-   white rather than a wash — it reads as an instrument inset into the band, and it gives the
-   contrast probe a surface it can actually resolve. */
+/* The readout strip: the one number worth acting on, and the deadline it runs against. A white
+   instrument inset into the metal, so both it and the band stay measurable surfaces. */
 .tb-readout {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 8px 13px; background: #FAFBFD; border-top: 1px solid var(--m-edge);
+  padding: 7px 11px; background-color: #FFFFFF;
+  border-top: var(--mat-out) solid var(--mat-ink);
 }
 .tb-chase { margin: 0; min-width: 0; display: flex; align-items: baseline; gap: 6px; }
 .chase-n {
-  font-family: var(--disp); font-weight: 700; font-size: 17px; line-height: 1;
-  color: var(--gold-ink);
+  font-family: var(--disp); font-weight: 800; font-size: 18px; line-height: 1;
+  color: var(--gold-ink);   /* a gold WORD, on white — 6.9:1 */
 }
 .chase-l {
   font-size: 12.5px; font-weight: 600; color: var(--ink-2);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* The clock is a dark HUD chip: it declares its own solid, so the probe measures white-on-ink
+   (15.4:1) rather than walking up to the white strip and reporting the wrong surface. */
 .tb-clock {
   flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700; color: var(--ink-2);
+  padding: 4px 9px; border-radius: 999px;
+  background-color: var(--mat-ink); color: #FFFFFF;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .01em;
 }
-.tb-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
-  box-shadow: 0 0 0 3px rgba(232, 176, 47, .18);
+.tb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-mid); }
+
+/* ── THE PODIUM ───────────────────────────────────────────────────────────────
+   Three struck objects standing on a drawn floor.
+
+   The 08-03 stage's failure modes are designed out rather than remembered:
+   · THE TOP FACE IS DRAWN INSIDE THE BLOCK'S OWN BOX. Every protruding version needs
+     overflow:visible, which fights the champion's sheen needing overflow:hidden — so the
+     champion, and only the champion, silently loses its 3D face. Inside the box, both are free,
+     and "nothing is absolutely positioned above a plinth" becomes true by construction rather
+     than by checking at 5x device scale. (That check is what caught .bm-top clipping the
+     descender off a thousands comma, rendering 9,800 as "9.800".)
+   · THE BLOCKS SHARE ONE SEAM. margin-inline:-1.25px is half the outline, so adjacent 2.5px
+     outlines OVERLAP into one 2.5px line instead of doubling to 5px. Three plinths sitting
+     6-8px apart is a bar chart.
+   · THE FILL IS PALE-TO-MID METAL WITH A SATURATED EDGE, not a saturated slab. Pass 3 filled a
+     300x164 plinth with #E8B02F and made the loudest thing on the page a mustard wall; the gold
+     face here is 136x76 behind a keyline, ~79% less area. */
+.pod {
+  position: relative; margin: 0 0 3px; padding: 0;
+  display: grid; grid-template-columns: 1fr 1.18fr 1fr; gap: 0;
+  /* min-height, NOT height. A fixed height that the figure stack outgrows does not clip — it
+     OVERFLOWS downward, silently, and the stage ends up under the bottom nav while every
+     measurement still passes (the gate's view.bottom is the scroller, which does not subtract
+     the floating nav). min-height lets the box grow to its content and keeps the reserve. */
+  align-items: end; min-height: var(--pod-h, 200px);
+}
+/* The ground. First child in the DOM, so it paints under every slot with no z-index game.
+   left/right 0 deliberately — a floor bled past the container's padding fails the overflow
+   sweep (r.left < -0.5) while looking perfect in a screenshot. */
+.pod-floor {
+  position: absolute; left: 0; right: 0; bottom: -11px; height: 44px; z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(58% 52% at 50% 74%, rgba(42, 31, 61, .15) 0%, rgba(42, 31, 61, 0) 72%);
+}
+.pod-floor::after {
+  content: ""; position: absolute; left: 5%; right: 5%; bottom: 3px; height: 2px;
+  background: linear-gradient(90deg, rgba(42, 31, 61, 0), rgba(42, 31, 61, .2) 22%,
+                                     rgba(42, 31, 61, .2) 78%, rgba(42, 31, 61, 0));
+}
+.pod:has(.pod-slot[data-promo]) .pod-floor::after {
+  background: linear-gradient(90deg, rgba(154, 106, 8, 0), rgba(154, 106, 8, .38) 22%,
+                                     rgba(154, 106, 8, .38) 78%, rgba(154, 106, 8, 0));
 }
 
-/* ── role filter ──────────────────────────────────────────────────────────── */
-.lb-filter { display: flex; gap: 7px; flex-wrap: wrap; }
-.lb-chip {
-  border: 1px solid var(--hair); background: var(--card); color: var(--ink-2);
-  font-family: inherit; font-weight: 700; font-size: 12.5px; letter-spacing: .03em;
-  border-radius: 999px; padding: 7px 15px; cursor: pointer;
-  transition: color .14s ease, background .14s ease, border-color .14s ease;
+.pod-slot {
+  position: relative; z-index: 1; min-width: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  animation: pod-rise .5s cubic-bezier(.18, .89, .32, 1.16) backwards;
 }
-.lb-chip:hover { color: var(--ink); border-color: rgba(31, 31, 31, .22); }
+/* DOM order is 1,2,3 so a screen reader reaches the champion first; the stage PAINTS 2-1-3.
+   The old board's DOM was literally 2-1-3 and announced second place first for weeks. */
+.pod-slot[data-place="1"] { order: 2; --pl-h: 76px; --face: 56px; --num-sz: 34px; --crown-w: 30px; animation-delay: .14s; }
+.pod-slot[data-place="2"] { order: 1; --pl-h: 58px; --face: 44px; --num-sz: 26px; animation-delay: .04s; }
+.pod-slot[data-place="3"] { order: 3; --pl-h: 46px; --face: 44px; --num-sz: 22px; animation-delay: .24s; }
+
+.pod-slot[data-place="1"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; --num-ink: #3A2600; }
+.pod-slot[data-place="2"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; --num-ink: #1F1F1F; }
+.pod-slot[data-place="3"] { --f-hi: #FFE3C2; --f-mid: #E29A5E; --f-lo: #CE8746; --f-lip: #8E5220; --num-ink: #2A1405; }
+
+/* The figure: crown, portrait in a struck ring, name, score. A button, like a row, so all three
+   open the same peek sheet — a podium you cannot touch is a picture of a leaderboard. */
+.pod-fig {
+  position: relative; z-index: 1; width: 100%; min-width: 0;
+  display: flex; flex-direction: column; align-items: center;
+  border: 0; background: transparent; cursor: pointer; font-family: inherit;
+  padding: 0 4px 6px; color: var(--ink); text-align: center;
+}
+/* The crown's headroom is PADDING, in flow — it does not overhang into the band above. */
+.pod-slot[data-place="1"] .pod-fig { padding-top: 10px; }
+
+/* The rank FRAME. box-sizing:border-box plus a +13px allowance so the metal ring is actually
+   visible: an N-px Eyecon in an N-px bordered circle leaves a 0px ring, 100% occluded. */
+.pod-face {
+  box-sizing: border-box; width: calc(var(--face) + 13px); height: calc(var(--face) + 13px);
+  margin: 0 auto 4px; display: grid; place-items: center;
+  border: 2px solid var(--mat-ink); border-radius: 50%;
+  background-color: var(--f-lo);
+  background-image: linear-gradient(180deg, var(--f-hi) 0%, var(--f-hi) 40%,
+                                            var(--f-mid) 40.01%, var(--f-mid) 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 31, 61, .2),
+    0 3px 0 0 var(--f-lip), 0 3px 0 2px var(--mat-ink),
+    0 8px 10px -5px rgba(42, 31, 61, .34);
+}
+.pod-face .eyecon-wrap { display: block; border-radius: 50%; overflow: hidden; }
+/* translateX is a translation, not a rotation — the box stays axis-aligned. The chained
+   drop-shadows give the inline SVG the same hard-lip-plus-cast material as every box. */
+.pod-crown {
+  position: absolute; left: 50%; top: -2px; transform: translateX(-50%);
+  width: var(--crown-w); height: auto; z-index: 2;
+  filter: drop-shadow(0 2px 0 #9A6A08) drop-shadow(0 4px 4px rgba(42, 31, 61, .38));
+  animation: pod-bob 3.4s ease-in-out infinite;
+}
+.pod-nm {
+  max-width: 100%; font-weight: 800; font-size: 12.5px; line-height: 1.2; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pod-score {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--disp); font-weight: 800; font-size: 14px; line-height: 1.3;
+  padding-bottom: 2px;   /* room for the thousands comma's descender */
+  color: var(--ink);
+}
+.pod-slot[data-you] .pod-nm::after {
+  content: "YOU"; display: inline-block; margin-left: 6px; vertical-align: 1px;
+  font-size: 8.5px; font-weight: 900; letter-spacing: .09em; color: #FFFFFF;
+  background-color: var(--you-blue); border-radius: 999px; padding: 2px 6px;
+}
+
+.pod-block {
+  position: relative; z-index: 0; overflow: hidden; box-sizing: border-box;
+  height: var(--pl-h); margin-inline: -1.25px; padding-top: 13px;
+  display: grid; place-items: center;
+  border: var(--mat-out) solid var(--mat-ink);
+  border-radius: 4px 4px 10px 10px;
+  background-color: var(--f-lo);
+  background-image: linear-gradient(180deg,
+    var(--f-hi) 0%, var(--f-hi) 17%,
+    var(--f-mid) 17.01%, var(--f-mid) 62%,
+    var(--f-lo) 62.01%, var(--f-lo) 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .5),
+    inset 3px 0 0 rgba(255, 255, 255, .18),    /* lit LEFT face  */
+    inset -4px 0 0 rgba(42, 31, 61, .16),      /* shaded RIGHT   */
+    inset 0 -4px 0 var(--f-lip),
+    0 var(--mat-lip) 0 0 var(--f-lip),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .36);
+}
+/* Promotion, on the stage: the lip turns gold, so the mechanic reads continuously from the
+   stage into the gold region below rather than appearing to start at rank 4. */
+.pod-slot[data-promo] .pod-block {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .5),
+    inset 3px 0 0 rgba(255, 255, 255, .18),
+    inset -4px 0 0 rgba(42, 31, 61, .16),
+    inset 0 -4px 0 var(--f-lip),
+    0 var(--mat-lip) 0 0 var(--gold-lo),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(154, 106, 8, .42);
+}
+.pod-slot[data-you] .pod-face { box-shadow:
+  inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 31, 61, .2),
+  0 3px 0 0 var(--f-lip), 0 3px 0 2px var(--mat-ink),
+  0 0 0 5px var(--you-blue), 0 8px 10px -5px rgba(42, 31, 61, .34); }
+
+/* The lit top face: a trapezoid narrow at the BACK and wide at the FRONT, drawn at top:0 so it
+   can never protrude and never be conditionally clipped. */
+.pod-top {
+  position: absolute; left: 0; right: 0; top: 0; height: 15px; pointer-events: none;
+  clip-path: polygon(9% 0, 91% 0, 100% 100%, 0 100%);
+  background-color: var(--f-mid);
+  background-image: linear-gradient(180deg, var(--f-hi) 0%, var(--f-hi) 55%,
+                                            var(--f-mid) 55.01%, var(--f-mid) 100%);
+  box-shadow: inset 0 -2px 0 rgba(42, 31, 61, .2);
+}
+/* The numeral is struck too: a CENTRED text-stroke shows half its width under paint-order, and
+   the text-shadow is the glyph's own extruded side. `color` stays SOLID so the contrast probe
+   never reads a transparent fill. */
+.pod-num {
+  font-family: var(--disp); font-weight: 800; font-size: var(--num-sz); line-height: 1;
+  color: var(--num-ink);
+  /* A CENTRED stroke, so paint-order:stroke-then-fill leaves half of it visible outside the
+     glyph. 4px (2px visible) rather than 5 — the landscape tier draws this at 18px, where a
+     2.5px outline starts closing the counters on an 8. */
+  -webkit-text-stroke: 4px var(--mat-ink);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 var(--f-lip);
+}
+/* The one-shot sheen. Skewed, so it lives on a pseudo-element inside the block's own
+   overflow:hidden — a skewed ELEMENT would report an inflated bounding box. */
+.pod-slot[data-place="1"] .pod-block::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 34%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .6), rgba(255, 255, 255, 0));
+  transform: skewX(-18deg);
+  animation: pod-shine 2.4s cubic-bezier(.4, 0, .2, 1) .8s;
+}
+
+/* ── role filter ──────────────────────────────────────────────────────────────
+   One segmented switch, not three floating chips. The class names are load-bearing: the gate
+   clicks `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. */
+.lb-filter {
+  box-sizing: border-box; display: flex; gap: 3px; padding: 3px; border-radius: 999px;
+  background-color: var(--chip-mid);
+  border: 2px solid var(--mat-ink);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7),
+              0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
+}
+.lb-chip {
+  flex: 1 1 0; min-width: 0; border: 0; background: transparent; border-radius: 999px;
+  color: var(--ink-2); font-family: inherit; font-weight: 800; font-size: 12.5px;
+  letter-spacing: .03em; padding: 8px 10px; cursor: pointer;
+  transition: color .14s ease, background-color .14s ease;
+}
+.lb-chip:hover { color: var(--ink); }
 .lb-chip[data-on="true"] {
-  background: var(--ink); color: #fff; border-color: transparent;
+  background-color: var(--mat-ink); color: #FFFFFF;
+  box-shadow: 0 2px 0 0 #150F22;
 }
 
 /* ── THE BOARD ────────────────────────────────────────────────────────────────
-   ONE surface. The radius and the clip live here and nowhere else, so every row is a band
-   ACROSS the board rather than a card floating on it — which is what made 27 rows with their
-   own borders, radii and drop shadows read as a settings screen. */
+   ONE surface: the radius and the clip live here and nowhere else, so every row is a band
+   ACROSS the board rather than a card floating on it. The interior is FLAT white — 27 rows must
+   not sit on a gradient — and the material is carried by the objects riding on each row. */
 .lg-list {
-  list-style: none; margin: 0; padding: 0;
-  display: flex; flex-direction: column;
-  border-radius: var(--rr); overflow: hidden;
-  background: var(--card); border: 1px solid var(--hair);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 22px 46px -30px rgba(16, 24, 40, .38);
+  list-style: none; margin: 0; padding: 0; box-sizing: border-box;
+  display: flex; flex-direction: column; overflow: hidden;
+  border: var(--mat-out) solid var(--mat-ink); border-radius: 16px;
+  background-color: #FFFFFF;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .9),
+    0 var(--mat-lip) 0 0 var(--plate-lip),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 16px 26px -12px rgba(42, 31, 61, .3);
 }
-/* Rows are separated by a rule, not by a gap. `.lg-item + .lg-item` deliberately skips the
-   zone header and the cut, which are not .lg-item — the cut IS the separator where it falls. */
-.lg-item { position: relative; display: block; animation: lb-rise .4s cubic-bezier(.2, .9, .3, 1.05) backwards; }
-.lg-item + .lg-item { border-top: 1px solid var(--rule); }
+/* NOT a hairline: a 2px dark channel with a lit return under it reads as a machined groove
+   between two panels. `.lg-item + .lg-item` deliberately skips the zone header and the cut,
+   which are not .lg-item — the cut IS the separator where it falls. */
+.lg-item {
+  position: relative; display: block;
+  animation: lb-rise .38s cubic-bezier(.2, .9, .3, 1.05) backwards;
+}
+.lg-item + .lg-item {
+  border-top: 2px solid rgba(42, 31, 61, .11);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .95);
+}
 .lg-list .lg-item:nth-child(1) { animation-delay: .02s } .lg-list .lg-item:nth-child(2) { animation-delay: .04s }
 .lg-list .lg-item:nth-child(3) { animation-delay: .06s } .lg-list .lg-item:nth-child(4) { animation-delay: .08s }
 .lg-list .lg-item:nth-child(5) { animation-delay: .10s } .lg-list .lg-item:nth-child(n+6) { animation-delay: .12s }
 
-/* The promotion zone: a REGION, headed by its own label. This is the whole mechanic, and it
-   is why nothing above the board needs a sentence about it any more. */
+/* The promotion zone: a REGION with its own head. This is the whole mechanic, and it is why
+   nothing above the board needs a sentence about it. */
 .lg-zone {
-  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px; padding: 0 13px; min-height: 26px;
   font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: #4A3200;
-  /* Same reason as .tb-head: the solid under the sweep is what makes the label's contrast
-     measurable against the gold it actually renders on. */
-  background-color: var(--gold);
-  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 100%);
-  box-shadow: inset 0 -1px 0 rgba(140, 96, 8, .3);
+  color: var(--ink-on-gold);                 /* #3A2600 on the gold fill — 6.7:1 */
+  background-color: var(--gold-lo);          /* solid under the sweep, the DARKER stop */
+  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 38%,
+                                            var(--gold-mid) 38.01%, var(--gold-mid) 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(154, 106, 8, .5);
 }
 .lg-zone-ico { font-size: 9px; }
-/* Rows inside the zone: warmed, with a gold rail running the height of the region. The rail is
-   an absolute ::before rather than a border-left, so promoted and unpromoted rows keep the
-   same grid and the rank column never jogs 3px at the cut. */
-.lg-item[data-promo] {
-  background-color: var(--card);
-  background-image: linear-gradient(90deg, rgba(232, 176, 47, .17), rgba(232, 176, 47, .05) 62%, transparent);
-}
+/* A SOLID tint, not a gradient wash: the probe can resolve it, and a gradient over white lets
+   an element claim white as its backdrop while rendering on something darker. */
+.lg-item[data-promo] { background-color: #FFF6E0; }
 .lg-item[data-promo]::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 1;
-  background: var(--gold);
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 1;
+  background: linear-gradient(180deg, var(--gold-mid), var(--gold-lo));
+  box-shadow: inset -1px 0 0 rgba(154, 106, 8, .5);
 }
-/* The cut. A struck bar, full bleed, no caption — the zone above it is already labelled, and a
-   second sentence would make the most consequential pixel on the board a footnote. */
+/* The cut. Struck, full bleed, no caption — the zone above is already labelled, and a second
+   sentence would turn the most consequential pixel on the board into a footnote. */
 .lg-cut {
-  position: relative; height: 4px;
-  background: linear-gradient(90deg, var(--gold-deep) 0%, var(--gold) 22%, var(--gold-hi) 50%, var(--gold) 78%, var(--gold-deep) 100%);
-  box-shadow: 0 3px 12px -3px rgba(140, 96, 8, .6);
+  position: relative; height: 6px;
+  background-color: var(--gold-lo);
+  background-image: linear-gradient(180deg, #FFE9A8 0%, #FFE9A8 40%,
+                                            var(--gold-mid) 40.01%, var(--gold-lo) 100%);
+  box-shadow: inset 0 -2px 0 rgba(122, 82, 6, .6), 0 3px 8px -2px rgba(154, 106, 8, .5);
 }
 
 .lg-row {
   position: relative; width: 100%; min-height: 56px; text-align: left; cursor: pointer;
-  display: grid; grid-template-columns: 30px 26px 36px minmax(0, 1fr) auto;
-  align-items: center; gap: 10px; padding: 7px 14px;
-  border: 0; background: transparent; color: var(--ink); font-family: inherit;
+  /* Track widths and the objects riding in them are ONE decision — a 44px medallion in a 38px
+     track overflows its column and pushes the score pill off the row. Any change to .lg-rk,
+     .lg-mv or .lg-face moves these numbers with it. */
+  display: grid; grid-template-columns: 32px 26px 44px minmax(0, 1fr) auto;
+  align-items: center; gap: 9px; padding: 6px 12px;
+  border: 0; border-radius: 0; box-shadow: none; background: transparent;
+  color: var(--ink); font-family: inherit;
   transition: background-color .14s ease;
 }
-.lg-row:hover { background-color: rgba(31, 31, 31, .035); }
-.lg-row:focus-visible { outline: 2px solid var(--g-blue); outline-offset: -3px; }
+.lg-row:hover { background-color: rgba(42, 31, 61, .04); }
+.lg-row:focus-visible { outline: 3px solid var(--g-blue); outline-offset: -3px; }
 
-/* The rank. Ranks 4+ are bare numerals — twenty-seven identical grey discs was noise, and it
-   spent the one visual device the top three needed. Places 1-3 wear a struck metal plate. */
+/* FIVE STRUCK OBJECTS PER ROW. This is what makes 27 rows read as a game board rather than a
+   table, and it is where the row's material lives — `.lg-row` itself is pinned flat. */
 .lg-rk {
-  display: grid; place-items: center; width: 30px; height: 27px; border-radius: 7px;
-  font-family: var(--disp); font-weight: 700; font-size: 14.5px; color: var(--ink-3);
+  box-sizing: border-box; display: grid; place-items: center; width: 32px; height: 26px;
+  border: 1.5px solid var(--mat-ink); border-radius: 7px;
+  background-color: var(--chip-lo);
+  background-image: linear-gradient(180deg, var(--chip-hi) 0%, var(--chip-hi) 40%,
+                                            var(--chip-mid) 40.01%, var(--chip-lo) 100%);
+  box-shadow: 0 2px 0 0 var(--chip-lip), 0 2px 0 1.5px var(--mat-ink);
+  font-family: var(--disp); font-weight: 800; font-size: 15px; color: #333A44;
 }
-.lg-item[data-place] .lg-rk {
-  color: var(--plate-ink); font-size: 15.5px;
-  background: linear-gradient(180deg, var(--plate-hi), var(--plate-lo));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 2px 5px -3px rgba(16, 24, 40, .7);
+.lg-item[data-promo] .lg-rk {
+  background-color: var(--gold-lo);
+  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 40%,
+                                            var(--gold-mid) 40.01%, var(--gold-lo) 100%);
+  box-shadow: 0 2px 0 0 var(--gold-lip), 0 2px 0 1.5px var(--mat-ink);
+  color: var(--ink-on-gold);
 }
-.lg-item[data-place="1"] { --plate-hi: #FFE7A2; --plate-lo: #E0A61F; --plate-ink: #4A3200; }
-.lg-item[data-place="2"] { --plate-hi: #EDF2F8; --plate-lo: #AFBCCB; --plate-ink: #333A44; }
-.lg-item[data-place="3"] { --plate-hi: #F3CFAA; --plate-lo: #CE8B54; --plate-ink: #4A2610; }
+/* Movement: the highest-signal datum on the row. `up` and `down` are struck pills; `flat` and
+   `none` stay BARE glyphs, deliberately — both are absences, and an absence should not wear a
+   badge. All four keep distinct glyphs, which is what league_assert compares. */
+.lg-mv { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: var(--ink-3); }
+.lg-mv[data-dir="up"], .lg-mv[data-dir="down"] {
+  box-sizing: border-box; width: 26px; height: 20px; border-radius: 6px;
+}
+.lg-mv[data-dir="up"] {
+  background-color: var(--up-fill); color: var(--up-ink);
+  border: 1.5px solid rgba(20, 96, 42, .45);
+  box-shadow: 0 2px 0 0 rgba(20, 96, 42, .28);
+}
+.lg-mv[data-dir="down"] {
+  background-color: var(--chip-lo); color: #5A6072;
+  border: 1.5px solid rgba(42, 31, 61, .3);
+  box-shadow: 0 2px 0 0 var(--chip-lip);
+}
+.lg-mv[data-dir="none"] { color: rgba(42, 31, 61, .38); font-size: 15px; }
 
-.lg-mv { display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--ink-3); }
-.lg-mv[data-dir="up"] { color: var(--on-green); }   /* the one hue outside the metals, and it is semantic */
-.lg-mv[data-dir="down"] { color: rgba(31, 31, 31, .42); }
-.lg-mv[data-dir="none"] { color: rgba(31, 31, 31, .28); font-size: 15px; }
-
-.lg-face { position: relative; width: 36px; height: 36px; display: grid; place-items: center; }
-.lg-face .eyecon-wrap { border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--hair); }
-/* All that survives of the podium's ornament, and it costs nine pixels of row. */
-.lg-crown {
-  position: absolute; left: 50%; top: -9px; width: 20px; height: 12.5px; z-index: 2;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 2px 3px rgba(140, 96, 8, .4));
+/* The avatar as a struck medallion. There are 27 of these — per unit of code this does more
+   against "flat and soft" than anything else on the page, because it is where the eye rests. */
+.lg-face {
+  position: relative; box-sizing: border-box; width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border: 2px solid var(--mat-ink); border-radius: 50%;
+  background-color: var(--chip-mid);
+  box-shadow: inset 0 -2px 0 rgba(42, 31, 61, .18),
+              0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
 }
+.lg-item[data-promo] .lg-face { box-shadow: inset 0 -2px 0 rgba(42, 31, 61, .18),
+  0 3px 0 0 var(--gold-lip), 0 3px 0 2px var(--mat-ink); }
+.lg-face .eyecon-wrap { display: block; border-radius: 50%; overflow: hidden; }
 
 .lg-meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .lg-nm {
-  display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; color: var(--ink);
+  display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 14.5px; color: var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .lg-you {
-  flex: 0 0 auto; font-size: 9px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
-  color: #fff; background: var(--gemini); border-radius: 999px; padding: 2px 7px;
+  flex: 0 0 auto; font-size: 9px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase;
+  color: #FFFFFF; background-color: var(--you-blue); border-radius: 999px; padding: 2px 7px;
+  box-shadow: 0 2px 0 0 #103A85;
 }
-/* --ink-2, not --ink-3: the promotion tint warms the surface under the top rows, and the
-   tertiary ink drops to 4.3:1 on it. Hierarchy here comes from size and weight instead. */
 .lg-sub { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-2); min-width: 0; }
-.lg-role { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.lg-role { font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 .lg-lvl, .lg-streak { white-space: nowrap; }
-/* Ink, not gold: gold is the mechanic on this board, and the Lumen coin already marks the
-   unit. Thirty gold scores would make the promotion zone one more gold thing among many. */
+/* Ink, not gold: gold means the mechanic here, and the Lumen coin already marks the unit.
+   Declaring its own solid also makes the probe measure this pill rather than the tinted row. */
 .lg-score {
-  display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700;
-  font-size: 15px; color: var(--ink); white-space: nowrap;
+  box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 8px;
+  background-color: #FFFFFF; border: 1.5px solid var(--chip-lip);
+  box-shadow: 0 2px 0 0 #E4E9F2;
+  font-family: var(--disp); font-weight: 800; font-size: 15px; color: var(--ink); white-space: nowrap;
 }
 
-/* Your row wears the GEMINI gradient, not gold: gold is reserved for promotion, so a gold rail
-   on a row nowhere near the cut would promise something the board isn't offering. Its rail
-   sits above the zone's, so being inside the zone never costs you your own marker. */
+/* Your row wears GEMINI, not gold: gold is reserved for promotion, so a gold rail on a row
+   nowhere near the cut would promise something the board is not offering. Its rail sits above
+   the zone's, so being inside the zone never costs you your own marker. */
 .lg-row[data-you] {
-  background-image: linear-gradient(90deg, rgba(66, 133, 244, .14), rgba(155, 114, 203, .07) 58%, transparent);
+  background-image: linear-gradient(90deg, rgba(66, 133, 244, .16), rgba(155, 114, 203, .07) 58%, rgba(155, 114, 203, 0));
 }
 .lg-row[data-you]::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 2;
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 2;
   background: var(--gemini);
   animation: lg-breathe 3.4s ease-in-out infinite;
 }
 
 .lg-open {
-  text-align: center; color: var(--ink-2); font-weight: 600; font-size: 13px; padding: 26px 16px;
+  text-align: center; color: var(--ink-2); font-weight: 600; font-size: 13px; padding: 22px 16px;
 }
 .lb-empty { color: var(--ink-2); text-align: center; padding: 3rem 1rem; font-size: 15px; }
 
 /* ── sticky "you" bar ─────────────────────────────────────────────────────── */
-/* It has to clear the bottom bar, not sit inside it. At 390x844 the old
-   `18px + safe-area` put the bar at 776-826 while the nav occupies 788-844: 38 of its 50px
-   were behind the rail, and elementFromPoint at its own centre returned a nav link — a
-   "jump to your row" control nobody could tap. A higher z-index does not fix it (40 vs 30;
-   the rail wins on stacking context), and no magic number survives a notch. --bar-h is the
-   shell's single source of truth for the bar, already includes the safe-area inset, and is
-   simply absent on desktop — where the fallback restores the original 18px. */
+/* The offset and the observer's rootMargin are diagnosed values, NOT style choices — keep both
+   verbatim. At 390x844 an `18px + safe-area` bottom put the bar at 776-826 while the nav
+   occupies 788-844, and elementFromPoint at the bar's own centre returned a nav link WHILE the
+   bar held the higher z-index (40 vs 30): different stacking contexts, so z-index never entered
+   into it. --bar-h is the shell's single source of truth and already includes the safe-area
+   inset. Pinned by HIT TEST.
+   Re-skinned dark so it can never be mistaken for a row, and with no backdrop-filter — a
+   blurred translucent bar is the dashboard idiom, and a translucent background makes the
+   contrast probe walk past it. */
 .youbar {
   position: fixed; left: 50%; bottom: calc(var(--bar-h, env(safe-area-inset-bottom)) + 18px);
   transform: translateX(-50%); z-index: 40; width: min(560px, calc(100vw - 32px));
+  box-sizing: border-box;
   display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 10px;
-  min-height: 50px; padding: 8px 16px; cursor: pointer; font-family: inherit; text-align: left;
-  border-radius: 999px; border: 1px solid var(--hair); color: var(--ink);
-  background: rgba(255, 255, 255, .92);
-  box-shadow: 0 18px 40px -14px rgba(16, 24, 40, .4);
-  backdrop-filter: blur(10px);
+  min-height: 52px; padding: 8px 16px; cursor: pointer; font-family: inherit; text-align: left;
+  border-radius: 999px; border: 2.5px solid #150F22; color: #FFFFFF;
+  background-color: var(--mat-ink);
+  box-shadow: 0 4px 0 0 #0C0818, 0 14px 30px -12px rgba(42, 31, 61, .5);
   animation: youbar-in .28s cubic-bezier(.2, .9, .3, 1.1) backwards;
 }
-.youbar-rk { font-family: var(--disp); font-weight: 700; font-size: 15px; color: var(--ink); }
-.youbar-mv { font-size: 11px; font-weight: 700; color: var(--ink-3); }
-.youbar-mv[data-dir="up"] { color: var(--on-green); }
-.youbar-nm { font-weight: 700; font-size: 13.5px; }
-.youbar-score { display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700; font-size: 14px; color: var(--ink); }
-.youbar[data-promo] { border-color: rgba(232, 176, 47, .55); box-shadow: 0 18px 40px -14px rgba(140, 96, 8, .45); }
+.youbar:active { transform: translate(-50%, 3px); box-shadow: 0 0 0 0 #0C0818, 0 10px 22px -12px rgba(42, 31, 61, .5); }
+.youbar-rk { font-family: var(--disp); font-weight: 800; font-size: 15px; color: #FFFFFF; }
+.youbar-mv { font-size: 11px; font-weight: 800; color: #C6C1D4; }
+.youbar-mv[data-dir="up"] { color: #7BE3A3; }
+.youbar-nm { font-weight: 800; font-size: 13.5px; color: #FFFFFF; }
+.youbar-score { display: inline-flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 800; font-size: 14px; color: var(--gold-mid); }
+.youbar[data-promo] { border-color: var(--gold-lip); box-shadow: 0 4px 0 0 var(--gold-lip), 0 14px 30px -12px rgba(154, 106, 8, .55); }
 
 /* ── sheets: the row peek, and the rules ──────────────────────────────────── */
 .sheet-scrim {
   position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center;
-  background: rgba(20, 24, 40, .34); backdrop-filter: blur(3px);
+  background: rgba(20, 24, 40, .4);
   animation: sheet-fade .2s ease-out backwards;
 }
 .sheet {
-  width: min(460px, 100%); background: var(--card); color: var(--ink);
-  border: 1px solid var(--hair); border-bottom: none; border-radius: 20px 20px 0 0;
+  box-sizing: border-box; width: min(460px, 100%); background-color: #FFFFFF; color: var(--ink);
+  border: var(--mat-out) solid var(--mat-ink); border-bottom: none; border-radius: 20px 20px 0 0;
   padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
-  box-shadow: 0 -20px 50px -20px rgba(16, 24, 40, .4);
+  box-shadow: 0 -18px 44px -18px rgba(42, 31, 61, .5);
   animation: sheet-up .26s cubic-bezier(.2, .9, .3, 1.05) backwards;
 }
-.sheet-grip { width: 38px; height: 4px; border-radius: 999px; background: rgba(31, 31, 31, .18); margin: 0 auto 14px; }
+.sheet-grip { width: 40px; height: 5px; border-radius: 999px; background: rgba(42, 31, 61, .22); margin: 0 auto 14px; }
 .sheet-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; }
-.sheet-face { display: grid; place-items: center; border-radius: 50%; }
-.sheet-face .eyecon-wrap { border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--hair); }
-.sheet-id { min-width: 0; }
-.sheet-nm { margin: 0; font-family: var(--disp); font-weight: 700; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sheet-sub { margin: 3px 0 0; font-size: 12px; color: var(--ink-2); }
-.sheet-rk { font-family: var(--disp); font-weight: 700; font-size: 22px; color: var(--gold-ink); }
-.sheet-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 16px 0 0; }
-.sheet-stats > div { background: #F7F8FC; border: 1px solid var(--hair); border-radius: 11px; padding: 10px 12px; }
-.sheet-stats dt { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-.sheet-stats dd { margin: 4px 0 0; display: flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 700; font-size: 16px; }
-.sheet-stats dd[data-dir="up"] { color: var(--on-green); }
-.sheet-close {
-  width: 100%; margin-top: 16px; min-height: 46px; border-radius: 12px; cursor: pointer;
-  border: 1px solid var(--hair); background: #F7F8FC; color: var(--ink);
-  font-family: inherit; font-weight: 700; font-size: 14px;
+/* The padding is what makes the ring visible: the Eyecon inside is 72px, so without it the
+   border sits flush against the portrait and the medallion reads as a hairline. */
+.sheet-face {
+  box-sizing: border-box; display: grid; place-items: center; border-radius: 50%; padding: 4px;
+  border: 2px solid var(--mat-ink); background-color: var(--chip-mid);
+  box-shadow: 0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
 }
-.sheet-close:hover { border-color: rgba(31, 31, 31, .22); }
+.sheet-face .eyecon-wrap { display: block; border-radius: 50%; overflow: hidden; }
+.sheet-id { min-width: 0; }
+.sheet-nm { margin: 0; font-family: var(--disp); font-weight: 800; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-sub { margin: 3px 0 0; font-size: 12px; color: var(--ink-2); }
+.sheet-rk { font-family: var(--disp); font-weight: 800; font-size: 22px; color: var(--gold-ink); }
+.sheet-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 16px 0 0; }
+.sheet-stats > div {
+  background-color: var(--chip-mid); border: 2px solid var(--mat-ink); border-radius: 12px; padding: 9px 12px;
+  box-shadow: 0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
+}
+.sheet-stats dt { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet-stats dd { margin: 4px 0 0; display: flex; align-items: center; gap: 5px; font-family: var(--disp); font-weight: 800; font-size: 16px; }
+.sheet-stats dd[data-dir="up"] { color: var(--up-ink); }
+.sheet-close {
+  box-sizing: border-box; width: 100%; margin-top: 20px; min-height: 46px; border-radius: 12px; cursor: pointer;
+  border: 2px solid var(--mat-ink); background-color: var(--chip-mid); color: var(--ink);
+  font-family: inherit; font-weight: 800; font-size: 14px;
+  box-shadow: 0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.sheet-close:active { transform: translateY(3px); box-shadow: 0 0 0 0 var(--chip-lip), 0 0 0 2px var(--mat-ink); }
 /* The rules, moved off the default view and into the (?) sheet. */
 .rules {
   margin: 14px 0 0; padding: 0; list-style: none;
   display: flex; flex-direction: column; gap: 10px;
   font-size: 13px; line-height: 1.5; color: var(--ink-2);
 }
-.rules li { padding-left: 15px; position: relative; }
+.rules li { padding-left: 17px; position: relative; }
 .rules li::before {
-  content: ""; position: absolute; left: 0; top: 7px; width: 5px; height: 5px;
-  border-radius: 50%; background: var(--gold);
+  content: ""; position: absolute; left: 0; top: 5px; width: 8px; height: 8px;
+  border-radius: 50%; background-color: var(--gold-mid); border: 1.5px solid var(--mat-ink);
 }
-.rules strong { color: var(--ink); font-weight: 700; }
+.rules strong { color: var(--ink); font-weight: 800; }
 
 /* ── the Monday ceremony ──────────────────────────────────────────────────────
-   Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens —
-   it declares its own. Same canvas language: pearl, one warm bloom, gold. */
+   Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens — it
+   declares its own. Same material, same light. */
 .lr {
   position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 24px;
   background:
-    radial-gradient(90% 60% at 50% -8%, rgba(232, 176, 47, .30) 0%, transparent 64%),
-    radial-gradient(70% 50% at 8% 100%, rgba(66, 133, 244, .16) 0%, transparent 68%),
-    #F2F4FC;
+    radial-gradient(90% 60% at 50% -8%, rgba(245, 198, 63, .34) 0%, rgba(245, 198, 63, 0) 64%),
+    radial-gradient(70% 50% at 8% 100%, rgba(66, 133, 244, .16) 0%, rgba(66, 133, 244, 0) 68%),
+    #F2F4F9;
   color: #1F1F1F; font-family: var(--font-body);
   animation: sheet-fade .3s ease-out backwards;
 }
 .lr-ray {
   position: absolute; left: 50%; top: -40px; width: min(460px, 84%); height: 62%;
   transform: translateX(-50%); pointer-events: none;
-  background: radial-gradient(50% 56% at 50% 40%, rgba(255, 219, 130, .7) 0%, rgba(232, 176, 47, .2) 48%, transparent 76%);
+  background: radial-gradient(50% 56% at 50% 40%, rgba(255, 219, 130, .7) 0%, rgba(245, 198, 63, .2) 48%, rgba(245, 198, 63, 0) 76%);
   filter: blur(20px);
   animation: lr-ignite 1.1s ease-out .25s backwards;
 }
 .lr-card {
-  position: relative; text-align: center; max-width: 440px; display: flex; flex-direction: column; gap: 12px;
-  padding: 26px 24px; border-radius: 20px;
-  background: rgba(255, 255, 255, .86); border: 1px solid rgba(31, 31, 31, .09);
-  box-shadow: 0 24px 60px -24px rgba(16, 24, 40, .38);
-  backdrop-filter: blur(8px);
+  position: relative; box-sizing: border-box; text-align: center; max-width: 440px;
+  display: flex; flex-direction: column; gap: 12px; padding: 26px 24px; border-radius: 20px;
+  background-color: #FFFFFF; border: 2.5px solid #2A1F3D;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9),
+              0 5px 0 0 #C9D0DE, 0 5px 0 2.5px #2A1F3D,
+              0 24px 50px -20px rgba(42, 31, 61, .42);
   animation: lr-rise .6s cubic-bezier(.2, .9, .3, 1.05) backwards;
 }
-.lr-eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #6E7378; }
+.lr-eyebrow { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #6E7378; }
 .lr-verdict {
   margin: 0; font-family: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
-  font-weight: 700; letter-spacing: -.03em; line-height: 1; font-size: clamp(38px, 11vw, 58px);
+  font-weight: 800; letter-spacing: -.03em; line-height: 1; font-size: clamp(38px, 11vw, 58px);
   color: #7A5206;
 }
 .lr[data-outcome="held"] .lr-verdict { color: #1F1F1F; }
 .lr-move { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
 .lr-div {
-  font-size: 12px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase;
-  border-radius: 999px; padding: 7px 15px; border: 1px solid rgba(31, 31, 31, .14); color: #5F6368;
+  font-size: 12px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase;
+  border-radius: 999px; padding: 6px 15px; border: 2px solid #2A1F3D; color: #4B5168;
+  background-color: #EDF1F8;
 }
 .lr-to {
-  background: linear-gradient(180deg, #FFE29C, #E8B02F); color: #4A3200; border-color: transparent;
-  box-shadow: 0 8px 22px -10px rgba(140, 96, 8, .7);
+  background-color: #DFA828;
+  background-image: linear-gradient(180deg, #FFF0BE 0%, #FFF0BE 38%, #F5C63F 38.01%, #DFA828 100%);
+  color: #3A2600; box-shadow: 0 3px 0 0 #9A6A08, 0 3px 0 2px #2A1F3D;
 }
-.lr-arrow { color: #C08E17; font-size: 17px; }
-.lr-line { margin: 6px 0 0; font-size: 15px; color: #3C4043; }
+.lr-arrow { color: #9A6A08; font-size: 17px; }
+.lr-line { margin: 6px 0 0; font-size: 15px; color: #33394A; }
 .lr-line strong { color: #7A5206; font-variant-numeric: tabular-nums; }
 .lr-next { margin: 0; font-size: 13px; line-height: 1.5; color: #5F6368; }
 .lr-go {
-  margin-top: 10px; min-height: 48px; padding: 12px 28px; border-radius: 12px; border: none; cursor: pointer;
-  background: #1F1F1F; color: #fff;
+  box-sizing: border-box; margin-top: 12px; min-height: 48px; padding: 12px 28px; border-radius: 12px;
+  cursor: pointer; background-color: #2A1F3D; color: #FFFFFF; border: 2.5px solid #150F22;
   font-family: inherit; font-weight: 800; font-size: 15px; letter-spacing: .02em;
+  box-shadow: 0 4px 0 0 #0C0818;
+  transition: transform .1s ease, box-shadow .1s ease;
 }
+.lr-go:active { transform: translateY(4px); box-shadow: 0 0 0 0 #0C0818; }
 
 /* ── keyframes ────────────────────────────────────────────────────────────── */
 /* `backwards`, never `both`: a retained final keyframe leaves a transform on the element
-   forever, which makes it a containing block and traps position:fixed descendants
-   (see motion.css .aurora-page-enter, and fixed_overlay_assert.mjs). */
+   forever, which makes it a containing block and traps position:fixed descendants (see
+   motion.css .aurora-page-enter, and fixed_overlay_assert.mjs). */
 @keyframes lb-rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pod-rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes pod-bob { 50% { transform: translate(-50%, -3px); } }
+@keyframes pod-shine { to { left: 130%; } }
 @keyframes lg-breathe { 50% { opacity: .45; } }
 @keyframes youbar-in { from { opacity: 0; transform: translate(-50%, 14px); } }
 @keyframes sheet-fade { from { opacity: 0; } }
@@ -478,60 +765,124 @@
 @keyframes lr-rise { from { opacity: 0; transform: translateY(26px); } }
 
 /* ── responsive ───────────────────────────────────────────────────────────── */
-/* Desktop widens the column a little and the rows breathe. The board does NOT stretch to the
-   page: a ladder read at 1100px wide is a spreadsheet. Guarded on HEIGHT too, so a 932x430
-   phone in landscape — which also clears 860px wide — stays on the phone tier. */
-@media (min-width: 860px) and (min-height: 640px) {
-  .lb-climb { max-width: 660px; padding-top: 20px; gap: 13px; }
-  .tb-head { padding: 12px 15px; }
-  .lg-row { min-height: 62px; padding: 8px 16px; }
-  .lg-zone { padding: 9px 16px; font-size: 11px; }
-}
-/* Phone-landscape joins the phone tier: at 844x390 / 932x430 a WIDTH breakpoint misses it
-   entirely and the board resolves at desktop scale. Width cannot identify a phone
-   (breakpoints.css / project_mobile_refit). */
-@media (max-width: 560px), (max-height: 480px) and (pointer: coarse) {
-  .lb-climb { gap: 11px; }
-  .tb-head { gap: 9px; padding: 9px 11px; }
-  .tb-readout { padding: 7px 12px; }
-  .lg-row { min-height: 54px; padding: 6px 12px; gap: 9px; }
-}
 @media (max-width: 420px) {
-  .lb-climb { padding: 12px 11px 96px; }
-  .lg-row { grid-template-columns: 26px 22px 34px minmax(0, 1fr) auto; gap: 8px; padding: 6px 11px; }
-  .lg-rk { width: 26px; font-size: 13.5px; }
-  .lg-face { width: 34px; height: 34px; }
+  .lb-climb { padding: 10px 11px calc(var(--bar-h, 0px) + 28px); }
+  /* The medallion does NOT shrink here — it sets the row height, and 44px is what the
+     visible-ranks budget is built on. Only the flanking tracks give ground. */
+  .lg-row { grid-template-columns: 30px 24px 44px minmax(0, 1fr) auto; gap: 8px; padding: 5px 11px; }
+  .lg-rk { width: 30px; }
+  .lg-mv[data-dir="up"], .lg-mv[data-dir="down"] { width: 24px; }
   .lg-lvl { display: none; }
-  .lg-zone { padding: 8px 11px; letter-spacing: .05em; }
-  /* The readout must stay ONE row. It holds a number, a label and the clock; the label is the
-     only elastic part, so it is the only thing allowed to shrink. */
   .chase-l { font-size: 11.5px; }
-  .tb-clock { font-size: 11px; }
+  .lg-score { padding: 3px 7px; font-size: 14px; }
 }
-/* Phone landscape is WIDE and SHORT: cap the column instead of re-sizing every part, so the
-   authored proportions land at phone scale untouched. */
-@media (max-height: 480px) and (pointer: coarse) {
-  .lb-climb { max-width: 480px; padding: 10px 14px 88px; }
+/* The stage gives back height first on a small screen: it is the part that can most afford to
+   shorten, and the ladder is the part that cannot. */
+@media (max-width: 380px) {
+  .pod { --pod-h: 186px; }
+  .pod-slot[data-place="1"] { --pl-h: 70px; --face: 52px; --num-sz: 30px; --crown-w: 26px; }
+  .pod-slot[data-place="2"] { --pl-h: 54px; --face: 40px; --num-sz: 23px; }
+  .pod-slot[data-place="3"] { --pl-h: 43px; --face: 40px; --num-sz: 20px; }
+  .lg-row { min-height: 54px; }
+}
+/* Phone LANDSCAPE is WIDE AND SHORT: at 844x390 stacked, the list would start at y~321 and show
+   ZERO rows. Two columns — band + filter + stage left, ladder right — is what buys the ladder
+   back. Height-keyed, never width: a 932px landscape phone clears any min-width desktop rule.
+   Grid placement is EXPLICIT or the board auto-places into the left column under the band. */
+@media (max-height: 560px) and (pointer: coarse) {
+  .lb-climb {
+    max-width: none;
+    /* 330, not 296: at 296 the head had ~133px for the division name after the crest, the five
+       pips and the (?), and `clamp(19px, 5.4vw, 25px)` resolves to the 25px CEILING on a 932px
+       viewport — so "Silver League" rendered as "Silve…". The name is capped below as well;
+       widening alone would only move the width at which it truncates. */
+    display: grid; grid-template-columns: 330px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr; gap: 6px 12px; align-content: start;
+    padding: 6px 12px calc(var(--bar-h, 0px) + 8px);
+  }
+  /* vw-based type is sized by the VIEWPORT, which in a two-column layout is roughly three
+     times the box the text actually lives in. */
+  .tb-name { font-size: 20px; }
+  /* The bar is centred on the viewport by default, which in two columns lands it across the
+     STAGE. Anchor it over the ladder — the thing it scrolls you back into. */
+  .youbar {
+    left: auto; right: 12px; transform: none;
+    width: min(430px, calc(100vw - 366px));
+    bottom: calc(var(--bar-h, env(safe-area-inset-bottom)) + 10px);
+  }
+  .youbar:active { transform: translateY(3px); }
+  .tb, .lb-filter, .pod { grid-column: 1; }
+  /* span 3 stays correct when .lb-filter does not render (a single-role cohort): the podium
+     lands in row 2 and row 3 collapses to zero. */
+  .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
+  /* align-self:start is REQUIRED, not cosmetic. .pod auto-places into the `1fr` row, and a grid
+     item defaults to stretch — so with min-height (rather than a fixed height) the stage grows
+     to the full height of the ladder beside it, and `justify-content: flex-end` then parks all
+     three figures hundreds of pixels below the fold. The gate caught it: "0 on the stage". */
+  .pod { --pod-h: 148px; margin-bottom: 0; align-self: start; }
+  .pod-slot[data-place="1"] { --pl-h: 54px; --face: 44px; --num-sz: 26px; --crown-w: 24px; }
+  .pod-slot[data-place="2"] { --pl-h: 40px; --face: 34px; --num-sz: 20px; }
+  .pod-slot[data-place="3"] { --pl-h: 32px; --face: 34px; --num-sz: 18px; }
+  .lg-row { min-height: 46px; }
+  .lg-zone { min-height: 24px; }
+  /* STACKED READOUT. In a ~296px column the chase and the clock cannot share a line: the
+     label is the only elastic part, so it ellipsed to "Lumens to the pr…" — a sentence that
+     stops before it says anything. It wraps here and the clock drops beneath it. Deliberately
+     NOT applied to the single-column phone tier, where the readout must stay one row. */
+  .tb-readout { flex-wrap: wrap; row-gap: 3px; padding: 5px 10px; }
+  .tb-chase { flex: 1 1 100%; }
+  .chase-l { white-space: normal; overflow: visible; }
+  /* The last few pixels of the left column: on a 430px-tall phone the stage's bottom lip is
+     what runs into the floating nav, and the lip is the material this whole pass is about. */
+  .pod-fig { padding-bottom: 4px; }
+  .pod-face { margin-bottom: 2px; }
+}
+/* Desktop, guarded on HEIGHT so the 932x430 phone can never reach it. Same two columns, which
+   is what turns a tall empty margin into 13 visible rungs. */
+@media (min-width: 1024px) and (min-height: 620px) {
+  .lb-climb {
+    --mat-out: 3px; --mat-lip: 6px;
+    max-width: 1000px;
+    display: grid; grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr; gap: 12px 22px; align-content: start;
+    padding: 20px 16px 40px;
+  }
+  .tb, .lb-filter, .pod { grid-column: 1; }
+  .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
+  .pod { --pod-h: 250px; align-self: start; }   /* see the landscape tier — stretch parks the stage below the fold */
+  .pod-slot[data-place="1"] { --pl-h: 98px; --face: 76px; --num-sz: 48px; --crown-w: 40px; }
+  .pod-slot[data-place="2"] { --pl-h: 74px; --face: 58px; --num-sz: 36px; }
+  .pod-slot[data-place="3"] { --pl-h: 60px; --face: 58px; --num-sz: 30px; }
+  .lg-row { min-height: 62px; }
+  .lg-zone { min-height: 30px; }
+  /* Same stacked readout as the landscape tier, same reason: a 340px column cannot hold
+     "1,550 Lumens to the promotion zone" and "Closes in 5d 22h" on one line. */
+  .tb-readout { flex-wrap: wrap; row-gap: 5px; }
+  .tb-chase { flex: 1 1 100%; }
+  .chase-l { white-space: normal; overflow: visible; }
 }
 /* Touch: every control on the board clears 44px. */
 @media (pointer: coarse) {
   .lb-chip { min-height: 44px; }
-  .sheet-close { min-height: 48px; }
   .tb-help { width: 44px; height: 44px; }
+  .sheet-close { min-height: 48px; }
 }
 
 /* ── reduced motion: freeze everything, both signals ──────────────────────── */
-/* Every animated selector on the board appears in BOTH lists. league_assert samples .lg-item
-   and .lg-row[data-you]::before under each signal; the rest are frozen because they should be,
-   not because they are measured. */
+/* Every animated selector appears in BOTH lists. league_assert samples .lg-item, .pod-slot and
+   .lg-row[data-you]::before under each signal; the rest are frozen because they should be, not
+   because they are measured. */
 @media (prefers-reduced-motion: reduce) {
-  .lg-item, .lg-row[data-you]::before, .youbar, .sheet-scrim, .sheet,
-  .lr, .lr-ray, .lr-card {
+  .lg-item, .pod-slot, .pod-crown, .pod-slot[data-place="1"] .pod-block::before,
+  .lg-row[data-you]::before, .youbar, .sheet-scrim, .sheet, .lr, .lr-ray, .lr-card {
     animation: none !important;
   }
-  .lg-row, .lb-chip { transition: none !important; }
+  .lg-row, .lb-chip, .tb-help, .sheet-close, .lr-go, .youbar { transition: none !important; }
 }
 html[data-motion="reduce"] .lg-item,
+html[data-motion="reduce"] .pod-slot,
+html[data-motion="reduce"] .pod-crown,
+html[data-motion="reduce"] .pod-slot[data-place="1"] .pod-block::before,
 html[data-motion="reduce"] .lg-row[data-you]::before,
 html[data-motion="reduce"] .youbar,
 html[data-motion="reduce"] .sheet-scrim,
@@ -540,4 +891,7 @@ html[data-motion="reduce"] .lr,
 html[data-motion="reduce"] .lr-ray,
 html[data-motion="reduce"] .lr-card { animation: none !important; }
 html[data-motion="reduce"] .lg-row,
-html[data-motion="reduce"] .lb-chip { transition: none !important; }
+html[data-motion="reduce"] .lb-chip,
+html[data-motion="reduce"] .tb-help,
+html[data-motion="reduce"] .sheet-close,
+html[data-motion="reduce"] .lr-go { transition: none !important; }
