@@ -11,6 +11,7 @@ the inclusion list did — the difference is only that this one fails SAFE, sinc
 left out of it still runs. So the exclusions are duplicated here with their reasons: adding
 one means editing this file, which means saying why.
 """
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -96,10 +97,27 @@ def test_the_all_arm_actually_runs_what_list_reports():
     they are fast targeted subsets, not the gate.
     """
     arm = _all_arm()
+    # CODE only. The script explains the discarded-status trap in a comment that necessarily
+    # quotes the broken form, and a whole-file substring check reads that prose as the bug.
+    code = "\n".join(
+        ln for ln in SCRIPT.read_text(encoding="utf-8").splitlines()
+        if not ln.lstrip().startswith("#")
+    )
 
-    assert "gated_harnesses" in arm, f"`all` no longer discovers:\n{arm}"
+    # Discovery moved OUT of the arm so a collapsed one fails before the build rather than
+    # after it — but it must still BE discovery, and the arm must still sweep what it found.
+    assert 'HARNESSES="$(gated_harnesses)"' in code, "`all` no longer discovers"
+    assert "$HARNESSES" in arm, f"`all` no longer sweeps the discovered set:\n{arm}"
     named = sorted(n for n in _browser_harnesses() if n in arm)
     assert not named, f"`all` names harnesses directly ({', '.join(named)}):\n{arm}"
+
+    # The exact regression, pinned by shape as well as by behaviour below: bash DISCARDS a
+    # command substitution's exit status in a `for` word list, so this form threw the
+    # under-count guard away and `set -e` never fired.
+    assert "for h in $(gated_harnesses)" not in code, (
+        "`all` is back to the bare command substitution, which silently discards the "
+        "under-count guard — see test_all_refuses_to_run_a_collapsed_discovery"
+    )
 
 
 def test_ci_drives_the_discovering_mode_rather_than_naming_harnesses():
@@ -148,3 +166,33 @@ def test_discovering_almost_nothing_fails_instead_of_passing_quietly(sandbox):
 
     assert res.returncode != 0, "a collapsed discovery reported success"
     assert "expected at least" in res.stderr, res.stderr
+
+
+def test_all_refuses_to_run_a_collapsed_discovery(sandbox):
+    """The same guard, on the mode CI actually runs — where it was DEAD until 2026-08-03.
+
+    `all` read `for h in $(gated_harnesses)`, and bash discards a command substitution's
+    exit status in a `for` word list, so `set -e` never saw the `return 1`. The guard
+    printed "running none of them exits 0 and reads as a green suite" and then produced
+    precisely that: a sweep of whatever it had found, exiting 0. Every test above drives
+    `list`, where the same call IS a simple command and `set -e` does catch it — so the
+    guard looked covered while the mode that gates CI was unprotected.
+    """
+    _fake_harnesses(sandbox, 5)
+
+    res = subprocess.run(
+        [BASH, str(sandbox / "scripts" / "start-harness.sh"), "all"],
+        cwd=sandbox, capture_output=True, text=True, timeout=180,
+        # A regression walks on to the port logic, and :3000 may belong to a real run in
+        # another tree. Point it somewhere harmless so this test can never reap a server.
+        env={**os.environ, "HARNESS_PORT": "3998"},
+    )
+
+    assert res.returncode != 0, "a collapsed discovery swept quietly and reported success"
+    assert "expected at least" in res.stderr, res.stderr
+    # It must fail ON THE GUARD, seconds in — not minutes later on a build. Without this a
+    # regression still exits non-zero here (the sandbox has no frontend to build), and the
+    # test would pass for entirely the wrong reason.
+    assert "building" not in res.stdout, (
+        f"`all` reached the build before noticing the collapse:\n{res.stdout}"
+    )

@@ -107,6 +107,19 @@ gated_harnesses() {
 # Before the lock, the build and the server: `list` is a question about the tree, not a run.
 if [ "$MODE" = "list" ]; then gated_harnesses; exit 0; fi
 
+# `all` discovers the same way — and it does it HERE, before the lock, the build and the
+# server, so a collapsed discovery fails in seconds instead of after a full build.
+#
+# CAPTURING the output is what makes the under-count guard above real. It used to read
+# `for h in $(gated_harnesses)`, and bash DISCARDS a command substitution's exit status in
+# a `for` word list, so `set -e` never saw the `return 1`: the guard printed "running none
+# of them exits 0 and reads as a green suite" to stderr and then produced exactly that,
+# sweeping whatever it had found and exiting 0. `list` was never affected (there it is a
+# simple command, which `set -e` does catch), and the only test covering the guard drove
+# `list` — which is how a dead guard on the mode CI actually runs survived unnoticed.
+HARNESSES=""
+if [ "$MODE" = "all" ]; then HARNESSES="$(gated_harnesses)" || exit 1; fi
+
 mkdir -p "$ROOT/.tmp"
 
 # Git Bash and Windows disagree about pids: `$!` and `kill` speak msys pids, netstat and
@@ -330,7 +343,7 @@ case "$MODE" in
   hover)   run hover_pause_assert.mjs ;;
   # Everything that gates, discovered — see gated_harnesses() near the top for why this is
   # not a list. The named modes above stay as fast targeted subsets.
-  all)     for h in $(gated_harnesses); do run "$h"; done ;;
+  all)     for h in $HARNESSES; do run "$h"; done ;;
   # The one mode that hands the server over: it outlives this script on purpose, so YOU
   # own it now and `stop` is how it ends. Every other mode reaps what it started.
   serve)   echo "server ready at $BASE — it is yours until: scripts/start-harness.sh stop" ;;
