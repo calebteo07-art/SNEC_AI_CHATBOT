@@ -292,9 +292,14 @@ export function McqCard(p: Props) {
                       role={card.qtype === "single" ? "radio" : "checkbox"} aria-checked={picked}
                       className={`flash-option ${cls}`} disabled={checked}
                       onClick={(e) => tap(i, e.currentTarget.parentElement as HTMLElement)}>
+                      {/* Before the lock a picked option shows a ✓ in a filled lamp — the
+                         "I chose this" mark on a checkbox. Selection used to be carried by
+                         the tile's border alone, which read as ambiguous next to hover
+                         (Branda, 2026-08-03). Single-select locks on tap, so this branch is
+                         only ever seen on a multi-select card. */}
                       <span className="flash-lamp" aria-hidden>{checked
                         ? (card.correct.includes(i) ? "✓" : picked ? "✗" : letters[i])
-                        : letters[i]}</span>
+                        : picked ? "✓" : letters[i]}</span>
                       <span className="flash-otext">{opt}</span>
                     </button>
                   </li>

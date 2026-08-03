@@ -221,6 +221,27 @@ flip, spinner slows); WCAG-legible.
     tiles share that height (`.flash-options > li { flex:1 1 0 }`) so they **fill the space between
     the question header and the meter** — bigger boxes, bigger text (`.flash-otext` ~17–20px, lamp
     38px), no white space inside the card. Harness asserts `.flash-hint` is absent on the study card.
+  - **Criterion changed 2026-08-03 (a picked multi-select option is legible on its own; hover
+    is never a selection signal):** selection used to be carried by the tile border alone —
+    `.is-picked` recoloured `border-color` and added a 3px ring, and left the `.flash-lamp` chip
+    byte-identical to an untouched option. `:hover` spoke the *same* violet language one
+    specificity step higher (`:hover:not(:disabled)` (0,3,0) vs `.is-picked` (0,2,0)) and its
+    box-shadow carries no ring, so a hovered picked tile and a hovered unpicked tile computed to
+    the **identical** border with no ring on either. On touch, where `:hover` latches onto the
+    last-tapped element, a *deselected* option kept reading as selected — Branda, 2026-08-03:
+    "an option appears selected, but upon submission it is not recorded as selected."
+    Now: picked fills the **lamp** (fixed near-white chip, dark ✓ in place of the letter) and
+    lifts the tile; hover is wrapped in `@media (hover: hover)` and excludes `.is-picked`. The
+    chip fill is deliberately **not** the topic hue — `--flash-topic-hue` spans 184–260°, and at
+    88%/62% its luminance swings .16 (violet) → .59 (cyan), so a white ✓ reads ~5:1 on the violet
+    topics and **~1.6:1 on the cyan ones**. A fixed chip is ~15:1 on every topic; topic identity
+    stays on the tile border + ring, where nothing has to be read against it. The
+    lamp is deliberately the primary signal — hover styles the tile and **never** the chip, so
+    selection cannot be impersonated or erased by a stray hover state. Keep that separation: a
+    restyle may move the colours, but "picked" must stay legible without the border, and no
+    `:hover` rule may reach a picked option. Gated by `flashcards_option_state_logic.mjs`
+    (cascade, at the source) + `flashcards_multiselect_assert.mjs` (looks-picked === recorded).
+    The ✓/✗ green/red **lock** grammar is unchanged — the picked chip is pre-lock and violet.
 - **Pause / Quit (Task 24)**: a **neon-red PAUSE control** replaces **Exit** once a game is under
   way — same fixed **top-left** position as the retired Exit, distinguished by the pause-bars icon
   + "Pause" label, red permitted here as control-chrome (see the reworded verdict-red note above).
