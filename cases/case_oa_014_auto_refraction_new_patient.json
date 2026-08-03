@@ -40,7 +40,7 @@
   "investigations": {
     "auto_refraction": "RE: -2.25 / -0.50 x 180. LE: -2.75 / -0.75 x 175. Suggestive of myopia with mild astigmatism, both eyes.",
     "auto_keratometry": "RE: K1 43.25D / K2 43.75D. LE: K1 43.00D / K2 43.50D. Corneal curvature within normal range, mild corneal astigmatism consistent with AR findings.",
-    "va_distance": "RE: LogMAR 0.5 (6/18) unaided. LE: LogMAR 0.6 (6/24) unaided. Pinhole testing performed as VA was 6/12 or above threshold for the worse eye is borderline — pinhole improved both eyes towards 6/6, suggesting refractive cause."
+    "va_distance": "RE: LogMAR 0.5 (6/19) unaided. LE: LogMAR 0.6 (6/24) unaided. Pinhole testing performed as VA was 6/12 or above threshold for the worse eye is borderline — pinhole improved both eyes towards 6/6, suggesting refractive cause."
   },
   "diagnosis": "Uncorrected myopia with mild astigmatism, both eyes, in a new patient — consistent with her symptoms of blurred distance vision and night driving glare (starbursts). Pinhole improvement supports a refractive cause. For doctor review and formal subjective refraction.",
   "management": {

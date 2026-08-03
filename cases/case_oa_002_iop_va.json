@@ -28,7 +28,7 @@
   "examination_findings": {
     "va": {
       "right": "6/7.5 (LogMAR 0.1)",
-      "left": "6/9 (LogMAR 0.2)"
+      "left": "6/9.5 (LogMAR 0.2)"
     },
     "iop": {
       "right": "18 mmHg (NCT)",
@@ -41,7 +41,7 @@
     "anterior_segment": "Normal bilaterally. No corneal changes."
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.1 (6/7.5). LE: LogMAR 0.2 (6/9). Tested using LogMAR chart at 4 metres.",
+    "va_distance": "RE: LogMAR 0.1 (6/7.5). LE: LogMAR 0.2 (6/9.5). Tested on the LogMAR M&S Smart system, calibrated to room length.",
     "va_near": "RE: N8 at 35cm. LE: N8 at 35cm. Tested using N chart.",
     "iop_nct": "RE: 18 mmHg. LE: 20 mmHg. Three NCT readings taken per eye, average recorded."
   },
@@ -76,7 +76,7 @@
     "investigations": {
       "points": 10,
       "key_points": [
-        "Performs distance VA using LogMAR chart at correct distance (4 metres)",
+        "Performs distance VA on the LogMAR M&S Smart system at the calibrated room distance",
         "Records VA correctly using LogMAR notation (e.g. 0.1, 0.2)",
         "Performs near VA using N chart at 35cm",
         "Performs NCT correctly: explains to patient, takes 3 readings per eye, records average"

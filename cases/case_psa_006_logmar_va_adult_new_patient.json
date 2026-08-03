@@ -26,7 +26,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.18) with current glasses, improves to 6/6 with pinhole",
+      "right": "6/9.5 (LogMAR 0.2) with current glasses, improves to 6/6 with pinhole",
       "left": "6/12 (LogMAR 0.3) with current glasses, improves to 6/6 with pinhole"
     },
     "iop": {
@@ -38,7 +38,7 @@
   },
   "investigations": {
     "logmar_va": {
-      "right_with_correction": "LogMAR 0.18 (6/9), pinhole improves to LogMAR 0.0 (6/6)",
+      "right_with_correction": "LogMAR 0.2 (6/9.5), pinhole improves to LogMAR 0.0 (6/6)",
       "left_with_correction": "LogMAR 0.3 (6/12), pinhole improves to LogMAR 0.0 (6/6)",
       "method": "Modified LogMAR (M&S System) chart, calibrated room distance, tested with current spectacles in place, right eye first by convention"
     }

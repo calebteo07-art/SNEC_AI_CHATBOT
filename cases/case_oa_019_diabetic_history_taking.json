@@ -33,7 +33,7 @@
   "examination_findings": {
     "va": {
       "right": "6/12 (LogMAR 0.3)",
-      "left": "6/9 (LogMAR 0.2)"
+      "left": "6/9.5 (LogMAR 0.2)"
     },
     "iop": {
       "right": "16 mmHg (NCT)",
@@ -43,7 +43,7 @@
     "fundus": "To be assessed via dilated examination/retinal photography — not yet performed; patient's last screening was 3 years ago and showed no retinopathy at that time"
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.3 (6/12). LE: LogMAR 0.2 (6/9). Both reduced from presumed previous normal — relevant given his vocational driving requirements.",
+    "va_distance": "RE: LogMAR 0.3 (6/12). LE: LogMAR 0.2 (6/9.5). Both reduced from presumed previous normal — relevant given his vocational driving requirements.",
     "iop_nct": "RE: 16 mmHg. LE: 17 mmHg. Both normal.",
     "vascular_risk_summary": "20-year history of T2DM with poor control (HbA1c 9.1%), hypertension, hyperlipidaemia, smoking, family history of diabetic retinopathy, peripheral neuropathy symptoms (foot tingling), and 3-year gap since last eye screening — multiple compounding risk factors for diabetic retinopathy"
   },

@@ -26,7 +26,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/18 (LogMAR 0.5) — achieved after gentle encouragement, with occluder",
+      "right": "6/19 (LogMAR 0.5) — achieved after gentle encouragement, with occluder",
       "left": "6/12 (LogMAR 0.3) — achieved similarly"
     },
     "iop": {
@@ -38,20 +38,20 @@
   },
   "investigations": {
     "logmar_va": {
-      "right_unaided": "LogMAR 0.5 (6/18)",
+      "right_unaided": "LogMAR 0.5 (6/19)",
       "left_unaided": "LogMAR 0.3 (6/12)",
-      "method": "LogMAR tumbling-E chart, distance 3 metres, with child-friendly encouragement"
+      "method": "LogMAR tumbling-E chart on the M&S Smart system, calibrated to room length, with child-friendly encouragement"
     }
   },
-  "diagnosis": "VA measurement completed for both eyes. RE 6/18, LE 6/12 unaided — reduced vision in both eyes, right worse than left. Results to be reviewed by doctor. Consistent with early-onset myopia given family history and symptoms.",
+  "diagnosis": "VA measurement completed for both eyes. RE 6/19, LE 6/12 unaided — reduced vision in both eyes, right worse than left. Results to be reviewed by doctor. Consistent with early-onset myopia given family history and symptoms.",
   "management": {
     "immediate": [
       "Introduce yourself to the child and parent — use the child's name and get down to his level",
       "Explain the test simply: 'I am going to show you some letters, and you just need to point which way the E is facing. Like this!' — demonstrate with your hand",
       "Use the tumbling-E or picture chart (Lea Symbols) for children who cannot name letters — confirm which chart is appropriate for Ethan's reading ability",
       "Let Ethan hold the occluder rather than placing it on his face — reduces fear and gives him control",
-      "Test the left (better) eye first to build confidence, then the right eye",
-      "Start from a larger line and work down — stop when the child misses more than two of five optotypes on a line",
+      "Test the right eye first by convention, occluding the left — the same order as for adults",
+      "Start from the top (largest) line and work down — the child must get all 5 optotypes on a line before moving to the next, and you stop at the line where he cannot",
       "Be patient and praise the child: 'Well done! That was really good!' between lines",
       "If child cannot cooperate, take a break and try again — do not force",
       "Record results for both eyes separately on the clinic form: unaided VA RE and LE"
@@ -80,7 +80,7 @@
     "investigations": {
       "points": 10,
       "key_points": [
-        "Uses correct test distance (3 or 6 metres as per chart specifications)",
+        "Uses the calibrated room distance shown on the M&S Smart system",
         "Tests each eye separately with the other eye properly occluded",
         "Uses child-appropriate strategies: tests better eye first, lets child hold occluder, uses praise",
         "Records unaided VA for both eyes in LogMAR notation"

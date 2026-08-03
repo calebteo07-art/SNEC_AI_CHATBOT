@@ -18,10 +18,26 @@ when name is None or the lookup misses.
 # are real procedures that are also tagged 'logbook'.
 _TALLY_SHEET_MARKER = "skills observation"
 
+# Checklist rows that a station must never grade against, mapped to their replacement.
+# CC-D0008 (the SNEC Nursing competency assessment) is the authority for distance VA.
+# The row ingested from the older SOP NU-PR-OPD-D0039 v03 contradicts it on reading
+# direction (right-to-left vs left-to-right), test distance, and the pinhole steps at
+# 6/60 and 6/120, so resolving to it would grade students on superseded steps. The row
+# may still exist in Supabase until it is cleaned up.
+# See docs/notes/2026-07-31-distance-va-source-conflict.md
+SUPERSEDED_CHECKLISTS: dict[str, str] = {
+    "Distance Vision Testing LogMAR (SOP)": "Distance Vision Testing LogMAR",
+}
+
 
 def is_tally_sheet(name: str | None) -> bool:
     """True if `name` is a preceptor logbook tally sheet rather than a procedure."""
     return _TALLY_SHEET_MARKER in (name or "").lower()
+
+
+def current_checklist_name(name: str) -> str:
+    """Map a superseded checklist name to the one that supersedes it."""
+    return SUPERSEDED_CHECKLISTS.get(name, name)
 
 
 # Ordered keyword rules — FIRST match wins, so list the more specific rules first.
@@ -92,11 +108,11 @@ def resolve_procedure_name(case: dict) -> tuple[str | None, str]:
     """
     explicit = (case.get("checklist_procedure") or "").strip()
     if explicit:
-        return explicit, "explicit"
+        return current_checklist_name(explicit), "explicit"
     blob = f"{case.get('topic', '')} {case.get('title', '')}"
     name = match_procedure(blob)
     if name:
-        return name, "keyword"
+        return current_checklist_name(name), "keyword"
     return None, "rubric_fallback"
 
 

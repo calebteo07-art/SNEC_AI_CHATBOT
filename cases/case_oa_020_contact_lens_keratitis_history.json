@@ -27,7 +27,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/18 (LogMAR 0.5)",
+      "right": "6/19 (LogMAR 0.5)",
       "left": "6/6 (LogMAR 0.0)"
     },
     "iop": {
@@ -38,7 +38,7 @@
     "fundus": "Not assessed — anterior segment finding takes priority for urgent referral"
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.5 (6/18), reduced. LE: LogMAR 0.0 (6/6), normal.",
+    "va_distance": "RE: LogMAR 0.5 (6/19), reduced. LE: LogMAR 0.0 (6/6), normal.",
     "differential_assessment": "Marked pain, photophobia, reduced VA, corneal infiltrate with epithelial defect in a contact lens wearer with significant overwear and poor lens hygiene — pattern highly consistent with keratitis (possibly microbial), distinct from conjunctivitis (which would have marked discharge but normal VA/pupil/cornea)",
     "contact_lens_history": "Lenses worn continuously 2-3 days at a time including overnight, lens case topped up rather than replaced, occasional tap water rinsing — multiple significant risk factors for microbial keratitis identified"
   },

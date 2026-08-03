@@ -27,7 +27,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/9 (LogMAR 0.2)",
+      "right": "6/9.5 (LogMAR 0.2)",
       "left": "6/6 (LogMAR 0.0)"
     },
     "iop": {
@@ -38,7 +38,7 @@
     "fundus": "Not assessed — not indicated"
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.2 (6/9), slightly reduced likely due to watering and irritation. LE: LogMAR 0.0 (6/6).",
+    "va_distance": "RE: LogMAR 0.2 (6/9.5), slightly reduced likely due to watering and irritation. LE: LogMAR 0.0 (6/6).",
     "external_inspection": "Wood particle visualised on superior conjunctiva under everted upper lid. No signs of penetrating injury (pupil round and reactive, cornea appears intact).",
     "fluorescein_staining": "To be performed by doctor to check for corneal abrasion once foreign body is addressed"
   },

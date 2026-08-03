@@ -151,6 +151,25 @@
 - If machine is moved, recalibrate to new room length
 - Documentation: additional letters read scored as +1/+2/+3/+4 only
 
+*Snellen ↔ LogMAR equivalents (M&S modified LogMAR chart):*
+
+| Snellen | LogMAR | Screen |
+|---------|--------|--------|
+| 6/7.5 | 0.1 | 3 |
+| 6/9.5 | 0.2 | 3 |
+| 6/12 | 0.3 | 3 |
+| 6/15 | 0.4 | 3 |
+| 6/19 | 0.5 | 2 |
+| 6/24 | 0.6 | 2 |
+| 6/30 | 0.7 | 2 |
+| 6/38 | 0.8 | 1 |
+| 6/48 | 0.9 | 1 |
+| 6/60 | 1.0 | 1 |
+| 6/120 | 1.3 | — |
+
+The chart line is **6/9.5**, not the familiar Snellen 6/9. Lower LogMAR is better
+vision; each full line is a 0.1 step. Source: CC-D0008.
+
 *Snellen Chart / Projector:*
 - Rectangular format; 11 lines of block letters
 - Standard testing distance: 6 metres
@@ -179,8 +198,9 @@
 **Special Scenarios — Modified LogMAR:**
 - *Scenario 1*: Patient reads partial 6/60 line → use pinhole immediately; if still cannot read all 5 → stop and record
 - *Scenario 2*: Patient reads partial 6/60 → pinhole → can read whole line → test one line down with pinhole → stop when cannot read all 5
-- *Scenario 3*: Cannot read 6/60 at all → proceed to 6/120 (no pinhole) → if still unable, use pinhole on 6/120
-- *Scenario 4*: Cannot read 6/120 even with pinhole → proceed in order: CF (Count Fingers @ 0.5m/1m/1.5m/2m) → HM (Hand Movement) → PL (Perception of Light) → NPL (No Perception of Light)
+- *Scenario 3*: Cannot read any letter at 6/60 → use pinhole on the 6/60 line first; if the patient can then read all 5, continue downwards (e.g. record `VR 6/60 (read none) => VR 6/48 +2 with PH`)
+- *Scenario 4*: Still cannot read 6/60 even with pinhole → proceed to 6/120 (1.3) with **no** pinhole → if still unable, use pinhole on 6/120 (e.g. record `VR: 6/120 (can't read) => 6/120 with PH`)
+- *Scenario 5*: Cannot read 6/120 even with pinhole → proceed in order: CF (Count Fingers @ 0.5m/1m/1.5m/2m) → HM (Hand Movement) → PL (Perception of Light) → NPL (No Perception of Light)
 
 **Key Principles (Both Charts):**
 - Always start with RIGHT eye (by convention)

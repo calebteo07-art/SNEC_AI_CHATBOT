@@ -28,7 +28,7 @@
   },
   "examination_findings": {
     "va": {
-      "right": "6/18 (LogMAR 0.5) pre-dilation, now further blurred post-dilation",
+      "right": "6/19 (LogMAR 0.5) pre-dilation, now further blurred post-dilation",
       "left": "6/24 (LogMAR 0.6) pre-dilation, now further blurred post-dilation"
     },
     "iop": {
@@ -40,7 +40,7 @@
   },
   "investigations": {
     "fall_risk_assessment": "High risk identified: age >80, recent fall history within past 3 months, osteoporosis, reduced baseline vision further worsened by pupil dilation, walking aid not available today, and currently unaccompanied",
-    "va_distance": "RE: LogMAR 0.5 (6/18). LE: LogMAR 0.6 (6/24). Measured pre-dilation."
+    "va_distance": "RE: LogMAR 0.5 (6/19). LE: LogMAR 0.6 (6/24). Measured pre-dilation."
   },
   "diagnosis": "High fall risk — elderly patient with recent fall history, reduced baseline vision, and acute post-dilation blurring/photosensitivity, currently without her walking aid and temporarily unaccompanied. Requires active fall-prevention measures while waiting.",
   "management": {

@@ -28,7 +28,7 @@
   "examination_findings": {
     "va": {
       "right": "6/6 (LogMAR 0.0)",
-      "left": "6/9 (LogMAR 0.2)"
+      "left": "6/9.5 (LogMAR 0.2)"
     },
     "iop": {
       "right": "15 mmHg (NCT)",
@@ -38,7 +38,7 @@
     "fundus": "Not yet assessed — to be examined by doctor for posterior involvement"
   },
   "investigations": {
-    "va_distance": "RE: LogMAR 0.0 (6/6). LE: LogMAR 0.2 (6/9), mildly reduced.",
+    "va_distance": "RE: LogMAR 0.0 (6/6). LE: LogMAR 0.2 (6/9.5), mildly reduced.",
     "iop_nct": "RE: 15 mmHg. LE: 13 mmHg. Both within normal range.",
     "differential_assessment": "Dull pain, marked photophobia, mildly reduced VA, smaller/irregular pupil, circumlimbal injection, no discharge — pattern consistent with iritis/anterior uveitis rather than conjunctivitis or acute glaucoma (which would show a large fixed oval pupil and very high IOP)"
   },

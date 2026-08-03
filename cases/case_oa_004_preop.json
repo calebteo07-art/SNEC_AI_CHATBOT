@@ -30,7 +30,7 @@
   "examination_findings": {
     "va": {
       "right": "6/60 (LogMAR 1.0)",
-      "left": "6/18 (LogMAR 0.5)"
+      "left": "6/19 (LogMAR 0.5)"
     },
     "iop": {
       "right": "16 mmHg (NCT)",
@@ -40,7 +40,7 @@
     "fundus": "Unable to assess right fundus due to dense cataract"
   },
   "investigations": {
-    "va_distance": "RE: 6/60 (LogMAR 1.0). LE: 6/18 (LogMAR 0.5). Habitual correction used.",
+    "va_distance": "RE: 6/60 (LogMAR 1.0). LE: 6/19 (LogMAR 0.5). Habitual correction used.",
     "iop_nct": "RE: 16 mmHg. LE: 15 mmHg.",
     "biometry": "A-scan biometry completed in previous visit. IOL power calculated and ready for surgeon.",
     "consent": "Informed consent form signed at previous clinic visit."
