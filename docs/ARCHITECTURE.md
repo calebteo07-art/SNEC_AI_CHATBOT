@@ -97,9 +97,13 @@ role is removed (a lingering `supervisors.role == "supervisor"` is normalised to
 `require_staff` (`{admin, trainer}`) gates the read-only analytics routes
 (`/api/supervisor/*` and the `/api/admin/*` reads); `require_admin` (`{admin}`)
 keeps add/remove/CSV/promote admin-only. Trainers and admins run the **same light
-student app** plus a content-pool toggle and the dark `/analytics` page (a Next
-route backed by the `require_staff` endpoints); the old dark admin/supervisor
-console is retired. The effective content pool is `current_user["student_role"]`
+student app** plus a content-pool toggle and the **staff console at `/admin`** — a
+full-bleed light surface in the `(console)` route group that leaves the student
+shell entirely (no Atlas Rail, its own `<main>`, its own sign-out), backed by the
+same `require_staff` / `require_admin` endpoints. Its Governance section (Accounts,
+Audit) renders for `role === "admin"` only; that is presentation, and every write
+behind it is re-enforced server-side. `/analytics` redirects here, and the earlier
+dark `.aurora-admin` surface is retired. The effective content pool is `current_user["student_role"]`
 (OA·PSA vs OT), derived server-side from `student_profiles.role`.
 
 ## Data & async
