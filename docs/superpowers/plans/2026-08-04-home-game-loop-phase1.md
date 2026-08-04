@@ -1206,16 +1206,16 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter
-from tools.gamification.chest import BOOST_MINUTES, boost_multiplier, roll_chest
+from tools.gamification.chest import boost_multiplier, roll_chest
 from tools.gamification.daily_state import read_daily_state
 from tools.gamification.quests import daily_quests, is_complete, quest_progress
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import DAILY_XP_GOAL
 from tools.shared import db
+from tools.shared.audit_log import log
 from tools.shared.clock import app_now, app_today
 from tools.shared.jwt_utils import CurrentUser, get_current_user
-from tools.shared.logging_config import log
 
 router = APIRouter()
 
@@ -1566,7 +1566,7 @@ And add `"league": None` to the early-return in the `except` branch of `home()`,
 
 - [ ] **Step 5b: Stop Task 8's tests from reaching the real database**
 
-`GET /api/home` now performs two board reads, and Task 8's tests do not patch them — this suite talks to the **production** Supabase, so an unpatched read is a live prod call from the test suite. Add this autouse fixture at the top of `tests/api/test_home_endpoints.py`, directly below the `client = TestClient(app)` line:
+`GET /api/home` now performs two board reads, and Task 8's tests do not patch them. `tests/conftest.py` carries a `_forbid_real_supabase` autouse fixture that blocks `db._get_client`, so an unpatched read **fails loudly rather than silently hitting production** — but it still fails, so those tests need the reads stubbed. Add this autouse fixture at the top of `tests/api/test_home_endpoints.py`, directly below the `client = TestClient(app)` line:
 
 ```python
 import pytest
