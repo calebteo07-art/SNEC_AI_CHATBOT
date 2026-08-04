@@ -66,13 +66,16 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
     history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
     history_feedback: "Thorough.", investigations_feedback: "Good.", diagnosis_feedback: "Correct.", management_feedback: "Reasonable.",
     total_score: 31, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2,
+    // 40/30/30 — 30 + 22 + 26 = 78.
     score_100: 78, verdict: "Solid",
-    consult_technique: 38, consult_technique_max: 50,
-    judgement_safety: 40, judgement_safety_max: 50,
+    checklist_coverage: 30, checklist_coverage_max: 40,
+    consult_technique: 22, consult_technique_max: 30,
+    judgement_safety: 26, judgement_safety_max: 30,
     safe: true, missed_critical: [],
     breakdown: {
-      consult: { parts: [{ label: "History-taking", pts: 8, max: 10 }, { label: "Examination technique", pts: 7, max: 10 }], total: 38, max: 50, capped: false, cap_reason: "" },
-      judgement: { parts: [{ label: "Recognition", pts: 9, max: 10 }, { label: "Handover & escalation", pts: 6, max: 10 }], total: 40, max: 50, capped: false, cap_reason: "" },
+      checklist: { parts: [{ label: "Steps performed", pts: 3, max: 4 }], total: 30, max: 40, capped: false, cap_reason: "" },
+      consult: { parts: [{ label: "History-taking", pts: 8, max: 10 }, { label: "Examination technique", pts: 7, max: 10 }], total: 22, max: 30, capped: false, cap_reason: "" },
+      judgement: { parts: [{ label: "Recognition", pts: 9, max: 10 }, { label: "Handover & escalation", pts: 6, max: 10 }], total: 26, max: 30, capped: false, cap_reason: "" },
     },
   },
   cards: [], mock_mode: false,
@@ -620,21 +623,27 @@ await p.locator('.aurora-station-overlay-card .aurora-station-submit-go').click(
 await p.waitForSelector(".aurora-station-overlay-card .aurora-station-result", { timeout: 10000 });
 if (!(await p.locator('.aurora-s100-score:has-text("/100")').count())) die("result must show score out of 100");
 if (!(await p.locator('.aurora-s100-verdict:has-text("Solid")').count())) die("result must show the verdict");
-if ((await p.locator(".aurora-s100-comp").count()) !== 2) die("result must show 2 component cards (checklist dropped)");
-if (await p.locator('.aurora-s100-comp:has-text("OSCE checklist")').count()) die("checklist must NOT be a scored component card");
+if ((await p.locator(".aurora-s100-comp").count()) !== 3) die("result must show 3 bucket cards (40/30/30)");
+if (!(await p.locator('.aurora-s100-comp:has-text("Checklist coverage")').count())) die("missing the Checklist coverage card — it is 40 of the 100");
 if (!(await p.locator('.aurora-s100-comp:has-text("Consultation & Technique")').count())) die("missing the Consultation & Technique scheme card");
 if (!(await p.locator('.aurora-s100-comp:has-text("Clinical Judgement & Safety")').count())) die("missing the Clinical Judgement & Safety scheme card");
+// The checklist is the LARGEST bucket, so the student must see it first.
+if (!/^\s*Checklist coverage/.test(await p.locator(".aurora-s100-comp").first().innerText())) die("checklist coverage must be the first bucket card");
+if (!(await p.locator('.aurora-s100-comp:has-text("30/40")').count())) die("the checklist card must show its points out of 40");
 if (!(await p.locator('.aurora-s100-safety.is-safe').count())) die("result must show the safety badge");
 if (!(await p.locator('[data-testid="ai-summary"]').count())) die("result must show the point-form AI summary");
 if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list what you did well");
 if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list what was done wrong/partially");
 if (!(await p.locator('.aurora-s100-col.is-miss li').count())) die("result must list what was missed/lacking");
-ok("debrief: 2 scheme cards /50, safety badge, point-form AI summary (wrong + missed)");
+ok("debrief: 3 bucket cards 40/30/30 (checklist first), safety badge, point-form AI summary (wrong + missed)");
 
 // 7d. The debrief explains itself: the arithmetic behind each scheme plus the grader's own
 //     per-domain words, which the API has always sent and the UI used to throw away.
-if ((await p.locator('[data-testid="score-maths"]').count()) !== 2) die("both schemes must show their sub-scores");
-const maths = await p.locator('[data-testid="score-maths"]').first().innerText();
+if ((await p.locator('[data-testid="score-maths"]').count()) !== 3) die("all three buckets must show their sub-scores");
+// The checklist's arithmetic is steps, not domains out of 10 — assert it on its own card.
+const clMaths = await p.locator('[data-testid="score-maths"]').first().innerText();
+if (!/Steps performed 3\/4/.test(clMaths)) die(`checklist maths must show steps performed, got "${clMaths}"`);
+const maths = await p.locator('[data-testid="score-maths"]').nth(1).innerText();
 if (!/\d+\/10/.test(maths)) die(`score maths must show sub-scores out of 10, got "${maths}"`);
 const debriefText = await p.locator(".aurora-station-result").innerText();
 if (!debriefText.includes("Thorough.")) die("per-domain feedback (history) not rendered");

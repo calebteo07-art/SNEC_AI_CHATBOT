@@ -42,8 +42,8 @@ export const HELP: Record<"cases" | "station", HelpContent> = {
         body: "The highlighted pane is where you act. When a procedure is next, the composer locks." },
       { heading: "Type how you'd do it",
         body: "Procedures are graded on the technique you describe, and answered straight away." },
-      { heading: "The handover is the grade",
-        body: "Two schemes out of 50. Missing a critical safety step caps the judgement half." },
+      { heading: "How the 100 splits",
+        body: "Checklist 40, consultation 30, judgement 30. A missed critical step also caps judgement." },
     ],
   },
 };
@@ -79,7 +79,7 @@ export const BRIEFING_BEATS: BriefingBeat[] = [
     body: "When a procedure is next this panel lights up. Type how you'd actually perform it." },
   { id: "handover", target: ".aurora-station-submit-toggle",
     title: "This is what's graded",
-    body: "Your handover carries the score — two schemes out of 50. Everything else is practice." },
+    body: "Your handover carries 60 of the 100. The steps you complete carry the other 40." },
 ];
 
 /** How long a beat holds before the briefing advances itself. Long enough to read the beat

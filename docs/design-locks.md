@@ -685,6 +685,32 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   deliberately — an unmapped one reveals nowhere. A chart-side reveal that is not an
   examination finding (the allergy record) comes from authored case data, and an unauthored
   field reveals **nothing** rather than implying a clinical negative.
+- **The grade is 40/30/30, and the grader marks to a COMPETENT standard (2026-08-04,
+  user-directed: "40 30 30 … include checklist as the 40", "make the osce scoring lenient but
+  still reasonable and constructive, right now it is very hard to pass even for the trainers
+  who tested the app")** — criterion changed: *the two-scheme grade above is SUPERSEDED* (the
+  three amendments that list it as out of scope predate this). **Checklist coverage 40** ·
+  Consultation & Technique 30 · Clinical Judgement & Safety 30, all still emitted by
+  `station_score.py`, which owns the formula — the debrief renders three cards off `*_max` +
+  `breakdown`, never its own arithmetic. Coverage is **plain**: a critical step is one step
+  here and is punished a second time, and only a second time, by the ×0.6 gate on Judgement. A
+  case with **no** resolved checklist awards the full 40 — a data gap must not cap a student at
+  60. Two causes were fixed, not one: dropping the checklist to zero (2026-06-26) meant a
+  student needed 6/10 from the grader on all four domains to reach the 60 pass line, and
+  `rubric_prompts.py` anchored only HIGH (8-10) and LOW (1-4), so the whole 5-7 band was
+  undefined and ordinary competent work drifted to the low anchor. Trainers could not pass
+  their own stations. Every domain now carries a **COMPETENT PASS (5-7)** anchor written as a
+  pass, the prompt sets a competent-not-perfect standard and resolves a between-bands
+  performance **upward**, and `_build_overall` no longer reports a 5 as a weakness.
+  **Acceptance when refining**: the three buckets always sum to the headline `score_100`
+  (`test_station_score_breakdown.py`) and coverage is worth exactly 40 at the /submit boundary
+  (`test_checklist_in_score.py`); leniency never dissolves the bottom of the scale — every
+  domain keeps a LOW anchor awarding 0-4, a missed red flag stays low, and the scope-of-practice
+  and "do not infer" guarantees hold (`test_rubric_calibration.py`). Note that **skipping a step
+  now costs marks** (`skipped_steps` are subtracted from `performed` at the endpoint), and a tick
+  is partly AI-driven — verbal steps auto-tick via the `/observe` examiner. **Out of scope**: the
+  60 pass line, the 85/70/60 verdict bands, `total_score = round(score_100 × 0.4)`, the ×0.6
+  safety cap, and the Lumens reward curve.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in

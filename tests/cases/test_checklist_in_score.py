@@ -1,14 +1,18 @@
-# tests/cases/test_checklist_not_in_score.py
-"""The OSCE checklist is NOT part of the final /100 (it was, under ricoe C7; the product
-now grades two AI schemes only). This is the /submit-boundary regression:
+# tests/cases/test_checklist_in_score.py
+"""The OSCE checklist IS 40% of the final /100. This is the /submit-boundary regression.
+
+History: coverage scored under ricoe C7, was dropped entirely on 2026-06-26 (two AI
+schemes ×50), and is restored here at 40/30/30 — checklist 40, Consultation & Technique
+30, Clinical Judgement & Safety 30. The Branda response column already claimed the
+checklist was 40% of the grade; now it is.
 
 - Holding the AI-graded domains constant and using NON-critical steps, submitting with
-  every step performed must score the SAME as submitting with none — checklist coverage
-  awards no points.
-- A missed CRITICAL step, however, still lowers the score (the safety gate) and flags it.
+  every step performed must score exactly 40 more than submitting with none.
+- A missed CRITICAL step lowers the score twice over — one step's worth of coverage, plus
+  the safety cap on Judgement — and flags the run unsafe.
 
-It locks the invariant at the endpoint, not just the pure unit, so coverage can never
-silently start counting again.
+It locks the invariant at the endpoint, not just the pure unit, so a refactor that stops
+threading `performed_steps` into the score cannot pass.
 """
 from contextlib import ExitStack
 from unittest.mock import AsyncMock, patch
@@ -54,7 +58,7 @@ CASE = {
 }
 
 # All non-critical → the safety gate can't move Judgement, isolating checklist coverage
-# as the ONLY difference between the two runs (it must make NO difference).
+# as the ONLY difference between the two runs (it must be worth exactly 40).
 STEPS = [
     {"step_number": 1, "action": "Introduce self and identify patient", "critical": False},
     {"step_number": 2, "action": "Measure IOP with the non-contact tonometer", "critical": False},
@@ -101,14 +105,17 @@ def _submit(performed, checklist=CL):
     return r.json()["result"]
 
 
-def test_checklist_coverage_does_not_change_the_final_score():
+def test_checklist_coverage_is_worth_40_of_the_final_score():
     none = _submit([])
     full = _submit([1, 2, 3, 4])
-    # Two AI schemes, each /50 — visible components of the /100 …
-    assert none["consult_technique_max"] == 50
-    assert none["judgement_safety_max"] == 50
-    # … and checklist coverage makes NO difference to the score (domains constant, no criticals).
-    assert none["score_100"] == full["score_100"]
+    # Three buckets — 40 for the checklist, 30 for each AI scheme …
+    assert none["checklist_coverage_max"] == 40
+    assert none["consult_technique_max"] == 30
+    assert none["judgement_safety_max"] == 30
+    # … and coverage is the whole difference: domains constant, no criticals in play.
+    assert none["checklist_coverage"] == 0
+    assert full["checklist_coverage"] == 40
+    assert full["score_100"] - none["score_100"] == 40
 
 
 def test_missed_critical_step_still_lowers_the_score_and_flags_safety():

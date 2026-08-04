@@ -48,8 +48,9 @@ const SUBMIT_RESULT = {
     history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
     history_feedback: "", investigations_feedback: "", diagnosis_feedback: "", management_feedback: "",
     total_score: 31, overall_feedback: "", critical_hit: 1, critical_total: 1,
-    score_100: 78, verdict: "Solid",
-    consult_technique: 38, consult_technique_max: 50, judgement_safety: 40, judgement_safety_max: 50,
+    score_100: 78, verdict: "Solid",   // 40/30/30 — 30 + 22 + 26
+    checklist_coverage: 30, checklist_coverage_max: 40,
+    consult_technique: 22, consult_technique_max: 30, judgement_safety: 26, judgement_safety_max: 30,
     safe: true, missed_critical: [],
   },
   cards: [], mock_mode: false,
