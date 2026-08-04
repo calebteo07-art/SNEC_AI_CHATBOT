@@ -181,12 +181,50 @@ if (fr.page !== 1) { console.error(`FAIL: frame should open on the page holding 
 if (fr.label !== "2 / 4") { console.error(`FAIL: pager readout = ${fr.label}, expected "2 / 4"`); process.exit(1); }
 
 // ‹ › step exactly one page, and clamp at both ends rather than running off.
-await np.locator('[data-testid="vault-prev"]').click();
-await np.waitForTimeout(650);
+//
+// The pager scrolls SMOOTHLY, and a settled page frames its five badges with ZERO slack —
+// the slot is (100% - 4*gap)/5, so stride is exactly clientWidth + one gap and badge 5k
+// lands dead on the frame's left edge. That makes framed()'s ±2px the WHOLE error budget,
+// and a fixed wait raced it: the scroll takes ~800ms to come to rest, so reading at 650ms
+// sampled the easing tail. A sweep of the wait length shows the verdict is a function of
+// the wait, not of the app — 250-450ms never passes, 650ms passes about half the time,
+// 800ms+ always does. Five stray pixels are enough to push the first badge out of frame and
+// report "First Light" as the first one shown, which is exactly how this failed in the wild.
+// So wait for the shelf to come to REST ON the page the click asked for.
+//
+// Waiting for mere "stillness" is not enough, and the way it fails is instructive: a
+// rAF-driven stillness check cannot tell "the scroll stopped" from "the page stopped
+// painting frames", so one GC pause on a loaded box resolves it mid-flight. There is also
+// a ~2px nudge on the shelf a frame before the real scroll begins, which is enough to look
+// like movement — stillness right after it reads the shelf at its OLD page. Anchoring on
+// the destination is immune to both: a stalled poll simply checks again and still has to
+// find the shelf where the pager promised to put it.
+const atRest = async (expected) => {
+  try {
+    await np.waitForFunction((k) => {
+      const el = document.querySelector('[data-testid="lumen-ladder"] .hm-badges');
+      if (!el) return false;
+      const kids = el.children;
+      const stride = kids[5].offsetLeft - kids[0].offsetLeft;
+      return Math.abs(el.scrollLeft - k * stride) <= 1;
+    }, expected, { timeout: 5000, polling: 50 });
+    return true;
+  } catch { return false; }
+};
+const pageStep = async (dir, expected) => {
+  await np.locator(`[data-testid="vault-${dir}"]`).click();
+  if (!(await atRest(expected))) {
+    const at = await framed();
+    console.error(`FAIL: the vault never came to rest on page ${expected + 1} after ${dir === "prev" ? "‹" : "›"} (page=${at.page + 1} first=${at.first})`);
+    process.exit(1);
+  }
+};
+
+await pageStep("prev", 0);
 fr = await framed();
 if (fr.page !== 0 || fr.first !== "First Blink") { console.error(`FAIL: ‹ did not step back to page 1 (page=${fr.page + 1} first=${fr.first})`); process.exit(1); }
 if (!(await np.locator('[data-testid="vault-prev"]').isDisabled())) { console.error("FAIL: ‹ must be disabled on the first page"); process.exit(1); }
-for (let i = 0; i < 3; i++) { await np.locator('[data-testid="vault-next"]').click(); await np.waitForTimeout(650); }
+for (let i = 0; i < 3; i++) await pageStep("next", i + 1);
 fr = await framed();
 if (fr.page !== 3 || fr.shown !== 5) { console.error(`FAIL: › did not reach the last page (page=${fr.page + 1} shown=${fr.shown})`); process.exit(1); }
 if (!(await np.locator('[data-testid="vault-next"]').isDisabled())) { console.error("FAIL: › must be disabled on the last page"); process.exit(1); }
@@ -217,7 +255,12 @@ console.log("PASS: streak card — no goal ring, full month calendar (31 cells, 
 await np.waitForSelector('[data-testid="feature-carousel"]', { timeout: 15000 });
 const cbox = await np.locator('[data-testid="feature-carousel"]').boundingBox();
 await np.mouse.click(cbox.x + cbox.width / 2, cbox.y + cbox.height / 2);
-await np.waitForTimeout(600);
+// Wait for the route to actually change instead of budgeting a flat 600ms for it — the
+// same race as the vault pager above, and it failed the same way against an unchanged
+// bundle. The assertion below is unchanged: a tap that genuinely does not route still
+// fails, it just gets a real navigation's worth of time to prove it did.
+await np.waitForURL((u) => ["/chat", "/cases", "/flashcards"].includes(new URL(u).pathname),
+  { timeout: 8000 }).catch(() => {});
 const featPath = new URL(np.url()).pathname;
 if (!["/chat", "/cases", "/flashcards"].includes(featPath)) {
   console.error(`FAIL: tapping a feature card did not route (still ${featPath})`); process.exit(1);
