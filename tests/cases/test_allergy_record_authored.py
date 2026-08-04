@@ -26,7 +26,7 @@ CASES = [json.loads(p.read_text(encoding="utf-8")) for p in sorted((ROOT / "case
 DUAL_CASES = [
     c for c in CASES
     if (cl := BY_NAME.get(resolve_procedure_name(c)[0] or ""))
-    and any(a["also_ask"] for a in build_actions({}, cl["steps"]))
+    and any(a["dual_kind"] == "ask" for a in build_actions({}, cl["steps"]))
 ]
 
 

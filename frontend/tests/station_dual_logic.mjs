@@ -7,7 +7,7 @@
    tracked separately and the tick waits for both — in EITHER order, because the student may
    ask the patient before they think to open the chart. */
 import assert from "node:assert";
-import { admit, dualHalf, dualHint } from "../src/aurora/lib/dualStep.ts";
+import { admit, chipOutcome, dualHalf, dualHint } from "../src/aurora/lib/dualStep.ts";
 
 const S = (...xs) => new Set(xs);
 const DUAL = S(6);           // step 6 is the allergy step
@@ -34,6 +34,31 @@ assert.deepStrictEqual(admit([6], DUAL, S(6)), admit([6], DUAL, S(6)), "stable")
 assert.deepStrictEqual(admit([1, 2], NONE, NONE), { tick: [1, 2], hold: [] }, "no dual → passthrough");
 assert.deepStrictEqual(admit([], DUAL, S(6)), { tick: [], hold: [] }, "empty in, empty out");
 
+// ── chipOutcome: what finishing a chip does. The per-STEP half of the rule, and the one
+// that keeps a MERGED chip honest — hand hygiene covers a fused step 1 (needs the identity
+// confirmation too) and an ordinary step 13, from one chip.
+const HYG = [1, 13];
+const DUAL1 = S(1);
+// Standing on the fused step: record the panel half, tick nothing.
+assert.deepStrictEqual(chipOutcome(HYG, NONE, DUAL1, NONE, NONE), { charted: [1], tick: [] },
+  "dual step → panel half only");
+// Same click when the examiner already credited the identity check → both halves in.
+assert.deepStrictEqual(chipOutcome(HYG, NONE, DUAL1, NONE, DUAL1), { charted: [1], tick: [1] },
+  "consult half already held → ticks now");
+// Step 1 done, so the chip now stands on step 13 — an ordinary step that ticks on its own.
+// Getting this wrong is what a per-CHIP flag would do: strand step 13 forever waiting for
+// an identity confirmation nobody will ever say.
+assert.deepStrictEqual(chipOutcome(HYG, S(1), DUAL1, DUAL1, NONE), { charted: [], tick: HYG },
+  "ordinary step of a dual chip ticks normally");
+// Re-finishing an already-charted dual step must not re-chart it (would re-post the reveal).
+assert.deepStrictEqual(chipOutcome([6], NONE, DUAL, DUAL, NONE), { charted: [], tick: [6] },
+  "panel half already in → hand it to the gate");
+// Every other chip in the app: pure passthrough, whatever the sets say.
+assert.deepStrictEqual(chipOutcome([2, 3], NONE, NONE, NONE, NONE), { charted: [], tick: [2, 3] },
+  "no dual → passthrough");
+assert.deepStrictEqual(chipOutcome([2], S(2), DUAL, NONE, NONE), { charted: [], tick: [2] },
+  "fully ticked chip → nothing standing");
+
 // ── dualHalf: what the chip and the hint must say about a half-finished step.
 // "record" — the chart is checked, the patient has not been asked. This is the state the
 // student sees after clicking the chip, and the one that needs the hint (a critical step
@@ -55,14 +80,23 @@ assert.ok(!/check the record|open the chart/i.test(dualHint("record")));
 assert.match(dualHint("asked"), /record|chart|EMR/i, "asked → tell them to check the record");
 assert.strictEqual(dualHint("none"), "", "nothing outstanding → no hint");
 
+// A hygiene+identity step owes an IDENTITY confirmation, not a question about the chart.
+// Sending that student to "ask the patient" is sending them to look for a question that
+// isn't in the step.
+assert.match(dualHint("record", "identity"), /identity/i, "identity kind → name the identity check");
+assert.ok(!/\bask the patient\b|record|chart|EMR/i.test(dualHint("record", "identity")));
+assert.match(dualHint("asked", "identity"), /EyeBot|panel/i, "identity credited → back to the panel");
+assert.strictEqual(dualHint("none", "identity"), "", "nothing outstanding → no hint");
+
 // The station's anti-spoiler rule (see station_turn_logic): mechanics copy may name the
-// CHANNEL but never the clinical content or a step number.
-for (const half of ["record", "asked"]) {
-  assert.ok(!/\d/.test(dualHint(half)), `hint must not leak a step number: "${dualHint(half)}"`);
-}
-// Short enough to read at a glance — the help-density ceiling from 2026-07-29.
-for (const half of ["record", "asked"]) {
-  assert.ok(dualHint(half).length <= 110, `hint too long (${dualHint(half).length}): ${dualHint(half)}`);
+// CHANNEL but never the clinical content or a step number. Both kinds, both halves.
+for (const kind of ["ask", "identity"]) {
+  for (const half of ["record", "asked"]) {
+    const hint = dualHint(half, kind);
+    assert.ok(!/\d/.test(hint), `hint must not leak a step number: "${hint}"`);
+    // Short enough to read at a glance — the help-density ceiling from 2026-07-29.
+    assert.ok(hint.length <= 110, `hint too long (${hint.length}): ${hint}`);
+  }
 }
 
 console.log("station_dual_logic: all assertions passed");

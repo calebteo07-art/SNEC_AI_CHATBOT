@@ -111,8 +111,8 @@ await ctx.route("**/api/cases/C002/station", (r) => r.fulfill(J({
 })));
 
 // C003 — a DUAL-SOURCE step. Step 2 is one critical checklist row that names TWO sources
-// ("verify with the medical record/EMR AND ask the patient"), so `also_ask` is set: the chip
-// is only the chart half. It used to tick on one click, and the patient composer was locked
+// ("verify with the medical record/EMR AND ask the patient"), so it is in `also_ask_steps`:
+// the chip is only the chart half. It used to tick on one click, and the patient composer was locked
 // while it was the gate, so the asking half was impossible. The examiner mock credits the
 // asking ONLY after the client declares record_done — mirroring the backend's note.
 await ctx.route("**/api/cases/C003/station", (r) => r.fulfill(J({
@@ -130,7 +130,7 @@ await ctx.route("**/api/cases/C003/station", (r) => r.fulfill(J({
   },
   examination_actions: [
     { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 1, kind: "verbal" },
-    { key: "s2", label: "Check allergy", reveal_text: "No drug allergy recorded on file.", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 2, kind: "manual", quick: true, also_ask: true },
+    { key: "s2", label: "Check allergy", reveal_text: "No drug allergy recorded on file.", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 2, kind: "manual", quick: true, also_ask_steps: [2], dual_kind: "ask" },
     { key: "s3", label: "Instill drops", reveal_text: "", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 3, kind: "manual" },
   ],
 })));
@@ -171,7 +171,7 @@ await ctx.route("**/api/cases/C004/station", (r) => r.fulfill(J({
     ],
   },
   examination_actions: [
-    { key: "s1", label: "Check allergy", reveal_text: "Allergy recorded: Phenylephrine eye drops.", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 1, kind: "manual", quick: true, also_ask: true },
+    { key: "s1", label: "Check allergy", reveal_text: "Allergy recorded: Phenylephrine eye drops.", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 1, kind: "manual", quick: true, also_ask_steps: [1], dual_kind: "ask" },
     { key: "s2", label: "Instill drops", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 2, kind: "manual" },
   ],
 })));
@@ -186,6 +186,47 @@ await ctx.route("**/api/cases/C004/chat", (r) => r.fulfill({
   status: 200, contentType: "text/event-stream",
   body: 'data: {"text":"I am allergic "}\n\ndata: {"text":"to one drop, I think."}\n\ndata: [DONE]\n\n',
 }));
+
+// C005 — the OTHER dual kind, and the one that needs the per-STEP model. "Perform hand
+// hygiene and confirm the patient's identity…" (Amsler #1, Ishihara #1, critical) ticked on
+// the hygiene click alone. Two things differ from the allergy row and both are asserted
+// below: the panel half is an ASSESSED technique (quick: false — the half is recorded when
+// the typed technique is confirmed, not on the click), and hand hygiene RECURS at step 3
+// from the SAME merged chip, where it must still tick on its own.
+await ctx.route("**/api/cases/C005/station", (r) => r.fulfill(J({
+  case: { case_id: "C005", title: "Amsler at the macula clinic", difficulty: "beginner", topic: "amsler", estimated_minutes: 10,
+          patient: { name: "Mr Tan", age: 71, presenting_complaint: "My lines look bent." } },
+  checklist: {
+    procedure_name: "Amsler Grid Testing", source: "checklist", total_steps: 3, critical_count: 1,
+    phases: [
+      { phase: 1, name: "Preparation & Identification", steps: [
+        { step_number: 1, action: "Perform hand hygiene and confirm the patient's identity (name and NRIC/date of birth) and the indication for Amsler testing.", critical: true, category: "infection_control", notes: null } ] },
+      { phase: 2, name: "Clinical Assessment", steps: [
+        { step_number: 2, action: "Test one eye at a time with the patient fixating on the central dot.", critical: false, category: "procedure", notes: null },
+        { step_number: 3, action: "Perform hand hygiene after touching the patient.", critical: false, category: "infection_control", notes: null } ] },
+    ],
+  },
+  examination_actions: [
+    { key: "s1", label: "Hand hygiene", reveal_text: "", satisfies_steps: [1, 3], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1, kind: "manual", quick: false, also_ask_steps: [1], dual_kind: "identity" },
+    { key: "s2", label: "Amsler grid", reveal_text: "Left eye: wavy lines near the centre.", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 2, kind: "manual" },
+  ],
+})));
+// This examiner credits the identity confirmation from the transcript alone — the realistic
+// over-credit case. Only the client-side hold keeps step 1 from ticking before the hygiene
+// technique is typed.
+await ctx.route("**/api/cases/C005/observe", async (r) => {
+  const body = JSON.parse(r.request().postData() || "{}");
+  const ticked = new Set(body.already_ticked || []);
+  const identified = (body.messages || []).some(
+    (m) => m.role === "user" && /nric|name/i.test(m.content) && !m.content.startsWith("[Examination performed"),
+  );
+  await r.fulfill(J({ newly_satisfied: identified && !ticked.has(1) ? [1] : [] }));
+});
+await ctx.route("**/api/cases/C005/chat", (r) => r.fulfill({
+  status: 200, contentType: "text/event-stream",
+  body: 'data: {"text":"Tan Ah Kow, "}\n\ndata: {"text":"S1234567D."}\n\ndata: [DONE]\n\n',
+}));
+await ctx.route("**/api/cases/C005/action", (r) => r.fulfill(J({ verdict: "good", covered: [], missing: [], model_answer: "" })));
 
 const errs = [];
 const p = await ctx.newPage();
@@ -726,6 +767,57 @@ const askReveal = await p.locator(".aurora-station-reveal").last().innerText();
 if (!askReveal.includes("Phenylephrine")) die(`the chip must still reveal the record it read, got "${askReveal}"`);
 if (await p.locator('[data-testid="dual-hint"]').count()) die("the hint must clear once both halves are done");
 ok("patient then record → the held credit is admitted and the step ticks");
+
+// 7f. The OTHER dual KIND (C005): "perform hand hygiene AND confirm the patient's identity".
+//     Two things here that the allergy row cannot test — the panel half is an ASSESSED
+//     technique (so the half is recorded at confirm, not on the click), and the chip is
+//     MERGED with an ordinary hygiene step that must still tick on its own. A per-CHIP flag
+//     would strand that second step waiting for an identity confirmation nobody will say.
+await p.goto(base + "/cases/C005", { waitUntil: "domcontentloaded" });
+await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
+await p.locator('[data-testid="briefing-skip"]').click();
+// Ask for the identity first — this examiner credits it from the transcript alone.
+await p.locator(".aurora-station-composer-input").fill("Good morning, may I have your name and NRIC please?");
+await p.locator(".aurora-station-composer-send").click();
+await p.waitForFunction(
+  () => !!document.querySelector('[data-testid="dual-hint"]')
+     || !!document.querySelector('.aurora-station-step[data-ticked="true"]'),
+  null,
+  { timeout: 8000 },
+).catch(() => die("the examiner's credit never landed on the hygiene+identity step"));
+if (await p.locator('.aurora-station-step[data-ticked="true"]:has-text("hand hygiene and confirm")').count()) die("confirming the identity alone must NOT tick a step that also needs the hygiene performed");
+const idHint = await p.locator('[data-testid="dual-hint"]').innerText();
+if (!/EyeBot|panel/i.test(idHint)) die(`the hint must send them to the panel, got "${idHint}"`);
+if (/ask the patient/i.test(idHint)) die(`an identity step owes an identity check, not a question: "${idHint}"`);
+ok("identity confirmed alone does not tick the fused hygiene step");
+// Now do the hygiene in the panel. It is ASSESSED, so the chip opens the composer — and the
+// step ticks only once the technique is confirmed.
+const hygChip = p.locator('.aurora-pchip:has-text("Hand hygiene")');
+await hygChip.click();
+await p.waitForSelector(".aurora-station-proc", { timeout: 5000 });
+if (await p.locator('.aurora-station-step[data-ticked="true"]:has-text("hand hygiene and confirm")').count()) die("opening the composer must not tick the step — the technique is the panel half");
+await p.locator(".aurora-station-proc-input").fill("Alcohol hand rub, all surfaces including thumbs and wrists, twenty seconds before touching the patient.");
+await p.locator(".aurora-station-proc-go").click();
+await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("hand hygiene and confirm")', { timeout: 8000 });
+if (await p.locator('[data-testid="dual-hint"]').count()) die("the hint must clear once both halves are done");
+ok("typed hygiene technique + identity confirmed → the critical fused step ticks");
+// The merged chip's ORDINARY occurrence (step 3) must still tick on its own — reached after
+// the Amsler step, and it must not wait for a second identity confirmation.
+await p.locator('.aurora-pchip:has-text("Amsler grid")').click();
+await p.waitForSelector(".aurora-station-proc", { timeout: 5000 });
+await p.locator(".aurora-station-proc-input").fill("One eye covered, reading correction on, patient fixates the central dot and reports any wavy or missing areas.");
+await p.locator(".aurora-station-proc-go").click();
+await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("central dot")', { timeout: 8000 });
+await hygChip.click();
+await p.waitForSelector(".aurora-station-proc", { timeout: 5000 });
+await p.locator(".aurora-station-proc-input").fill("Alcohol hand rub again after touching the patient, all surfaces, twenty seconds.");
+await p.locator(".aurora-station-proc-go").click();
+// Named failure, not a bare locator timeout: making dual-ness per CHIP instead of per STEP
+// strands exactly this step, and a raw TimeoutError does not say so.
+await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("after touching")', { timeout: 8000 })
+  .catch(() => die("the merged chip's ORDINARY hygiene step must tick on its own — per-CHIP dual-ness would strand it forever"));
+if (await p.locator('[data-testid="dual-hint"]').count()) die("the ordinary hygiene step must not wait on a second identity confirmation");
+ok("the same merged chip's ordinary step still ticks on its own");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });

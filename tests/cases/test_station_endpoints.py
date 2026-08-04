@@ -111,7 +111,8 @@ def test_station_reveals_the_allergy_record_on_the_wire():
     assert r.status_code == 200
     chip = next(a for a in r.json()["examination_actions"] if 2 in a["satisfies_steps"])
     assert chip["reveal_text"] == "No drug allergy recorded on file."
-    assert chip["also_ask"] is True
+    assert chip["also_ask_steps"] == [2]
+    assert chip["dual_kind"] == "ask"
     assert chip["kind"] == "manual"
 
 

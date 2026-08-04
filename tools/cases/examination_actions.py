@@ -12,10 +12,12 @@ with `kind` so the frontend can show the right affordance:
     does them by talking to the patient in the consult (auto-ticked by the examiner) or by
     tapping the current checklist row. "say" steps also carry a patient-directed
     `prompt_text`.
-A manual chip may ALSO carry `also_ask` — a DUAL-SOURCE step whose text names both the
-chart and asking the patient ("…verify with the medical record/EMR AND ask the patient").
-The chip is only the chart half, so it neither ticks the step on its own nor locks the
-patient composer; the consult supplies the other half. See is_dual_step /
+A manual chip may ALSO carry `also_ask_steps` — the subset of its steps that are
+DUAL-SOURCE, needing a patient-facing half the panel cannot supply ("…verify with the
+medical record/EMR AND ask the patient"; "perform hand hygiene AND confirm the patient's
+identity"). `dual_kind` says which half is outstanding. For those steps the chip is only
+half, so it neither ticks them on its own nor locks the patient composer; the consult
+supplies the rest. Per STEP because chips merge by label — see dual_kind /
 examiner_excluded_steps below, and frontend/src/aurora/lib/dualStep.ts for the AND.
 Consecutive chips that share the same (label, mode) merge, so split runs (e.g. the
 "5 moments of hand hygiene" sub-rows) collapse into one chip that ticks them all.
@@ -205,23 +207,37 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
 
 _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
 
-# A step can name TWO sources and mean BOTH: "Check that the patient is not allergic to
-# the selected eye drops by verifying with the patient's medical record/EMR AND by asking
-# the patient." One click on the chip is the record half only — a DUAL-SOURCE step
-# (`also_ask`) ticks only once the /observe examiner also sees the patient asked.
+# A step can need TWO channels and mean BOTH. Two real shapes, one per kind:
+#   "ask"      — "Check that the patient is not allergic to the selected eye drops by
+#                 verifying with the patient's medical record/EMR AND by asking the patient."
+#   "identity" — "Perform hand hygiene AND confirm the patient's identity (name and
+#                 NRIC/date of birth) AND the indication for Amsler testing."
+# Either way the chip is only the ACTION-PANEL half; the step ticks once the /observe
+# examiner also sees the patient-facing half.
 #
-# Matched on the STEP TEXT, never on the label: an EMR-only allergy step in some future
-# checklist must keep ticking on one click. Keep _ASK_TOKENS tight — a loose "ask patient"
-# would catch the "request patient to…" instruction steps, and a false positive unlocks
-# the patient composer on a hands-on step (test_no_other_chip_in_any_real_checklist_is_dual).
+# Matched on the STEP TEXT, never on the label: an EMR-only allergy step or a plain
+# "hand hygiene after touching the patient" row must keep ticking on one click. Keep the
+# token lists tight — a loose "ask patient" would catch the "request patient to…"
+# instruction steps, and a false positive unlocks the patient composer on a hands-on step
+# (test_no_other_chip_in_any_real_checklist_is_dual).
 _RECORD_TOKENS = ("medical record", "emr", "case notes", "case sheet")
 _ASK_TOKENS = ("asking the patient", "ask the patient", "asks the patient")
+_IDENTITY_TOKENS = ("confirm the patient's identity", "confirm the patient’s identity")
+
+
+def dual_kind(action: str) -> str:
+    """Which patient-facing half a chip click can never cover — "" if the step is single."""
+    low = (action or "").strip().lower()
+    if any(t in low for t in _RECORD_TOKENS) and any(t in low for t in _ASK_TOKENS):
+        return "ask"
+    if any(t in low for t in _IDENTITY_TOKENS):
+        return "identity"
+    return ""
 
 
 def is_dual_step(action: str) -> bool:
-    """True if the step names both the chart AND asking the patient, so it needs both."""
-    low = (action or "").strip().lower()
-    return any(t in low for t in _RECORD_TOKENS) and any(t in low for t in _ASK_TOKENS)
+    """True if the step needs a patient-facing half the action panel cannot supply."""
+    return bool(dual_kind(action))
 
 
 def examiner_excluded_steps(actions: list[dict]) -> set[int]:
@@ -229,13 +245,18 @@ def examiner_excluded_steps(actions: list[dict]) -> set[int]:
 
     Hands-on procedures tick only via the action panel — EXCEPT a dual-source step, whose
     second half IS the consult. Excluding it would make a CRITICAL step untickable forever
-    (a missed critical step caps Judgement & Safety at SAFETY_CAP), so `also_ask` chips
-    stay visible to the examiner and the frontend holds the tick until both halves land.
+    (a missed critical step caps Judgement & Safety at SAFETY_CAP), so dual steps stay
+    visible to the examiner and the frontend holds the tick until both halves land.
+
+    Per STEP, not per chip: hand hygiene merges steps 1 and 13 into one chip and only
+    step 1 is fused with the identity check, so excluding the chip would strand step 1
+    and excluding nothing would let the consult tick step 13.
     """
     return {
         n for a in actions
-        if a.get("kind") == "manual" and not a.get("also_ask")
+        if a.get("kind") == "manual"
         for n in a.get("satisfies_steps", [])
+        if n not in a.get("also_ask_steps", [])
     }
 
 # A documentation step is recognised by its LEADING VERB, never by a substring: the
@@ -425,13 +446,14 @@ def build_actions(examination_findings: dict, steps: list[dict],
         n = int(s.get("step_number", 0))
         if _is_say(action):
             prompt = _say_prompt(action)
-            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal", "quick": False, "also_ask": False}
+            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal", "quick": False, "also_ask_steps": [], "dual_kind": ""}
         else:
             label = _do_label(action, str(s.get("category", "")))
             kind = "manual" if label in _MANUAL_LABELS else "verbal"
             reveal = _finding_for_step(action, examination_findings, label)
             if label == _ALLERGY_LABEL and allergy_record:
                 reveal = allergy_record
+            dual = dual_kind(action) if kind == "manual" else ""
             chip = {
                 "label": label,
                 "mode": "do",
@@ -439,7 +461,8 @@ def build_actions(examination_findings: dict, steps: list[dict],
                 "prompt_text": "",
                 "kind": kind,
                 "quick": kind == "manual" and label in _QUICK_LABELS,
-                "also_ask": kind == "manual" and is_dual_step(action),
+                "also_ask_steps": [n] if dual else [],
+                "dual_kind": dual,
             }
         chip.update({
             "step_number": n,
@@ -462,9 +485,11 @@ def build_actions(examination_findings: dict, steps: list[dict],
         if prev is not None:
             prev["satisfies_steps"] = sorted(set(prev["satisfies_steps"]) | set(a["satisfies_steps"]))
             prev["critical"] = prev["critical"] or a["critical"]
-            # OR'd like `critical`: if ANY merged step needs the patient asked, the chip
-            # does — a merge must never quietly drop the second source.
-            prev["also_ask"] = prev["also_ask"] or a["also_ask"]
+            # Unioned, not OR'd: a merge must never drop a step's second source, and must
+            # never spread it either — hand hygiene merges a fused step 1 with an ordinary
+            # step 13, and only step 1 waits for the patient.
+            prev["also_ask_steps"] = sorted(set(prev["also_ask_steps"]) | set(a["also_ask_steps"]))
+            prev["dual_kind"] = prev["dual_kind"] or a["dual_kind"]
             if not prev["reveal_text"] and a["reveal_text"]:
                 prev["reveal_text"] = a["reveal_text"]
         else:
