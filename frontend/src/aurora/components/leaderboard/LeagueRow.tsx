@@ -32,7 +32,12 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
   // scaled against, and a bar wider than its own track paints outside the board.
   const pct = topXp > 0 ? Math.max(0, Math.min(100, (e.xp / topXp) * 100)) : 0;
   return (
-    <li className="lg-item" ref={ref} data-promo={promo || undefined}>
+    /* data-role carries the row's ROLE onto the rung so CSS can colour it. Role is identity,
+       which is the same licence the band has to wear a metal — spent here on the object that
+       repeats 27 times, because a vivid canvas behind a ladder of 27 graphite gauges is still
+       a grey ladder. Fill only: never an outline and never a lip, so role can never
+       out-shout the promotion gold. */
+    <li className="lg-item" ref={ref} data-promo={promo || undefined} data-role={e.role || undefined}>
       <button
         type="button"
         className="lg-row"

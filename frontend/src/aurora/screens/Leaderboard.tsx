@@ -38,7 +38,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 import {
-  computeChase, promotionLineIndex, splitPodium, nextDivisionName, TOP_DIVISION,
+  computeChase, countdownLabel, msToWeekClose, promotionLineIndex, splitPodium,
+  nextDivisionName, TOP_DIVISION,
 } from "@/aurora/leaderboard/league";
 import { TierBand } from "@/aurora/components/leaderboard/TierBand";
 import { METALS } from "@/aurora/components/leaderboard/Metals";
@@ -101,6 +102,14 @@ export function Leaderboard() {
     () => (role ? null : promotionLineIndex(podium.length, rest.length, promoteCount)),
     [role, podium.length, rest.length, promoteCount],
   );
+  /* THE CUT IS DRAWN ONCE. When the cut lands at index 0 the whole promoted set is standing
+     on the stage, and the deck says so in words a few pixels above ("Top 3 promote to Gold")
+     — so a bar at the top of the ladder is the same boundary stated twice in two visual
+     languages. It is withheld there, and it is what pays for the deck's caption row.
+     ⚠ It still draws everywhere else, and "everywhere else" is real rather than theoretical:
+     below three entries splitPodium refuses the stage entirely, so a two-student cohort has
+     its promoted rank IN the ladder and needs the line. That case is gated. */
+  const showCut = lineAt !== null && !(lineAt === 0 && podium.length > 0);
 
   const jumpToYou = useCallback(() => {
     youRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -150,6 +159,21 @@ export function Leaderboard() {
 
   const next = nextDivisionName(division);
 
+  /* The week clock. It used to live inside TierBand; it moved here on 2026-08-04 when the
+     deck's right flank became its home, and the state came with it rather than being read
+     twice. Starts null and fills in on the client — rendering a countdown during SSR would
+     hydrate against a different minute and mismatch, and a beat of no-clock is invisible.
+     ⚠ Real Singapore time, never the viewer's: the server closes the week on the SGT Monday
+     boundary (tools/shared/clock.py), so a local countdown is up to 15 hours wrong, which on
+     a Sunday night is the difference between "still time" and "already over". */
+  const [clock, setClock] = useState<string | null>(null);
+  useEffect(() => {
+    const tick = () => setClock(countdownLabel(msToWeekClose(new Date())));
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   /* After every hook, never before. A failed read has no division and no ranks, and the
      defaults above would otherwise draw a complete-looking Bronze board captioned "No one's
      on the board yet" — a statement about the cohort, made from a network failure. */
@@ -171,23 +195,39 @@ export function Leaderboard() {
         division={division}
         divisionName={data?.division_name ?? "Bronze"}
         multiplier={data?.division_multiplier ?? 1}
+        multipliers={data?.division_multipliers ?? []}
         chase={chase}
         onRules={() => setRules(true)}
       />
 
+      {/* The strip shares the board's edge (2026-08-04). `role="tablist"` moves onto the
+          inner group so the list still contains only tabs — the count beside them is a
+          readout, not a control. */}
       {roles.length > 1 && (
-        <div className="lb-filter" role="tablist" aria-label="Filter by role">
-          <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
-                  data-on={role === null} onClick={() => setRole(null)}>All</button>
-          {roles.map((r) => (
-            <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
-                    data-on={role === r} onClick={() => setRole(r)}>{r}</button>
-          ))}
+        <div className="lb-filter">
+          <div className="lb-chips" role="tablist" aria-label="Filter by role">
+            <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
+                    data-on={role === null} onClick={() => setRole(null)}>All</button>
+            {roles.map((r) => (
+              <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
+                      data-role={r} data-on={role === r} onClick={() => setRole(r)}>{r}</button>
+            ))}
+          </div>
+          {/* "Who am I actually racing" is the first question a ladder invites, and until now
+              it was only answerable by counting rows. pool_size is the REAL division and
+              ignores the role filter, like promote_count — so it stays put when the lens
+              changes, which is the truth. */}
+          {(data?.pool_size ?? 0) > 0 && (
+            <span className="lb-count" data-testid="lb-pool">{data?.pool_size} in your division</span>
+          )}
         </div>
       )}
 
       {podium.length > 0 && (
-        <Podium places={podium} promoteCount={promoteCount} onPeek={setPeek} youRef={setYouEl} />
+        <Podium
+          places={podium} promoteCount={promoteCount} promoteTo={next} clock={clock}
+          onPeek={setPeek} youRef={setYouEl}
+        />
       )}
 
       {isLoading && !data ? (
@@ -202,7 +242,7 @@ export function Leaderboard() {
                     region. The cut itself still draws: a line at the very top of the ladder
                     says "everything above this promotes", which is exactly true. */}
                 {lineAt !== null && lineAt > 0 && i === 0 && <PromotionZone count={promoteCount} to={next} />}
-                {lineAt === i && <PromotionLine />}
+                {showCut && lineAt === i && <PromotionLine />}
                 <LeagueRow
                   e={e}
                   promo={lineAt !== null && i < lineAt}

@@ -125,6 +125,23 @@ def test_student_id_never_reaches_the_client():
         assert all("student_id" not in e for e in entries)
 
 
+def test_the_summit_promotes_nobody():
+    """close_week has always refused to promote out of Diamond, but the live payload sent the
+    pool's raw count anyway — so a Diamond board drew a promotion cut and gold podium lips for
+    a promotion that cannot happen, and the client had no way to know. promotionLineIndex
+    documents "the top division promotes nobody" as a null case it can only reach via a 0."""
+    top = [_p(f"d5_{i}", 5, 500 - i * 10) for i in range(6)]
+    body = league_board(
+        profiles=top,
+        consent=[{"student_id": p["student_id"], "student_name": f"Name {p['student_id']}"}
+                 for p in top],
+        sub="d5_0",
+    )[0].json()
+    assert body["division"] == 5
+    assert body["pool_size"] == 6        # the pool is real
+    assert body["promote_count"] == 0    # ...and nobody climbs out of it
+
+
 def test_hidden_student_holds_no_promotion_slot():
     """A hidden student is invisible but still in the division. Counting them would inflate
     pool_size and hand out a promotion slot nobody can see or race for."""

@@ -36,9 +36,14 @@ import { Lumen } from "@/aurora/components/Lumen";
 import { Crown, PLACE_METALS } from "./Metals";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
-export function Podium({ places, promoteCount, onPeek, youRef }: {
+export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef }: {
   places: LeaderboardEntry[];
   promoteCount: number;
+  /** The division these three are climbing into, or null at the summit. */
+  promoteTo: string | null;
+  /** "5d 3h", or null before the client's first tick. Owned by Leaderboard.tsx — see the
+   *  DECK note below for why it is here rather than in the band. */
+  clock: string | null;
   onPeek: (e: LeaderboardEntry) => void;
   /* The board tracks ONE "where am I" element so the sticky you-bar can appear when your own
      standing scrolls away. A student on the stage still needs that — a 30-person division is
@@ -49,7 +54,26 @@ export function Podium({ places, promoteCount, onPeek, youRef }: {
   youRef?: (el: HTMLElement | null) => void;
 }) {
   return (
-    <section className="pod" data-testid="podium" aria-label="The top three this week">
+    /* THE DECK (2026-08-04, "the cards and elements are not spaced out nicely"). The stage
+       used to be a 700px island centred inside an 1148px board, with ~224px of dead flank
+       either side of it and nothing on the page agreeing where its edges were: a 1148 band,
+       a ~470 centred filter, a 700 stage and a 1148 ladder — four widths on four centres.
+       The blocks deliberately do NOT grow to close that gap; past ~700px of stage the
+       champion becomes a 2:1 slab, which is the bar-chart shape this whole pass exists to
+       prevent and which league_assert bounds one-sidedly. The PLATFORM widens instead, and
+       its two flanks pay for themselves by housing the two facts that had nowhere better to
+       be: what standing here MEANS, and how long is left to do it. */
+    <section className="pod-deck" data-testid="podium" aria-label="The top three this week">
+      {promoteCount > 0 && (
+        <p className="pod-banner" data-testid="podium-promo">
+          <span className="pod-banner-ico" aria-hidden>▲</span>
+          {promoteTo
+            ? <>Top {promoteCount} <b>promote to {promoteTo}</b></>
+            : <>Top {promoteCount} <b>promote</b></>}
+        </p>
+      )}
+
+      <div className="pod">
       {/* The floor the blocks stand on. One element, behind all three, so the contact shadows
           share a ground plane instead of each block inventing its own. */}
       <span className="pod-floor" aria-hidden />
@@ -110,6 +134,17 @@ export function Podium({ places, promoteCount, onPeek, youRef }: {
           </article>
         );
       })}
+      </div>
+
+      {/* The clock, moved off the band's readout — that row had gained a third item while
+          this flank was empty. `lb-reset` travels with it so the gate follows the element
+          rather than the location. */}
+      {clock && (
+        <span className="pod-clock" data-testid="lb-reset">
+          <span className="tb-dot" aria-hidden />
+          Closes in {clock}
+        </span>
+      )}
     </section>
   );
 }
