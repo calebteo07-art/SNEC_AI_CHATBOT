@@ -13,13 +13,15 @@ from pydantic import BaseModel
 from tools.api.shared import limiter
 from tools.gamification.chest import boost_multiplier, roll_chest
 from tools.gamification.daily_state import read_daily_state
+from tools.gamification.leaderboard import rank_entries, would_be_rank_for
+from tools.gamification.league import TOP_DIVISION, division_name, promote_count
 from tools.gamification.quests import daily_quests, is_complete, quest_progress
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import DAILY_XP_GOAL
 from tools.shared import db
 from tools.shared.audit_log import log
-from tools.shared.clock import app_now, app_today
+from tools.shared.clock import app_now, app_today, app_week_start
 from tools.shared.jwt_utils import CurrentUser, get_current_user
 
 router = APIRouter()
@@ -51,6 +53,55 @@ def _quest_payload(profile: dict, student_id: str, today) -> tuple[list[dict], d
     return rows, state
 
 
+async def _league_standing(student_id: str, profile: dict) -> dict | None:
+    """The viewer's rung and what it would take to climb one.
+
+    READ-ONLY, deliberately. /api/leaderboard rides two once-per-period background jobs on
+    its traffic (the Monday rollover, the daily rank snapshot) because this app has no
+    cron. Home triggers NEITHER: they are seal-guarded and correct, but a second trigger
+    point changes when the league's week closes, and that is not this feature's call.
+
+    Best-effort. Two full-table reads on a single worker is real cost, so every failure is
+    a None the HUD simply omits — a student's quests do not depend on knowing their rank.
+    """
+    try:
+        profiles = await db.get_active_leaderboard_profiles()
+        consent = await db.get_all_consent()
+    except Exception:
+        return None
+    if not profiles:
+        return None
+
+    names = {r["student_id"]: (r.get("student_name") or "") for r in consent}
+    # Same two migration probes the board uses: pre-012 there is no weekly column and
+    # pre-016 no division, and in both cases the ladder degrades rather than breaking.
+    week_start = app_week_start() if any("xp_week_start" in p for p in profiles) else None
+    my_division = int(profile.get("division") or 1) if any("division" in p for p in profiles) else None
+
+    entries = rank_entries(profiles, names, viewer_id=student_id, today=app_today(),
+                           week_start=week_start, division=my_division)
+    mine = next((e for e in entries if e.get("student_id") == student_id), None)
+    # A hidden student is dropped from the ladder for everyone including themselves, so
+    # their standing has to be answered separately — same as the board does.
+    rank = mine["rank"] if mine else would_be_rank_for(entries, profile, names, week_start)
+
+    # The pool comes from the profiles, not from `entries` — the same rule the board
+    # follows, so Home and the board can never draw the promotion line in different places.
+    pool = [p for p in profiles
+            if not p.get("leaderboard_hidden")
+            and (my_division is None or int(p.get("division") or 1) == my_division)]
+    cut = 0 if (my_division or 1) >= TOP_DIVISION else promote_count(len(pool))
+
+    # The XP standing between them and the last promoting rung. Zero once they are on it —
+    # never a negative, which would render as a nonsense "-120 XP to go".
+    gap = 0
+    if cut and rank > cut and len(entries) >= cut:
+        gap = max(0, int(entries[cut - 1].get("xp") or 0) - int((mine or {}).get("xp") or 0))
+
+    return {"rank": rank, "pool_size": len(pool), "promote_count": cut,
+            "division_name": division_name(my_division or 1), "xp_to_promotion": gap}
+
+
 @router.get("/api/home")
 @limiter.limit("60/minute")
 async def home(request: Request, current_user: CurrentUser = Depends(get_current_user)):
@@ -64,7 +115,7 @@ async def home(request: Request, current_user: CurrentUser = Depends(get_current
         profile = await get_profile(student_id) or {}
     except Exception as exc:
         log("home_read_error", student_id=student_id, feature="home", detail=str(exc))
-        return {"quests": None, "chest": None, "boost": None}
+        return {"quests": None, "chest": None, "boost": None, "league": None}
 
     rows, state = _quest_payload(profile, student_id, today)
     drop = roll_chest(student_id, today)
@@ -75,6 +126,7 @@ async def home(request: Request, current_user: CurrentUser = Depends(get_current
         "quests": rows,
         "chest": {"claimed": state["chest_claimed"], "key": drop.key, "label": drop.label},
         "boost": {"multiplier": mult, "until": boosts.get("xp2x_until") if mult > 1.0 else None},
+        "league": await _league_standing(student_id, profile),
     }
 
 
