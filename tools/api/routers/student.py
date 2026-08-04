@@ -555,13 +555,13 @@ async def flashcards_complete(
             except Exception:
                 pass
     elif xp_delta:
-        # No source tag here: this fallback only fires when body.results is empty (the
-        # real frontend's CompleteCardResult.topic_tag is a required field, so any actual
-        # deck submission lands in the by_topic branch above). Tagging it would also
-        # collide with test_complete_without_topic_tag_writes_no_attempts's exact-dict
-        # assertion on the update_profile kwargs.
+        # Tagged too. This fires when no result carried a topic_tag — rare from the real
+        # client, where the field is required, but reachable through the API and pinned by
+        # test_complete_without_topic_tag_writes_no_attempts. The student still finished a
+        # deck, so a "clear N decks" quest must still count it; leaving it untagged would
+        # be a completion that silently counts for nothing.
         try:
-            await update_profile(student_id, xp_delta=xp_delta)
+            await update_profile(student_id, xp_delta=xp_delta, source="flashcards")
         except Exception:
             pass
     try:
