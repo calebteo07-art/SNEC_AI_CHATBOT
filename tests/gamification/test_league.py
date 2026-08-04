@@ -25,12 +25,19 @@ def test_division_name_clamps_out_of_range():
 
 @pytest.mark.parametrize("pool,expected", [
     (0, 0), (1, 0),      # no race at all
-    (2, 1), (3, 1),      # tiny pool: only the winner goes up
+    (2, 1), (3, 2),      # tiny pool: n-1, so someone is always left behind
     (4, 3), (6, 3), (12, 3),
-    (20, 5), (28, 7), (30, 7),
+    (20, 3), (28, 3), (30, 3),   # the podium, and only the podium (was 5, 7, 7)
 ])
 def test_promote_count(pool, expected):
     assert promote_count(pool) == expected
+
+
+def test_promote_count_never_exceeds_the_podium():
+    """The stage holds three places, and since 2026-08-04 the stage IS the cut. A fourth
+    promoted student would stand below a line the board draws above them."""
+    for pool in range(2, 120):
+        assert promote_count(pool) <= 3
 
 
 def test_promote_count_always_leaves_someone_behind():

@@ -134,8 +134,23 @@ def test_hidden_student_holds_no_promotion_slot():
                for p in big]
     body = league_board(profiles=big, consent=consent, sub="big_00")[0].json()
     assert body["pool_size"] == 16       # 17 rows, one hidden
-    assert body["promote_count"] == 4    # promote_count(17) would be 5
+    assert body["promote_count"] == 3    # the podium, and only the podium
     assert len(body["entries"]) == 16
+
+    # ⚠ The assertion above lost its teeth on 2026-08-04: promote_count is 3 at both 16 and
+    # 17, so it can no longer tell a counted hidden student from an uncounted one. A cohort
+    # small enough for the n-1 guard to bite still can — 3 visible promotes 2, and 4 would
+    # promote 3 — so the slot-inflation claim keeps a case that actually fails when broken.
+    small = [_p(f"sm_{i}", 1, 100 - i) for i in range(3)]
+    small.append(_p("sm_hid", 1, 9999, leaderboard_hidden=True))
+    body = league_board(
+        profiles=small,
+        consent=[{"student_id": p["student_id"], "student_name": f"Name {p['student_id']}"}
+                 for p in small],
+        sub="sm_0",
+    )[0].json()
+    assert body["pool_size"] == 3
+    assert body["promote_count"] == 2    # counting the hidden student would pay out 3
 
 
 # ── Pre-migration (016 not applied: no profile row has a `division` column) ────

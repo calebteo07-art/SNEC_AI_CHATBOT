@@ -74,18 +74,23 @@ def apply_division_bonus(amount: int, division) -> int:
 
 
 def promote_count(pool_size: int) -> int:
-    """How many of a pool of `pool_size` move up on Monday.
+    """How many of a pool of `pool_size` move up on Monday: the podium, and only the podium.
 
-    ~25% (Duolingo promotes 7 of 30), floored at 3 and capped at 7 so the rule reads the
-    same to a cohort of 12 and a cohort of 30. Two guards matter: a pool of 1 has no race,
-    and the count is always strictly less than the pool — if everyone promotes, the
-    promotion line stops meaning anything, which is the entire mechanic."""
+    Was ~25% (Duolingo promotes 7 of 30), floored at 3 and capped at 7. Changed 2026-08-04 on
+    request — the three students standing on the stage are now exactly the three who advance,
+    so the ceremony and the mechanic are one object instead of two overlapping ones.
+
+    Two guards, and both are the whole mechanic: a pool of 1 has no race, and the count stays
+    strictly BELOW the pool, so a cohort of 2 or 3 promotes 1 or 2. If everyone promotes, the
+    promotion line stops meaning anything.
+
+    This only changes behaviour for divisions of 13+ — the old rule already returned 3 for
+    every pool of 4 to 12. At 30 students it is 10% mobility against Duolingo's 23%: a slower
+    climb, bought deliberately for a much heavier podium."""
     n = int(pool_size or 0)
     if n <= 1:
         return 0
-    if n < 4:
-        return 1
-    return min(n - 1, max(3, min(7, math.ceil(n * 0.25))))
+    return min(n - 1, 3)
 
 
 def close_week(standings: list[dict], division: int) -> list[dict]:
