@@ -56,13 +56,17 @@ def division_multiplier(division) -> float:
     return DIVISION_MULTIPLIERS[_clamp_division(division) - 1]
 
 
-def apply_division_bonus(amount: int, division) -> int:
-    """Scale one EARNING by the earner's division. Pure, so the economy can be reasoned
-    about without a database.
+def apply_division_bonus(amount: int, division, boost: float = 1.0) -> int:
+    """Scale one EARNING by the earner's division and any active boost. Pure, so the
+    economy can be reasoned about without a database.
 
-    Penalties pass through untouched. A forfeit is -30 flat at every tier: running it
-    through the same multiplier would mean the better you do, the more one mistake costs
-    you, which is the exact opposite of a reward.
+    Penalties pass through untouched. A forfeit is -30 flat at every tier under every
+    boost: running it through the same multiplier would mean the better you do, the more
+    one mistake costs you, which is the exact opposite of a reward.
+
+    Both multipliers apply in ONE expression and round ONCE. Rounding after the division
+    step and again after the boost drifts by a Lumen on non-integer ladders, and a student
+    cannot be told why.
 
     Rounds half-UP rather than using round(), which is banker's rounding — round(4.5) is 4
     and round(5.5) is 6 — so a 5-Lumen chat award would round differently from a 3-Lumen
@@ -70,7 +74,7 @@ def apply_division_bonus(amount: int, division) -> int:
     a = int(amount)
     if a <= 0:
         return a
-    return math.floor(a * division_multiplier(division) + 0.5)
+    return math.floor(a * division_multiplier(division) * float(boost) + 0.5)
 
 
 def promote_count(pool_size: int) -> int:
