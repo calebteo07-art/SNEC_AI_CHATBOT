@@ -967,6 +967,11 @@ async def _persist_submit(
             judgement_safety=int(score["judgement_safety"]),
             missed_critical=list(score["missed_critical"]),
             coaching=coaching,
+            # .get, not [] — a scorer that predates these stores NULL and reads back as the
+            # legacy ×50 era, which is the honest degrade. A KeyError here would be swallowed
+            # by the enclosing except and silently drop the whole row instead.
+            checklist_coverage=score.get("checklist_coverage"),
+            grade_scale=score.get("grade_scale"),
         )
     except Exception:
         pass
