@@ -36,14 +36,48 @@ _ALL_DOMAINS_SCHEMA = {
 }
 
 
-def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
+def procedure_block(steps: list[dict], performed: set[int]) -> str:
+    """Render the station's SNEC checklist as the technique standard for the AI calls.
+
+    Shared by the domain grader and the debrief coach (tools/api/routers/cases.py) so both
+    argue from the SAME procedure text — a second rendering would drift the first time one
+    of them changed.
+
+    Each line carries the step's own `notes` — SNEC's reason the step exists ("Shared
+    occluders transmit adenoviral conjunctivitis"). That rationale is the part a model
+    cannot reconstruct from general ophthalmology, and it is exactly the judgement the
+    grader is being asked to make, so it must be in the prompt rather than assumed.
+    """
+    lines = []
+    for s in steps:
+        num = int(s.get("step_number", 0))
+        mark = "[CRITICAL] " if s.get("critical") else ""
+        state = "[DONE]" if num in performed else "[NOT DONE]"
+        lines.append(f"{num}. {mark}{s.get('action', '')}  {state}")
+        if s.get("notes"):
+            lines.append(f"   why it matters: {s['notes']}")
+    return "\n".join(lines)
+
+
+def _evaluate_all_domains(conv_text: str, case_context: str,
+                          procedure_block: str = "") -> dict[str, dict]:
     """Score all 4 domains in a single Gemini call. Returns dict keyed by domain name."""
     all_few_shots = "\n\n".join(DOMAIN_FEW_SHOTS[d] for d in _DOMAINS)
+
+    # Reported 2026-08-04: the 60 AI-graded points were argued from the generic anchors and
+    # the model's own priors — "open graded against internet, instead of SNEC procedure".
+    # The station's SNEC checklist was already being FETCHED here and dropped on the floor.
+    # It is the institution's own standard, so it leads the prompt's authority order.
+    snec_section = (
+        f"## SNEC Procedure Standard — this station's checklist\n{procedure_block}\n\n"
+        if procedure_block else ""
+    )
 
     prompt = (
         f"You are a senior ophthalmology clinical educator grading a student's case simulation.\n\n"
         f"{all_few_shots}\n\n"
         f"## Case Context\n{case_context}\n\n"
+        f"{snec_section}"
         f"## Student Conversation\n{conv_text}\n\n"
         f"## Task\n"
         f"Score the student's performance in ALL FOUR domains (history, investigations, diagnosis, management) from 0-10.\n"
@@ -63,6 +97,17 @@ def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
         f"escalation, a correct routine plan — \"routine, patient keeps their appointment time\", "
         f"with the findings recorded for the doctor — earns full marks for management; never mark "
         f"it down for the absence of an urgency this case never had.\n"
+        # The grader is for SNEC (Singapore National Eye Centre). Its checklists differ from
+        # general practice on real details — reading direction, test distance, how many
+        # readings to average — so an unanchored grader marks correct SNEC technique wrong.
+        f"SNEC IS THE STANDARD. This is Singapore National Eye Centre. Where the SNEC "
+        f"Procedure Standard above (SNEC's own steps, in SNEC's order, each with SNEC's "
+        f"reason for it) differs from general or textbook practice, SNEC wins — grade "
+        f"technique against those steps and that case rubric, and never against how the "
+        f"procedure is done elsewhere. A step SNEC's checklist does not ask for is not a "
+        f"gap, and correct SNEC technique is never wrong. Each step is marked [DONE] or "
+        f"[NOT DONE]: judge HOW WELL the done ones were performed and explained in the "
+        f"transcript — the count itself is scored separately, so do not re-punish it here.\n"
         # The trainers who tested the app could not pass their own stations. With only a
         # HIGH (8-10) and a LOW (1-4) anchor the 5-7 band was undefined and ordinary
         # competent work drifted downward. The COMPETENT anchors above fill the hole; this
@@ -111,6 +156,7 @@ def evaluate_case(
     conversation: list[dict],
     student_id: str,
     performed_steps: list[int] | None = None,
+    steps: list[dict] | None = None,
 ) -> dict:
     """Score a completed case simulation using per-domain few-shot rubric.
 
@@ -119,9 +165,11 @@ def evaluate_case(
         conversation:    Full conversation history (list of {role, content} dicts).
         student_id:      Student UUID (for audit logging).
         performed_steps: Checklist step numbers the student marked as performed.
-
-    Returns:
-        Dict with per-domain scores/feedback + total_score + checklist compliance.
+        steps:           The STATION-RESOLVED SNEC checklist steps — the same list the
+                         student saw tick. Passed in rather than re-fetched: the endpoint
+                         resolves through resolve_procedure_name (superseded rows remapped,
+                         tally sheets excluded, rubric fallback), and a second raw name
+                         lookup here could grade them against a checklist they never saw.
     """
     from tools.shared.audit_log import log as audit_log
 
@@ -139,34 +187,16 @@ def evaluate_case(
         for m in conversation
     )
 
-    domain_results = _evaluate_all_domains(conv_text, case_context)
+    performed = {int(n) for n in (performed_steps or [])}
+    resolved = steps or []
 
-    # Fetch checklist and compute compliance counts
-    critical_hit = 0
-    critical_total = 0
-    checklist_section = ""
-    performed = set(performed_steps or [])
-    try:
-        from tools.kb.search import get_checklist_by_name
-        procedure_name = case.get("checklist_procedure") or case.get("topic", "")
-        checklist_data = get_checklist_by_name(procedure_name)
-        if checklist_data:
-            cl = checklist_data.get("steps") or {}
-            steps = cl.get("steps", []) if isinstance(cl, dict) else []
-            lines = ["\n\nPROCEDURE CHECKLIST:"]
-            for s in steps:
-                num = s.get("step_number", 0)
-                is_crit = bool(s.get("critical"))
-                ticked = "✓ PERFORMED" if num in performed else "✗ NOT MARKED"
-                mark = "[CRITICAL] " if is_crit else ""
-                lines.append(f"{num}. {mark}{s.get('action', '')} [{ticked}]")
-                if is_crit:
-                    critical_total += 1
-                    if num in performed:
-                        critical_hit += 1
-            checklist_section = "\n".join(lines)  # noqa: F841 — available if needed
-    except Exception:
-        pass
+    domain_results = _evaluate_all_domains(
+        conv_text, case_context, procedure_block(resolved, performed)
+    )
+
+    critical_total = sum(1 for s in resolved if s.get("critical"))
+    critical_hit = sum(1 for s in resolved
+                       if s.get("critical") and int(s.get("step_number", 0)) in performed)
 
     # Checklist compliance now drives Station-100 (Thoroughness + safety gate) in
     # tools/cases/station_score.py — no hidden per-domain nudge here.

@@ -25,7 +25,8 @@ import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
 import { admit, chipOutcome, dualHalf, dualHint, panelOnlySteps, type DualKind } from "@/aurora/lib/dualStep";
 import { timerState, paceRead } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
-import { buildSessionHtml, type SessionExportData, type ScoreBucket } from "@/aurora/lib/sessionExport";
+import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
+import { scoreBuckets, type ScoreBreakdown } from "@/aurora/lib/scoreBuckets";
 import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
@@ -45,9 +46,6 @@ interface StationData {
 }
 type Channel = "patient" | "eyebot";
 interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel }
-interface ScorePart { label: string; pts: number; max: number }
-interface SchemeBreakdown { parts: ScorePart[]; total: number; max: number; capped: boolean; cap_reason: string }
-interface ScoreBreakdown { checklist: SchemeBreakdown; consult: SchemeBreakdown; judgement: SchemeBreakdown }
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
@@ -61,38 +59,6 @@ interface DomainResult {
   breakdown?: ScoreBreakdown;
 }
 interface Coaching { highlights: string[]; did_wrong: string[]; missed: string[]; focus: string }
-
-/** The grade's buckets — 40/30/30, checklist first because it is the largest and because
-    completing the procedure IS the allied-health competency. Defined ONCE: the debrief cards
-    and the saved report both render this, so the report can never omit a bucket the student
-    saw on screen. Every value and max comes from the backend, which owns the formula — this
-    hardcodes no weighting of its own. */
-function scoreBuckets(result: DomainResult): ScoreBucket[] {
-  const b = result.breakdown;
-  return [
-    {
-      label: "Checklist coverage",
-      pts: result.checklist_coverage, max: result.checklist_coverage_max,
-      sub: "How much of the procedure you actually completed",
-      parts: b?.checklist.parts,
-    },
-    {
-      label: "Consultation & Technique",
-      pts: result.consult_technique, max: result.consult_technique_max,
-      sub: "History-taking and how well you performed the examination(s)",
-      parts: b?.consult.parts,
-      notes: [result.history_feedback, result.investigations_feedback].filter(Boolean),
-    },
-    {
-      label: "Clinical Judgement & Safety",
-      pts: result.judgement_safety, max: result.judgement_safety_max,
-      sub: "Spotting the problem, triage, escalation & handover",
-      parts: b?.judgement.parts,
-      capReason: b?.judgement.capped ? b.judgement.cap_reason : undefined,
-      notes: [result.diagnosis_feedback, result.management_feedback].filter(Boolean),
-    },
-  ];
-}
 
 // Decode one action-channel message into a readable {who, text} row for the export —
 // mirrors EyeBotPanel's reveal/grade parsing so the saved transcript reads like the pane.

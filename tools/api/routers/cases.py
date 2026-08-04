@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 from tools.ai.guardrails.input_filter import filter_input
 from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENALTY, _client_ip
-from tools.cases.evaluate_response import evaluate_case
+from tools.cases.evaluate_response import evaluate_case, procedure_block
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.log_case_completion import log_case_completion
@@ -181,6 +181,10 @@ class SchemeBreakdown(BaseModel):
     max: int = 50
     capped: bool = False
     cap_reason: str = ""
+    # The bucket's own remark, for a bucket with no examiner paragraph behind it (today:
+    # checklist coverage, which is deterministic). Additive with a default, so an older
+    # scorer during a deploy window simply sends no note.
+    note: str = ""
 
 
 class ScoreBreakdown(BaseModel):
@@ -882,6 +886,46 @@ def _split_consult(messages: list[dict]) -> tuple[list[str], list[str]]:
     return patient, actions
 
 
+def _case_standard_block(case: dict) -> str:
+    """The case's OWN expected answer, for the coach.
+
+    The coach is asked to judge the student's submitted findings and recommendation. Until
+    2026-08-04 its prompt held neither the case's `diagnosis` nor its `management` plan nor
+    its `rubric.key_points`, so it had nothing to judge them against except its own general
+    knowledge — the "open graded against internet" the report was accused of.
+    """
+    lines = ["THE CASE'S OWN STANDARD — judge the student against THIS:"]
+    if case.get("diagnosis"):
+        lines.append(f"  Expected clinical picture: {case['diagnosis']}")
+    if case.get("management"):
+        lines.append(f"  Expected plan: {case['management']}")
+    for domain, spec in (case.get("rubric") or {}).items():
+        for kp in (spec or {}).get("key_points", []):
+            lines.append(f"  [{domain}] {kp}")
+    return "\n".join(lines) + "\n\n"
+
+
+def _grade_block(score: dict) -> str:
+    """The grade the coach is narrating — bucket totals and the sub-scores behind them.
+
+    Rendered from `breakdown`, which station_score.py owns, so the coach is told about a
+    sub-score only when that sub-score actually counted (a case with no manual procedures
+    has no Examination technique part, and must not be coached as though it did).
+    """
+    b = score.get("breakdown") or {}
+    names = (("checklist", "Checklist coverage"), ("consult", "Consultation & Technique"),
+             ("judgement", "Clinical Judgement & Safety"))
+    lines = ["THE GRADE YOU ARE EXPLAINING (already awarded, shown beside your words):"]
+    for key, label in names:
+        bucket = b.get(key) or {}
+        parts = ", ".join(f"{p['label']} {p['pts']}/{p['max']}" for p in bucket.get("parts", []))
+        lines.append(f"  {label}: {bucket.get('total', 0)}/{bucket.get('max', 0)}"
+                     + (f"  ({parts})" if parts else ""))
+        if bucket.get("capped") and bucket.get("cap_reason"):
+            lines.append(f"    {bucket['cap_reason']}")
+    return "\n".join(lines) + "\n"
+
+
 def _fallback_coaching(score: dict, raw_result: dict,
                        checklist_comparison: list["ChecklistStepResult"],
                        action_lines: list[str]) -> "CoachingBlock":
@@ -1023,9 +1067,11 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     except Exception:
         pass
 
-    # ── Build the coaching prompt up front: it needs only the transcript + the
-    #    missed steps (NOT the numeric score), so grading and coaching run in
-    #    parallel. The old separate "missed-step notes" call is folded in here.
+    # ── The coaching prompt is built AFTER the grade (below): it used to run CONCURRENTLY
+    #    with grading and was deliberately denied the numeric score, so its prose could
+    #    praise a domain the grader scored 3/10 and attack one it scored 10/10 — the two
+    #    halves of the same report disagreeing (reported 2026-08-04). Everything that does
+    #    NOT depend on the grade is still assembled here.
     from tools.api.shared import _student_context_block
     try:
         _coach_ctx = await _student_context_block(student_id)
@@ -1041,6 +1087,31 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     # embedded markers) so the coach can comment on what was actually said and done — the
     # source of real, specific feedback (ricoe C7).
     consult_patient, consult_actions = _split_consult(messages[:-1])
+    # The grade runs FIRST and alone — the coaching prompt below is built from its result.
+    raw_result = await asyncio.to_thread(
+        evaluate_case, case, messages, student_id, performed_list,
+        _cl_compare.get("steps", []),
+    )
+
+    # ── Station-100: the legible score, computed from the SAME steps the student
+    #    saw tick (the station-resolved checklist) so Thoroughness reconciles.
+    # The Technique bucket only applies when the case has manual procedures — use
+    # the same classification that decides whether the action panel renders.
+    has_manual = has_manual_actions(
+        case.get("examination_findings", {}), _cl_compare.get("steps", [])
+    )
+    score = compute_station_score(
+        {
+            "history": raw_result.get("history_score", 0),
+            "investigations": raw_result.get("investigations_score", 0),
+            "diagnosis": raw_result.get("diagnosis_score", 0),
+            "management": raw_result.get("management_score", 0),
+        },
+        _cl_compare.get("steps", []),
+        performed_list,
+        has_manual,
+    )
+
     coaching_system = (
         (_coach_ctx + "\n\n" if _coach_ctx else "")
         + "You are an ophthalmology clinical educator coaching an allied-health (OA/OT/PSA) "
@@ -1066,12 +1137,32 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         "already lists every one of those, so repeating one is not feedback. Each `missed` item "
         "must say what the omission COSTS clinically, or name the pattern across the omissions. "
         "If they did perform every step, `missed` is about DEPTH — what a top answer would have "
-        "gone into that this one only touched."
+        "gone into that this one only touched.\n"
+        # Reported 2026-08-04. The coach was judging the student's findings and recommendation
+        # with no idea what the case's right answer WAS — its prompt carried the title, the
+        # transcript and bare step names, so every clinical claim came from the model's own
+        # priors. It now gets the case's own standard and SNEC's checklist, below.
+        "SNEC IS THE STANDARD. This is Singapore National Eye Centre. Coach against THE CASE'S "
+        "OWN STANDARD and the SNEC PROCEDURE below — never against how the procedure is done "
+        "elsewhere. Where they differ, SNEC wins: correct SNEC technique is never a fault, and "
+        "something SNEC's checklist does not ask for is not a gap. Do not invent a clinical "
+        "expectation that appears in neither.\n"
+        # Grader and coach used to run concurrently, so the prose and the numbers were two
+        # independent opinions printed side by side in one report.
+        "AGREE WITH THE GRADE. The scores below are already awarded and shown to the student "
+        "next to your words. Explain them — never contradict them. Do not celebrate a domain "
+        "that scored below 5, and do not attack one that scored 8 or above; for a high score "
+        "with a real shortfall, name the shortfall as depth, not as failure."
     )
     coaching_messages = [{
         "role": "user",
         "content": (
-            f"Case: {case['title']}\n"
+            f"Case: {case['title']}\n\n"
+            + _case_standard_block(case)
+            + "SNEC PROCEDURE — this station's checklist, with SNEC's reason for each step:\n"
+            + (procedure_block(_cl_compare.get("steps", []), performed_set)
+               or "(no checklist resolved for this station)") + "\n\n"
+            + _grade_block(score) + "\n"
             f"Findings submitted: {body.findings}\n"
             f"Recommendation submitted: {body.recommendation}\n"
             f"Checklist: {_cl_done} of {len(checklist_comparison)} steps performed\n"
@@ -1084,9 +1175,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         ),
     }]
 
-    grade_task = asyncio.create_task(
-        asyncio.to_thread(evaluate_case, case, messages, student_id, performed_list)
-    )
+    # Still a task, not an await: the prior-attempt read below is I/O the coach can overlap.
     coaching_task = asyncio.create_task(asyncio.to_thread(
         ask,
         system_prompt=coaching_system,
@@ -1097,31 +1186,6 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         thinking_level="MEDIUM",
         response_json_schema=_COACHING_SCHEMA,
     ))
-
-    try:
-        raw_result = await grade_task
-    except Exception:
-        coaching_task.cancel()
-        raise
-
-    # ── Station-100: the legible score, computed from the SAME steps the student
-    #    saw tick (the station-resolved checklist) so Thoroughness reconciles.
-    # The Technique bucket only applies when the case has manual procedures — use
-    # the same classification that decides whether the action panel renders.
-    has_manual = has_manual_actions(
-        case.get("examination_findings", {}), _cl_compare.get("steps", [])
-    )
-    score = compute_station_score(
-        {
-            "history": raw_result.get("history_score", 0),
-            "investigations": raw_result.get("investigations_score", 0),
-            "diagnosis": raw_result.get("diagnosis_score", 0),
-            "management": raw_result.get("management_score", 0),
-        },
-        _cl_compare.get("steps", []),
-        performed_list,
-        has_manual,
-    )
 
     cards: list = []
 

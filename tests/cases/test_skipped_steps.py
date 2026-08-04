@@ -73,7 +73,7 @@ def _submit(performed, skipped):
         seen["prompt"] = kwargs["messages"][0]["content"]
         return "{}"
 
-    def fake_evaluate(case, conversation, student_id, performed_steps=None):
+    def fake_evaluate(case, conversation, student_id, performed_steps=None, steps=None):
         seen["graded"] = list(performed_steps or [])
         return DOMAINS
 

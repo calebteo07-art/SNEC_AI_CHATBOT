@@ -74,7 +74,7 @@ def _submit(performed, coach_json, skipped=(), domains=None):
         seen["prompt"] = kwargs["messages"][0]["content"]
         return coach_json
 
-    def fake_evaluate(case, conversation, student_id, performed_steps=None):
+    def fake_evaluate(case, conversation, student_id, performed_steps=None, steps=None):
         return domains or DOMAINS
 
     with patch.dict("tools.api.shared._case_cache", {"case_truth": CASE}, clear=False), \

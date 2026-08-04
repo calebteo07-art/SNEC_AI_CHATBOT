@@ -51,6 +51,40 @@ def _verdict(score_100: int) -> str:
     return "Keep practising"
 
 
+# How many missed steps the coverage remark names before summarising the rest. Two keeps
+# the remark a sentence; a student who missed nine steps needs the pattern, not the list.
+_NOTE_MAX_MISSES = 2
+
+
+def _checklist_note(steps: list[dict], performed: set[int],
+                    steps_done: int, steps_total: int) -> str:
+    """The 40-point bucket's remark — the one bucket with no AI feedback of its own.
+
+    The report gave Consultation & Technique and Judgement & Safety two examiner paragraphs
+    each and the LARGEST bucket nothing (reported 2026-08-04). It is written here, beside
+    the formula, for the same reason `breakdown` is: a note composed in the frontend would
+    drift the first time the weighting moved.
+
+    A missed step is named with its `notes` — SNEC's own reason the step exists. Without
+    that the remark only restates the ✓/✗ list the student is already looking at.
+    """
+    if not steps_total:
+        return ""
+    if steps_done >= steps_total:
+        return (f"All {steps_total} steps performed — full coverage of this station's "
+                f"SNEC procedure.")
+    missed = [s for s in steps if int(s.get("step_number", 0)) not in performed]
+    # Criticals first: if one was missed it is the reason for the safety cap on Judgement,
+    # so it must be the first thing this remark names.
+    missed.sort(key=lambda s: not bool(s.get("critical")))
+    named = [f"{s.get('action', '')}" + (f" — {s['notes']}" if s.get("notes") else "")
+             for s in missed[:_NOTE_MAX_MISSES]]
+    rest = len(missed) - len(named)
+    return (f"{steps_done} of {steps_total} steps performed. Not done: "
+            + "; ".join(named)
+            + (f" (+{rest} more)" if rest > 0 else "") + ".")
+
+
 def compute_station_score(domain_scores: dict, steps: list[dict], performed,
                           has_manual: bool = True) -> dict:
     """Return the three-bucket score dict from LLM domain scores + checklist coverage.
@@ -126,10 +160,12 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed,
                       if steps_total else []),
             "total": coverage, "max": CHECKLIST_MAX,
             "capped": False, "cap_reason": "",
+            # The only bucket with no examiner paragraph of its own — see _checklist_note.
+            "note": _checklist_note(steps, performed_set, steps_done, steps_total),
         },
         "consult": {
             "parts": consult_parts, "total": consult_technique, "max": SCHEME_MAX,
-            "capped": False, "cap_reason": "",
+            "capped": False, "cap_reason": "", "note": "",
         },
         "judgement": {
             "parts": [
@@ -137,7 +173,7 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed,
                 {"label": "Handover & escalation", "pts": mng, "max": 10},
             ],
             "total": judgement_safety, "max": SCHEME_MAX,
-            "capped": not safe, "cap_reason": cap_reason,
+            "capped": not safe, "cap_reason": cap_reason, "note": "",
         },
     }
 
