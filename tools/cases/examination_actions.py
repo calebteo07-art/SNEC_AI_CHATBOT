@@ -24,12 +24,23 @@ Pure + deterministic.
 
 import re
 
-FINDING_LABELS: dict[str, str] = {
-    "va": "Test distance VA", "va_distance": "Test distance VA",
-    "near_va": "Test near VA", "va_near": "Test near VA",
-    "iop": "Measure IOP", "iop_nct": "Measure IOP",
-    "anterior_segment": "Anterior segment", "fundus": "Fundus exam",
-    "vital_signs": "Vital signs", "colour_vision": "Colour vision", "amsler": "Amsler grid",
+# Which chips may reveal which examination finding — a finding belongs to the chip that
+# PERFORMS it, and to nothing else. Without this gate _finding_for_step matched a family's
+# keywords anywhere in the step text, so chips that measure nothing handed the student the
+# measurement early: "Check doctor's order for visual acuity" revealed the VA at step 1,
+# "Print out 4 Maps Cornea Topography" revealed the slit-lamp findings, "Ensure the eye is
+# dilated" revealed the fundus. Two chips can share a family where both genuinely produce
+# it (pinhole IS a VA reading; "Perform the airpuff" IS the tonometry). An unmapped family
+# reveals NOWHERE — fail-closed, pinned by test_reveal_source.py.
+FINDING_LABELS: dict[str, set[str]] = {
+    "va": {"Test distance VA", "Pinhole test"},
+    "near_va": {"Test near VA"},
+    "iop": {"Measure IOP", "Operate machine"},
+    "anterior_segment": {"Anterior segment"},
+    "fundus": {"Fundus exam"},
+    "vital_signs": {"Vital signs"},
+    "colour_vision": {"Colour vision"},
+    "amsler": {"Amsler grid"},
 }
 
 _STEP_KEYWORDS: dict[str, tuple[str, ...]] = {
@@ -377,12 +388,20 @@ def _do_label(action: str, category: str) -> str:
     return short or (category.replace("_", " ").title() if category else "Step")
 
 
-def _finding_for_step(action: str, findings: dict) -> str:
+def _finding_for_step(action: str, findings: dict, label: str) -> str:
+    """The finding this step produces, or "" — gated by FINDING_LABELS on the chip's label.
+
+    Keyword hits use _kw_hit (word-START), not a plain substring: "d-IOP-ter knob" is not
+    tonometry. The label gate is the real guard though — the keyword only decides WHICH of
+    a performing chip's steps carries the reveal.
+    """
     low = str(action).lower()
     for key, value in (findings or {}).items():
         canon = _ALIASES.get(key, key)
+        if label not in FINDING_LABELS.get(canon, set()):
+            continue
         keywords = _STEP_KEYWORDS.get(canon, (canon.replace("_", " "),))
-        if any(kw in low for kw in keywords):
+        if any(_kw_hit(low, kw) for kw in keywords):
             return _reveal_text(value)
     return ""
 
@@ -410,7 +429,7 @@ def build_actions(examination_findings: dict, steps: list[dict],
         else:
             label = _do_label(action, str(s.get("category", "")))
             kind = "manual" if label in _MANUAL_LABELS else "verbal"
-            reveal = _finding_for_step(action, examination_findings)
+            reveal = _finding_for_step(action, examination_findings, label)
             if label == _ALLERGY_LABEL and allergy_record:
                 reveal = allergy_record
             chip = {
