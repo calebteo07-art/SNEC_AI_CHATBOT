@@ -371,13 +371,26 @@
 }
 /* Solid, not an alpha: over the darkest band a 62%-alpha ink lands at 4.3:1. */
 .tb-league { font-weight: 600; font-size: .66em; color: #2E3440; }
+/* ⚠ 520, not the 420 this used to be (2026-08-04). The rule that "League" gives way before the
+   DIVISION does was right and was keyed too tight: measured with a Range, `.tb-name` was still
+   ellipsising at 430x932 (102px of box for 116px of text) and on the landscape phone (79 of
+   95), so two real devices shipped "Silver Lea…" under a comment saying they could not. The
+   landscape clause is separate because that tier is short, not narrow — its band sits in a
+   two-column grid and its width tells you nothing about the space the head actually has. */
+@media (max-width: 520px), (max-height: 560px) and (pointer: coarse) {
+  .tb-league { display: none; }
+}
 
 /* The trophy road. Locked divisions still show their metal at low opacity — a road that hides
    what is ahead of you is not a road. Three states, none relying on hue alone: earned is solid,
    current is larger and ringed, locked is faded. The dark outline is what keeps a silver pip
    visible on a silver band. */
-.tb-pips { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 5px; }
+.tb-pips {
+  position: relative; list-style: none; margin: 0; padding: 0;
+  display: flex; align-items: center; gap: 5px;
+}
 .tb-pip {
+  position: relative; z-index: 1;
   box-sizing: border-box; width: 11px; height: 11px; border-radius: 50%;
   background-color: var(--pm); border: 2px solid var(--mat-ink);
   box-shadow: 0 2px 0 0 rgba(42, 31, 61, .7);   /* an alpha-.3 lip under an 11px dot is a smudge */
@@ -453,6 +466,20 @@
   border-top: var(--mat-out) solid var(--mat-ink);
 }
 .tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 6px; }
+/* THE LEADER. `.tb-chase` already grows to fill the readout, so the void was never between the
+   two facts — it was INSIDE the left one, whose text is left-aligned in a box ~700px wide at
+   the top tier. The same material the board uses 27 times over (a 2px groove with a lit
+   return), spent on tying the instruction to what it pays instead of leaving them stranded at
+   two edges. Not a hairline and not a new hue — the two things this file's recipe bans.
+   Off below 700px: a phone readout has no slack for it to take. */
+.tb-chase::after { content: ""; display: none; }
+@media (min-width: 700px) {
+  .tb-chase::after {
+    display: block; flex: 1 1 auto; min-width: 12px; align-self: center; margin: 0 3px;
+    border-top: 2px solid rgba(42, 31, 61, .16);
+    box-shadow: 0 2px 0 rgba(255, 255, 255, .95);
+  }
+}
 /* THE HOOK. The chase says what to do; this says what doing it PAYS, in the same glance —
    the two halves of the mechanic were on two different screens until the road came out of
    the (?) sheet. Gold WORD on white (--gold-ink, 6.9:1), never the fill's ink. */
@@ -481,7 +508,10 @@
   background-color: var(--mat-ink); color: #FFFFFF;
   font-size: 11.5px; font-weight: 800; letter-spacing: .01em;
 }
-.tb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-mid); }
+.tb-dot {
+  display: inline-block; vertical-align: middle; margin-right: 5px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--gold-mid);
+}
 
 /* ── THE PODIUM ───────────────────────────────────────────────────────────────
    Three struck objects standing on a drawn floor.
@@ -550,9 +580,12 @@
     0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .3);
 }
 /* Both flanks sit ON the deck's floor line, so the three objects read as standing on one
-   surface rather than as three cards in a row. */
+   surface rather than as three cards in a row.
+   ⚠ min-width:0 and max-width:100% are what make the flank a CELL rather than a suggestion.
+   Without them a nowrap pill sized itself and the `1fr` track let it hang out both sides —
+   under the plinth on one edge and through the deck's border on the other. */
 .pod-banner, .pod-clock {
-  align-self: end;
+  align-self: end; box-sizing: border-box; min-width: 0; max-width: 100%;
   display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
   padding: 4px 9px; border-radius: 999px;
   font-size: 11px; font-weight: 700; line-height: 1.2;
@@ -569,8 +602,14 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55),
               0 2px 0 0 var(--gold-lip), 0 2px 0 2px var(--mat-ink);
 }
-.pod-banner b { font-weight: 800; }
-.pod-banner-ico { font-size: 9px; }
+.pod-banner-ico { font-size: 9px; margin-right: 4px; }
+/* Phone: the two halves stay on one inline caption line, exactly as they read before. The
+   module below is a DESKTOP shape — stacking here would cost the caption row ~14px, and the
+   phone tier sits on the ranks floor. */
+.pod-banner-to { font-weight: 800; }
+/* The third line of each module is a DESKTOP line. On the phone caption row the two flanks
+   share ~350px and every pixel of it is a pixel of ladder. */
+.pod-banner-sub, .pod-clock-sub { display: none; }
 /* A dark HUD chip that declares its own solid, so the probe measures white-on-ink (15.4:1)
    rather than walking up to the deck and reporting the wrong surface. */
 .pod-clock {
@@ -797,6 +836,8 @@
   font-size: 11.5px; font-weight: 700; color: var(--ink-2);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* PHONE: content-sized, because a 368px strip has no void to fill. The desktop tiers below
+   switch this to a switch that SPANS its bar — see the note there. */
 .lb-chips { flex: 0 1 auto; display: flex; gap: 3px; min-width: 0; }
 .lb-chip {
   flex: 0 1 auto; min-width: 0; border: 0; background: transparent; border-radius: 999px;
@@ -809,6 +850,25 @@
 .lb-chip[data-role="OA"] { color: var(--role-oa); }
 .lb-chip[data-role="OT"] { color: var(--role-ot); }
 .lb-chip[data-role="PSA"] { color: var(--role-psa); }
+/* The count rides IN the chip, as a struck counter on the chip's own surface — the same
+   "state the number on the control" the score pill does on a rung. Tabular so four chips in a
+   row do not jitter their own width as ranks move between roles. */
+/* PHONE: the strip holds four chips and a readout in ~350px, so it carries the pool size at
+   this end and bare chips at the other. The desktop tiers swap both. */
+.lb-count-lg { display: none; }
+.lb-chip-n {
+  display: none; margin-left: 6px; padding: 1px 6px; border-radius: 999px;
+  font-size: .82em; font-weight: 900; font-variant-numeric: tabular-nums;
+  /* ⚠ BOTH SURFACES ARE OPAQUE SOLIDS, and this is the file's own rule rather than a
+     preference: a contrast probe walks up to the first element that DECLARES a colour, so an
+     alpha wash makes the counter measure against whatever is underneath it. On the selected
+     chip that is --mat-ink under a 92% white pill — a real 13:1 label reported as 1.00:1, and
+     the same arithmetic in reverse is how a genuinely unreadable one ships. The values are the
+     composites the alphas produced, frozen.
+     #3C4043, not --ink-2: --ink-2 lands at 4.3:1 here, under AA for a 10px numeral. */
+  color: #3C4043; background-color: #DBDEE7;      /* 7.4:1 */
+}
+.lb-chip[data-on="true"] .lb-chip-n { color: var(--mat-ink); background-color: #EEEDF0; }  /* 13.0:1 */
 .lb-chip:hover { color: var(--ink); }
 /* SELECTED stays dark-on-white regardless of role: a chip filled with its role colour would
    read as a row rather than as the control that filters them. */
@@ -1290,11 +1350,23 @@
 /* THE GAUGE'S OWN BREAKPOINT, keyed on width alone because it answers a width question:
    below ~700px a rung has no dead middle to fill and the bar would be a 40px ornament
    competing with the name. Above it, the middle was 36-62% empty at every size measured.
-   The name gets 1.4fr against the gauge's 1fr — on a 1148px rung an even split gives the
-   bar 460px, and a gauge longer than the name it belongs to reads as the subject of the
-   row rather than as a reading of it. */
+   ⚠ THE NAME BLOCK IS CAPPED AND THE GAUGE IS THE ELASTIC TRACK — reversed 2026-08-04, from
+   "cards and elements are still crammed and not maximising the screen". It was `1.4fr` of name
+   against `1fr` of gauge, and a PROPORTIONAL name track spends every extra pixel of board on a
+   box whose contents are left-aligned and ~180px long: measured 385px of name block at a 860px
+   board and 537px at 1180px, i.e. 250-400px of visible void in the middle of every rung, which
+   is most of what "crammed at the edges" was pointing at. A fixed max on the name and `1fr` on
+   the gauge puts the slack into the one object that can spend it — a longer reading — so the
+   board gets BETTER as the window gets wider instead of emptier.
+   ⚠ `minmax(a, Npx)`, never `max-content`. Every rung is its own grid, so a content-sized name
+   track is a DIFFERENT width per row and the gauges stop sharing a left edge — 27 bars starting
+   at 27 x-positions. A fixed cap is identical on every row by construction. */
 @media (min-width: 700px) {
-  .lg-row { grid-template-columns: 32px 26px 44px minmax(120px, 1.4fr) minmax(70px, 1fr) auto; }
+  /* ⚠ The gauge's MINIMUM stays 70px, not the 90 the wide board would like: the landscape
+     phone shares this rule and its board column is ~450px, where 120+90 of minimum overflows
+     the row by ~2px. Clipped rather than visible (`.lg-list` hides overflow), which is the
+     kind of 2px nobody finds later. */
+  .lg-row { grid-template-columns: 32px 26px 44px minmax(120px, 232px) minmax(70px, 1fr) auto; }
   .lg-bar { display: block; }
 }
 @media (max-width: 420px) {
@@ -1309,11 +1381,10 @@
      name is the one thing in that row a student reads. The gaps give back 16px before
      anything else is touched. */
   .tb-head { gap: 7px; }
-  /* ⚠ "League" goes, "Silver" stays. Even with the gaps tightened the head still ellipsed
-     the name to "Silver Lea…", and of the two words only one carries information the reader
-     does not already have: this page IS the league. Losing the DIVISION would be losing the
-     whole point of the band. */
-  .tb-league { display: none; }
+  /* ⚠ "League" goes, "Silver" stays — the rule now lives beside .tb-league itself and applies
+     from 520px down, because it was still ellipsing at 430 and in landscape. Of the two words
+     only one carries information the reader does not already have: this page IS the league.
+     Losing the DIVISION would be losing the whole point of the band. */
   /* The caption row is clear of the plinths' hard lips, which hang ~5px below their boxes
      and which getBoundingClientRect does not see. */
   .pod-deck { row-gap: 6px; }
@@ -1447,7 +1518,14 @@
        "make everything bigger" is spent here first and on block height last. The cap is a
        cap: a rung wide enough to strand its name at x=200 and its score at x=850 is a
        spreadsheet row. */
-    max-width: 860px;
+    /* 980, raised from 860 on 2026-08-04. The cap's stated reason — "a rung wide enough to
+       strand its name at x=200 and its score at x=850 is a spreadsheet row" — was true of a
+       board whose ELASTIC track was the name block. It isn't any more: the gauge takes the
+       slack now (see the 700px rule), so extra width buys a longer reading rather than a
+       longer void, and the cap that was protecting against stranding was instead holding an
+       860px board inside a ~1490px window at 58% of the field. Height is still the axis that
+       costs ranks; this one is still free. */
+    max-width: 980px;
     padding: 8px 16px 36px;
     gap: 6px;
   }
@@ -1459,6 +1537,16 @@
      floating on the centre line was one of the four widths on four centres that made the
      page read as unspaced. The chips are still control-sized inside a full-width strip. */
   .lb-filter { padding-left: 14px; }
+  /* THE SWITCH FILLS THE STRIP (2026-08-04, "still crammed... not maximising the screen").
+     Control-sized chips at one end of a full-width bar and a 12px count at the other measured
+     527px of empty strip at a 860px board and 843px at 1180px — the emptiest object on the
+     page. The chips take the slack instead, under a CAP that rises with the tier: a segmented
+     switch spanning most of its bar is a game control; one spanning all of it is a navbar. */
+  .lb-chips { flex: 1 1 auto; gap: 4px; }
+  .lb-chip { flex: 1 1 0; max-width: var(--chip-cap, 132px); }
+  .lb-chip-n { display: inline-block; }
+  .lb-count-sm { display: none; }
+  .lb-count-lg { display: inline; }
   .lb-count { font-size: 12.5px; }
   .tb-head { padding: 11px 14px; }
   .tb-name { font-size: 26px; }
@@ -1507,8 +1595,36 @@
     grid-template-areas: "banner stage clock";
     padding: 10px 14px 0;
   }
-  .pod-banner, .pod-clock { justify-self: center; margin-bottom: 15px; font-size: 13px; padding: 7px 13px; }
-  .pod-banner-ico { font-size: 10px; }
+  /* THE FLANKS BECOME MODULES. Each one was a single nowrap pill parked on the deck's floor
+     line, which left ~150x240px of blank deck above it and — because the pill sized itself
+     rather than its cell — overflowed at every board width under 1180. Two stacked lines fix
+     both at once: a two-line block WRAPS into whatever the flank is, so the overflow is gone
+     by construction rather than by a width that happens to fit today, and the label above the
+     value gives the flank something the height of the stage can stand next to.
+     `align-self: center` rather than `end`: a two-line module on the floor line reads as a
+     footnote to the plinth beside it; centred against the figures it reads as one of three
+     things standing on the deck. */
+  .pod-banner, .pod-clock {
+    justify-self: center; align-self: center; margin-bottom: 0;
+    display: grid; justify-items: center; gap: 2px;
+    white-space: normal; text-align: center; line-height: 1.15;
+    padding: 11px 16px; border-radius: 15px;
+  }
+  .pod-banner-do, .pod-clock-l {
+    font-size: 10px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
+  }
+  .pod-banner-to, .pod-clock-v {
+    font-family: var(--disp); font-weight: 800; font-size: 18px; letter-spacing: -.01em;
+  }
+  .pod-banner-sub, .pod-clock-sub {
+    display: block; margin-top: 1px; font-size: 9.5px; font-weight: 700; letter-spacing: .03em;
+  }
+  /* SOLID, never an alpha — this file's rule, and these are the two smallest words on the deck.
+     A 72%-alpha ink on the banner's own --gold-lo measures 4.4:1, which is under AA for 9.5px;
+     --ink-on-gold is the certified 6.7:1 and the hierarchy comes from size and weight instead. */
+  .pod-banner-sub { color: var(--ink-on-gold); }
+  .pod-clock-sub { color: #CFCADB; }                          /* 9.7:1 on --mat-ink */
+  .pod-banner-ico { font-size: 9px; }
   .pod { --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px; }
   .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 42px; --crown-w: 32px; }
   .pod-slot[data-place="2"] { --pl-h: 82px; --face: 54px; --num-sz: 32px; }
@@ -1523,7 +1639,8 @@
    ranks budget working BACKWARDS from the fold, not by picking a nice size: 9 ranks at 1440x900
    leaves the stage 255px, and the stage spends it on the figure first. */
 @media (min-width: 1024px) and (min-height: 860px) {
-  .lb-climb { max-width: 920px; padding: 6px 16px 40px; gap: 7px; }
+  .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 7px; }
+  .lb-chip { --chip-cap: 150px; }
   .pod-deck { margin: 10px 0 8px; }
   .tb-head { padding: 11px 16px; }
   .tb-name { font-size: 29px; }
@@ -1565,28 +1682,66 @@
    takes the width because width is the free axis — nothing here costs the ranks budget a
    pixel — and because the board can now SPEND it: the gauge is the elastic track, so a
    wider rung gets a longer reading rather than a longer void.
-   ⚠ Keyed at 1500, not 1600, so it meets the 920px tier with no gap. Between them the
-   ribbon floor (58% of the field) would have failed a 1590px window on a 920px board. */
-@media (min-width: 1500px) and (min-height: 620px) {
+   ⚠ Keyed at 1400 since 2026-08-04, down from 1500. The reported window was ~1489x838 — one
+   pixel class below the old key and BELOW the 860px height step too, so it fell all the way
+   back to the 860px board and covered 57.8% of its own field: under the ribbon floor, on a
+   viewport the matrix had no entry for. Same failure mode the tier below this one records,
+   one tier further out. */
+@media (min-width: 1400px) and (min-height: 620px) {
   .lb-climb { max-width: 1180px; }
+  .lb-chip { --chip-cap: 176px; }
   /* THE BAND STRANDS THE SAME WAY THE RUNG DID. `.tb-name` sits in the `1fr` track, so at
      1180 it absorbs ~700px of slack and the head becomes a title at the far left and three
      controls at the far right with a void between. Giving the elastic track to the PIPS
      instead centres the trophy road in it — the void is filled by an object that already
      exists, with no new element, no new hue and no new fact on the page.
-     `max-content` on the name is safe only here: this tier starts at 1500px. */
+     `max-content` on the name is safe only here: this tier starts at 1400px. */
   /* `minmax(0, max-content)`, not bare `max-content`: the division name is server data, and a
      bare max-content track refuses to shrink — a long one would crush the pips' `1fr` cell to
      zero and push them outside the band. `.tb` clips, but getBoundingClientRect does not, so
      that lands as an overflow failure rather than as a visible bug. This way the NAME ellipses
      first, which is the correct thing to lose. */
-  .tb-head { grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr) auto auto; }
-  .tb-pips { justify-content: center; gap: 9px; }
+  /* 18, not 10: with the road SPREAD the first plate lands hard against the division name,
+     and the gap is what keeps the name a name rather than the road's first label. */
+  .tb-head { grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr) auto auto; gap: 18px; }
+  /* THE ROAD IS ACTUALLY A ROAD, and only here — this is the only tier where the pips own an
+     elastic track. Centred in ~700px of it they were five plates huddled in the middle of a
+     void with ~280px of band either side; spread across it with a rail behind them they are a
+     route with your position on it, and the void is gone because the object that already
+     belonged there now occupies it. The filled length is the distance climbed: `--road` is
+     (division-1)/(TOP-1), set in TierBand from the same payload that draws the rungs, so the
+     rail cannot disagree with the plates it runs under. */
+  .tb-pips { justify-content: space-between; gap: 9px; }
+  .tb-pips::before, .tb-pips::after {
+    content: ""; position: absolute; top: 50%; height: 5px; border-radius: 999px;
+    transform: translateY(-50%); z-index: 0; pointer-events: none;
+  }
+  .tb-pips::before {
+    left: 10px; right: 10px;
+    background-color: rgba(42, 31, 61, .17);
+    box-shadow: inset 0 2px 0 rgba(42, 31, 61, .16), 0 1px 0 rgba(255, 255, 255, .55);
+  }
+  .tb-pips::after {
+    left: 10px; width: calc(var(--road, 0%) - 10px); min-width: 0;
+    background-color: var(--gold-lo);
+    background-image: linear-gradient(180deg, var(--gold-mid) 0%, var(--gold-mid) 45%,
+                                              var(--gold-lo) 45.01%, var(--gold-lo) 100%);
+    box-shadow: inset 0 -1px 0 rgba(122, 82, 6, .5);
+  }
   /* The stage does NOT scale with the board. Past ~700 the champion's block goes back to
      being a 2:1 slab — the bar-chart shape the STRUCK pass exists to prevent — and the
      mass bound in league_assert is one-sided about width for exactly this reason. */
   .pod-deck { --stage-w: 700px; }
   .lb-count { font-size: 13px; }
+}
+/* ── THE BIG PANEL ─────────────────────────────────────────────────────────────
+   1180 was sized against a ~1490px window, and on a 1920 field it is 61% — inside the ribbon
+   floor but only just, and visibly a column with 370px of canvas either side. The stage is
+   deliberately NOT part of this: it stays at 700 for the same reason it stops there at every
+   tier, so what the extra 140px buys is rung length, which is the elastic track now. */
+@media (min-width: 1700px) and (min-height: 620px) {
+  .lb-climb { max-width: 1320px; }
+  .lb-chip { --chip-cap: 200px; }
 }
 /* Touch: every control on the board clears 44px. */
 @media (pointer: coarse) {
