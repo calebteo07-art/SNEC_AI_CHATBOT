@@ -1,9 +1,13 @@
 """The three daily quests — the PULL the Home never had.
 
 Generated, never stored: a quest set is a pure function of (student_id, date,
-weak_topics, role), and its progress is a pure function of the daily activity tally. That
-is deliberate. A stored quest with a stored progress counter is two things that can
+weak_topics), and its progress is a pure function of the daily activity tally. That is
+deliberate. A stored quest with a stored progress counter is two things that can
 disagree, and the one that disagrees is always the one the student is looking at.
+
+No `role` argument, deliberately: weak_topics already comes from the student's own
+retention scores, so it is role-correct by construction. Threading a role through to
+pick nothing would be a parameter every caller must supply and no line of code reads.
 
 Exactly one quest of each kind per day, so the board never shows three of the same shape.
 """
@@ -45,7 +49,7 @@ def _seed(student_id: str, day) -> int:
     return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
 
 
-def daily_quests(student_id: str, day, weak_topics: list[str], role: str,
+def daily_quests(student_id: str, day, weak_topics: list[str],
                  daily_goal: int = 100) -> list[Quest]:
     """Today's three quests — one adaptive, one breadth, one stretch."""
     seed = _seed(student_id, day)
