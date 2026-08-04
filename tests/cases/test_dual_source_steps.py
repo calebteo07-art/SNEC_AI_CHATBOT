@@ -1,4 +1,4 @@
-"""A checklist step that names TWO sources must need both of them.
+"""A checklist step that needs TWO channels must need both of them.
 
 The reported bug: "Check that the patient is not allergic to the selected eye drops by
 verifying with the patient's medical record/EMR **and** by asking the patient" is a
@@ -7,10 +7,22 @@ the student never had to ask the patient. The same chip also revealed nothing, b
 `reveal_text` is resolved only from `examination_findings` and no case carried an
 allergy record at all.
 
-So: a "do" step that names both the record and asking the patient is a DUAL-SOURCE step
-(`also_ask`) — the chip records the EMR half, the /observe examiner judges the asking
-half, and only both together tick it. Detected on the STEP TEXT, not the label, so an
-EMR-only allergy step in a future checklist keeps ticking on one click.
+So: such a step is a DUAL-SOURCE step — the chip is only the ACTION-PANEL half, the
+/observe examiner judges the patient-facing half, and only both together tick it.
+
+Sweeping every checklist for the same fault found a second kind: "Perform hand hygiene
+and confirm the patient's identity (name and NRIC/date of birth) and the indication for
+Amsler testing" (Amsler #1, Ishihara #1, both CRITICAL) ticked on the hygiene click
+alone. It differs from the allergy row twice over, and both differences are load-bearing:
+
+  - the panel half is an ASSESSED technique, not a one-click record check, so the half is
+    recorded when the typed technique is confirmed (`quick` is False);
+  - hand hygiene RECURS (steps 1 and 13) and chips merge by label, so dual-ness has to be
+    per STEP (`also_ask_steps`) — a per-chip flag would make step 13 wait for an identity
+    confirmation nobody will ever say, i.e. a critical step untickable forever.
+
+Detected on the STEP TEXT, not the label, so an EMR-only allergy step or a plain hygiene
+step in a future checklist keeps ticking on one click.
 """
 
 import json
@@ -18,6 +30,7 @@ from pathlib import Path
 
 from tools.cases.examination_actions import (
     build_actions,
+    dual_kind,
     examiner_excluded_steps,
     is_dual_step,
 )
@@ -31,6 +44,7 @@ ALLERGY_STEP = (
     "with the patient’s medical record/EMR and by asking the patient."
 )
 DROP_CHECKLISTS = ("Eye Drop Instillation and Dilation", "Instillation of Eye Drops")
+HYGIENE_CHECKLISTS = ("Amsler Grid Testing", "Ishihara Colour Vision Testing")
 
 
 def _chip(procedure: str, label: str, allergy_record: str = "") -> dict:
@@ -57,10 +71,36 @@ def test_an_ask_only_step_is_not_dual():
 def test_check_allergy_chip_is_dual_in_both_drop_checklists():
     for procedure in DROP_CHECKLISTS:
         chip = _chip(procedure, "Check allergy")
-        assert chip["also_ask"] is True, procedure
+        assert chip["also_ask_steps"] == chip["satisfies_steps"], procedure
+        assert chip["dual_kind"] == "ask", procedure
         assert chip["kind"] == "manual", procedure
         # Still a one-click record check — the second half is the consult, not typing.
         assert chip["quick"] is True, procedure
+
+
+def test_the_hygiene_and_identity_step_needs_the_patient_too():
+    assert dual_kind(
+        "Perform hand hygiene and confirm the patient's identity (name and NRIC/date of "
+        "birth) and the indication for Amsler testing (e.g. macular/AMD monitoring)."
+    ) == "identity"
+
+
+def test_a_plain_hand_hygiene_step_is_not_dual():
+    """The recurring "after touching the patient" rows have nobody to ask."""
+    assert is_dual_step("Perform hand hygiene after touching the patient.") is False
+
+
+def test_only_the_fused_hygiene_step_is_dual_not_the_later_one():
+    """Chips merge by label, so this is the per-STEP assertion that matters: hand hygiene
+    recurs at step 13, and holding THAT for an identity confirmation would strand a
+    critical step forever (nothing in the consult will ever satisfy it)."""
+    for procedure in HYGIENE_CHECKLISTS:
+        chip = _chip(procedure, "Hand hygiene")
+        assert len(chip["satisfies_steps"]) > 1, procedure   # it really did merge
+        assert chip["also_ask_steps"] == [1], procedure
+        assert chip["dual_kind"] == "identity", procedure
+        # The panel half here IS the assessed technique, so it is not a one-click chip.
+        assert chip["quick"] is False, procedure
 
 
 def test_no_other_chip_in_any_real_checklist_is_dual():
@@ -70,13 +110,18 @@ def test_no_other_chip_in_any_real_checklist_is_dual():
         (c["procedure_name"], a["label"])
         for c in CHECKLISTS
         for a in build_actions({}, c["steps"])
-        if a["also_ask"]
+        if a["also_ask_steps"]
     }
-    assert dual == {(p, "Check allergy") for p in DROP_CHECKLISTS}
+    assert dual == (
+        {(p, "Check allergy") for p in DROP_CHECKLISTS}
+        | {(p, "Hand hygiene") for p in HYGIENE_CHECKLISTS}
+    )
 
 
-def test_non_dual_chips_default_to_false():
-    assert _chip("Non-Contact Tonometry", "Measure IOP")["also_ask"] is False
+def test_non_dual_chips_default_to_empty():
+    chip = _chip("Non-Contact Tonometry", "Measure IOP")
+    assert chip["also_ask_steps"] == []
+    assert chip["dual_kind"] == ""
 
 
 def test_check_allergy_chip_reveals_the_authored_record():
@@ -104,16 +149,16 @@ def test_the_allergy_record_never_leaks_onto_another_chip():
         assert revealed == {"Check allergy"}, procedure
 
 
-def test_dual_survives_a_merge_with_a_single_source_step():
-    """Chips merge by label. If any merged step needs the patient asked, the chip does —
-    OR'd like `critical`, so a merge can never quietly drop the second source."""
+def test_a_merge_keeps_the_dual_step_and_only_that_step():
+    """Chips merge by label, and the merged chip must carry the dual step WITHOUT
+    spreading it: step 4 here still ticks on one click."""
     steps = [
         {"step_number": 4, "action": "Check the patient is not allergic to the drops.", "critical": True},
         {"step_number": 9, "action": ALLERGY_STEP, "critical": True},
     ]
     chip = next(a for a in build_actions({}, steps) if a["label"] == "Check allergy")
     assert chip["satisfies_steps"] == [4, 9]
-    assert chip["also_ask"] is True
+    assert chip["also_ask_steps"] == [9]
 
 
 def test_examiner_may_tick_a_dual_step_but_no_other_manual_step():
@@ -124,10 +169,22 @@ def test_examiner_may_tick_a_dual_step_but_no_other_manual_step():
     actions = build_actions({}, cl["steps"])
     excluded = examiner_excluded_steps(actions)
     allergy = next(a for a in actions if a["label"] == "Check allergy")
-    iop_like = next(a for a in actions if a["kind"] == "manual" and not a["also_ask"])
+    iop_like = next(a for a in actions if a["kind"] == "manual" and not a["also_ask_steps"])
 
     assert not (set(allergy["satisfies_steps"]) & excluded)
     assert set(iop_like["satisfies_steps"]) <= excluded
     # Verbal steps were never excluded and must stay that way.
     verbal = {n for a in actions if a["kind"] == "verbal" for n in a["satisfies_steps"]}
     assert not (verbal & excluded)
+
+
+def test_the_examiner_exclusion_is_per_step_not_per_chip():
+    """The merged Hand hygiene chip has one dual step and one ordinary one. Excluding the
+    whole chip would hide step 1 from the examiner (untickable critical step); excluding
+    neither would let the consult tick step 13, which is hands-on only."""
+    for procedure in HYGIENE_CHECKLISTS:
+        cl = next(c for c in CHECKLISTS if c["procedure_name"] == procedure)
+        excluded = examiner_excluded_steps(build_actions({}, cl["steps"]))
+        chip = _chip(procedure, "Hand hygiene")
+        assert 1 not in excluded, procedure
+        assert set(chip["satisfies_steps"]) - {1} <= excluded, procedure

@@ -37,8 +37,11 @@ export interface ExamAction {
   kind: "manual" | "verbal";
   /** Manual chip with no assessable technique — ticks on one click, no typed explanation. */
   quick?: boolean;
-  /** Dual-source step: this chip is only the CHART half, the patient must be asked too. */
-  also_ask?: boolean;
+  /** Dual-source steps: for these the chip is only the panel half, the patient owes the
+   *  rest. Per step — a merged chip can hold one dual step and one ordinary one. */
+  also_ask_steps?: number[];
+  /** Which half the patient owes: "ask" | "identity" (see lib/dualStep). */
+  dual_kind?: string;
 }
 
 export function ActionPalette({
@@ -73,6 +76,10 @@ export function ActionPalette({
           // stops taking clicks (re-clicking would just re-post the same reveal).
           const half = earliest === undefined ? "none" : halfOf?.(earliest) ?? "none";
           const charted = half === "record";
+          // The tooltip names the CHANNEL still owed, which depends on the kind — the pane's
+          // hint line carries the full sentence.
+          const owed = a.dual_kind === "identity" ? "confirm the patient's identity" : "ask the patient";
+          const isDual = earliest !== undefined && (a.also_ask_steps ?? []).includes(earliest);
           return (
             <button
               key={a.key}
@@ -86,8 +93,8 @@ export function ActionPalette({
               data-half={half}
               disabled={done || locked || charted}
               onClick={() => onPerform(a)}
-              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : charted ? `${a.label} — record checked, now ask the patient` : a.quick ? `Mark ${a.label} done` : `Perform ${a.label}`}
-              title={locked ? "Finish the steps above first" : charted ? "Record checked — now ask the patient" : a.also_ask ? "Check the record, then ask the patient — this step needs both" : a.quick ? "Click to mark done — no typing needed" : a.reveal_text || a.label}
+              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : charted ? `${a.label} — done here, now ${owed}` : a.quick ? `Mark ${a.label} done` : `Perform ${a.label}`}
+              title={locked ? "Finish the steps above first" : charted ? `Done here — now ${owed}` : isDual ? `This step needs both halves — finish here, then ${owed}` : a.quick ? "Click to mark done — no typing needed" : a.reveal_text || a.label}
             >
               <span className="ic" aria-hidden>{done ? "✓" : charted ? "◐" : active ? "✎" : locked ? "🔒" : a.quick ? "⚡" : "+"}</span>
               {a.label}

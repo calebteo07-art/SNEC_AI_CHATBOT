@@ -21,7 +21,7 @@ import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick, performedOnly } from "@/aurora/lib/stationGate";
 import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
-import { admit, dualHalf, dualHint } from "@/aurora/lib/dualStep";
+import { admit, chipOutcome, dualHalf, dualHint, panelOnlySteps, type DualKind } from "@/aurora/lib/dualStep";
 import { timerState, formatClock } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
@@ -182,6 +182,7 @@ export function CaseSession() {
   const dualStepsRef = useRef<Set<number>>(new Set());
   const chartDoneRef = useRef<Set<number>>(new Set());
   const askedDualRef = useRef<Set<number>>(new Set());
+  const panelOnlyRef = useRef<Set<number>>(new Set());
   const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observeAbort = useRef<AbortController | null>(null);
   const chatAbort = useRef<AbortController | null>(null);
@@ -190,18 +191,13 @@ export function CaseSession() {
   useEffect(() => {
     const order = (station?.checklist.phases ?? []).flatMap((p) => p.steps).map((s) => s.step_number);
     orderRef.current = order;
-    // A dual-source step is the ONE manual step the examiner may also tick — its second
+    // A dual-source step is the one manual step the examiner may also tick — its second
     // half is the consult, so hiding it would leave a critical step untickable forever.
     dualStepsRef.current = new Set(
-      (station?.examination_actions ?? [])
-        .filter((a) => a.also_ask)
-        .flatMap((a) => a.satisfies_steps),
+      (station?.examination_actions ?? []).flatMap((a) => a.also_ask_steps ?? []),
     );
-    const manual = new Set(
-      (station?.examination_actions ?? [])
-        .filter((a) => a.kind === "manual" && !a.also_ask)
-        .flatMap((a) => a.satisfies_steps),
-    );
+    const manual = panelOnlySteps(station?.examination_actions ?? []);
+    panelOnlyRef.current = manual;
     observableStepsRef.current = order.filter((n) => !manual.has(n));
   }, [station]);
 
@@ -311,6 +307,15 @@ export function CaseSession() {
     });
   }, []);
 
+  // Record the action-panel half of a dual step. The ref goes first, deliberately: addAuto
+  // runs in the SAME tick and reads chartDoneRef to admit a held examiner credit.
+  const applyCharted = useCallback((steps: number[]) => {
+    if (!steps.length) return;
+    const charted = new Set([...chartDoneRef.current, ...steps]);
+    chartDoneRef.current = charted;
+    setChartDone(charted);
+  }, []);
+
   // Live examiner call. Resilient by design: a single transient failure (network blip,
   // brief quota, a slow single-worker thread) must never permanently drop a tick, so we
   // retry once. Aborts are ignored — a newer observe has already superseded this one. The
@@ -398,8 +403,7 @@ export function CaseSession() {
     const order = orderRef.current;
     const gi = gateIndex(order, tickedRef.current);
     const gate = gi < order.length ? order[gi] : null;
-    if (gate !== null && (station?.examination_actions ?? [])
-      .some((a) => a.kind === "manual" && !a.also_ask && a.satisfies_steps.includes(gate))) return;
+    if (gate !== null && panelOnlyRef.current.has(gate)) return;
     const updated: ChatMessage[] = [...messages, { role: "user", content, channel: "patient" }];
     setMessages(updated);
     if (textArg === undefined) setInput("");
@@ -483,18 +487,20 @@ export function CaseSession() {
   const performAction = (a: ExamAction) => {
     if (sending || isStreaming) return; // don't interleave with a live patient stream
     if (a.satisfies_steps.every((n) => tickedRef.current.has(n))) return;
-    // A dual-source chip is the CHART half of its step ("…verify with the EMR AND ask the
-    // patient"). Reveal what the record says and remember the half — but do NOT tick: the
+    const out = chipOutcome(a.satisfies_steps, tickedRef.current, dualStepsRef.current,
+                            chartDoneRef.current, askedDualRef.current);
+    // A QUICK dual chip is the record half of its step ("…verify with the EMR AND ask the
+    // patient"): reveal what the record says and remember the half — but do NOT tick, the
     // step waits for the examiner to see the patient asked. If it already did, that credit
     // is held in askedDual and admits now; otherwise the next examiner pass carries
-    // record_done and can credit the asking on its own.
-    if (a.also_ask && !a.satisfies_steps.every((n) => chartDoneRef.current.has(n))) {
+    // record_done and can credit the asking on its own. An ASSESSED dual chip (hand hygiene
+    // fused with the identity check) still has a technique to type, so it falls through to
+    // the procedure panel and confirmProcedure records the half.
+    if (out.charted.length && a.quick) {
       const body = a.reveal_text ? ` → record checked · Result: ${a.reveal_text}` : " → record checked";
       setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label}${body}]`, channel: "eyebot" }]);
-      const charted = new Set([...chartDoneRef.current, ...a.satisfies_steps]);
-      chartDoneRef.current = charted;   // set the ref first — addAuto reads it this tick
-      setChartDone(charted);
-      addAuto(a.satisfies_steps.filter((n) => askedDualRef.current.has(n)));
+      applyCharted(out.charted);
+      addAuto(out.tick);
       scheduleObserve();
       return;
     }
@@ -503,7 +509,7 @@ export function CaseSession() {
     if (a.quick) {
       const body = a.reveal_text ? ` → performed · Result: ${a.reveal_text}` : "";
       setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label}${body}]`, channel: "eyebot" }]);
-      addAuto(a.satisfies_steps);
+      addAuto(out.tick);
       scheduleObserve();
       return;
     }
@@ -522,7 +528,13 @@ export function CaseSession() {
     if (!a || steps.length < 12) return;
     const resultText = a.reveal_text ? ` · Result: ${a.reveal_text}` : "";
     setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${steps}${resultText}]`, channel: "eyebot" }]);
-    addAuto(a.satisfies_steps);
+    // The confirmed technique IS the panel half of an assessed dual step (hand hygiene fused
+    // with the identity check), so it is recorded here rather than ticking the step — the
+    // consult still owes the other half. Every other chip ticks exactly as before.
+    const out = chipOutcome(a.satisfies_steps, tickedRef.current, dualStepsRef.current,
+                            chartDoneRef.current, askedDualRef.current);
+    applyCharted(out.charted);
+    addAuto(out.tick);
     setActiveProcedure(null);
     setProcText("");
     scheduleObserve();
@@ -660,9 +672,7 @@ export function CaseSession() {
   // student performs it in the action panel (not by talking). Conversation-only cases (no
   // manual actions) never lock. A DUAL-SOURCE step is excluded: asking the patient is half
   // of it, so it must leave both panes live (the lock made that step impossible).
-  const manualStepNumbers = new Set(
-    manualActions.filter((a) => !a.also_ask).flatMap((a) => a.satisfies_steps),
-  );
+  const manualStepNumbers = panelOnlySteps(manualActions);
   // One source of truth for "where do I act now" — drives the pane spotlight, the badges
   // and the patient-composer lock that used to be computed separately here.
   const { turn, badge } = stationTurn(gateStep, manualStepNumbers, {
@@ -671,7 +681,12 @@ export function CaseSession() {
   const patientLocked = turn === "eyebot";
   // Which half of the gate step is still outstanding, and the chips' half-done affordance.
   const halfOf = (step: number) => dualHalf(step, dualStepsRef.current, chartDone, askedDual, ticked);
-  const gateHint = gateStep === null || result ? "" : dualHint(halfOf(gateStep));
+  // Which patient-facing half the step owes — "now ask the patient" on a hygiene+identity
+  // step would send the student hunting for a question the step never asked for.
+  const dualKindOf = (step: number): DualKind =>
+    ((station?.examination_actions ?? []).find((a) => (a.also_ask_steps ?? []).includes(step))
+      ?.dual_kind as DualKind) || "ask";
+  const gateHint = gateStep === null || result ? "" : dualHint(halfOf(gateStep), dualKindOf(gateStep));
 
   if (loadError) {
     return (

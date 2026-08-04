@@ -279,9 +279,11 @@ class ExaminationAction(BaseModel):
     step_number: int = 0
     kind: str = "manual"  # "manual" → shortcut chip; "verbal" → stays in the live chat
     quick: bool = False   # manual + no assessable technique → ticks on one click, no typing
-    # Dual-source step: the chip is only the chart half, the patient must be asked too.
-    # The frontend holds the tick until both halves land (see dualStep.ts).
-    also_ask: bool = False
+    # Dual-source steps: for THESE steps the chip is only the action-panel half and the
+    # patient supplies the rest, so the frontend holds the tick until both halves land
+    # (see dualStep.ts). Per step, not per chip — a merged chip can hold one of each.
+    also_ask_steps: list[int] = []
+    dual_kind: str = ""   # "ask" | "identity" — which half the consult still owes
 
 class StationChecklist(BaseModel):
     procedure_name: str

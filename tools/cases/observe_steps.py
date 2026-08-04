@@ -6,6 +6,7 @@ steps the student has now satisfied. One cheap Gemini call; resilient — return
 
 import json
 
+from tools.cases.examination_actions import dual_kind
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
 
 _EXAMINER_SYSTEM = (
@@ -52,11 +53,11 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
     stuck-valve). Ask for one lenient re-read of THAT step only — strictness everywhere else
     is unchanged, so this can't become a way to tick the whole list.
 
-    record_done: dual-source steps (record AND ask — see examination_actions.is_dual_step)
-    whose CHART half the student has already done in the action panel. The examiner sees the
-    consult only, so without this a strict reading of "verify with the EMR and ask the
-    patient" can never be satisfied from the transcript. It removes exactly one half; the
-    asking is still judged on the student's own words.
+    record_done: dual-source steps (see examination_actions.dual_kind) whose ACTION-PANEL
+    half the student has already done. The examiner sees the consult only, so without this
+    a strict reading of "verify with the EMR and ask the patient" can never be satisfied
+    from the transcript. It removes exactly one half — the patient-facing half is still
+    judged on the student's own words — and only for steps that really are dual.
     """
     if MOCK_MODE:
         return []
@@ -85,17 +86,35 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
             "words reasonably cover it, even if indirectly. Your strictness for every OTHER step "
             "is unchanged."
         )
-    remaining_nums = {int(s.get("step_number", 0)) for s in remaining}
-    done_halves = sorted({int(n) for n in (record_done or [])} & remaining_nums)
-    record_note = ""
-    if done_halves:
-        which = ", ".join(f"step {n}" for n in done_halves)
-        record_note = (
-            f"\n\nNOTE: for {which}, the student has ALREADY checked the medical record / EMR "
-            "in the action panel. You cannot see that in the transcript, so do NOT hold the "
-            "record half against them. Judge ONLY whether they also asked the patient — "
-            "include the step if they did, leave it out if they did not."
-        )
+    remaining_actions = {int(s.get("step_number", 0)): str(s.get("action", "")) for s in remaining}
+    done_halves = sorted({int(n) for n in (record_done or [])} & set(remaining_actions))
+    # WHICH half is outstanding depends on the step, so it is read off the step text rather
+    # than assumed: telling the examiner to judge "whether they asked the patient" on a
+    # hand-hygiene-and-identity step would have it grade the wrong thing — and the wrong
+    # thing is a critical step. A step that is not dual at all gets no note, so a stale
+    # entry in record_done can never become a free excuse.
+    by_kind: dict[str, list[int]] = {}
+    for n in done_halves:
+        if kind := dual_kind(remaining_actions[n]):
+            by_kind.setdefault(kind, []).append(n)
+    notes: list[str] = []
+    for kind, nums in by_kind.items():
+        which = ", ".join(f"step {n}" for n in nums)
+        if kind == "ask":
+            notes.append(
+                f"\n\nNOTE: for {which}, the student has ALREADY checked the medical record / EMR "
+                "in the action panel. You cannot see that in the transcript, so do NOT hold the "
+                "record half against them. Judge ONLY whether they also asked the patient — "
+                "include the step if they did, leave it out if they did not."
+            )
+        else:
+            notes.append(
+                f"\n\nNOTE: for {which}, the student has ALREADY done the hands-on half in the "
+                "action panel. You cannot see that in the transcript, so do NOT hold it against "
+                "them. Judge ONLY whether they confirmed the patient's identity with the patient "
+                "— include the step if they did, leave it out if they did not."
+            )
+    record_note = "".join(notes)
     prompt = (
         f"## Remaining checklist steps\n{steps_block}\n\n"
         f"## Recent transcript\n{convo}\n\n"
