@@ -14,12 +14,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.gamification import streak as streak_engine
+from tools.gamification.chest import boost_multiplier
+from tools.gamification.daily_state import read_daily_state, record_activity
 from tools.gamification.leaderboard import weekly_tally
 from tools.gamification.league import apply_division_bonus
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.audit_log import log
-from tools.shared.clock import app_today, app_week_start
+from tools.shared.clock import app_now, app_today, app_week_start
 
 WEAK_THRESHOLD = 0.65
 
@@ -89,6 +91,7 @@ async def update_profile(
     role: str | None = None,
     xp_delta: int = 0,
     hearts_used: int = 0,
+    source: str | None = None,
 ) -> None:
     """Update the student's profile. Never raises — logs errors to audit_log."""
     try:
@@ -215,7 +218,25 @@ async def update_profile(
     # it is computed above rather than passed in, which makes it the one award that could
     # quietly escape. apply_division_bonus passes penalties through untouched — a forfeit is
     # -30 flat at every tier — so nothing below needs to know the sign.
-    gain = apply_division_bonus(xp_delta + streak_bonus, profile.get("division"))
+    #
+    # The boost rides the SAME single multiplier site as the division bonus, and rounds
+    # once with it. It is an expiry, not a banked charge, so nothing is consumed here —
+    # there is no read-modify-write and therefore no race between concurrent submits.
+    gain = apply_division_bonus(xp_delta + streak_bonus, profile.get("division"),
+                                boost_multiplier(profile, app_now()))
+
+    # The daily activity tally — the substrate every Home quest computes from. One writer,
+    # so a quest bar can never disagree with what the student actually did. Its own guarded
+    # write, so a column still pending migration 018 cannot sink the XP writes beside it.
+    if source:
+        try:
+            state = record_activity(read_daily_state(profile, today), source, topic)
+            writes.append(_write(
+                "daily_state_write_error", "gamification",
+                daily_state=state, daily_state_date=today_iso,
+            ))
+        except Exception as exc:
+            log("daily_state_error", student_id=student_id, feature="gamification", detail=str(exc))
 
     # XP / hearts / daily + weekly tallies / lifetime Lumens. Values are pure functions
     # of the profile read above; each lands in its own guarded write. Guard the
