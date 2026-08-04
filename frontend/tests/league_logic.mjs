@@ -12,8 +12,25 @@
 import assert from "node:assert";
 import {
   msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex, splitPodium,
-  nextDivisionName, DIVISION_NAMES,
+  nextDivisionName, nextRungPayoff, DIVISION_NAMES,
 } from "../src/aurora/leaderboard/league.ts";
+
+// ── the HOOK: what the next division pays, read off the server's own ladder ──
+// A hard-coded copy of the economy drifts the first time it is retuned — silently, because
+// a wrong multiplier still renders. These all read `multipliers` from the payload.
+assert.deepStrictEqual(nextRungPayoff(2, [1, 1.1, 1.25, 1.5, 2]), { name: "Gold", mult: "×1.25" });
+assert.deepStrictEqual(nextRungPayoff(1, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
+assert.deepStrictEqual(nextRungPayoff(3, [1, 1.1, 1.25, 1.5, 2]), { name: "Platinum", mult: "×1.5" });
+// Trailing zeros make a game number look like a currency: ×2, never ×2.00.
+assert.deepStrictEqual(nextRungPayoff(4, [1, 1.1, 1.25, 1.5, 2]), { name: "Diamond", mult: "×2" });
+assert.strictEqual(nextRungPayoff(5, [1, 1.1, 1.25, 1.5, 2]), null);  // the summit pays into nothing
+assert.strictEqual(nextRungPayoff(2, []), null);          // older server: no road, so no claim
+assert.strictEqual(nextRungPayoff(2, [1, 1.1]), null);    // never read past the end of the ladder
+// Bad data CLAMPS rather than throwing, and it clamps the same way nextDivisionName does —
+// two helpers that answer "what is above me" must not disagree about a null column.
+assert.deepStrictEqual(nextRungPayoff(null, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
+assert.deepStrictEqual(nextRungPayoff(0, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
+assert.strictEqual(nextRungPayoff(99, [1, 1.1, 1.25, 1.5, 2]), null);
 
 // ── 0) divisions mirror tools/gamification/league.py ──
 assert.deepStrictEqual([...DIVISION_NAMES], ["Bronze", "Silver", "Gold", "Platinum", "Diamond"]);
