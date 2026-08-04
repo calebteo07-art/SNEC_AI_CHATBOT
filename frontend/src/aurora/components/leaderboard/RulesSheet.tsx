@@ -51,8 +51,8 @@ export function RulesSheet({
             band is the real deadline, wherever you are.
           </li>
           <li>
-            <strong>The top finishers move up a division.</strong> The gold zone at the top of
-            the board is the cut — everyone inside it advances.
+            <strong>The podium is the cut.</strong> Finish in the top three and you move up a
+            division on Monday — the three students on the stage are the three who advance.
           </li>
           <li>
             <strong>Nobody is ever demoted.</strong> A division you reach is yours to keep,

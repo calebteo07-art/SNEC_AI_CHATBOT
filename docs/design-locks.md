@@ -1608,6 +1608,114 @@ object's outline ≥2px, opaque and dark. Plus a **1920×1080 viewport**, withou
 bound tests nothing: at 1440 an 880px column already covered 61%, so every viewport in the matrix
 passed a check aimed at the one it came from. *Precise measurement of the wrong DEVICE.*
 
+#### ARCADE 2026-08-04 — one edge, a field that is not grey, and a podium that PAYS
+
+User: *"the cards and elements are not spaced out nicely (positioning is pivotal), and i want to
+have a more variety of pop of colors in this entire page, design currently is decent, and make
+sure only podium will be able to promote tiers, and make the lumens multiplier more obvious,
+instead of just in the question mark popups. Must be an addictive gamified leaderboard design."*
+
+**"Design currently is decent" is the load-bearing half of that sentence.** The STRUCK recipe,
+the lip ladder, the podium geometry, the plinth mass bounds, the ranks budget and the light
+canvas all stay. **Four criteria change, and each is named here rather than quietly overwritten.**
+
+**1. ⚠ THE FIELD IS FIXED — this BREAKS "the arena wears your own division's metal" (pass 5).**
+On request, and the rule was the direct cause of the complaint: **Silver's metal IS grey**, so
+the largest surface in the app desaturated at the tier most of the cohort sits in, and four of
+five divisions rendered a pale wash. Identity moved down a layer rather than disappearing — the
+metal **wash** still tints the top of the page, and the band, plinths, road and crest are all
+still cast in it, so climbing still re-skins the screen. The field is now a warm `#FFFBF4` base,
+**five radial blooms** (coral, cyan, violet, green, marigold) and **four-hue candy stripes**.
+- ⚠ **Still light** (luminance measured **0.968**, floor 0.7), still ends in an opaque solid,
+  still not a dot grid, still not the banned pass-2 sunburst.
+- ⚠ **`background-repeat` carries one value per layer — EIGHT now.** Miscounting silently tiles
+  a bloom across the page.
+- ⚠ **The first build of this was measurably light and visibly PASTEL.** Bloom alphas went
+  .22 → .42 and stripes .055 → .10 only after a screenshot, because "the numbers pass" and
+  "it reads as vibrant" are different claims and the gate can only make the first one.
+
+**2. ONE EDGE.** Measured before anything moved, which is the only reason this did not become a
+sixth argument about margins: at the top tier the page stacked an **1148px band, a ~470px centred
+filter, a 700px stage and an 1148px ladder** — four widths on four centres, with ~224px of dead
+flank either side of the stage. `.pod-deck` is a new **full-width struck platform**; `.lb-filter`
+is a full-width strip with the chips left and the cohort count right. Gated: the four stacked
+blocks agree on both edges within 1.5px (**measured ±0/0**).
+- ⚠ **THE BLOCKS DO NOT GROW INTO IT.** Past ~700px of stage the champion is a 2:1 slab. The
+  deck widens; `--stage-w` is an explicit grid TRACK, because a percentage width inside an
+  `auto` track sizes against a track that is sizing against it — that is the 261px shrink-to-fit
+  this file already records once.
+- ⚠ **The deck's caption row is FUNDED**: the ladder's cut is withheld whenever the podium holds
+  the whole promoted set (~28px back against ~24px). **The stage never takes height it has not
+  paid for.**
+- ⚠ **`rhythm.stacked` had to change with it.** It read `list.left < pod.right - 1`, which a
+  full-width deck makes true on the two-column tier too. It is now `list.top >= pod.bottom - 1`
+  — "the list starts below the stage", which is what the name always meant.
+- ⚠ **The chips needed `min-width: 44px`, not just `min-height`.** They were `flex: 1 1 0` in a
+  stretched pill, so width was never the binding dimension; in the strip they shrank to **38px**.
+  A 38×44 target passes a height check and fails a human.
+
+**3. COLOUR ON THE OBJECTS.** A vivid canvas behind 27 identical graphite gauges is still a grey
+ladder — the flattest object on a page is the one drawn most often. **Role is identity**, the same
+licence the band has to wear a metal: OA violet `#5B3BC4`, OT teal `#0E6C80`, PSA pink `#B32B54`,
+worn by the filter chips, the `.lg-role` tag and **the gauge fill**. Plus the Forge's ember on
+`.lg-streak`. ⚠ **This amends the gauge's "NO NEW HUE"** rule: graphite is now the *fallback*,
+you-blue still wins, and gold is **retained** for the underfilled board. Fill only — never an
+outline, never a lip — so role can never out-shout the gold that means promotion.
+
+**4. ONLY THE PODIUM PROMOTES.** `promote_count` → `min(n - 1, 3)`. Only divisions of **13+**
+change (the old rule already paid 3 for pools of 4–12). At 30 students that is 10% mobility
+against Duolingo's 23% — a slower climb, bought deliberately for a much heavier podium, raised
+with the user and confirmed.
+- ⚠ **The payload never zeroed at the summit.** `close_week` has always refused to promote out of
+  Diamond, but the live board sent the pool's raw count — so a Diamond board drew a promotion cut
+  and gold podium lips for a promotion that cannot happen, and the client had no way to know
+  (`promotionLineIndex` documents "the top division promotes nobody" as a null case reachable
+  only via a 0 it was never sent). Found while giving the stage a banner that says the count out
+  loud, **which is what turned a quiet wrong marking into a written lie**.
+- ⚠ **The cut is drawn once.** Withheld at index 0, where the deck states the same boundary in
+  words a few pixels above. It still draws when the podium is withheld — below three entries
+  `splitPodium` refuses the stage, so the promoted rank has nowhere to be but a row. **That case
+  is now a gated scenario**, without which the zone, the line and the gold rows would keep their
+  CSS and lose their gate: paint nothing ever measures again.
+- ⚠ **`test_hidden_student_holds_no_promotion_slot` silently lost its teeth**: 16 and 17 both pay
+  3 now, so it could no longer tell a counted hidden student from an uncounted one and would have
+  passed forever while testing nothing. It keeps a 3-student cohort where the `n-1` guard bites.
+
+**5. THE MULTIPLIER IS THE REWARD, not an accounting detail.** A two-line `×1.1 / LUMENS` module
+(medallion rung — the chip it replaced was **44×22 = 968px²** and passed every check on the page;
+gated at ≥1700px², measured **80×53.5** on desktop), the five pips become a **labelled road**
+(`×1 · ×1.1 · ×1.25 · ×1.5 · ×2`), and the readout carries the **hook** — `Promote → Gold pays
+×1.25`. All three read `division_multipliers` off the payload; a constant here would drift the
+first time the economy is retuned, silently, because a wrong multiplier still renders.
+- ⚠ **`.tb-pip` keeps painting its own metal.** The five-metals gate samples it as PAINT, and a
+  fill moved onto the new label child would pass on five grey pips.
+- ⚠ **The road is off below the desktop tiers, and its gate is guarded on the LAYOUT.** A 932px
+  landscape phone is wider than 700 and runs the two-column tier, whose 356px left column is the
+  one head that provably cannot afford five labels.
+- ⚠ **The phone head made the NAME pay, which the lock forbids.** The module grew ~10px and the
+  pip outline 5, and "Silver League" ellipsed to "Silver L…". The gaps gave back 16px and then
+  **`.tb-league` was dropped on phones** — of those two words only one carries information the
+  reader does not already have, because this page IS the league.
+
+**Changed measurement, stated rather than buried**: **390×844 now shows 8 ranks, not 9.** Every
+tier still clears its floor (9 · 8 · 9 · 10 · 8 · 9 · 12 against ≥8 / ≥6), and recovering the 9th
+needs a whole 56px row, not the 8px of padding that was available. 1366×768 remains **on** the
+floor with zero slack and can still pay for nothing.
+
+**Also fixed, each a defect this pass found in the harness itself**: `.tb-clock` and `.lg-zone`
+were still in the contrast sweep after both stopped rendering there — a probe pointed at nothing
+reports nothing wrong. The five objects this pass ADDED joined the sweep at the same time,
+because a new coloured word that nothing measures is how a 2.2:1 label ships.
+⚠ **Two new regexes shipped broken through a scripted edit**: a template literal turns `\b` into
+a **backspace escape**, and a Python rewrite left a raw `0x08` byte in another. Both "passed"
+by matching control characters — `cat -A` is what found them.
+
+**Gate**: `league_assert.mjs` — **292 assertions**, plus six new bounds (one edge · the deck is
+struck · the banner names count and destination · module area · the road's five labels · the
+gauges' role hues) and a new underfilled-stage scenario.
+Spec `docs/superpowers/specs/2026-08-04-league-arcade-pass-design.md`, plan
+`docs/superpowers/plans/2026-08-04-league-arcade-pass.md`.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.

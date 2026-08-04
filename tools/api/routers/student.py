@@ -21,7 +21,7 @@ from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 from tools.gamification.leaderboard import rank_entries, would_be_rank_for
 from tools.gamification.league import (
-    DIVISION_MULTIPLIERS, division_multiplier, division_name, promote_count,
+    DIVISION_MULTIPLIERS, TOP_DIVISION, division_multiplier, division_name, promote_count,
 )
 from tools.gamification.league_rollover import run_rollover
 from tools.profile.get_profile import get_profile
@@ -714,7 +714,14 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
         division_multiplier=division_multiplier(my_division or 1),
         division_multipliers=list(DIVISION_MULTIPLIERS),
         pool_size=len(pool),
-        promote_count=promote_count(len(pool)),
+        # ⚠ ZERO AT THE SUMMIT. close_week has always refused to promote anyone out of
+        # Diamond, but the live payload did not agree with it: it sent the pool's raw count,
+        # so a Diamond board drew a promotion cut and gold podium lips for a promotion that
+        # cannot happen. The client had no way to tell — promotionLineIndex documents "the
+        # top division promotes nobody" as a null case and gets there only via a 0 it was
+        # never sent. Found 2026-08-04 while giving the stage a banner that says the count
+        # out loud, which is what turned a quiet wrong marking into a written lie.
+        promote_count=0 if (my_division or 1) >= TOP_DIVISION else promote_count(len(pool)),
     )
 
 

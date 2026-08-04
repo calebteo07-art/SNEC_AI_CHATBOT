@@ -129,31 +129,57 @@
    background-color at all, so every white-on-canvas glyph would measure against nothing.
    Transparent stops are written rgba(c, 0), never `transparent` — the keyword interpolates
    through grey and dirties the bloom. */
+/* ⚠ THE FIELD IS FIXED, and that BREAKS the rule the pass above set — deliberately, on
+   request ("i want the entire page to be rich in variety of bright and vibrant colors").
+   The canvas used to wear the viewer's own division metal, which was a good rule that bought
+   a bad result: Silver's metal IS grey, so the largest surface in the app desaturated at the
+   tier most of the cohort actually sits in. Four of the five divisions were a pale wash.
+
+   Identity did not disappear, it moved DOWN A LAYER. The metal WASH below still tints the top
+   of the page in your own division's colour, and the band, the podium, the road and the crest
+   are all still cast in it — so climbing still visibly re-skins the screen. What the canvas
+   stops doing is being the only thing carrying it.
+
+   Everything the previous passes pinned still holds and is still gated: the stack ENDS IN AN
+   OPAQUE LIGHT SOLID (the contrast probe walks to the nearest ancestor with alpha > 0.92, so a
+   gradient-only canvas would measure every white glyph against nothing), luminance stays well
+   over the 0.7 floor, transparent stops are rgba(c, 0) rather than the keyword (which
+   interpolates through grey and dirties a bloom), it is NOT a dot grid, and the stripes are
+   still parallel and uniform rather than the banned pass-2 sunburst.
+   ⚠ The blooms are radial and soft-edged on purpose. .aurora-main does not scroll, so any
+   HARD horizontal edge here would sit perfectly still while the ladder slid past it. */
 .aurora-main:has(.lb-climb) {
+  --arena-base: #FFFBF4;
   /* Bronze is the default so a pre-migration null division still gets a real arena. */
-  --arena-base: #FAF3E8;
   --arena-wash: rgba(226, 154, 94, .3);
-  --arena-stripe: rgba(142, 82, 32, .075);
+  /* One token, one job: the LANE's stripe (see § THE LANE). The canvas cycles four hues
+     inline below rather than through a variable, because four tokens that can only ever be
+     set together are four chances for three of them to be. */
+  --arena-stripe: rgba(124, 78, 245, .11);
   background:
     radial-gradient(52% 26% at 50% 20%, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 72%),
     radial-gradient(96% 42% at 50% -10%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(40% 32% at 2% 8%, rgba(255, 92, 138, .42) 0%, rgba(255, 92, 138, 0) 70%),
+    radial-gradient(40% 32% at 98% 20%, rgba(38, 205, 235, .44) 0%, rgba(38, 205, 235, 0) 70%),
+    radial-gradient(34% 30% at 8% 78%, rgba(124, 78, 245, .34) 0%, rgba(124, 78, 245, 0) 72%),
+    radial-gradient(36% 30% at 94% 88%, rgba(120, 226, 122, .34) 0%, rgba(120, 226, 122, 0) 72%),
+    radial-gradient(48% 36% at 50% 104%, rgba(255, 186, 40, .44) 0%, rgba(255, 186, 40, 0) 72%),
     repeating-linear-gradient(135deg,
-      var(--arena-stripe) 0 34px, rgba(255, 255, 255, 0) 34px 68px),
+      rgba(127, 90, 240, .10) 0 24px, rgba(255, 255, 255, 0) 24px 48px,
+      rgba(27, 158, 186, .10) 48px 72px, rgba(255, 255, 255, 0) 72px 96px,
+      rgba(232, 90, 120, .09) 96px 120px, rgba(255, 255, 255, 0) 120px 144px,
+      rgba(214, 150, 20, .11) 144px 168px, rgba(255, 255, 255, 0) 168px 192px),
     var(--arena-base);
-  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  /* ⚠ EIGHT values for eight image layers, in order. The stripe is the only repeating one,
+     and miscounting here silently tiles a bloom across the page. */
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
 }
-.aurora-main:has(.lb-climb[data-metal="silver"]) {
-  --arena-base: #EFF3FA; --arena-wash: rgba(157, 172, 194, .34); --arena-stripe: rgba(110, 126, 150, .07);
-}
-.aurora-main:has(.lb-climb[data-metal="gold"]) {
-  --arena-base: #FDF5E1; --arena-wash: rgba(245, 198, 63, .34); --arena-stripe: rgba(154, 106, 8, .075);
-}
-.aurora-main:has(.lb-climb[data-metal="platinum"]) {
-  --arena-base: #F1F2FD; --arena-wash: rgba(169, 178, 232, .34); --arena-stripe: rgba(91, 100, 168, .07);
-}
-.aurora-main:has(.lb-climb[data-metal="diamond"]) {
-  --arena-base: #EAF8FC; --arena-wash: rgba(127, 220, 240, .36); --arena-stripe: rgba(27, 138, 166, .07);
-}
+/* The wash is the LAST per-metal thing on the canvas, and it is the deliberate remainder:
+   it is what keeps "climbing re-skins the screen" true now that the base does not. */
+.aurora-main:has(.lb-climb[data-metal="silver"]) { --arena-wash: rgba(157, 172, 194, .34); }
+.aurora-main:has(.lb-climb[data-metal="gold"]) { --arena-wash: rgba(245, 198, 63, .34); }
+.aurora-main:has(.lb-climb[data-metal="platinum"]) { --arena-wash: rgba(169, 178, 232, .34); }
+.aurora-main:has(.lb-climb[data-metal="diamond"]) { --arena-wash: rgba(127, 220, 240, .36); }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 /* ── THE LANE ─────────────────────────────────────────────────────────────────
@@ -199,6 +225,7 @@
         var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
       repeating-linear-gradient(135deg,
         var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
+      radial-gradient(70% 40% at 50% 4%, rgba(255, 92, 138, .3) 0%, rgba(255, 92, 138, 0) 74%),
       linear-gradient(180deg, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 46%),
       var(--arena-deep, #ECE4D8);
   }
@@ -222,11 +249,10 @@
    there is no width at which a 20px stub appears and reads as a rendering bug.
    ⚠ --mat-ink lives on .lb-climb, which is a DESCENDANT — the flanks are on .aurora-main
    and cannot inherit it, so the outline colour above is written as a literal fallback. */
-.aurora-main:has(.lb-climb) { --arena-deep: #EBDECB; --lane: 1400px; }
-.aurora-main:has(.lb-climb[data-metal="silver"]) { --arena-deep: #DCE4F1; }
-.aurora-main:has(.lb-climb[data-metal="gold"]) { --arena-deep: #F4E3B9; }
-.aurora-main:has(.lb-climb[data-metal="platinum"]) { --arena-deep: #DFE2F6; }
-.aurora-main:has(.lb-climb[data-metal="diamond"]) { --arena-deep: #D2ECF5; }
+/* ONE deep surface, not five. The apron is GROUND — it is the part of the page the board is
+   not standing on — and ground stopped being identity when the canvas did. The metal still
+   reaches the flanks through --arena-wash, which the wall's own gradient stack reads. */
+.aurora-main:has(.lb-climb) { --arena-deep: #E7D8FA; --lane: 1400px; }
 
 .lb-climb {
   /* THE outline, and the lip ladder. */
@@ -255,6 +281,17 @@
 
   --up-fill: #D8F2E2;
   --up-ink: #14602A;
+
+  /* ROLE IS IDENTITY — the same licence the band has to wear a metal, spent on the object
+     that repeats 27 times. Added 2026-08-04 ("more variety of pop of colors in this entire
+     page"): a vivid canvas behind a ladder of 27 identical graphite gauges is still a grey
+     ladder, and the flattest object on a page is the one drawn most often.
+     Each pair is a WORD colour (the darker, and every one of the three clears 5.4:1 on the
+     row's white) and a bar highlight. Fill only — never an outline, never a lip — so role
+     can never out-shout the gold that means promotion. */
+  --role-oa: #5B3BC4;   --role-oa-hi: #8266E8;
+  --role-ot: #0E6C80;   --role-ot-hi: #23A0BA;
+  --role-psa: #B32B54;  --role-psa-hi: #E4587D;
   /* A deepened Gemini blue. The gradient `var(--gemini)` has no background-color at all, so
      white-on-it measures against the page and its own #4285F4 head is 3.56:1 — this is 6.6:1
      and declares a solid the probe can actually read. */
@@ -342,9 +379,18 @@
 .tb-pips { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 5px; }
 .tb-pip {
   box-sizing: border-box; width: 11px; height: 11px; border-radius: 50%;
-  background-color: var(--pm); border: 1.5px solid var(--mat-ink);
+  background-color: var(--pm); border: 2px solid var(--mat-ink);
   box-shadow: 0 2px 0 0 rgba(42, 31, 61, .7);   /* an alpha-.3 lip under an 11px dot is a smudge */
 }
+/* ⚠ 2px, not the 1.5px this was: Chrome snaps a used border-width to whole device pixels, so
+   at DPR 1 getComputedStyle reported 1px — the hairline the whole recipe bans, on the object
+   repeated five times in the head. Same correction the rung took. */
+
+/* THE ×N LABEL. Off by default and turned on only in the two desktop tiers below, where the
+   head has an elastic track wide enough to hold it — this head already carries five children
+   in a phone-width column, and the lock's rule is that anything added to it has to be paid
+   for THERE. On a phone the road stays five dots and the module carries the number. */
+.tb-px { display: none; }
 .tb-pip[data-metal="bronze"] { --pm: #E29A5E; }
 .tb-pip[data-metal="silver"] { --pm: #C6D2E2; }
 .tb-pip[data-metal="gold"] { --pm: #F5C63F; }
@@ -363,16 +409,29 @@
    but 3.0:1 on this fill; that split is load-bearing and this chip is exactly the kind of
    element that gets it wrong. Pill rung of the lip ladder: 2px lip, 1.5px outline. */
 .tb-mult {
-  flex: 0 0 auto; display: inline-flex; align-items: center; white-space: nowrap;
-  padding: 5px 9px; border-radius: 999px;
-  font-family: var(--disp); font-weight: 800; font-size: 13.5px; line-height: 1;
+  flex: 0 0 auto; display: inline-grid; justify-items: center; align-content: center;
+  gap: 1px; white-space: nowrap;
+  padding: 5px 10px; border-radius: 13px;
   color: var(--ink-on-gold);
   background-color: var(--gold-lo);
   background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 42%,
                                             var(--gold-mid) 42.01%, var(--gold-mid) 100%);
   border: 2px solid var(--mat-ink);
+  /* MEDALLION rung of the lip ladder (3px lip / 2px outline), promoted from the pill rung it
+     used to sit on. The lip ladder allows a fifth object only when another gives one up, and
+     this is that trade: the chip WAS the pill tier and is now the reward it describes. */
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6),
-              0 2px 0 0 var(--gold-lip), 0 2px 0 2px var(--mat-ink);
+              0 3px 0 0 var(--gold-lip), 0 3px 0 2px var(--mat-ink);
+}
+/* Two lines, because one line of "×1.1" is a value without a unit and the unit is the whole
+   point: it multiplies LUMENS, everywhere, not this screen's score. */
+.tb-mult-n {
+  font-family: var(--disp); font-weight: 800; font-size: 20px; line-height: 1;
+  letter-spacing: -.02em;
+}
+.tb-mult-l {
+  font-size: 8.5px; font-weight: 800; line-height: 1;
+  letter-spacing: .13em; text-transform: uppercase;
 }
 
 .tb-help {
@@ -393,7 +452,19 @@
   padding: 7px 11px; background-color: #FFFFFF;
   border-top: var(--mat-out) solid var(--mat-ink);
 }
-.tb-chase { margin: 0; min-width: 0; display: flex; align-items: baseline; gap: 6px; }
+.tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 6px; }
+/* THE HOOK. The chase says what to do; this says what doing it PAYS, in the same glance —
+   the two halves of the mechanic were on two different screens until the road came out of
+   the (?) sheet. Gold WORD on white (--gold-ink, 6.9:1), never the fill's ink. */
+.tb-hook {
+  flex: 0 0 auto; margin: 0; white-space: nowrap;
+  font-size: 12px; font-weight: 700; color: var(--ink-2);
+}
+.tb-hook b { font-weight: 800; color: var(--gold-ink); }
+/* "Promote →" is the instruction and the chase beside it already gives one; on a narrow
+   readout it is the half that gives way, so the PAYOFF survives at full width. */
+.tb-hook-do { display: none; }
+@media (min-width: 700px) { .tb-hook-do { display: inline; } }
 .chase-n {
   font-family: var(--disp); font-weight: 800; font-size: 18px; line-height: 1;
   color: var(--gold-ink);   /* a gold WORD, on white — 6.9:1 */
@@ -428,11 +499,88 @@
    · THE FILL IS PALE-TO-MID METAL WITH A SATURATED EDGE, not a saturated slab. Pass 3 filled a
      300x164 plinth with #E8B02F and made the loudest thing on the page a mustard wall; the gold
      face here is 136x76 behind a keyline, ~79% less area. */
+/* ── THE DECK ─────────────────────────────────────────────────────────────────
+   "the cards and elements are not spaced out nicely (positioning is pivotal)", 2026-08-04.
+   Measured before touching anything, which is the only reason this pass did not become a
+   sixth argument about margins: at the top tier the page stacked a 1148px band, a ~470px
+   centred filter, a 700px stage and a 1148px ladder. FOUR WIDTHS ON FOUR CENTRES, with
+   ~224px of dead flank either side of the stage — no two objects on the page agreed where
+   the page's edges were, and no amount of per-block spacing fixes that.
+
+   ⚠ THE BLOCKS DO NOT GROW INTO IT. Past ~700px of stage the champion becomes a 2:1 slab —
+   the bar-chart shape the STRUCK pass exists to prevent, and the mass bound in league_assert
+   is one-sided about width for exactly this reason. The PLATFORM widens to the board's edge
+   and the stage stays capped inside it.
+
+   The flanks are not filler: they house the two facts that had nowhere better to be. The
+   left says what standing here MEANS (it was a caption in the ladder), the right says how
+   long is left (it was a third item crowding the band's readout). Structural rung of the lip
+   ladder, like .lg-list and .tb — it is the object the ceremony stands on. */
+.pod-deck {
+  position: relative; box-sizing: border-box;
+  /* The deck now owns the stage's rhythm: a flex column has one gap, so the ceremony still
+     has to buy its own air, and above > below is what makes it read as a stage rather than
+     as the next card down. */
+  margin: 8px 0 6px;
+  /* PHONE FIRST: one column, the two facts as a caption row beneath the stage. Three-across
+     needs a viewport that can hold a 520px stage AND two flanks; forcing it earlier squeezes
+     the blocks, which is the one thing that may not pay.
+     ⚠ That caption row is FUNDED, not free. The ladder's cut is withheld whenever the podium
+     holds the whole promoted set (see .lg-cut and Leaderboard.tsx) — ~28px back against the
+     ~24px this costs, on every tier. The stage never takes height it has not paid for. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "stage stage" "banner clock";
+  align-items: end; column-gap: 8px; padding: 6px 10px 4px;
+  border: var(--mat-out) solid var(--mat-ink);
+  border-radius: 18px;
+  background-color: #FFF6E6;
+  /* A GOLD SPOTLIGHT under the champion, over the hard-stop fill. The deck is wide now, and
+     a wide flat fill is exactly the wash this file's recipe bans — this is what stops the
+     flanks reading as a field of beige. Gold rather than the division metal: the deck is the
+     PROMOTION object, and identity is already carried by the band, the plinths, the road,
+     the crest and the canvas wash. */
+  background-image:
+    radial-gradient(44% 78% at 50% 98%, rgba(255, 206, 92, .5) 0%, rgba(255, 206, 92, 0) 72%),
+    linear-gradient(180deg,
+      #FFFFFF 0%, #FFFFFF 15%, #FFF6E6 15.01%, #FFF6E6 70%, #FBE9C6 70.01%, #FBE9C6 100%);
+  box-shadow:
+    0 var(--mat-lip) 0 0 #D9BE8A,
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .3);
+}
+/* Both flanks sit ON the deck's floor line, so the three objects read as standing on one
+   surface rather than as three cards in a row. */
+.pod-banner, .pod-clock {
+  align-self: end;
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 4px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; line-height: 1.2;
+}
+/* Gold, because it is the mechanic — the one meaning gold carries on this page. Pill rung:
+   2px lip, 2px outline (never 1.5, which Chrome snaps to the banned 1px hairline at DPR 1). */
+.pod-banner {
+  grid-area: banner; justify-self: start; margin: 0; text-align: center;
+  color: var(--ink-on-gold);
+  background-color: var(--gold-lo);
+  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 44%,
+                                            var(--gold-mid) 44.01%, var(--gold-mid) 100%);
+  border: 2px solid var(--mat-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55),
+              0 2px 0 0 var(--gold-lip), 0 2px 0 2px var(--mat-ink);
+}
+.pod-banner b { font-weight: 800; }
+.pod-banner-ico { font-size: 9px; }
+/* A dark HUD chip that declares its own solid, so the probe measures white-on-ink (15.4:1)
+   rather than walking up to the deck and reporting the wrong surface. */
+.pod-clock {
+  grid-area: clock; justify-self: end;
+  background-color: var(--mat-ink); color: #FFFFFF;
+  font-weight: 800; letter-spacing: .01em;
+}
+
 .pod {
-  /* The stage's own margins ARE the rhythm (see .lb-climb): a flex column has one gap, so
-     the ceremony has to buy its air itself. Above > below, deliberately — the space over a
-     podium is what makes it read as a stage rather than as the next card down. */
-  position: relative; margin: 8px 0 6px; padding: 0;
+  position: relative; padding: 0; grid-area: stage; width: 100%; justify-self: center;
   display: grid; grid-template-columns: 1fr 1.26fr 1fr; gap: 0;
   /* min-height, NOT height. A fixed height that the figure stack outgrows does not clip — it
      OVERFLOWS downward, silently, and the stage ends up under the bottom nav while every
@@ -625,21 +773,46 @@
 /* ── role filter ──────────────────────────────────────────────────────────────
    One segmented switch, not three floating chips. The class names are load-bearing: the gate
    clicks `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. */
+/* THE STRIP. It was a ~470px pill floating on the centre line of an 1148px board — one of the
+   four widths on four centres the deck note describes, and the easiest of them to fix. It now
+   shares the board's edge like everything else.
+   ⚠ The CONTROL is still control-sized. The lock's reasoning against stretching a three-chip
+   switch across 860px stands: what changed is that the strip around it is a container with
+   content at both ends rather than a bar of empty pill.
+   ⚠ .lb-filter and .lb-chip are LOAD-BEARING NAMES — league_assert clicks
+   `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. Restyled in place. */
 .lb-filter {
-  box-sizing: border-box; display: flex; gap: 3px; padding: 3px; border-radius: 999px;
+  box-sizing: border-box; width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 3px 3px 3px 12px; border-radius: 999px;
   background-color: var(--chip-mid);
   border: 2px solid var(--mat-ink);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7),
               0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
 }
+/* The cohort size, which was nowhere on the board — "who am I actually racing" is the first
+   question a ladder invites, and it was only answerable by counting rows. */
+.lb-count {
+  flex: 0 1 auto; min-width: 0; padding-right: 4px;
+  font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lb-chips { flex: 0 1 auto; display: flex; gap: 3px; min-width: 0; }
 .lb-chip {
-  flex: 1 1 0; min-width: 0; border: 0; background: transparent; border-radius: 999px;
+  flex: 0 1 auto; min-width: 0; border: 0; background: transparent; border-radius: 999px;
   color: var(--ink-2); font-family: inherit; font-weight: 800; font-size: 12.5px;
   letter-spacing: .03em; padding: 8px 10px; cursor: pointer;
   transition: color .14s ease, background-color .14s ease, transform .1s ease;
 }
+/* An UNSELECTED role chip wears its own role colour, so the switch teaches the ladder's
+   colour code before you touch it — the same three hues the rungs below use. */
+.lb-chip[data-role="OA"] { color: var(--role-oa); }
+.lb-chip[data-role="OT"] { color: var(--role-ot); }
+.lb-chip[data-role="PSA"] { color: var(--role-psa); }
 .lb-chip:hover { color: var(--ink); }
-.lb-chip[data-on="true"] {
+/* SELECTED stays dark-on-white regardless of role: a chip filled with its role colour would
+   read as a row rather than as the control that filters them. */
+.lb-chip[data-on="true"], .lb-chip[data-on="true"]:hover {
   background-color: var(--mat-ink); color: #FFFFFF;
   box-shadow: 0 2px 0 0 #150F22;
 }
@@ -827,8 +1000,14 @@
   box-shadow: 0 2px 0 0 #103A85, 0 2px 0 2px var(--mat-ink);
 }
 .lg-sub { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-2); min-width: 0; }
-.lg-role { font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.lg-role {
+  font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--role, var(--ink-2));
+}
 .lg-lvl, .lg-streak { white-space: nowrap; }
+/* The Forge's ember. A streak is the one stat on this row that is a STATE rather than a
+   measurement, and it read as grey metadata beside the level. 5.3:1 on white. */
+.lg-streak { color: #C2410C; font-weight: 800; }
 /* Ink, not gold: gold means the mechanic here, and the Lumen coin already marks the unit.
    Declaring its own solid also makes the probe measure this pill rather than the tinted row.
    ⚠ The outline was `1.5px solid var(--chip-lip)` — a GREY hairline, on the one object that
@@ -866,11 +1045,18 @@
 }
 /* The fill is a child, not a background-size trick: a hard-stop gradient on a
    percentage-sized layer would rescale its own bevel with the value. */
+.lg-item[data-role="OA"] { --role: var(--role-oa); --role-hi: var(--role-oa-hi); }
+.lg-item[data-role="OT"] { --role: var(--role-ot); --role-hi: var(--role-ot-hi); }
+.lg-item[data-role="PSA"] { --role: var(--role-psa); --role-hi: var(--role-psa-hi); }
+/* Graphite is the FALLBACK now, not the default: a row whose role the server did not send
+   still gets a readable bar rather than an unset custom property. */
 .lg-bar::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--fill, 0%);
   border-radius: 999px 0 0 999px;
-  background-color: #4B4160;
-  background-image: linear-gradient(180deg, #6C6083 0%, #6C6083 46%, #4B4160 46.01%, #4B4160 100%);
+  background-color: var(--role, #4B4160);
+  background-image: linear-gradient(180deg,
+    var(--role-hi, #6C6083) 0%, var(--role-hi, #6C6083) 46%,
+    var(--role, #4B4160) 46.01%, var(--role, #4B4160) 100%);
   box-shadow: inset 0 -2px 0 rgba(42, 31, 61, .45);
 }
 .lg-item[data-promo] .lg-bar::before {
@@ -1115,9 +1301,26 @@
   .lb-climb { padding: 8px 11px calc(var(--bar-h, 0px) + 28px); }
   /* The head now carries a fifth cell (the multiplier). At 390 the crest, pips, chip and (?)
      take ~200px of it, so both the chip and the pip gap give ground before the NAME does —
-     the division name is the one thing in that row a student reads. */
-  .tb-mult { font-size: 12px; padding: 4px 7px; }
-  .tb-pips { gap: 4px; }
+     the division name is the one thing in that row a student reads.
+     ⚠ The module is two lines now, so a font-size on the WRAPPER sizes nothing — it has to be
+     spent on the numeral, which is the part that has to stay readable at arm's length. */
+  /* ⚠ THE GAPS PAY, NOT THE NAME. The head's five children plus four 10px gaps came to
+     ~241px of a 363px row, which ellipsed "Silver League" to "Silver L…" — and the division
+     name is the one thing in that row a student reads. The gaps give back 16px before
+     anything else is touched. */
+  .tb-head { gap: 7px; }
+  /* ⚠ "League" goes, "Silver" stays. Even with the gaps tightened the head still ellipsed
+     the name to "Silver Lea…", and of the two words only one carries information the reader
+     does not already have: this page IS the league. Losing the DIVISION would be losing the
+     whole point of the band. */
+  .tb-league { display: none; }
+  /* The caption row is clear of the plinths' hard lips, which hang ~5px below their boxes
+     and which getBoundingClientRect does not see. */
+  .pod-deck { row-gap: 6px; }
+  .tb-mult { padding: 4px 7px; }
+  .tb-mult-n { font-size: 16px; }
+  .tb-mult-l { font-size: 7.5px; letter-spacing: .1em; }
+  .tb-pips { gap: 3px; }
   /* The medallion does NOT shrink here — it sets the row height, and 44px is what the
      visible-ranks budget is built on. Only the flanking tracks give ground. */
   .lg-row { grid-template-columns: 30px 24px 44px minmax(0, 1fr) auto; gap: 8px; padding: 5px 11px; }
@@ -1137,7 +1340,8 @@
      phone is the one tier that cannot fund air out of anything else. */
   .lb-climb { gap: 5px; padding-top: 4px; }
   .pod-fig { padding-bottom: 4px; }
-  .pod { --pod-h: 216px; --top-h: 15px; margin: 6px 0 5px; }
+  .pod-deck { margin: 6px 0 5px; padding: 7px 8px 5px; }
+  .pod { --pod-h: 216px; --top-h: 15px; }
   .pod-slot[data-place="1"] { --pl-h: 102px; --face: 58px; --num-sz: 38px; --crown-w: 28px; }
   .pod-slot[data-place="2"] { --pl-h: 78px; --face: 48px; --num-sz: 30px; }
   .pod-slot[data-place="3"] { --pl-h: 62px; --face: 48px; --num-sz: 25px; }
@@ -1164,8 +1368,13 @@
   /* vw-based type is sized by the VIEWPORT, which in a two-column layout is roughly three
      times the box the text actually lives in. */
   .tb-name { font-size: 19px; }
-  .tb-mult { font-size: 11.5px; padding: 3px 5px; }
+  .tb-mult { padding: 4px 8px; }
+  .tb-mult-n { font-size: 17px; }
+  .tb-mult-l { font-size: 7.5px; letter-spacing: .08em; }
   .tb-pips { gap: 3px; }
+  /* Three items in a ~330px readout is one too many; the hook wraps under the chase rather
+     than ellipsing the label that says what the number MEANS. */
+  .tb-hook { font-size: 11px; }
   /* The bar is centred on the viewport by default, which in two columns lands it across the
      STAGE. Anchor it over the ladder — the thing it scrolls you back into. */
   .youbar {
@@ -1174,7 +1383,7 @@
     bottom: calc(var(--bar-h, env(safe-area-inset-bottom)) + 10px);
   }
   .youbar:active { transform: translateY(3px); }
-  .tb, .lb-filter, .pod { grid-column: 1; }
+  .tb, .lb-filter, .pod-deck { grid-column: 1; }
   /* span 3 stays correct when .lb-filter does not render (a single-role cohort): the podium
      lands in row 2 and row 3 collapses to zero. */
   .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
@@ -1182,7 +1391,8 @@
      item defaults to stretch — so with min-height (rather than a fixed height) the stage grows
      to the full height of the ladder beside it, and `justify-content: flex-end` then parks all
      three figures hundreds of pixels below the fold. The gate caught it: "0 on the stage". */
-  .pod { --pod-h: 150px; --top-h: 13px; --num-stroke: 4px; margin: 5px 0 0; align-self: start; }
+  .pod-deck { margin: 5px 0 0; align-self: start; padding: 6px 8px 5px; }
+  .pod { --pod-h: 150px; --top-h: 13px; --num-stroke: 4px; }
   .pod-slot[data-place="1"] { --pl-h: 64px; --face: 48px; --num-sz: 30px; --crown-w: 22px; }
   .pod-slot[data-place="2"] { --pl-h: 48px; --face: 40px; --num-sz: 24px; }
   .pod-slot[data-place="3"] { --pl-h: 38px; --face: 40px; --num-sz: 20px; }
@@ -1243,16 +1453,36 @@
   }
   /* The stage buys its own air; the top padding funds it. Net −2px against the flat 10px
      gap this replaces, which matters because 1366x768 sits ON the 8-rank floor. */
-  .pod { margin: 9px 0 7px; }
-  /* A three-chip switch stretched across an 860px board is a bar of empty pill. It is a
-     CONTROL, so it should be the size of its controls — and centring it under a full-width
-     band is what makes the head read as a head rather than as three stacked slabs.
-     `align-self` on a flex-column child cancels `stretch`, which here is the point (see the
-     stage's note: the same mechanism, wanted rather than fought). */
-  .lb-filter { align-self: center; width: fit-content; min-width: 340px; }
+  .pod-deck { margin: 9px 0 7px; }
+  /* ⚠ The centring that used to live here is GONE (2026-08-04). "A control should be the
+     size of its controls" was right about the CHIPS and wrong about the strip: a pill
+     floating on the centre line was one of the four widths on four centres that made the
+     page read as unspaced. The chips are still control-sized inside a full-width strip. */
+  .lb-filter { padding-left: 14px; }
+  .lb-count { font-size: 12.5px; }
   .tb-head { padding: 11px 14px; }
   .tb-name { font-size: 26px; }
-  .tb-mult { font-size: 14.5px; padding: 6px 11px; }
+  .tb-mult { padding: 6px 12px; }
+  .tb-mult-n { font-size: 22px; }
+  .tb-mult-l { font-size: 9px; }
+  /* THE ROAD STATES WHAT IT PAYS, and only here: these are the tiers whose head has an
+     elastic track wide enough to hold five labels without taking the space out of the
+     division name. Each rung becomes a struck plate rather than a dot — same metal, same
+     outline, same lip, so the "five distinct metals sampled as PAINT" gate reads exactly
+     what it read before. */
+  .tb-px { display: block; font-size: 10.5px; font-weight: 800; line-height: 1; color: var(--ink-on-gold); }
+  .tb-pip {
+    width: auto; min-width: 42px; height: 21px; border-radius: 7px; padding: 0 7px;
+    display: grid; place-items: center;
+  }
+  .tb-pip[data-state="now"] {
+    width: auto; height: 26px; min-width: 48px; border-radius: 8px;
+  }
+  /* A locked rung reads its label against a 30%-opacity metal, which is not a surface a
+     contrast probe can measure — so the ink goes dark and the plate keeps the fade. */
+  .tb-pip[data-state="next"] { opacity: .58; }
+  .tb-pip[data-state="next"] .tb-px { color: var(--ink); }
+  .tb-pips { gap: 6px; }
   .lg-nm { font-size: 15.5px; }
   .lg-sub { font-size: 12px; }
   .lg-score { font-size: 15.5px; }
@@ -1266,10 +1496,20 @@
      SHRINK-TO-FIT. That shipped 103x132 blocks: 261px of stage, and a champion TALLER THAN IT
      IS WIDE, which is the tower the mass gate exists to catch. An explicit width is what makes
      centring safe here. */
-  .pod {
-    --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px;
-    width: min(520px, 100%); align-self: center;
+  /* THREE ACROSS, and only from here: the flanks need a viewport that can hold a 520px
+     stage beside them. `--stage-w` is an explicit TRACK rather than a width on the stage —
+     a percentage width inside an `auto` track sizes against a track that is sizing against
+     it, and the stage that came out of that was the 261px shrink-to-fit the lock already
+     records once. */
+  .pod-deck {
+    --stage-w: 520px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--stage-w)) minmax(0, 1fr);
+    grid-template-areas: "banner stage clock";
+    padding: 10px 14px 0;
   }
+  .pod-banner, .pod-clock { justify-self: center; margin-bottom: 15px; font-size: 13px; padding: 7px 13px; }
+  .pod-banner-ico { font-size: 10px; }
+  .pod { --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px; }
   .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 42px; --crown-w: 32px; }
   .pod-slot[data-place="2"] { --pl-h: 82px; --face: 54px; --num-sz: 32px; }
   .pod-slot[data-place="3"] { --pl-h: 66px; --face: 54px; --num-sz: 27px; }
@@ -1284,17 +1524,24 @@
    leaves the stage 255px, and the stage spends it on the figure first. */
 @media (min-width: 1024px) and (min-height: 860px) {
   .lb-climb { max-width: 920px; padding: 6px 16px 40px; gap: 7px; }
-  .pod { margin: 10px 0 8px; }
+  .pod-deck { margin: 10px 0 8px; }
   .tb-head { padding: 11px 16px; }
   .tb-name { font-size: 29px; }
-  .tb-mult { font-size: 16px; padding: 7px 12px; }
+  .tb-mult { padding: 7px 14px; }
+  .tb-mult-n { font-size: 25px; }
+  .tb-mult-l { font-size: 9.5px; }
+  .tb-px { font-size: 11.5px; }
+  .tb-pip { min-width: 46px; height: 23px; }
+  .tb-pip[data-state="now"] { min-width: 52px; height: 28px; }
+  .tb-hook { font-size: 13px; }
   /* The stage widens with the board — 620 of 848, so the champion lands ~242x132. Both
      numbers move together on purpose: growing the block height alone would have made it a
      tower, and growing the stage width alone would have made it a slab.
      The first build of this tier came in at 140px of block and cost the 9th rank — 8 with
      zero slack. The 8px came back off the BLOCK rather than off the board width, because
      width is free and height is the only thing the ladder pays for. */
-  .pod { --pod-h: 278px; --top-h: 20px; --num-stroke: 6px; width: min(620px, 100%); }
+  .pod-deck { --stage-w: 620px; }
+  .pod { --pod-h: 278px; --top-h: 20px; --num-stroke: 6px; }
   .pod-slot[data-place="1"] { --pl-h: 132px; --face: 80px; --num-sz: 56px; --crown-w: 44px; }
   .pod-slot[data-place="1"] .pod-fig { padding-top: 9px; padding-bottom: 3px; }   /* headroom scales with the crown */
   .pod-slot[data-place="2"] { --pl-h: 106px; --face: 68px; --num-sz: 44px; }
@@ -1338,12 +1585,16 @@
   /* The stage does NOT scale with the board. Past ~700 the champion's block goes back to
      being a 2:1 slab — the bar-chart shape the STRUCK pass exists to prevent — and the
      mass bound in league_assert is one-sided about width for exactly this reason. */
-  .pod { width: min(700px, 100%); }
-  .lb-filter { min-width: 420px; }
+  .pod-deck { --stage-w: 700px; }
+  .lb-count { font-size: 13px; }
 }
 /* Touch: every control on the board clears 44px. */
 @media (pointer: coarse) {
-  .lb-chip { min-height: 44px; }
+  /* ⚠ min-WIDTH as well as min-height since 2026-08-04. The chips used to be `flex: 1 1 0`
+     inside a pill that stretched to the board, so width was never the binding dimension;
+     in the strip they are `flex: 0 1 auto` and shrank to 38px. A 38x44 target passes a
+     height check and fails a human. */
+  .lb-chip { min-height: 44px; min-width: 44px; }
   .tb-help { width: 44px; height: 44px; }
   .sheet-close { min-height: 48px; }
 }

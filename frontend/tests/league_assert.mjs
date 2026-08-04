@@ -74,10 +74,11 @@ const contrast = (a, b) => {
   return (x + 0.05) / (y + 0.05);
 };
 
-/* A 30-person division with the top 7 promoting — Duolingo's shape, and the shape the
-   backend actually produces (promote_count(30) === 7). The viewer sits at rank 12, below
-   the line, which is the case the whole redesign exists for. `rank_delta` deliberately
-   covers all four states: climbed, fell, unchanged, and NO SNAPSHOT (null). */
+/* A 30-person division with the top THREE promoting — the shape the backend produces since
+   2026-08-04, when promote_count became min(n-1, 3) and the podium became the cut. It was 7
+   here, which is now unreachable at any pool size. The viewer sits at rank 12, below the
+   line, which is the case the whole redesign exists for. `rank_delta` deliberately covers
+   all four states: climbed, fell, unchanged, and NO SNAPSHOT (null). */
 const NAMES = ["Aisha R.", "Wei Jie T.", "Priya N.", "Marcus L.", "Siti N.", "Daniel O.",
   "Farah K.", "Jun Hao L.", "Nadia B.", "Ethan C.", "Mei Ling W.", "You", "Rohan D.",
   "Kavya S.", "Tan Wei Ming Alexander", "Zoe H.", "Ibrahim A.", "Lucas P.", "Hui Xin C.",
@@ -105,7 +106,7 @@ const ENTRIES = NAMES.map((name, i) => ({
 const LADDER = [1, 1.1, 1.25, 1.5, 2];
 const BOARD = {
   entries: ENTRIES, you_hidden: false, display_name: null, roles: ["OA", "OT"],
-  division: 2, division_name: "Silver", pool_size: 30, promote_count: 7,
+  division: 2, division_name: "Silver", pool_size: 30, promote_count: 3,
   division_multiplier: LADDER[1], division_multipliers: LADDER,
 };
 const PROMOTE = BOARD.promote_count;
@@ -192,8 +193,15 @@ const measure = (p) => p.evaluate(() => {
     }
     return null;
   };
-  const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".tb-clock",
-    ".lg-zone", ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk",
+  /* ⚠ .tb-clock and .lg-zone left this list on 2026-08-04, and NOT because they were
+     awkward: the clock moved onto the deck as `.pod-clock`, and the ladder's zone header no
+     longer renders on a normal board now that the podium holds the whole promoted set. Both
+     are still swept — `.pod-clock` here, `.lg-zone` in the underfilled-stage scenario, which
+     is the only board that draws one. The five objects this pass ADDED join at the same
+     time, because a new coloured word that nothing measures is how a 2.2:1 label ships. */
+  const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".pod-clock",
+    ".tb-hook", ".pod-banner", ".lb-count", ".lg-role", ".lg-streak",
+    ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk",
     // The stage carries text on saturated metal, which is exactly where "gold is a fill,
     // never a glyph" gets broken — so the podium's own type is probed too.
     ".pod-nm", ".pod-score", ".pod-num"]
@@ -302,8 +310,13 @@ const measure = (p) => p.evaluate(() => {
            the stage" is not a quantity that exists — the list starts level with the band,
            so the subtraction returns a large negative and any bound on it is meaningless.
            Detected from geometry rather than from a media query, so the check follows the
-           layout instead of a copy of its breakpoint. */
-        stacked: list.left < pod.right - 1,
+           layout instead of a copy of its breakpoint.
+           ⚠ Read off the VERTICAL relationship since 2026-08-04. It used to be
+           `list.left < pod.right - 1`, which was true whenever the stage was wider than the
+           list's left edge — and the deck is now full-width, so that test reported "stacked"
+           on the two-column tier too. "The list starts below the stage" is the thing the
+           name actually means. */
+        stacked: list.top >= pod.bottom - 1,
       };
     })(),
 
@@ -312,7 +325,8 @@ const measure = (p) => p.evaluate(() => {
        fill reads as a CSS border". Three selectors were breaking it while the comment above
        them said otherwise, and `.lg-score` is instantiated once per row. A comment is not a
        constraint; this is. */
-    outlines: [".lg-rk", ".lg-score", ".lg-you", '.lg-mv[data-dir="up"]', ".lg-face", ".tb-mult"]
+    outlines: [".lg-rk", ".lg-score", ".lg-you", '.lg-mv[data-dir="up"]', ".lg-face", ".tb-mult",
+      ".pod-banner"]
       .map((sel) => {
         const el = document.querySelector(sel);
         if (!el) return { sel, w: null, c: null };
@@ -339,7 +353,7 @@ const measure = (p) => p.evaluate(() => {
       const first = document.querySelector('[data-testid="podium"]') || document.querySelector(".lg-row");
       return climb && first ? +(first.getBoundingClientRect().y - climb.getBoundingClientRect().y).toFixed(1) : null;
     })(),
-    chromeParts: ["tb", "tb-head", "tb-readout", "lb-filter", "pod", "lg-zone"].map((c) => {
+    chromeParts: ["tb", "tb-head", "tb-readout", "lb-filter", "pod-deck", "lg-zone"].map((c) => {
       const el = document.querySelector("." + c);
       return `${c}=${el ? el.getBoundingClientRect().height.toFixed(0) : "?"}`;
     }).join(" "),
@@ -429,15 +443,67 @@ const measure = (p) => p.evaluate(() => {
     }),
 
     clock: txt('[data-testid="lb-reset"]'),
+
+    /* ONE EDGE (2026-08-04). "The cards and elements are not spaced out nicely" measured as
+       four widths on four centres: at 1500+ an 1148px band, a ~470px filter, a 700px stage
+       and an 1148px ladder, none of them agreeing where the page's edges were. No amount of
+       per-block spacing fixes that, and no check on this page was looking at it. */
+    edges: (() => {
+      const rs = [".tb", ".lb-filter", '[data-testid="podium"]', ".lg-list"]
+        .map((sel) => document.querySelector(sel)).filter(Boolean)
+        .map((el) => el.getBoundingClientRect());
+      if (rs.length < 3) return null;
+      return {
+        n: rs.length,
+        spreadL: +(Math.max(...rs.map((r) => r.left)) - Math.min(...rs.map((r) => r.left))).toFixed(1),
+        spreadR: +(Math.max(...rs.map((r) => r.right)) - Math.min(...rs.map((r) => r.right))).toFixed(1),
+      };
+    })(),
+    /* The deck's own material and its banner's words. The stage holds the whole promoted set
+       now, so this is where the mechanic is STATED — the ladder's zone caption no longer
+       renders on a normal board. */
+    deck: (() => {
+      const el = document.querySelector(".pod-deck");
+      if (!el) return null;
+      const cs = getComputedStyle(el);
+      return {
+        w: +parseFloat(cs.borderTopWidth || "0").toFixed(2),
+        c: cs.borderTopColor,
+        shadow: cs.boxShadow,
+        text: (document.querySelector('[data-testid="podium-promo"]')?.textContent || "").replace(/\s+/g, " ").trim(),
+      };
+    })(),
+    /* THE MODULE, as rendered AREA rather than as "the element exists". The chip it replaced
+       was 44x22 in a band over 1000px wide, which is the size you give an accounting detail
+       — and "make the lumens multiplier more obvious" was the report. */
+    multBox: (() => {
+      const el = document.querySelector('[data-testid="tier-multiplier"]');
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { w: +r.width.toFixed(1), h: +r.height.toFixed(1) };
+    })(),
+    /* THE ROAD says what each rung PAYS, not just where you stand on it. Counted as rungs
+       carrying a visible x-value, so five bare dots score zero. */
+    roadLabels: [...document.querySelectorAll(".tb-pip .tb-px")]
+      .filter((el) => getComputedStyle(el).display !== "none" && /×/.test(el.textContent || "")).length,
+    hookText: (document.querySelector('[data-testid="tier-hook"]')?.textContent || "").replace(/\s+/g, " ").trim(),
+    /* COLOUR ON THE OBJECTS. 27 gauges in one graphite made the most-repeated object on the
+       page the flattest thing on it. Sampled as PAINT — a data-role attribute would pass on
+       27 identical grey bars. */
+    gaugeHues: (() => {
+      const bars = [...document.querySelectorAll(".lg-row:not([data-you]) .lg-bar")];
+      return {
+        bars: bars.length,
+        hues: new Set(bars.map((el) => getComputedStyle(el, "::before").backgroundColor)).size,
+      };
+    })(),
     /* The visible multiplier only. `.tb-sr` spans carry the screen-reader sentence around it
        ("This division earns ... Lumens on everything you do"), and textContent would return
        all of it — so the chip's own visible text is read by subtracting them. */
-    mult: (() => {
-      const el = document.querySelector('[data-testid="tier-multiplier"]');
-      if (!el) return null;
-      const sr = [...el.querySelectorAll(".tb-sr")].map((s) => s.textContent ?? "");
-      return sr.reduce((acc, s) => acc.replace(s, ""), el.textContent ?? "").trim();
-    })(),
+    /* The NUMERAL only. The module gained a second visible line ("Lumens") on 2026-08-04 —
+       that unit is the whole point of the change — but textContent returns "×1.1Lumens" and
+       this check is about the VALUE agreeing with the payload. */
+    mult: (document.querySelector('[data-testid="tier-multiplier"] .tb-mult-n')?.textContent || "").trim(),
     arrowDirs: [...document.querySelectorAll(".lg-mv")].map((e) => e.dataset.dir),
     chase: txt(".chase-n"),
   };
@@ -656,8 +722,9 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
      A filled region with a labelled head and a struck cut, replacing a hairline with a
      caption. Exactly the top 7 are inside it — three on the stage, four in the list — and the
      cut lands above rank 8. */
-  if (m.cutNextRank !== PROMOTE + 1) bad(`${at}: the cut sits above rank ${m.cutNextRank}, expected ${PROMOTE + 1}`);
-  else ok(`${at}: the cut sits above rank ${PROMOTE + 1} (top ${PROMOTE} promote)`);
+  if (m.cutNextRank !== null) {
+    bad(`${at}: the ladder drew a cut above rank ${m.cutNextRank} while the stage already holds every promoted rank — the same boundary, stated twice`);
+  } else ok(`${at}: the cut is drawn once, by the stage`);
   const wantPromo = Array.from({ length: PROMOTE }, (_, i) => i + 1);
   if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: the promoted set is ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)} — stage and ladder together`);
   else ok(`${at}: exactly ranks 1-${PROMOTE} are marked promoted across the stage and the ladder`);
@@ -667,13 +734,66 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
     bad(`${at}: podium places ${JSON.stringify(m.podiumBlocks.filter((s) => !s.promo).map((s) => s.place))} are not marked promoted, though the top ${PROMOTE} advance — the stage must carry the zone it sits in`);
   } else ok(`${at}: the stage carries the promotion marking it sits inside`);
 
-  /* The zone's label carries the whole mechanic, which is why nothing above the board needs a
-     sentence about it. Asserted on CONTENT, not on the element existing — a generic label
-     ("keep climbing!") would still render. */
-  if (!m.zoneText) bad(`${at}: the promotion zone has no label — nothing on the board says what the gold region means`);
-  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.zoneText)) bad(`${at}: the zone label does not name the promotion count (top ${PROMOTE}): "${m.zoneText}"`);
-  else if (!/Gold/.test(m.zoneText)) bad(`${at}: the zone label does not name the division being climbed into: "${m.zoneText}"`);
-  else ok(`${at}: the zone label names both the cut and the destination`);
+  /* THE DECK'S BANNER carries the whole mechanic now, which is why nothing above the board
+     needs a sentence about it. Asserted on CONTENT, not on the element existing — a generic
+     label ("keep climbing!") would still render. */
+  if (!m.deck) bad(`${at}: there is no deck under the stage`);
+  else if (!m.deck.text) bad(`${at}: the stage says nothing — three students on a podium with no marking do not read as the ones who advance`);
+  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.deck.text)) bad(`${at}: the banner does not name the promotion count (top ${PROMOTE}): "${m.deck.text}"`);
+  else if (!/Gold/.test(m.deck.text)) bad(`${at}: the banner does not name the division being climbed into: "${m.deck.text}"`);
+  else ok(`${at}: the banner names both the cut and the destination`);
+
+  /* THE DECK IS STRUCK — the same check that would have failed all four rejected passes,
+     applied to the newest structural object: a real outline in a dark OPAQUE ink, and a lip
+     that is an offset rather than a blur. */
+  if (m.deck) {
+    const dc = rgb(m.deck.c);
+    // ⚠ `rgb()` here just scrapes the numbers out of the string, so an opaque `rgb(r, g, b)`
+    // yields THREE of them and dc[3] is undefined. Reading alpha as `dc[3] > 0.95` would
+    // therefore fail on every fully-opaque colour — which is the only kind that can pass.
+    const dAlpha = dc && dc.length > 3 ? dc[3] : 1;
+    if (!(m.deck.w >= 2 && dc && dAlpha > 0.95 && lum(dc) < 0.2)) {
+      bad(`${at}: the deck's outline is ${m.deck.w}px of ${m.deck.c} — a structural object needs a dark opaque edge, not a hairline`);
+    } else if (!/\b0px\b/.test(m.deck.shadow || "")) {
+      bad(`${at}: the deck has no zero-blur lip — blur may describe the ground, never an edge`);
+    } else ok(`${at}: the deck is struck (${m.deck.w}px outline + a hard lip)`);
+  }
+
+  /* ONE EDGE. Guarded to the STACKED layouts: the landscape-phone tier puts the ladder in a
+     second column on purpose, where sharing the stage's edge is not a thing that can be true. */
+  if (!m.edges) bad(`${at}: could not measure the column's edges`);
+  else if (m.rhythm && !m.rhythm.stacked) ok(`${at}: two columns — the shared-edge bound does not apply`);
+  else if (m.edges.spreadL > 1.5 || m.edges.spreadR > 1.5) {
+    bad(`${at}: the ${m.edges.n} stacked blocks disagree on their edges by ${m.edges.spreadL}px left / ${m.edges.spreadR}px right — four widths on four centres is what "not spaced out nicely" measures as`);
+  } else ok(`${at}: all ${m.edges.n} blocks share one edge (±${m.edges.spreadL}/${m.edges.spreadR}px)`);
+
+  /* THE MULTIPLIER, made obvious. Measured as rendered AREA rather than as existence: the
+     chip this replaced was 44x22 = 968px² and passed every check on the page. */
+  if (!m.multBox) bad(`${at}: no multiplier module in the band`);
+  else if (m.multBox.w * m.multBox.h < 1700) {
+    bad(`${at}: the multiplier module renders ${m.multBox.w}x${m.multBox.h} — too small to be the reward it describes`);
+  } else ok(`${at}: the multiplier module is ${m.multBox.w}x${m.multBox.h}`);
+
+  /* THE ROAD says what each rung PAYS, on the tiers whose head has an elastic track wide
+     enough to hold five labels. Below that the head cannot afford them and the module
+     carries the number alone. */
+  /* ⚠ Guarded on the LAYOUT, not on width. A 932px landscape phone is wider than 700 and
+     runs the TWO-COLUMN tier, whose 356px left column is the one head that provably cannot
+     afford five labels — the lock already records two failed attempts to widen it. */
+  if (m.root.w >= 700 && m.rhythm && m.rhythm.stacked) {
+    if (m.roadLabels !== 5) bad(`${at}: ${m.roadLabels} of 5 rungs say what they pay — a road that hides the prize is a row of dots`);
+    else ok(`${at}: all five rungs say what they pay`);
+  }
+  if (!/×/.test(m.hookText)) bad(`${at}: the band never says what the next division pays — the reason to climb was readable only behind the (?)`);
+  else ok(`${at}: the hook reads "${m.hookText}"`);
+
+  /* COLOUR ON THE OBJECTS. The gauge is off below 700px (a phone rung has no dead middle to
+     fill), so there are only rungs to sample above it. */
+  if (m.root.w >= 700) {
+    if (m.gaugeHues.bars >= 3 && m.gaugeHues.hues < 2) {
+      bad(`${at}: ${m.gaugeHues.bars} gauges paint ${m.gaugeHues.hues} colour — the ladder is the flattest thing on a page that is meant to be loud`);
+    } else ok(`${at}: the gauges paint ${m.gaugeHues.hues} role colours across ${m.gaugeHues.bars} rungs`);
+  }
 
   /* ── the tier band ──────────────────────────────────────────────────────────────────
      The head of the board is made of the division's metal, so climbing re-skins the page. */
@@ -925,15 +1045,43 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
   await ctx.close();
 }
 
+/* ── 5b) THE UNDERFILLED STAGE, the only board that still draws the cut in the LADDER ──
+   Below three entries splitPodium refuses the stage, so the promoted rank has nowhere to be
+   except a row — which is exactly why the cut is withheld CONDITIONALLY rather than deleted.
+   Without this case the zone, the line and the gold rows would keep their CSS and lose their
+   gate: paint that nothing ever measures again. */
+{
+  const two = {
+    ...BOARD,
+    entries: ENTRIES.slice(0, 2).map((e, i) => ({ ...e, is_you: i === 0 })),
+    pool_size: 2, promote_count: 1,
+  };
+  const ctx = await boardCtx(b, DESKTOP, { board: two });
+  const p = await openBoard(ctx, { podium: false });
+  if (await p.locator('[data-testid="podium"]').count() !== 0) {
+    bad("a two-student cohort built a stage — a three-place podium holding two is a hole, not a ceremony");
+  } else ok("below three entries there is no stage");
+  if (await p.locator('[data-testid="promotion-line"]').count() !== 1) {
+    bad("the underfilled board drew no cut — with no stage to carry it, the ladder is the only place the boundary can be");
+  } else ok("the cut still draws when the podium is withheld");
+  const promoRows = await p.locator('.lg-item[data-promo]').count();
+  if (promoRows !== 1) bad(`the underfilled board marked ${promoRows} promoted rows, expected 1`);
+  else ok("the underfilled board marks its one promoted row");
+  await ctx.close();
+}
+
 /* ── 6) the promotion zone is NOT drawn on a role-filtered view ──────────────────────── */
 {
   const ctx = await boardCtx(b, DESKTOP);
   const p = await openBoard(ctx);
-  if (await p.locator('[data-testid="promotion-line"]').count() !== 1) bad("no cut on the unfiltered board");
+  /* The unfiltered board states the cut on the DECK now, not as a bar in the ladder: the
+     podium holds every promoted rank, so the bar would repeat a boundary stated 8px above
+     it. What must still vanish under a filter is the marking of any kind. */
+  if (await p.locator('[data-testid="podium-promo"]').count() !== 1) bad("no promotion statement on the unfiltered board");
   else {
     await p.locator('.lb-filter .lb-chip:has-text("OT")').click();
     await p.waitForTimeout(500);
-    const left = await p.locator('[data-testid="promotion-line"], [data-testid="promotion-zone"]').count();
+    const left = await p.locator('[data-testid="promotion-line"], [data-testid="promotion-zone"], [data-testid="podium-promo"]').count();
     if (left !== 0) {
       bad("the promotion zone survived a role filter — promote_count describes the whole division, so a filtered cut points at the wrong student");
     } else ok("the promotion zone is withheld on a role-filtered view");
