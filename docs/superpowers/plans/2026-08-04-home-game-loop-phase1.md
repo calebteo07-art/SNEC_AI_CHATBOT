@@ -664,8 +664,12 @@ def test_a_boost_doubles_an_earning():
 
 
 def test_a_boost_composes_with_the_division_multiplier():
-    plain = apply_division_bonus(10, 3)
-    assert apply_division_bonus(10, 3, 2.0) == 2 * plain
+    # Gold is 1.25x. 10 earns 12.5 raw, which the half-up rule rounds to 13.
+    # With a 2x boost the raw value is 25.0 exactly, so the answer is 25 — NOT
+    # 2 * 13. That gap IS the double-rounding this function exists to avoid: the
+    # boost multiplies the raw earning, never the already-rounded one.
+    assert apply_division_bonus(10, 3) == 13
+    assert apply_division_bonus(10, 3, 2.0) == 25
 
 
 def test_a_boost_never_scales_a_penalty():
