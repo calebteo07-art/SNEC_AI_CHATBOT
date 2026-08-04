@@ -57,7 +57,7 @@ So the whole mechanic set is built as **one writer and pure readers**:
 
 - `update_profile` gains a `source` argument and maintains a daily activity
   tally. One writer.
-- **Quests are a pure function** of `(student_id, date, weak_topics, role)` —
+- **Quests are a pure function** of `(student_id, date, weak_topics)` —
   deterministic, never stored.
 - **Quest progress is a pure function** of the activity tally — never
   separately advanced, so it cannot drift from reality.
@@ -130,7 +130,7 @@ Each is independently testable with no DB and no AI.
 
 | Unit | Signature | Depends on |
 |---|---|---|
-| `tools/gamification/quests.py` | `daily_quests(student_id, date, weak_topics, role) -> list[Quest]` | nothing (pure) |
+| `tools/gamification/quests.py` | `daily_quests(student_id, date, weak_topics) -> list[Quest]` | nothing (pure) |
 | | `quest_progress(quest, activity) -> int` | nothing (pure) |
 | `tools/gamification/chest.py` | `roll_chest(student_id, date) -> Drop` | nothing (pure) |
 | | `boost_multiplier(profile, now) -> int` | nothing (pure) |
@@ -152,7 +152,7 @@ student finishes a flashcard deck
 
 student opens Home
   → GET /api/home reads the profile ONCE
-      → quests   = daily_quests(sub, today, weak_topics, role)     pure
+      → quests   = daily_quests(sub, today, weak_topics)           pure
       → progress = quest_progress(q, state.activity) for each      pure
       → chest    = roll_chest(sub, today) + claimed flag           pure
       → boost    = boost_multiplier(profile, now) + remaining      pure
