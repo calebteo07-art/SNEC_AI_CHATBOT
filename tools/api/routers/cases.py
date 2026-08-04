@@ -994,7 +994,7 @@ async def _persist_submit(
         from tools.profile.update_profile import update_profile
         await update_profile(
             student_id, topic=case["topic"], score=score["score_100"] / 100,
-            new_missed_findings=missed, xp_delta=award,
+            new_missed_findings=missed, xp_delta=award, source="osce",
         )
     except Exception:
         pass

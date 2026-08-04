@@ -547,10 +547,19 @@ async def flashcards_complete(
                 await update_profile(
                     student_id, topic=topic, score=accuracy,
                     xp_delta=xp_delta if i == 0 else 0,
+                    # Same i == 0 guard as the XP award, and for the same reason: one
+                    # completed deck is ONE completion. Tagging every topic in the deck
+                    # would let a three-topic deck clear a three-deck quest.
+                    source="flashcards" if i == 0 else None,
                 )
             except Exception:
                 pass
     elif xp_delta:
+        # No source tag here: this fallback only fires when body.results is empty (the
+        # real frontend's CompleteCardResult.topic_tag is a required field, so any actual
+        # deck submission lands in the by_topic branch above). Tagging it would also
+        # collide with test_complete_without_topic_tag_writes_no_attempts's exact-dict
+        # assertion on the update_profile kwargs.
         try:
             await update_profile(student_id, xp_delta=xp_delta)
         except Exception:

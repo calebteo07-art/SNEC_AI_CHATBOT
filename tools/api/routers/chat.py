@@ -242,7 +242,7 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
     # pool (GET /api/flashcards/generate). The Summary screen reads card counts
     # from sessionStorage, so returning an empty list here is expected.
     try:
-        await update_profile(student_id)
+        await update_profile(student_id, source="tutor")
     except Exception:
         pass
 
