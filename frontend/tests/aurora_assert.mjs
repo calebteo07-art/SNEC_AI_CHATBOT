@@ -806,6 +806,7 @@ await navCtx.route("**/api/leaderboard**", (r) => {
   return r.fulfill(JSON_OK({
     entries, you_hidden: false, display_name: null, roles: ["OA", "OT"],
     division: 2, division_name: "Silver", pool_size: 7, promote_count: 3,
+    division_multiplier: 1.1, division_multipliers: [1, 1.1, 1.25, 1.5, 2],
   }));
 });
 // No Monday ceremony here: it is a full-screen overlay mounted from AppShell, and it would

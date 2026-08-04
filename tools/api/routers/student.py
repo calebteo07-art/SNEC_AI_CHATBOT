@@ -20,7 +20,9 @@ from tools.flashcards.static_cards import (
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 from tools.gamification.leaderboard import rank_entries, would_be_rank_for
-from tools.gamification.league import division_name, promote_count
+from tools.gamification.league import (
+    DIVISION_MULTIPLIERS, division_multiplier, division_name, promote_count,
+)
 from tools.gamification.league_rollover import run_rollover
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -611,6 +613,16 @@ class LbResponse(BaseModel):
     roles: list[str]
     division: int = 1
     division_name: str = "Bronze"
+    # What the division PAYS. Sent rather than mirrored in TypeScript: the economy has one
+    # source of truth (tools/gamification/league.py), and a copy in the client is a copy
+    # that drifts the first time the ladder is retuned — silently, since a wrong number
+    # here still renders perfectly.
+    division_multiplier: float = 1.0
+    # The whole ladder, for the trophy road in the rules sheet. Redundant with the scalar
+    # above by construction — both are read from DIVISION_MULTIPLIERS in the same request,
+    # so they cannot disagree — and the alternative was hard-coding five numbers in the
+    # client copy that explains the economy.
+    division_multipliers: list[float] = Field(default_factory=list)
     pool_size: int = 0        # the real pool, unaffected by the role view filter
     promote_count: int = 0
 
@@ -699,6 +711,8 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
         roles=roles,
         division=my_division or 1,
         division_name=division_name(my_division or 1),
+        division_multiplier=division_multiplier(my_division or 1),
+        division_multipliers=list(DIVISION_MULTIPLIERS),
         pool_size=len(pool),
         promote_count=promote_count(len(pool)),
     )

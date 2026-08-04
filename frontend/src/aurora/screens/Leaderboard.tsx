@@ -41,11 +41,13 @@ import {
   computeChase, promotionLineIndex, splitPodium, nextDivisionName, TOP_DIVISION,
 } from "@/aurora/leaderboard/league";
 import { TierBand } from "@/aurora/components/leaderboard/TierBand";
+import { METALS } from "@/aurora/components/leaderboard/Metals";
 import { Podium } from "@/aurora/components/leaderboard/Podium";
 import { LeagueRow, PromotionLine, PromotionZone } from "@/aurora/components/leaderboard/LeagueRow";
 import { RowSheet } from "@/aurora/components/leaderboard/RowSheet";
 import { RulesSheet } from "@/aurora/components/leaderboard/RulesSheet";
 import { YouBar } from "@/aurora/components/leaderboard/YouBar";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 
 export function Leaderboard() {
   const [role, setRole] = useState<string | null>(null);
@@ -59,11 +61,12 @@ export function Leaderboard() {
      likely to scroll the board. */
   const youRef = useRef<HTMLElement | null>(null);
   const setYouEl = useCallback((el: HTMLElement | null) => { youRef.current = el; }, []);
-  const { data, isLoading } = useLeaderboard(role);
+  const { data, isLoading, isError } = useLeaderboard(role);
 
   const entries = data?.entries ?? [];
   const roles = data?.roles ?? [];
   const division = data?.division ?? 1;
+  const metalIdx = Math.max(0, Math.min(TOP_DIVISION - 1, division - 1));
   const promoteCount = data?.promote_count ?? 0;
   const you = entries.find((e) => e.is_you);
 
@@ -137,11 +140,27 @@ export function Leaderboard() {
 
   const next = nextDivisionName(division);
 
+  /* After every hook, never before. A failed read has no division and no ranks, and the
+     defaults above would otherwise draw a complete-looking Bronze board captioned "No one's
+     on the board yet" — a statement about the cohort, made from a network failure. */
+  if (isError && !data) {
+    return (
+      <div className="lb-climb" data-testid="leaderboard-root">
+        <ApiErrorNotice cause="The League didn’t load" className="aurora-api-error--page" />
+      </div>
+    );
+  }
+
   return (
-    <div className="lb-climb" data-testid="leaderboard-root">
+    // data-metal drives the CANVAS as well as the band: the page field is tinted and striped
+    // in your own division's metal, so climbing re-skins the whole screen rather than one
+    // card. Same "hue is identity" rule the lock already carries, spent on the largest
+    // surface available instead of the smallest.
+    <div className="lb-climb" data-testid="leaderboard-root" data-metal={METALS[metalIdx]}>
       <TierBand
         division={division}
         divisionName={data?.division_name ?? "Bronze"}
+        multiplier={data?.division_multiplier ?? 1}
         chase={chase}
         onRules={() => setRules(true)}
       />
@@ -196,7 +215,13 @@ export function Leaderboard() {
         <YouBar you={you} promo={lineAt !== null && you.rank <= promoteCount} onJump={jumpToYou} />
       )}
       {peek && <RowSheet e={peek} onClose={() => setPeek(null)} />}
-      {rules && <RulesSheet onClose={() => setRules(false)} />}
+      {rules && (
+        <RulesSheet
+          onClose={() => setRules(false)}
+          division={division}
+          multipliers={data?.division_multipliers ?? []}
+        />
+      )}
     </div>
   );
 }

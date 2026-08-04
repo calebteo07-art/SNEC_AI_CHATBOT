@@ -31,10 +31,14 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { Crest, METALS } from "./Metals";
 
 export function TierBand({
-  division, divisionName, chase, onRules,
+  division, divisionName, multiplier, chase, onRules,
 }: {
   division: number;
   divisionName: string;
+  /** What this division PAYS, straight from the server. A multiplier a student cannot see
+   *  is not a reward, it is an accounting detail — so it sits in the band beside the name
+   *  it belongs to, not only in the rules sheet. */
+  multiplier: number;
   chase: Chase;
   onRules: () => void;
 }) {
@@ -79,6 +83,15 @@ export function TierBand({
             );
           })}
         </ol>
+
+        {/* What the tier PAYS. Formatted here rather than server-side because this is a
+            display decision: 1.25 reads as "×1.25" and 1.5 must read as "×1.5", not
+            "×1.50" — trailing zeros make a game number look like a currency. */}
+        <span className="tb-mult" data-testid="tier-multiplier">
+          <span className="tb-sr">This division earns </span>
+          ×{Number(multiplier ?? 1).toFixed(2).replace(/\.?0+$/, "")}
+          <span className="tb-sr"> Lumens on everything you do</span>
+        </span>
 
         <button
           type="button" className="tb-help" onClick={onRules}

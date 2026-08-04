@@ -96,17 +96,55 @@
    is not a candidate for the stacked layout. Every media query carries a HEIGHT term, because a
    932px landscape phone clears any min-width:860px desktop breakpoint. */
 
-/* ── the canvas ──────────────────────────────────────────────────────────────
-   Quiet on purpose: the objects are loud now, and a busy field behind loud objects is mud.
+/* ── THE ARENA ───────────────────────────────────────────────────────────────
+   Was "quiet on purpose". Asked for loud (2026-08-04), and the way to be loud without
+   turning the field into mud behind struck objects is to make the noise MEAN something:
+   the canvas wears YOUR DIVISION'S METAL. Silver is a cool steel field, Gold a warm amber
+   one, Diamond a cyan one — so climbing re-skins the entire screen, which is the same
+   reward the tier band pays, spent on the largest surface in the app instead of the
+   smallest. It is the existing "hue is identity" rule, not a fourth colour system.
+
+   Four layers, in paint order:
+     1. a SPOTLIGHT behind the stage — white, so the podium sits in a pool of light
+     2. a metal WASH from the top, strongest behind the band
+     3. DIAGONAL ARCADE STRIPES in the metal, the fairground/court pattern
+     4. a metal-tinted BASE, always a light solid
+
+   ⚠ The stripes are 135deg and generous (34px). Two rules they obey:
+   · NOT a dot grid. 5%-alpha graph paper is the Figma/Notion canvas and the most literal
+     generated-design tell available; that ban stands.
+   · NOT a sunburst. The pass-2 ray fan is still banned by the lock and this is not it
+     returning under a new name — stripes are parallel, uniform, and read as a surface
+     rather than as an explosion behind the champion.
+   ⚠ The stack must END IN AN OPAQUE LIGHT SOLID. The contrast probe walks up to the nearest
+   ancestor with alpha > 0.92 and measures against it; a gradient-only canvas has no
+   background-color at all, so every white-on-canvas glyph would measure against nothing.
    Transparent stops are written rgba(c, 0), never `transparent` — the keyword interpolates
-   through grey and dirties the bloom. No dot grid: 5%-alpha graph paper is the Figma/Notion
-   canvas and the most literal generated-design tell available. */
+   through grey and dirties the bloom. */
 .aurora-main:has(.lb-climb) {
+  /* Bronze is the default so a pre-migration null division still gets a real arena. */
+  --arena-base: #FAF3E8;
+  --arena-wash: rgba(226, 154, 94, .3);
+  --arena-stripe: rgba(142, 82, 32, .075);
   background:
-    radial-gradient(78% 40% at 50% -6%, rgba(245, 198, 63, .15) 0%, rgba(245, 198, 63, 0) 68%),
-    radial-gradient(60% 34% at 50% 34%, rgba(66, 133, 244, .08) 0%, rgba(66, 133, 244, 0) 74%),
-    #F2F4F9;
-  background-repeat: no-repeat;
+    radial-gradient(52% 26% at 50% 20%, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(96% 42% at 50% -10%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 74%),
+    repeating-linear-gradient(135deg,
+      var(--arena-stripe) 0 34px, rgba(255, 255, 255, 0) 34px 68px),
+    var(--arena-base);
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+}
+.aurora-main:has(.lb-climb[data-metal="silver"]) {
+  --arena-base: #EFF3FA; --arena-wash: rgba(157, 172, 194, .34); --arena-stripe: rgba(110, 126, 150, .07);
+}
+.aurora-main:has(.lb-climb[data-metal="gold"]) {
+  --arena-base: #FDF5E1; --arena-wash: rgba(245, 198, 63, .34); --arena-stripe: rgba(154, 106, 8, .075);
+}
+.aurora-main:has(.lb-climb[data-metal="platinum"]) {
+  --arena-base: #F1F2FD; --arena-wash: rgba(169, 178, 232, .34); --arena-stripe: rgba(91, 100, 168, .07);
+}
+.aurora-main:has(.lb-climb[data-metal="diamond"]) {
+  --arena-base: #EAF8FC; --arena-wash: rgba(127, 220, 240, .36); --arena-stripe: rgba(27, 138, 166, .07);
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
@@ -188,7 +226,7 @@
     0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .34);
 }
 .tb-head {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center; gap: 10px; padding: 9px 11px;
   background-color: var(--f-lo);
   background-image: linear-gradient(180deg,
@@ -225,6 +263,25 @@
 .tb-pip[data-state="now"] {
   width: 17px; height: 17px; border-width: 2px;
   box-shadow: 0 2px 0 0 rgba(42, 31, 61, .35), 0 0 0 3px rgba(255, 255, 255, .95);
+}
+
+/* WHAT THE TIER PAYS. The reason a division exists beyond a bracket and a badge, so it sits
+   in the head next to the name it belongs to rather than only in the rules sheet — a
+   multiplier nobody can see is an accounting detail, not a reward.
+   Gold because it is about Lumens, and --ink-on-gold because --gold-ink is 6.9:1 on white
+   but 3.0:1 on this fill; that split is load-bearing and this chip is exactly the kind of
+   element that gets it wrong. Pill rung of the lip ladder: 2px lip, 1.5px outline. */
+.tb-mult {
+  flex: 0 0 auto; display: inline-flex; align-items: center; white-space: nowrap;
+  padding: 5px 9px; border-radius: 999px;
+  font-family: var(--disp); font-weight: 800; font-size: 13.5px; line-height: 1;
+  color: var(--ink-on-gold);
+  background-color: var(--gold-lo);
+  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 42%,
+                                            var(--gold-mid) 42.01%, var(--gold-mid) 100%);
+  border: 1.5px solid var(--mat-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6),
+              0 2px 0 0 var(--gold-lip), 0 2px 0 1.5px var(--mat-ink);
 }
 
 .tb-help {
@@ -287,7 +344,7 @@
      OVERFLOWS downward, silently, and the stage ends up under the bottom nav while every
      measurement still passes (the gate's view.bottom is the scroller, which does not subtract
      the floating nav). min-height lets the box grow to its content and keeps the reserve. */
-  align-items: end; min-height: var(--pod-h, 240px);
+  align-items: end; min-height: var(--pod-h, 252px);
 }
 /* The ground. First child in the DOM, so it paints under every slot with no z-index game.
    left/right 0 deliberately — a floor bled past the container's padding fails the overflow
@@ -324,9 +381,9 @@
    The champion block must also stay WIDER THAN IT IS TALL at every tier. Past ~1:1 it stops
    being a plinth and becomes a tower, which is why the desktop tier tops out at 176px under a
    193px column rather than chasing the empty space below it. */
-.pod-slot[data-place="1"] { order: 2; --pl-h: 110px; --face: 56px; --num-sz: 44px; --crown-w: 32px; animation-delay: .14s; }
-.pod-slot[data-place="2"] { order: 1; --pl-h: 84px; --face: 44px; --num-sz: 34px; animation-delay: .04s; }
-.pod-slot[data-place="3"] { order: 3; --pl-h: 66px; --face: 44px; --num-sz: 28px; animation-delay: .24s; }
+.pod-slot[data-place="1"] { order: 2; --pl-h: 118px; --face: 72px; --num-sz: 46px; --crown-w: 34px; animation-delay: .14s; }
+.pod-slot[data-place="2"] { order: 1; --pl-h: 90px; --face: 58px; --num-sz: 36px; animation-delay: .04s; }
+.pod-slot[data-place="3"] { order: 3; --pl-h: 72px; --face: 58px; --num-sz: 30px; animation-delay: .24s; }
 
 .pod-slot[data-place="1"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; --num-ink: #3A2600; }
 .pod-slot[data-place="2"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; --num-ink: #1F1F1F; }
@@ -357,7 +414,16 @@
     0 3px 0 0 var(--f-lip), 0 3px 0 2px var(--mat-ink),
     0 8px 10px -5px rgba(42, 31, 61, .34);
 }
-.pod-face .eyecon-wrap { display: block; border-radius: 50%; overflow: hidden; }
+/* THE PORTRAIT IS SIZED BY CSS, NOT BY THE size PROP. <Eyecon> writes its width/height as an
+   INLINE style, which no stylesheet beats without !important — and the podium needs the
+   portrait to track --face, which changes at every breakpoint while a prop cannot. Without
+   this the ring grew per tier and the portrait did not: at desktop a 56px eye sat inside a
+   79px ring, which is exactly what "the badges look small" was. The +13 on .pod-face is now
+   the metal itself, ~6.5px of it on every side, rather than dead space. */
+.pod-face .eyecon-wrap {
+  display: block; border-radius: 50%; overflow: hidden;
+  width: var(--face) !important; height: var(--face) !important;
+}
 /* translateX is a translation, not a rotation — the box stays axis-aligned. The chained
    drop-shadows give the inline SVG the same hard-lip-plus-cast material as every box. */
 .pod-crown {
@@ -367,12 +433,12 @@
   animation: pod-bob 3.4s ease-in-out infinite;
 }
 .pod-nm {
-  max-width: 100%; font-weight: 800; font-size: 12.5px; line-height: 1.2; color: var(--ink);
+  max-width: 100%; font-weight: 800; font-size: 13.5px; line-height: 1.2; color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .pod-score {
   display: inline-flex; align-items: center; gap: 5px;
-  font-family: var(--disp); font-weight: 800; font-size: 14px; line-height: 1.3;
+  font-family: var(--disp); font-weight: 800; font-size: 15px; line-height: 1.3;
   padding-bottom: 2px;   /* room for the thousands comma's descender */
   color: var(--ink);
 }
@@ -724,6 +790,44 @@
 }
 .rules strong { color: var(--ink); font-weight: 800; }
 
+/* THE TROPHY ROAD, with real numbers. One struck panel, rows as bands across it — the same
+   "one surface, not a stack of cards" rule the board itself follows. Rendered from the
+   SERVER's ladder, so it can never quietly disagree with what a student is actually paid. */
+.rules-road {
+  list-style: none; margin: 14px 0 0; padding: 0; box-sizing: border-box;
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 2px solid var(--mat-ink); border-radius: 12px;
+  background-color: #FFFFFF;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9),
+              0 3px 0 0 var(--plate-lip), 0 3px 0 2px var(--mat-ink);
+}
+.rules-rung {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+}
+.rules-rung + .rules-rung {
+  border-top: 2px solid rgba(42, 31, 61, .1);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .95);
+}
+/* Your rung, in the same solid tint the promotion zone uses on the board — one meaning,
+   one colour. A gradient wash here would be unreadable to the contrast probe. */
+.rules-rung[data-state="now"] { background-color: #FFF6E0; }
+/* Locked rungs stay legible: 4.6:1, dimmed by WEIGHT and colour rather than by opacity,
+   because a road that hides what is ahead of you is not a road. */
+.rules-rung[data-state="next"] { color: var(--ink-3); font-weight: 600; }
+.rr-nm { flex: 1 1 auto; min-width: 0; }
+.rr-x { font-family: var(--disp); font-weight: 800; font-size: 15px; color: var(--gold-ink); }
+.rules-rung[data-state="next"] .rr-x { color: var(--ink-3); }
+.rr-you {
+  flex: 0 0 auto; font-size: 9.5px; font-weight: 900; letter-spacing: .09em;
+  text-transform: uppercase; color: #FFFFFF; background-color: var(--you-blue);
+  border-radius: 999px; padding: 3px 7px;
+}
+.rules-fine {
+  margin: 10px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-2);
+}
+.rules-fine em { font-style: normal; font-weight: 800; color: var(--ink); }
+
 /* ── the Monday ceremony ──────────────────────────────────────────────────────
    Mounted from AppShell, so it renders OUTSIDE .lb-climb and cannot inherit its tokens — it
    declares its own. Same material, same light. */
@@ -801,6 +905,11 @@
 /* ── responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 420px) {
   .lb-climb { padding: 10px 11px calc(var(--bar-h, 0px) + 28px); }
+  /* The head now carries a fifth cell (the multiplier). At 390 the crest, pips, chip and (?)
+     take ~200px of it, so both the chip and the pip gap give ground before the NAME does —
+     the division name is the one thing in that row a student reads. */
+  .tb-mult { font-size: 12px; padding: 4px 7px; }
+  .tb-pips { gap: 4px; }
   /* The medallion does NOT shrink here — it sets the row height, and 44px is what the
      visible-ranks budget is built on. Only the flanking tracks give ground. */
   .lg-row { grid-template-columns: 30px 24px 44px minmax(0, 1fr) auto; gap: 8px; padding: 5px 11px; }
@@ -819,9 +928,9 @@
   .lb-climb { gap: 7px; }
   .pod-fig { padding-bottom: 4px; }
   .pod { --pod-h: 216px; --top-h: 15px; }
-  .pod-slot[data-place="1"] { --pl-h: 96px; --face: 52px; --num-sz: 38px; --crown-w: 28px; }
-  .pod-slot[data-place="2"] { --pl-h: 74px; --face: 40px; --num-sz: 30px; }
-  .pod-slot[data-place="3"] { --pl-h: 58px; --face: 40px; --num-sz: 25px; }
+  .pod-slot[data-place="1"] { --pl-h: 102px; --face: 58px; --num-sz: 38px; --crown-w: 28px; }
+  .pod-slot[data-place="2"] { --pl-h: 78px; --face: 48px; --num-sz: 30px; }
+  .pod-slot[data-place="3"] { --pl-h: 62px; --face: 48px; --num-sz: 25px; }
   .lg-row { min-height: 54px; }
 }
 /* Phone LANDSCAPE is WIDE AND SHORT: at 844x390 stacked, the list would start at y~321 and show
@@ -842,6 +951,8 @@
   /* vw-based type is sized by the VIEWPORT, which in a two-column layout is roughly three
      times the box the text actually lives in. */
   .tb-name { font-size: 20px; }
+  .tb-mult { font-size: 11.5px; padding: 3px 6px; }
+  .tb-pips { gap: 4px; }
   /* The bar is centred on the viewport by default, which in two columns lands it across the
      STAGE. Anchor it over the ladder — the thing it scrolls you back into. */
   .youbar {
@@ -859,9 +970,9 @@
      to the full height of the ladder beside it, and `justify-content: flex-end` then parks all
      three figures hundreds of pixels below the fold. The gate caught it: "0 on the stage". */
   .pod { --pod-h: 150px; --top-h: 13px; --num-stroke: 4px; margin-bottom: 0; align-self: start; }
-  .pod-slot[data-place="1"] { --pl-h: 64px; --face: 44px; --num-sz: 30px; --crown-w: 22px; }
-  .pod-slot[data-place="2"] { --pl-h: 48px; --face: 34px; --num-sz: 24px; }
-  .pod-slot[data-place="3"] { --pl-h: 38px; --face: 34px; --num-sz: 20px; }
+  .pod-slot[data-place="1"] { --pl-h: 64px; --face: 48px; --num-sz: 30px; --crown-w: 22px; }
+  .pod-slot[data-place="2"] { --pl-h: 48px; --face: 40px; --num-sz: 24px; }
+  .pod-slot[data-place="3"] { --pl-h: 38px; --face: 40px; --num-sz: 20px; }
   .lg-row { min-height: 46px; }
   .lg-zone { min-height: 24px; }
   /* STACKED READOUT. In a ~296px column the chase and the clock cannot share a line: the
@@ -906,16 +1017,23 @@
 @media (min-width: 1024px) and (min-height: 620px) {
   .lb-climb {
     --mat-out: 3px; --mat-lip: 6px;
-    /* 760: wider than the 640 the smaller tiers use, because a maximised window has room to
-       spare — and nowhere near the 1340 the two-column board could afford, because here the
-       ladder IS the page rather than one of two columns. A rung wide enough to strand its name
-       at x=200 and its score at x=850 is a spreadsheet row. */
-    max-width: 760px;
+    /* 800 on a short window, 880 on a tall one (below). Wider than the 640 the smaller tiers
+       use, because a maximised window has room to spare — and nowhere near the 1340 the
+       two-column board could afford, because here the ladder IS the page rather than one of
+       two columns. WIDTH IS THE FREE AXIS: it costs the ranks budget nothing, which is why
+       "make everything bigger" is spent here first and on block height last. The cap is a
+       cap: a rung wide enough to strand its name at x=200 and its score at x=850 is a
+       spreadsheet row. */
+    max-width: 800px;
     padding: 14px 16px 36px;
     gap: 10px;
   }
-  .tb-head { padding: 10px 13px; }
-  .tb-name { font-size: 24px; }
+  .tb-head { padding: 11px 14px; }
+  .tb-name { font-size: 26px; }
+  .tb-mult { font-size: 14.5px; padding: 6px 11px; }
+  .lg-nm { font-size: 15.5px; }
+  .lg-sub { font-size: 12px; }
+  .lg-score { font-size: 15.5px; }
   /* THE STAGE IS NARROWER THAN THE BOARD IT STANDS ON. Stretched across a 760px column the
      champion's block would be ~294px wide — a 2:1 slab that reads as a bar chart's tallest bar
      — so the STAGE is capped rather than the blocks grown, because block height is the one
@@ -930,11 +1048,12 @@
     --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px;
     width: min(520px, 100%); align-self: center;
   }
-  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 52px; --num-sz: 42px; --crown-w: 32px; }
-  .pod-slot[data-place="2"] { --pl-h: 82px; --face: 44px; --num-sz: 32px; }
-  .pod-slot[data-place="3"] { --pl-h: 66px; --face: 44px; --num-sz: 27px; }
-  .pod-nm { font-size: 13.5px; }
-  .pod-score { font-size: 15px; }
+  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 42px; --crown-w: 32px; }
+  .pod-slot[data-place="2"] { --pl-h: 82px; --face: 54px; --num-sz: 32px; }
+  .pod-slot[data-place="3"] { --pl-h: 66px; --face: 54px; --num-sz: 27px; }
+  .pod-nm { font-size: 13px; }
+  .pod-score { font-size: 14px; }
+  .pod-fig { padding-bottom: 3px; }
   .lg-row { min-height: 56px; }
   .lg-zone { min-height: 26px; }
 }
@@ -942,16 +1061,27 @@
    ranks budget working BACKWARDS from the fold, not by picking a nice size: 9 ranks at 1440x900
    leaves the stage 255px, and the stage spends it on the figure first. */
 @media (min-width: 1024px) and (min-height: 860px) {
-  .lb-climb { padding: 16px 16px 40px; gap: 11px; }
-  .tb-head { padding: 11px 14px; }
-  .tb-name { font-size: 27px; }
-  .pod { --pod-h: 258px; --top-h: 18px; --num-stroke: 5.5px; }
-  .pod-slot[data-place="1"] { --pl-h: 118px; --face: 60px; --num-sz: 48px; --crown-w: 38px; }
-  .pod-slot[data-place="1"] .pod-fig { padding-top: 12px; }   /* headroom scales with the crown */
-  .pod-slot[data-place="2"] { --pl-h: 88px; --face: 50px; --num-sz: 38px; }
-  .pod-slot[data-place="3"] { --pl-h: 72px; --face: 50px; --num-sz: 32px; }
+  .lb-climb { max-width: 880px; padding: 12px 16px 40px; gap: 10px; }
+  .tb-head { padding: 11px 16px; }
+  .tb-name { font-size: 29px; }
+  .tb-mult { font-size: 16px; padding: 7px 12px; }
+  /* The stage widens with the board — 620 of 848, so the champion lands ~242x132. Both
+     numbers move together on purpose: growing the block height alone would have made it a
+     tower, and growing the stage width alone would have made it a slab.
+     The first build of this tier came in at 140px of block and cost the 9th rank — 8 with
+     zero slack. The 8px came back off the BLOCK rather than off the board width, because
+     width is free and height is the only thing the ladder pays for. */
+  .pod { --pod-h: 278px; --top-h: 20px; --num-stroke: 6px; width: min(620px, 100%); }
+  .pod-slot[data-place="1"] { --pl-h: 132px; --face: 80px; --num-sz: 56px; --crown-w: 44px; }
+  .pod-slot[data-place="1"] .pod-fig { padding-top: 9px; padding-bottom: 3px; }   /* headroom scales with the crown */
+  .pod-slot[data-place="2"] { --pl-h: 106px; --face: 68px; --num-sz: 44px; }
+  .pod-slot[data-place="3"] { --pl-h: 86px; --face: 68px; --num-sz: 38px; }
   .pod-nm { font-size: 15px; }
   .pod-score { font-size: 17px; }
+  .lg-nm { font-size: 16.5px; }
+  .lg-sub { font-size: 12.5px; }
+  .lg-score { font-size: 16.5px; }
+  .lg-rk { font-size: 15px; }
   /* 58, not the 64 the two-column board used. Stacked, the ladder is what pays for the stage,
      and at 64 a 1440x900 window landed on exactly 8 ranks — the floor, with zero slack, so any
      later pixel anywhere above it fails CI. Six px of row height buys the 9th rank back without
