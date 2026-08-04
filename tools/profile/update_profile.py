@@ -15,6 +15,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.gamification import streak as streak_engine
 from tools.gamification.leaderboard import weekly_tally
+from tools.gamification.league import apply_division_bonus
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.audit_log import log
@@ -204,13 +205,27 @@ async def update_profile(
     # inside the `xp_delta or hearts_used` guard below, so a plain check-in awarded nothing.)
     streak_bonus = CHECKIN_BONUS if (checkin_done and streak_advanced) else 0
 
+    # THE DIVISION MULTIPLIER, applied exactly once, here. This function is the only place
+    # any Lumen is credited in the app — OSCE grading, flashcard decks, tutor chat and the
+    # check-in all arrive through it — so scaling at the four call sites instead would be
+    # four chances to drift, and the drift would be silent (XP still lands, at the wrong
+    # rate, and no screen says so).
+    #
+    # Applied to the SUM, not to xp_delta alone, so the check-in's streak bonus scales too:
+    # it is computed above rather than passed in, which makes it the one award that could
+    # quietly escape. apply_division_bonus passes penalties through untouched — a forfeit is
+    # -30 flat at every tier — so nothing below needs to know the sign.
+    gain = apply_division_bonus(xp_delta + streak_bonus, profile.get("division"))
+
     # XP / hearts / daily + weekly tallies / lifetime Lumens. Values are pure functions
     # of the profile read above; each lands in its own guarded write. Guard the
     # computation too so update_profile keeps its never-raises contract.
+    # Every tally below spends `gain`, never the raw delta: three of four scaled would give
+    # a student a weekly rank and a level that disagree.
     if xp_delta != 0 or hearts_used != 0 or streak_bonus > 0:
         try:
             current_xp = int(profile.get("xp") or 0)
-            new_xp = max(0, current_xp + xp_delta + streak_bonus)
+            new_xp = max(0, current_xp + gain)
             last_reset = _parse_date(profile.get("hearts_reset_date"))
             current_hearts = 5 if last_reset != today else int(profile.get("hearts") or 5)
             new_hearts = max(0, current_hearts - hearts_used)
@@ -222,7 +237,7 @@ async def update_profile(
             # xp_today (the daily-goal ring source) — resets each SGT day.
             xtd = _parse_date(profile.get("xp_today_date"))
             base_today = int(profile.get("xp_today") or 0) if xtd == today else 0
-            new_xp_today = max(0, base_today + xp_delta + streak_bonus)
+            new_xp_today = max(0, base_today + gain)
             writes.append(_write(
                 "xp_today_write_error", "gamification",
                 xp_today=new_xp_today, xp_today_date=today_iso,
@@ -235,7 +250,7 @@ async def update_profile(
             # exists anywhere. No-ops (no I/O) except on the one earn that crosses a Monday.
             await seal_outgoing_week(profile, week_start)
             new_xp_week = weekly_tally(profile.get("xp_week"), profile.get("xp_week_start"),
-                                       week_start, xp_delta + streak_bonus)
+                                       week_start, gain)
             writes.append(_write(
                 "xp_week_write_error", "gamification",
                 xp_week=new_xp_week, xp_week_start=week_start.isoformat(),
@@ -243,7 +258,7 @@ async def update_profile(
 
             # coins_earned (lifetime Lumens, monotonic) — only ever increases (never on a
             # forfeit/penalty), drives the home Lumens badge tiers.
-            earned_gain = max(0, xp_delta + streak_bonus)
+            earned_gain = max(0, gain)
             if earned_gain > 0:
                 current_earned = int(profile.get("coins_earned") or 0)
                 writes.append(_write(

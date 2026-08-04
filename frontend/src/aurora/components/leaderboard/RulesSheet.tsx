@@ -9,8 +9,21 @@
    Shares the peek sheet's scrim/panel styling and its Escape handling, so the board has one
    sheet behaviour rather than two. */
 import { useEffect, useRef } from "react";
+import { DIVISION_NAMES } from "@/aurora/leaderboard/league";
 
-export function RulesSheet({ onClose }: { onClose: () => void }) {
+/** Trailing zeros make a game number look like a currency: 1.5, never 1.50. */
+const mult = (n: number) => `×${Number(n ?? 1).toFixed(2).replace(/\.?0+$/, "")}`;
+
+export function RulesSheet({
+  onClose, division, multipliers,
+}: {
+  onClose: () => void;
+  division: number;
+  /** Server-sent ladder. Empty from an older server, in which case the road simply does not
+   *  render — five hard-coded numbers that quietly disagree with the economy would be worse
+   *  than no table at all, because this sheet is the one place a student comes to trust it. */
+  multipliers: number[];
+}) {
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -49,7 +62,35 @@ export function RulesSheet({ onClose }: { onClose: () => void }) {
             <strong>Five divisions:</strong> Bronze → Silver → Gold → Platinum → Diamond.
             You&rsquo;re only ever ranked against people in your own division.
           </li>
+          <li>
+            <strong>Every division pays more.</strong> Your division multiplies the Lumens you
+            earn <em>everywhere</em> — patients, cards, the tutor, your daily check-in. Climbing
+            is worth more than the badge.
+          </li>
         </ul>
+
+        {/* The road, with real numbers. Rendered from the server's ladder so this table can
+            never quietly disagree with what a student is actually paid. */}
+        {multipliers.length > 0 && (
+          <ol className="rules-road" data-testid="multiplier-road" aria-label="What each division pays">
+            {multipliers.map((m, i) => {
+              const level = i + 1;
+              const state = level === division ? "now" : level < division ? "past" : "next";
+              return (
+                <li key={DIVISION_NAMES[i] ?? level} className="rules-rung" data-state={state}>
+                  <span className="rr-nm">{DIVISION_NAMES[i] ?? `Division ${level}`}</span>
+                  <span className="rr-x">{mult(m)}</span>
+                  {state === "now" && <span className="rr-you">You</span>}
+                </li>
+              );
+            })}
+          </ol>
+        )}
+
+        {/* Stated once, plainly, because it is the question a student will actually ask. */}
+        <p className="rules-fine">
+          A forfeit costs the same at every division — only what you <em>earn</em> is multiplied.
+        </p>
         <button type="button" className="sheet-close" ref={closeRef} onClick={onClose}>Close</button>
       </div>
     </div>

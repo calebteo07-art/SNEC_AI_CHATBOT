@@ -80,16 +80,18 @@ export function Podium({ places, promoteCount, onPeek, youRef }: {
             >
               {place === 1 && <Crown />}
               <span className="pod-face">
-                {/* 56 / 44. The champion's portrait is 1.27x the runners-up rather than the
-                    1.4x that reads best in isolation — 6px of the height budget, paid back by
-                    five other differentiators (plinth height, column width, the crown, the
-                    sheen, and gold vs silver vs bronze material). The CSS ring is sized
-                    calc(--face + 13px) with border-box, because an N-px portrait inside an
-                    N-px bordered circle leaves a ring that is 0px wide and fully occluded. */}
+                {/* The rendered SIZE comes from CSS, not from this prop: leaderboard.css sets
+                    the wrap to `--face` with !important, because <Eyecon> writes its
+                    width/height inline and the podium needs the portrait to track a variable
+                    that changes at every breakpoint — which a prop cannot. These numbers are
+                    the intrinsic <img> hint and the SSR size only; changing them changes
+                    nothing on screen. Ring geometry lives in .pod-face: calc(--face + 13px)
+                    with border-box, so the metal is ~6.5px on every side rather than an
+                    N-px portrait in an N-px circle leaving a ring 0px wide. */}
                 <Eyecon
                   config={e.avatar_config}
                   background={e.avatar_config?.background}
-                  size={place === 1 ? 56 : 44}
+                  size={place === 1 ? 72 : 58}
                 />
               </span>
               <span className="pod-nm">{e.name}</span>

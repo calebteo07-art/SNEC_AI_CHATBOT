@@ -100,9 +100,13 @@ const ENTRIES = NAMES.map((name, i) => ({
   rank_delta: i === 0 || i === 4 ? null : i % 4 === 1 ? 3 : i % 4 === 2 ? -2 : 0,
 }));
 
+/* The real ladder, so the board under test pays what the server pays. Silver is 1.1x — a
+   round 2x here would make the chip and the road agree with each other and with nothing else. */
+const LADDER = [1, 1.1, 1.25, 1.5, 2];
 const BOARD = {
   entries: ENTRIES, you_hidden: false, display_name: null, roles: ["OA", "OT"],
   division: 2, division_name: "Silver", pool_size: 30, promote_count: 7,
+  division_multiplier: LADDER[1], division_multipliers: LADDER,
 };
 const PROMOTE = BOARD.promote_count;
 
@@ -352,6 +356,15 @@ const measure = (p) => p.evaluate(() => {
     }),
 
     clock: txt('[data-testid="lb-reset"]'),
+    /* The visible multiplier only. `.tb-sr` spans carry the screen-reader sentence around it
+       ("This division earns ... Lumens on everything you do"), and textContent would return
+       all of it — so the chip's own visible text is read by subtracting them. */
+    mult: (() => {
+      const el = document.querySelector('[data-testid="tier-multiplier"]');
+      if (!el) return null;
+      const sr = [...el.querySelectorAll(".tb-sr")].map((s) => s.textContent ?? "");
+      return sr.reduce((acc, s) => acc.replace(s, ""), el.textContent ?? "").trim();
+    })(),
     arrowDirs: [...document.querySelectorAll(".lg-mv")].map((e) => e.dataset.dir),
     chase: txt(".chase-n"),
   };
@@ -578,6 +591,15 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP]) {
   if (!m.clock || !/Closes in/.test(m.clock)) bad(`${at}: no countdown to the week close (got ${JSON.stringify(m.clock)})`);
   else ok(`${at}: countdown renders — "${m.clock}"`);
 
+  /* WHAT THE TIER PAYS, on the band itself. Until 2026-08-04 a division only decided who you
+     were ranked against; it now multiplies every Lumen earned anywhere in the app, and a
+     reward a student cannot see is an accounting detail. Asserted at EVERY viewport because
+     it is a fifth cell in a head row that already fits crest, name, pips and (?) — the
+     phone is where it gets squeezed out, and it is the phone that matters most. */
+  if (m.mult !== `×${String(LADDER[1])}`) {
+    bad(`${at}: the band shows the multiplier as ${JSON.stringify(m.mult)}, expected "×${LADDER[1]}"`);
+  } else ok(`${at}: the band states what the tier pays — ${m.mult}`);
+
   // All four arrow states must be representable; "none" (no snapshot) must never be
   // collapsed into "flat" (no change).
   const dirs = new Set(m.arrowDirs);
@@ -682,6 +704,29 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP]) {
       const gaps = want.filter(([re]) => !re.test(txt)).map(([, why]) => why);
       if (gaps.length) bad(`the league rules never explain: ${gaps.join("; ")}`);
       else ok("the (?) opens rules covering weekly scoring, the Monday close, no-demotion and all five divisions");
+
+      /* THE TROPHY ROAD. A division now MULTIPLIES every Lumen earned anywhere in the app,
+         which is the first time a tier has done anything but sort you — so the sheet has to
+         carry the real ladder, and it is rendered from the payload rather than typed into
+         the copy. Asserted against BOARD.division_multipliers so retuning the economy
+         updates this test's expectation with it. */
+      const road = await p.locator('[data-testid="multiplier-road"] .rr-x').allTextContents();
+      const wantRoad = LADDER.map((m) => `×${String(m)}`);
+      if (road.join("|") !== wantRoad.join("|")) {
+        bad(`the rules sheet's multiplier road reads ${JSON.stringify(road)}, expected ${JSON.stringify(wantRoad)}`);
+      } else ok(`the rules sheet shows the real ladder ${wantRoad.join(" ")}`);
+
+      // ...and it says which rung is YOURS. A road that does not locate you is a price list.
+      const mine = p.locator('[data-testid="multiplier-road"] .rules-rung[data-state="now"]');
+      if (await mine.count() !== 1) bad("the multiplier road does not mark the viewer's own division");
+      else if (!/Silver/i.test((await mine.textContent()) ?? "")) bad("the multiplier road marks the wrong division as the viewer's");
+      else ok("the multiplier road marks the viewer's own rung");
+
+      // The forfeit carve-out, stated where a student will ask about it.
+      if (!/forfeit/i.test((await p.locator(".sheet").textContent()) ?? "")) {
+        bad("the rules never say a forfeit is NOT multiplied — the one question the multiplier invites");
+      } else ok("the rules state that only earnings are multiplied");
+
       await p.keyboard.press("Escape");
       await p.waitForTimeout(150);
       if (await p.locator('[data-testid="rules-sheet"]').count() !== 0) bad("the rules sheet did not close on Escape");

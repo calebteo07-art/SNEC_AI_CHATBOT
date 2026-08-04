@@ -16,16 +16,61 @@ DIVISIONS: list[tuple[int, str]] = [
 TOP_DIVISION = 5
 POOL_MAX = 30  # Duolingo's pool size; above this a division splits into balanced pools
 
+# What a division is FOR. Until this existed a tier decided who you were ranked against and
+# nothing else — a bracket and a badge. Every Lumen earned anywhere in the app (OSCE,
+# flashcards, tutor chat, the daily check-in and its streak bonus) now scales with it.
+#
+# Why this is safe to multiply, and where it would not have been:
+#   · A student is only ever ranked against their OWN division, and everyone in a division
+#     shares its multiplier — so the weekly race is untouched. It rewards the tier you have
+#     already reached; it cannot help you reach the next one.
+#   · Promotion is by RANK, never by score, so no amount of multiplier buys a promotion.
+#   · The staff console does not compare raw XP between students, so a multiplied Lumen
+#     never distorts a supervisor's read of who practised more. Check that again before
+#     any analytics work starts ranking on `xp`.
+# Indexed by division - 1. Loud on purpose: Diamond doubling is the point of Diamond, and
+# a ladder a student cannot recite is not a goal they can chase.
+DIVISION_MULTIPLIERS: list[float] = [1.0, 1.1, 1.25, 1.5, 2.0]
 
-def division_name(division) -> str:
-    """Display name for a division level. Clamps rather than raising: a null column
-    (pre-migration) or a bad value must never 500 the board."""
+
+def _clamp_division(division) -> int:
+    """Every public helper here takes whatever the DB hands it. A null column
+    (pre-migration) or a value from a future migration must never raise: this sits on the
+    XP write path, and an exception here would cost a student the Lumens they just earned."""
     try:
         d = int(division)
     except (TypeError, ValueError):
         d = 1
-    d = max(1, min(TOP_DIVISION, d))
-    return DIVISIONS[d - 1][1]
+    return max(1, min(TOP_DIVISION, d))
+
+
+def division_name(division) -> str:
+    """Display name for a division level. Clamps rather than raising: a null column
+    (pre-migration) or a bad value must never 500 the board."""
+    return DIVISIONS[_clamp_division(division) - 1][1]
+
+
+def division_multiplier(division) -> float:
+    """The Lumens multiplier this division earns. 1.0 at Bronze — the bottom rung is never
+    taxed for being new."""
+    return DIVISION_MULTIPLIERS[_clamp_division(division) - 1]
+
+
+def apply_division_bonus(amount: int, division) -> int:
+    """Scale one EARNING by the earner's division. Pure, so the economy can be reasoned
+    about without a database.
+
+    Penalties pass through untouched. A forfeit is -30 flat at every tier: running it
+    through the same multiplier would mean the better you do, the more one mistake costs
+    you, which is the exact opposite of a reward.
+
+    Rounds half-UP rather than using round(), which is banker's rounding — round(4.5) is 4
+    and round(5.5) is 6 — so a 5-Lumen chat award would round differently from a 3-Lumen
+    one for reasons no student could be told."""
+    a = int(amount)
+    if a <= 0:
+        return a
+    return math.floor(a * division_multiplier(division) + 0.5)
 
 
 def promote_count(pool_size: int) -> int:

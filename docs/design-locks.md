@@ -1472,6 +1472,66 @@ right-anchored you-bar (the base rule already centres it correctly over a centre
   whole rungs, so it stopped representing anything. The first stacked build measured **7 ranks**
   there — under the floor — while 1440×900 looked fine.
 
+#### A TIER NOW PAYS 2026-08-04 — the division multiplier, and THE ARENA
+
+User: *"what does each tier mean? can it be a multiplier for lumens earned in all activities?"*
+plus *"make the background… fun and loud but still matches beautifully"* and *"make every element
+bigger to avoid white space, podium can be bigger"*.
+
+**What a tier meant before: nothing but a bracket and a badge.** It decided who you were ranked
+against and what colour the band was. The honest answer to the question was that the ladder had
+no mechanical consequence at all — so it has one now.
+
+**THE ECONOMY.** `DIVISION_MULTIPLIERS = [1.0, 1.1, 1.25, 1.5, 2.0]` in
+`tools/gamification/league.py`, applied at the ONE place any Lumen is credited
+(`tools/profile/update_profile.py`) rather than at the four award sites, because four sites is
+four chances to drift and the drift is silent — XP still lands, at the wrong rate, and no screen
+says so. All four tallies (`xp`, `xp_today`, `xp_week`, `coins_earned`) spend the same scaled
+`gain`; three of four scaled would give a student a weekly rank and a level that disagree.
+
+Why multiplying is safe here, and where it would not have been — check all three before touching it:
+- A student is ranked only against their **own** division, and everyone in a division shares its
+  multiplier, so **the weekly race is untouched**. It rewards the tier you already hold; it
+  cannot help you reach the next one.
+- **Promotion is by RANK, never by score**, so no multiplier buys a promotion.
+- The **staff console does not compare raw XP** between students, so a multiplied Lumen never
+  distorts a supervisor's read of who practised more. ⚠ Re-check that the day any analytics work
+  starts ranking on `xp`.
+
+- ⚠ **Only EARNINGS scale.** `apply_division_bonus` passes penalties through untouched. A forfeit
+  is −30 flat at every tier; running it through the same multiplier would mean the better you do,
+  the more one mistake costs you — the exact inverse of a reward. Gated.
+- ⚠ **Rounds half-UP, not `round()`.** Python's `round` is banker's rounding (`round(4.5) == 4`,
+  `round(5.5) == 6`), so a 5-Lumen chat award and a 3-Lumen one would round by different rules for
+  reasons no student could be told.
+- ⚠ **The streak bonus is computed INSIDE `update_profile`**, not passed in — it is the one award
+  that could silently escape the multiplier, so the scaling is applied to the SUM.
+- ⚠ **The client never mirrors the ladder.** `division_multiplier` (scalar) and
+  `division_multipliers` (the road) both ship in the leaderboard payload from the same list in the
+  same request, so they cannot disagree with each other or with what the server actually pays. A
+  hard-coded copy in the rules sheet would drift the first time the economy is retuned — silently,
+  because a wrong multiplier still renders.
+- **Surfaced twice**: a gold `×N` chip in the tier band (a reward nobody can see is an accounting
+  detail) and the full trophy road in the rules sheet, with the viewer's own rung marked and the
+  forfeit carve-out stated — it is the first question the multiplier invites.
+
+**THE ARENA.** The canvas was "quiet on purpose" and is now loud on purpose, but the loudness
+**means something**: the field wears **your own division's metal** — Silver a cool steel field,
+Gold amber, Diamond cyan — so climbing re-skins the whole screen rather than one card. That is
+the existing "hue is identity" rule spent on the largest surface in the app, not a fourth colour
+system. Four layers: a white **spotlight** behind the stage, a metal **wash** from the top,
+**diagonal 135° stripes** at ~7%, and a metal-tinted **light solid base**.
+- ⚠ **Still not a dot grid** (the Figma/Notion tell) and **still not a sunburst** (the pass-2 ray
+  fan, banned). Stripes are parallel and uniform: a surface, not an explosion behind the champion.
+- ⚠ **The stack must END IN AN OPAQUE LIGHT SOLID** or every white-on-canvas glyph measures
+  against nothing — the contrast probe walks to the nearest ancestor with alpha > 0.92.
+
+**BIGGER.** Board 800/880 (was 760), stage 620 (was 520), champion block **242×132** (was
+203×118), band and row type up throughout. ⚠ **Width is the free axis and height is not** — every
+pixel of block height comes straight out of the rungs, so "make everything bigger" is spent on
+width first and on block height last. The first attempt at this tier used 140px blocks and cost
+the 9th rank; the 8px came back off the block, not off the board.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
