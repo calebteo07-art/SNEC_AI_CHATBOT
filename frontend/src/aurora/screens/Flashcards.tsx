@@ -21,6 +21,7 @@ import { TopicIntro } from "@/aurora/components/flashcards/TopicIntro";
 import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
 import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
 import { leaveGuard } from "@/aurora/lib/leaveGuard";
@@ -45,7 +46,7 @@ export function Flashcards() {
     () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("mode") === "review", []);
   const fromSession = sessionCards.length > 0;
 
-  const { data: topicSets } = useFlashcardTopics();
+  const { data: topicSets, isError: topicsFailed } = useFlashcardTopics();
   const [setKey, setSetKey] = useState<string | null>(null);
   const sessionLength = 10; // fixed deck length — no length picker
   const [pickerDone, setPickerDone] = useState(reviewMode);
@@ -56,7 +57,7 @@ export function Flashcards() {
   // one; only the replay picker (shown once a topic is fully cleared) sets it.
   const [level, setLevel] = useState<number | null>(null);
 
-  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength, level);
+  const { data: apiCardsRaw, isLoading: apiLoading, isError: cardsFailed } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength, level);
   const reasonCheck = useReasonCheck();
   const { mutate: complete } = useFlashcardComplete();
   const qc = useQueryClient();
@@ -325,10 +326,14 @@ export function Flashcards() {
   if (!fromSession && !pickerDone) {
     return (
       <FlashShell onExit={exit}>
-        <SessionSetup
-          topicSets={topicSets}
-          onStart={(key) => { setSetKey(key); setPickerDone(true); setIntro(true); }}
-        />
+        {topicsFailed && !topicSets ? (
+          <ApiErrorNotice cause="Couldn’t load your topics" className="aurora-api-error--page" />
+        ) : (
+          <SessionSetup
+            topicSets={topicSets}
+            onStart={(key) => { setSetKey(key); setPickerDone(true); setIntro(true); }}
+          />
+        )}
       </FlashShell>
     );
   }
@@ -354,7 +359,11 @@ export function Flashcards() {
         <div className="flash-stage flash-stage-msg">
           {generating
             ? <div className="flash-load"><span className="flash-spinner" role="status" aria-label="Loading" /></div>
-            : <p className="flash-msg">{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
+            /* A failed deck fetch also lands here with an empty deck. "No cards in this set
+               yet" would report a gap in the BANK from a network failure. */
+            : cardsFailed
+              ? <ApiErrorNotice cause="Couldn’t load this deck" />
+              : <p className="flash-msg">{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
         </div>
       </FlashShell>
     );

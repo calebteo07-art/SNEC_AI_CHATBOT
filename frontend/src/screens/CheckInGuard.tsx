@@ -46,6 +46,19 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     if (devAlways && location.pathname === "/studio") studioShownThisLoad = true;
   }, [devAlways, location.pathname]);
 
+  /* Once the avatar query has settled ONCE, this gate never waits on it again — and that
+     latch is load-bearing, not tidiness. Every consumer inside the gate (EyeconMenu on Home,
+     the Studio itself) opens a second observer on the same ["avatar"] query, and mounting one
+     re-fetches a read that failed. That flipped this back to `loading`, which unmounted the
+     child that had just mounted, which unmounted the observer, which re-fetched on the next
+     mount. With /api/avatar down the loop never ends: measured on the built app, Home sat on
+     this spinner permanently while firing ~40 requests a minute at the failing endpoint, and
+     the Studio's own error state — the one thing that could have told the student to reload —
+     could never mount to be seen. Routes with no second consumer (/cases, /flashcards) settled
+     normally, which is why this never looked like a whole-app failure. */
+  const [avatarSettled, setAvatarSettled] = React.useState(false);
+  React.useEffect(() => { if (!avatarPending) setAvatarSettled(true); }, [avatarPending]);
+
   if (loading) return <Spinner />;
 
   if (!isAuthenticated) {
@@ -65,7 +78,7 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
      bounds the wait (networkMode offlineFirst, retry < 2). */
   const stage = onboardingStage({
     mustChangePassword: user?.mustChangePassword === true,
-    customized: resolveCustomized(avatarPending, avatar?.customized),
+    customized: resolveCustomized(avatarPending && !avatarSettled, avatar?.customized),
     tourSeen,
     isCheckInDone,
   });

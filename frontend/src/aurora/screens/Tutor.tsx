@@ -24,12 +24,14 @@ import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { firstNameOf } from "@/aurora/lib/displayName";
+import { apiErrorMessage } from "@/aurora/lib/apiError";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
 type Message = AIMessage | UserMessage;
 
-const FALLBACK_CONTENT = "I'm having trouble reaching the service right now — please try again in a moment.";
+// The thread is persisted before this renders, so a reload keeps the conversation.
+const FALLBACK_CONTENT = apiErrorMessage("I'm having trouble reaching the service right now");
 const SUGGESTIONS = [
   "Explain slit-lamp technique",
   "Describe normal OCT layers",

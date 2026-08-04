@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { activePool, POOL_SEGMENTS, POOL_INVALIDATE_KEYS, type Pool } from "./poolToggle";
+import { apiErrorMessage } from "@/aurora/lib/apiError";
 
 export function PoolToggle() {
   const { user, setStudentRole } = useAuth();
@@ -32,7 +33,7 @@ export function PoolToggle() {
       POOL_INVALIDATE_KEYS.forEach((queryKey) => qc.invalidateQueries({ queryKey }));
     } catch {
       setStudentRole(prev); // roll back the optimistic flip
-      toast.error("Could not switch content pool. Please try again.");
+      toast.error(apiErrorMessage("Could not switch content pool"));
     } finally {
       setBusy(false);
     }

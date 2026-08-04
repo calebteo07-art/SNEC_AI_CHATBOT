@@ -19,6 +19,7 @@ import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
 import { EyeconMenu } from "@/aurora/components/home/EyeconMenu";
 import { PoolToggle } from "@/aurora/components/home/PoolToggleSwitch";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { firstNameOf } from "@/aurora/lib/displayName";
 
 function dayOfYear(): number {
@@ -29,7 +30,12 @@ function dayOfYear(): number {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const { data: progress } = useProgress();
+  const { data: progress, isError: progressFailed } = useProgress();
+  /* A failed /api/progress used to paint Level 1 · 0 XP · no streak as fact — the one
+     screen a student opens to see their work, lying about it. `!progress` keeps the
+     REFETCH case honest the other way: real-if-stale numbers stay on screen (placeholderData
+     holds them) rather than being replaced by an alarm. */
+  const progressUnknown = progressFailed && !progress;
 
   /* Post-session debrief, inlined here (the Summary page is gone): a finished
      flashcard run lands on the Home with a one-shot flag → celebratory toast +
@@ -90,30 +96,40 @@ export function Dashboard() {
         </div>
         <div className="hm-topr">
           {(user?.role === "trainer" || user?.role === "admin") && <PoolToggle />}
-          <div className="hm-chip">
-            <span>Level <b>{level}</b> <small>· {rank}</small></span>
-            <span className="hm-medal"><Icon name="medal" /></span>
-          </div>
+          {!progressUnknown && (
+            <div className="hm-chip">
+              <span>Level <b>{level}</b> <small>· {rank}</small></span>
+              <span className="hm-medal"><Icon name="medal" /></span>
+            </div>
+          )}
           <EyeconMenu />
         </div>
       </div>
 
-      <div className="hm-hero">
-        <GreetingHero
-          greeting={greeting}
-          level={level}
-          rank={rank}
-          xpInLevel={xpInLevel}
-          xpToNext={xpToNext}
-        />
-        <StreakTile detail={detail} />
-      </div>
+      {progressUnknown ? (
+        <ApiErrorNotice cause="Couldn’t load your progress" className="aurora-api-error--page" />
+      ) : (
+        <div className="hm-hero">
+          <GreetingHero
+            greeting={greeting}
+            level={level}
+            rank={rank}
+            xpInLevel={xpInLevel}
+            xpToNext={xpToNext}
+          />
+          <StreakTile detail={detail} />
+        </div>
+      )}
 
+      {/* Outside the guard on purpose: the carousel reads no progress, so a failed read
+          must still leave the three features reachable. */}
       <FeatureCarousel />
 
-      <div className="hm-lower">
-        <LumenLadder current={coinsEarned} />
-      </div>
+      {!progressUnknown && (
+        <div className="hm-lower">
+          <LumenLadder current={coinsEarned} />
+        </div>
+      )}
     </div>
   );
 }
