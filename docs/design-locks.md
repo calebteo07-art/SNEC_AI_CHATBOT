@@ -1532,6 +1532,78 @@ pixel of block height comes straight out of the rungs, so "make everything bigge
 width first and on block height last. The first attempt at this tier used 140px blocks and cost
 the 9th rank; the 8px came back off the block, not off the board.
 
+#### THE LANE AND THE GAUGE 2026-08-04 — where the white space actually was
+
+User: *"make all page elements space out more aesthetically and avoid white spaces at the sides,
+background and all cards should be more game like (addicting)"* — the **third** report of side
+whitespace on this surface. The two answers before it were both about the COLUMN: widen the cap,
+then declare the margins "the price of the shape". Both were wrong, and screenshotting the board
+at 1920 before touching anything is what showed why.
+
+**THE COMPLAINT NAMED TWO FIELDS OF WHITE, AND THE BIGGER ONE WAS INSIDE THE BOARD.** At 1440 the
+name ended at x≈520 and the score pill began at x≈1046: **62% of every rung was blank**, and at
+1920 it was worse. The board looked narrow because its ROWS were empty. Nobody had measured a row
+before — three passes of layout argument about the page margins, over a defect one `Range`
+measurement finds in a second.
+
+- **THE GAUGE** (`.lg-bar`) — each rung's weekly Lumens against the division leader's, drawn in
+  that dead middle. It earns its place three times: it fills the gap, it is the only element on
+  the page that gets **better** with more width (so widening the column is now a gain instead of a
+  spreadsheet risk), and it turns 27 sorted numbers into a staircase you read at a glance.
+  ⚠ **NO NEW HUE.** Graphite by default, **gold inside the promotion zone**, **Gemini blue on your
+  own row** — the three meanings the ladder already has. A gold bar on every row would have
+  diluted the one colour that means "this is the cut".
+  ⚠ It needs an **explicit 6th grid track**. Auto-placed into an implicit `auto` column it
+  collapses to 0px, because it has no content — built, invisible, and silently green.
+  ⚠ Off below 700px. A 368px phone rung has no dead middle; `rowFill` measures 14-21% there.
+- **THE LANE** — the flanks are a *treatment* problem, not a width problem. 520px of 7%-alpha
+  stripe reads as unpainted page whether it is 520px or 340px. So the board runs down a lit lane
+  and the ground either side is a deeper surface with a hard lit edge facing in: the file's own
+  recipe (dark edge, lit return, hard-stop fill) at page scale.
+  ⚠ **Two pseudo-elements on `.aurora-main`, not one gradient.** A single background places its
+  stops in %, so the lane would stretch and the keylines drift off the board at every size.
+  `max(0px, calc(50% - var(--lane)/2))` pins them to a fixed 1400px lane, and self-disables.
+  ⚠ **Gated at 1600px, and that gate is NOT redundant.** At a 1440 field the arithmetic yields a
+  20px wall, which reads as a rendering artifact at the screen edge. It shipped once and was
+  caught in the screenshot. Walls earn their keep at ~100px.
+  ⚠ **Nothing horizontal may be painted there.** `.aurora-main` does not scroll — a floor line or
+  a horizon would sit still while the ladder slid past it.
+- **Board 860 / 920 / 1180** (was 800/880), with a new `≥1500 × ≥620` step. Keyed at 1500, not
+  1600, so it meets the 920 tier with no gap: between them a 1590px window on a 920px board fails
+  the ribbon floor. **The stage does NOT scale with it** — past ~700px the champion is a 2:1 slab.
+- **THE RHYTHM IS GROUPED, NOT FLAT** — one identical gap between band, filter, stage and board
+  gave four blocks equal weight, so the head stopped reading as a head. Now 6/14/12 on a phone,
+  7/17/15 on desktop, and **the stage buys its own air through its own margins** because a flex
+  column has exactly one gap. ⚠ Funded, not free: the gaps grew and the top padding paid it back.
+  1366×768 sits **on** the 8-rank floor with zero slack and can pay for nothing.
+
+**THE PILL RUNG WAS 1.5px AND RENDERED AS 1px.** Chrome snaps a used border-width to whole device
+pixels, so at DPR 1 every "1.5px" outline on this page WAS the hairline the recipe bans —
+`getComputedStyle` reports `1px`. The four smallest, most-repeated objects on the board were the
+ones still built the rejected way, which is much of why the ladder kept reading flatter than the
+stage however often the stage was retuned. **The rung is 2px; the ladder differentiates by LIP
+DEPTH (5/3/2/0), which is an offset and does not snap.**
+
+Six more places the file broke its own recipe, all found by auditing it against its own header:
+`.lg-score` wore a **grey** 1.5px border (×27, the flattest object on the board) · `.lg-you` had a
+lip and **no outline** · `.lg-mv` used α-0.45 edges (a hairline that happens to be dark) ·
+`.lg-face` had the dark base and **no lit top edge** while its twin `.pod-face` had both ·
+`.lg-cut` used a **blurred** shadow on the most consequential pixel on the board ("blur may
+describe the ground; it may never describe an edge") · `.tb-crest` and `.tb-pip` wore α-0.3 lips.
+
+**THE PRESS IS THE LIP COLLAPSING TO ZERO.** `.tb-help`, `.sheet-close`, `.lr-go` and `.youbar`
+already sank when touched; the twenty-seven rows, the three figures and the role chips did
+nothing at all. ⚠ Spent on the OBJECTS riding a row, never on `.lg-row` — it is gate-pinned to
+`radius: 0 / shadow: none` and has no material to animate. ⚠ The lift is behind
+`@media (hover: hover)` or it sticks after a tap and leaves one row permanently raised.
+
+**Four new bounds in `league_assert`, and they pull against each other on purpose:** a rung's dead
+middle ≤34% · the board ≥58% of the field (banded 1360–2000px, because above that the honest
+answer is furniture, not a 1500px rung) · the rhythm ordered rather than pinned · every struck
+object's outline ≥2px, opaque and dark. Plus a **1920×1080 viewport**, without which the ribbon
+bound tests nothing: at 1440 an 880px column already covered 61%, so every viewport in the matrix
+passed a check aimed at the one it came from. *Precise measurement of the wrong DEVICE.*
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
