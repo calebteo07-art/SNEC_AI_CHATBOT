@@ -25,6 +25,7 @@ from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_c
 from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions, examiner_excluded_steps, has_manual_actions
 from tools.cases.station_score import compute_station_score
+from tools.cases.coaching_truth import strip_false_completion, missed_insight
 from tools.cases.observe_steps import observe
 from tools.cases.action_model_answer import grade_action
 from tools.kb.search import get_checklist_by_name
@@ -1026,6 +1027,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     except Exception:
         _coach_ctx = ""
     missed_actions = [c.action for c in checklist_comparison if not c.performed]
+    _cl_done = sum(1 for c in checklist_comparison if c.performed)
     # Steps the student tried and gave up on (the station's skip). They're already in
     # missed_actions — this names them separately because "attempted, couldn't finish" is
     # coachable in a way "never attempted" isn't, and the debrief should tell them apart.
@@ -1048,7 +1050,18 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         "phrase. focus = ONE sentence: the single most important thing for next time. Every item is a "
         "short phrase (~6-12 words), warm and specific; leave an array empty ([]) only if there is "
         "genuinely nothing to say. Reward triage/escalation within role; do not reward making a "
-        "medical diagnosis."
+        "medical diagnosis.\n"
+        # Two rules that exist because a real report broke both (2026-08-04): it told a student
+        # who performed 15 of 16 steps that they had completed every step, and left "missed"
+        # empty. The counts are in the message below so a completion claim now contradicts the
+        # model's own input, not just the record.
+        "TWO HARD RULES. (1) NEVER say or imply the student completed the whole checklist, "
+        "every step, or that nothing was missed, unless the performed count below equals the "
+        "total. (2) NEVER let `missed` merely restate a step they didn't perform — the report "
+        "already lists every one of those, so repeating one is not feedback. Each `missed` item "
+        "must say what the omission COSTS clinically, or name the pattern across the omissions. "
+        "If they did perform every step, `missed` is about DEPTH — what a top answer would have "
+        "gone into that this one only touched."
     )
     coaching_messages = [{
         "role": "user",
@@ -1056,6 +1069,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
             f"Case: {case['title']}\n"
             f"Findings submitted: {body.findings}\n"
             f"Recommendation submitted: {body.recommendation}\n"
+            f"Checklist: {_cl_done} of {len(checklist_comparison)} steps performed\n"
             f"Checklist steps NOT performed: {', '.join(missed_actions) or 'none'}\n"
             f"Steps the student tried but COULD NOT COMPLETE, and skipped to carry on (they "
             f"asked for help here — coach these first): {', '.join(skipped_named) or 'none'}\n\n"
@@ -1164,6 +1178,22 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     # feedback tied to their performance (ricoe: "coach summary shows nothing").
     if not (coaching.highlights or coaching.did_wrong or coaching.missed or coaching.focus):
         coaching = _fallback_coaching(score, raw_result, checklist_comparison, consult_actions)
+
+    # ── The debrief may not outrun the ledger. Whatever the model returned, a claim of full
+    #    coverage cannot survive a record that says otherwise, and "Missed or lacking" cannot
+    #    come back empty — a blank column reads as "you missed nothing", which is a claim, not
+    #    an absence. Both faults were in one real report (2026-08-04). Pure + deterministic.
+    _cl_total = len(checklist_comparison)
+    coaching = CoachingBlock(
+        highlights=strip_false_completion(coaching.highlights, _cl_done, _cl_total),
+        did_wrong=strip_false_completion(coaching.did_wrong, _cl_done, _cl_total),
+        missed=coaching.missed or [missed_insight(
+            _cl_compare.get("steps", []), performed_set, _skipped_set,
+            {k: raw_result.get(f"{k}_score", 0)
+             for k in ("history", "investigations", "diagnosis", "management")},
+        )],
+        focus=coaching.focus,
+    )
 
     # ── Persist everything OFF the response critical path. None of these writes feed the
     #    response (lumens + coaching are already computed), and all are best-effort, so

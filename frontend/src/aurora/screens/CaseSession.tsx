@@ -23,7 +23,7 @@ import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick, performedOnly } from "@/aurora/lib/stationGate";
 import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
 import { admit, chipOutcome, dualHalf, dualHint, panelOnlySteps, type DualKind } from "@/aurora/lib/dualStep";
-import { timerState, formatClock } from "@/aurora/lib/stationTimer";
+import { timerState, paceRead } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
 import { buildSessionHtml, type SessionExportData, type ScoreBucket } from "@/aurora/lib/sessionExport";
 import { tierLabel } from "@/aurora/lib/tiers";
@@ -658,13 +658,16 @@ export function CaseSession() {
       .filter((m) => m.channel === "patient")
       .map((m) => ({ who: m.role === "user" ? "Student" : caseInfo.patient.name, text: m.content }));
     const actionTranscript = messages.filter((m) => m.channel === "eyebot").map(decodeActionMessage);
+    const doneCount = checklist.filter((s) => s.done).length;
     const data: SessionExportData = {
       meta: {
         caseId, caseTitle: caseInfo.title, patientName: caseInfo.patient.name,
         patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: tierLabel(caseInfo.difficulty),
         studentName: displayName(user?.fullName, "Student"), dateStr: new Date().toLocaleString(),
-        timeTaken: formatClock(clock.elapsedMs),
       },
+      // What the clock MEANT, not just what it read — crossed with coverage, so finishing
+      // early with steps outstanding never reads as being fast.
+      pace: paceRead(clock.elapsedMs, caseInfo.estimated_minutes, doneCount, checklist.length),
       score: {
         score100: result.score_100, verdict: result.verdict, safe: result.safe,
         missedCritical: result.missed_critical,
