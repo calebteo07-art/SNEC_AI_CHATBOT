@@ -711,6 +711,37 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   is partly AI-driven — verbal steps auto-tick via the `/observe` examiner. **Out of scope**: the
   60 pass line, the 85/70/60 verdict bands, `total_score = round(score_100 × 0.4)`, the ×0.6
   safety cap, and the Lumens reward curve.
+- **The session record: truthful, and loud about what didn't happen (2026-08-04, user-reported:
+  "i only did 15/16 but it stated i completed all checklist steps … when student dont know or
+  cannot complete checklist item red and exclamation mark the entire point in the activity page
+  and report")** — criteria changed: *(1) the downloaded report's LEDGER outranks its PROSE;
+  (2) "Missed or lacking" may never be empty; (3) an unfinished step is an alarm, not a
+  footnote; (4) the report is a print-first document, not a styled web page.* The debrief was
+  free text nothing checked, so a station with a step outstanding could be congratulated on
+  completing every step while the one column the student came for read "— none —".
+  **`sessionExport.ts` rebuilt**: masthead + inline-SVG score ring (SVG survives a print with
+  background graphics off; a conic-gradient does not), an **at-a-glance ledger** of four tiles
+  computed from the record and placed above anything a model wrote, a **bucket-agnostic** grade
+  section (`ScoreBucket[]` — the report renders whatever the grade is made of and hardcodes no
+  weighting, so a re-weighting is a change at the caller alone; the 40/30/30 amendment above
+  landed through it as a third entry in `CaseSession.scoreBuckets()`, with no change to the
+  report), pace, coach debrief, phase-grouped
+  checklist, transcript appendix. New `stationTimer.paceRead()` reads the clock CROSSED WITH
+  coverage — the same elapsed time means "excellent" on a full checklist and "an unfinished
+  station" with steps outstanding. New `stationMask.stepMark()` owns the glyph rule for both
+  surfaces. Backend `tools/cases/coaching_truth.py` (pure, unit-tested) strips a completion claim
+  the ledger contradicts and synthesises a grounded "Missed or lacking" line when the model
+  returns none — never a restatement of an unticked row, since the report already prints every
+  one of those. **Acceptance when refining**: the performed-of-total count is computed from the
+  checklist data and appears above the coach block; no document may read as full coverage while
+  `done < total` (`session_export_logic.mjs` + `test_coaching_truth.py` assert both); "Missed or
+  lacking" is never `— none —`; every not-done row carries `!` **and** words (`NOT DONE` /
+  `unable to complete` / `not performed`) as well as red, so nothing is lost to a mono print or
+  to anyone who can't separate the two reds; the report stays self-contained (no external asset
+  fetch) and prints A4 with **zero horizontal overflow at the 711px content box**; a case with no
+  `estimated_minutes` degrades to the bare elapsed time rather than inventing a verdict.
+  **Out of scope**: the grade formula and its weighting, gating order, the two-pane structure,
+  the handover flow, the skip valve's own semantics.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in

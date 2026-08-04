@@ -1432,6 +1432,31 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-step[data-display="skipped"] .bx {
   color: var(--on-rose-2); font-weight: 700; border-style: dashed; background: rgba(255,255,255,.5);
 }
+/* …and LOUD with it (user-directed 2026-08-04: "when student dont know or cannot complete
+   checklist item red and exclamation mark the entire point"). The old treatment greyed the
+   text and put a small rose ✗ in the box, which scanned as decoration next to fourteen green
+   ticks — the one row that mattered was the quietest on the list. The whole row is now the
+   alarm. Never colour alone: the mark is "!" (stationMask.stepMark) and the row carries a
+   NOT DONE tag, so it survives a mono print and anyone who can't separate the two reds. */
+.aurora-station-step[data-tone="miss"] {
+  color: var(--on-rose-2); font-weight: 600;
+  background: rgba(214,57,44,.07);
+  box-shadow: inset 2.5px 0 0 var(--on-rose-2);
+}
+.aurora-station-step[data-tone="miss"] .bx {
+  color: #fff; background: var(--on-rose-2); border-color: var(--on-rose-2);
+  border-style: solid; font-weight: 800;
+}
+.aurora-station-step[data-tone="miss"] .miss {
+  font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--on-rose-2);
+  border: 1px solid rgba(214,57,44,.42); border-radius: 4px; padding: 1px 5px;
+  margin-left: auto; flex: none; align-self: center; white-space: nowrap;
+}
+/* Both badges on one row: CRIT keeps its own auto-margin, so the pair sits together. */
+.aurora-station-step[data-tone="miss"] .miss + .crit { margin-left: 5px; }
+.aurora-station-cl-legend .miss-key {
+  color: var(--on-rose-2); font-weight: 800; padding: 0 2px;
+}
 
 .aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
 /* The consult thread is the only scrolling region on the right — the exam tray and

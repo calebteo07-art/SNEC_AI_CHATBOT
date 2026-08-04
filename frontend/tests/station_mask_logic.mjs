@@ -7,7 +7,7 @@
    is masked. Skipped steps are a distinct state — the gate moved past them, but the student
    said they could not complete them, so they must never read as done. */
 import assert from "node:assert";
-import { stepDisplay, maskFor, isRevealed } from "../src/aurora/lib/stationMask.ts";
+import { stepDisplay, maskFor, isRevealed, stepMark } from "../src/aurora/lib/stationMask.ts";
 
 const S = (...xs) => new Set(xs);
 const none = S();
@@ -40,5 +40,19 @@ assert.ok(
   maskFor("A much longer checklist action here").length > maskFor("Short").length,
   "longer actions get a longer mask so the list keeps its rhythm",
 );
+
+/* stepMark — the row's glyph + tone, owned here rather than inlined in the component so
+   the "a step you couldn't finish reads as a failure, not a footnote" rule is testable
+   without a browser (user-directed 2026-08-04). A skipped step used to render a small grey
+   ✗ that scanned as decoration; it is now the same alarm the report uses. */
+assert.deepStrictEqual(stepMark("done"), { glyph: "✓", tone: "done" });
+assert.deepStrictEqual(stepMark("skipped"), { glyph: "!", tone: "miss" });
+assert.strictEqual(stepMark("masked").tone, "locked");
+assert.strictEqual(stepMark("current").glyph, "", "the gate step is marked by its ring, not a glyph");
+
+// The alarm must not rest on colour alone — the glyph carries it for a mono print and for
+// anyone who can't tell the red from the grey.
+assert.notStrictEqual(stepMark("skipped").glyph, stepMark("done").glyph);
+assert.notStrictEqual(stepMark("skipped").glyph, stepMark("masked").glyph);
 
 console.log("station_mask_logic: all assertions passed");

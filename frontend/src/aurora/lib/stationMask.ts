@@ -31,6 +31,20 @@ export function isRevealed(display: StepDisplay): boolean {
   return display !== "masked";
 }
 
+/** The row's glyph + tone. Lives here, not inline in the component, so "a step you could not
+    finish reads as a failure" is one testable rule shared by the checklist and the export.
+    A skipped step used to render a small grey ✗ that scanned as decoration; it is now the
+    same alarm the report uses (user-directed 2026-08-04). The glyph — never the colour
+    alone — is what carries it in a mono print or to anyone who can't separate the two reds. */
+export function stepMark(display: StepDisplay): { glyph: string; tone: string } {
+  switch (display) {
+    case "done": return { glyph: "✓", tone: "done" };
+    case "skipped": return { glyph: "!", tone: "miss" };
+    case "masked": return { glyph: "🔒", tone: "locked" };
+    default: return { glyph: "", tone: "current" }; // the gate step is marked by its ring
+  }
+}
+
 const MASK_MIN = 6;
 const MASK_MAX = 22;
 

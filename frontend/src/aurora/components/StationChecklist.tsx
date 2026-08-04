@@ -9,7 +9,7 @@
    the student always knows HOW FAR they are, just not WHAT'S NEXT.
    Presentational — all state is owned by the parent. */
 import { useEffect, useRef } from "react";
-import { stepDisplay, isRevealed, maskFor } from "@/aurora/lib/stationMask";
+import { stepDisplay, isRevealed, maskFor, stepMark } from "@/aurora/lib/stationMask";
 
 export interface StationStep {
   step_number: number;
@@ -98,13 +98,14 @@ export function StationChecklist({
               {p.steps.map((s) => {
                 const display = stepDisplay(s.step_number, ticked, skipped, current);
                 const revealed = isRevealed(display);
-                const glyph = display === "done" ? "✓" : display === "skipped" ? "✗" : display === "masked" ? "🔒" : "";
+                const { glyph, tone } = stepMark(display);
                 return (
                   <li
                     key={s.step_number}
                     ref={display === "current" ? curRef : undefined}
                     className="aurora-station-step"
                     data-display={display}
+                    data-tone={tone}
                     data-ticked={display === "done" ? "true" : "false"}
                     data-current={display === "current" ? "true" : "false"}
                     data-locked={display === "masked" ? "true" : "false"}
@@ -120,6 +121,9 @@ export function StationChecklist({
                         <span className="sr-only">Upcoming step, hidden until it is your turn</span>
                       </>
                     )}
+                    {/* Words, not colour alone — the row has to state the failure for anyone
+                        who can't separate the two reds, and for the printed record. */}
+                    {display === "skipped" && <span className="miss">NOT DONE</span>}
                     {revealed && s.critical && <span className="crit">CRIT</span>}
                     {display === "done" && autoSteps.has(s.step_number) && (
                       <span className="au" title="Auto-detected from your consult" aria-label="auto-detected">✦</span>
@@ -134,7 +138,7 @@ export function StationChecklist({
 
       <p className="aurora-station-cl-legend">
         {anyAuto ? <><span className="au">✦</span> ticked automatically from your conversation · </> : null}
-        {anySkipped ? <>✗ skipped — recorded as not completed · </> : null}
+        {anySkipped ? <><span className="miss-key">!</span> you couldn&rsquo;t complete this — it counts as not done · </> : null}
         upcoming steps stay hidden so you recall them yourself
       </p>
     </div>
