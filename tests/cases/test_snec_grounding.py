@@ -143,7 +143,7 @@ DOMAINS = {
     "history_score": 3, "investigations_score": 9, "diagnosis_score": 5, "management_score": 8,
     "history_feedback": "Thin history.", "investigations_feedback": "Good technique.",
     "diagnosis_feedback": "Adequate.", "management_feedback": "Clear handover.",
-    "overall_feedback": "", "total_score": 25, "critical_hit": 1, "critical_total": 1,
+    "total_score": 25, "critical_hit": 1, "critical_total": 1,
 }
 CL = {"procedure_name": "Non-Contact Tonometry", "steps": STEPS, "source": "checklist"}
 

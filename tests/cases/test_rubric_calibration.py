@@ -109,18 +109,3 @@ def test_scope_of_practice_survives_the_recalibration(prompt):
     assert re.search(r"do not infer|only on what appears", prompt, re.I), (
         "leniency must not become 'assume they did it'"
     )
-
-
-def test_weak_domain_callout_does_not_shame_a_passing_score():
-    """`_build_overall` labels weak domains for revision. Once 5-7 is a competent pass, a
-    5 must not be listed as a weakness in the student's own debrief."""
-    results = {d: {"score": 5, "feedback": ""} for d in _DOMAINS}
-    summary = ev._build_overall(results, 20)
-    assert "Focus revision on" not in summary, (
-        f"a competent 5/10 in every domain is reported as a weakness: {summary!r}"
-    )
-
-    weak = {d: {"score": 3, "feedback": ""} for d in _DOMAINS}
-    assert "Focus revision on" in ev._build_overall(weak, 12), (
-        "a genuinely weak domain must still be called out"
-    )

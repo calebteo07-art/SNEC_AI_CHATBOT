@@ -87,7 +87,7 @@ _OSCE_CASE = {
 _OSCE_DOMAINS = {
     "history_score": 5, "investigations_score": 5, "diagnosis_score": 5, "management_score": 5,
     "history_feedback": "", "investigations_feedback": "", "diagnosis_feedback": "",
-    "management_feedback": "", "overall_feedback": "", "total_score": 20,
+    "management_feedback": "", "total_score": 20,
     "critical_hit": 0, "critical_total": 0,
 }
 

@@ -49,7 +49,7 @@ interface ChatMessage { role: "user" | "assistant"; content: string; channel: Ch
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
-  total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
+  total_score: number; critical_hit: number; critical_total: number;
   score_100: number; verdict: string;
   checklist_coverage: number; checklist_coverage_max: number;
   consult_technique: number; consult_technique_max: number;

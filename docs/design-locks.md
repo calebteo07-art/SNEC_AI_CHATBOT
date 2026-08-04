@@ -700,8 +700,12 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   `rubric_prompts.py` anchored only HIGH (8-10) and LOW (1-4), so the whole 5-7 band was
   undefined and ordinary competent work drifted to the low anchor. Trainers could not pass
   their own stations. Every domain now carries a **COMPETENT PASS (5-7)** anchor written as a
-  pass, the prompt sets a competent-not-perfect standard and resolves a between-bands
-  performance **upward**, and `_build_overall` no longer reports a 5 as a weakness.
+  pass, and the prompt sets a competent-not-perfect standard and resolves a between-bands
+  performance **upward**. There is exactly ONE verdict vocabulary — `station_score._verdict`
+  on `score_100`. The grader's own `overall_feedback` sentence banded the raw /40 on its own
+  Excellent/Good/Satisfactory scale, so it disagreed with both `score_100` and the
+  `total_score` shipped beside it; it was never rendered anywhere and was deleted end to end
+  on 2026-08-04.
   **Acceptance when refining**: the three buckets always sum to the headline `score_100`
   (`test_station_score_breakdown.py`) and coverage is worth exactly 40 at the /submit boundary
   (`test_checklist_in_score.py`); leniency never dissolves the bottom of the scale — every
