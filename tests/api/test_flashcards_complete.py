@@ -214,7 +214,11 @@ async def test_complete_without_topic_tag_writes_no_attempts(monkeypatch):
         r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
     assert r.status_code == 200
     assert attempts == []
-    assert profile_updates == [{"xp_delta": 30}]
+    # Still exact, so an accidental topic=/score= write is still caught — that is what this
+    # test is for. `source` joined the call when the Home game loop made update_profile the
+    # single writer of the daily activity tally: the student did finish a deck, so it counts
+    # toward a "clear N decks" quest even with nothing to bucket it under.
+    assert profile_updates == [{"xp_delta": 30, "source": "flashcards"}]
 
 
 @pytest.mark.asyncio
