@@ -81,6 +81,18 @@ export const progress = {
     { session_id: "sess-2", timestamp: new Date(Date.now() - 3600000).toISOString(), topic: "Glaucoma", summary: "Case simulation: acute angle closure.", mode: "case" },
   ],
 };
+/** A full division for the default board: 10 ranked rows, the viewer at rank 5 (below the
+ *  promotion cut, which is where the ladder has the most to render). */
+export const LEAGUE_ROWS = [
+  ["Aisha R.", "OT", 4820], ["Daniel O.", "OT", 4310], ["Priya N.", "OA", 3980],
+  ["Wei Ling", "OA", 3640], ["Test Student", "OA", 3210], ["Marcus T.", "OT", 2870],
+  ["Siti H.", "OA", 2450], ["Jun Hao", "OT", 2110], ["Rachel K.", "OA", 1780],
+  ["Farid A.", "OT", 1420],
+].map(([name, role, xp], i) => ({
+  rank: i + 1, name, role, xp, xp_total: xp * 3, level: 12 - i, streak_days: 10 - i,
+  avatar_config: null, is_you: name === "Test Student", division: 2, rank_delta: i % 3 - 1,
+}));
+
 export const mkCase = (id, title, diff, topic, name, age, pc) => ({
   case_id: id, title, difficulty: diff, topic, estimated_minutes: 12,
   patient: { name, age, presenting_complaint: pc },
@@ -160,6 +172,23 @@ export async function mockApis(ctx, user) {
     { set_key: "triage", topic_key: "triage", label: "Triage", difficulty: "mixed", total: 50, decks_completed: 2, deck_count: 5 },
     { set_key: "glaucoma", topic_key: "glaucoma", label: "Glaucoma", difficulty: "mixed", total: 50, decks_completed: 0, deck_count: 5 },
   ] })));
+  /* A real division for every harness that merely PASSES THROUGH /leaderboard. This used to
+     fall to the catch-all 404, which useLeaderboard swallowed into a hardcoded empty board —
+     so those harnesses were quietly asserting against a degraded screen. The hook now throws
+     on a non-OK (a failed read must look failed), which makes the gap load-bearing.
+     league_assert / aurora_assert / eyecon_assert register their own board after this one
+     and still win (last route registered wins). */
+  await ctx.route("**/api/leaderboard**", (r) => r.request().method() === "POST"
+    ? r.fulfill(J({ ok: true }))
+    : r.fulfill(J({
+      entries: LEAGUE_ROWS, you_hidden: false, display_name: null, you_would_be_rank: null,
+      roles: ["OA", "OT"], division: 2, division_name: "Silver",
+      // The real Silver rung, not a round number: a mock that pays 2x where the server pays
+      // 1.1x is a screenshot of an economy that does not exist.
+      division_multiplier: 1.1, division_multipliers: [1, 1.1, 1.25, 1.5, 2],
+      pool_size: 10, promote_count: 3,
+    })));
+  await ctx.route("**/api/league/result", (r) => r.fulfill(J({ result: null })));
   await ctx.route("**/api/study-suggestion", (r) => r.fulfill(J({ suggestion: "Review glaucoma staging before your next case.", topic: "Glaucoma" })));
   await ctx.route("**/api/chat", (r) => r.fulfill({
     status: 200, contentType: "text/event-stream",

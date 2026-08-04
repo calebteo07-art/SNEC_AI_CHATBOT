@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtlasMap, caseInRegion, REGIONS } from "@/aurora/components/AtlasMap";
 import { HelpButton } from "@/aurora/components/HelpButton";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
 import {
   ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips,
@@ -33,7 +34,7 @@ export function Cases() {
     fetch("/api/cases", { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Server error"); return r.json(); })
       .then((data) => setCases(data.cases ?? []))
-      .catch(() => setError("Could not load patients. Please try again."))
+      .catch(() => setError("Could not load patients"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -156,12 +157,7 @@ export function Cases() {
             </div>
           )}
 
-          {error && (
-            <div className="aurora-cases-error">
-              {error}
-              <button type="button" onClick={fetchCases}>Retry</button>
-            </div>
-          )}
+          {error && <ApiErrorNotice cause={error} />}
 
           {!loading && !error && (
             filtered.length === 0 ? (

@@ -14,6 +14,8 @@ import { useAuth } from "@/screens/AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
 import { CoBrand } from "@/aurora/components/CoBrand";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
+import { apiErrorMessage } from "@/aurora/lib/apiError";
 
 type Phase = "loading" | "question" | "result";
 interface QuestionData { question: string; topic: string; options: string[]; question_id: string; }
@@ -57,7 +59,6 @@ export function CheckIn() {
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [loadAttempt, setLoadAttempt] = useState(0);
 
   const goDashboard = () => {
     setCheckInDone(true);
@@ -65,7 +66,6 @@ export function CheckIn() {
     qc.invalidateQueries({ queryKey: ["progress"] });
     router.push("/homepage");
   };
-  const handleRetry = () => { setLoadError(false); setPhase("loading"); setLoadAttempt((a) => a + 1); };
 
   useEffect(() => {
     let cancelled = false;
@@ -101,7 +101,9 @@ export function CheckIn() {
       }
     })();
     return () => { cancelled = true; };
-  }, [loadAttempt]);
+    // Runs once per mount: the in-place retry it used to re-key on is now a page reload
+    // (ApiErrorNotice), which remounts this screen anyway.
+  }, []);
 
   /* Celebrate a correct answer with a gem-spectrum burst. The wrapper disables
      itself under reduced motion, so no guard is needed here. */
@@ -137,7 +139,7 @@ export function CheckIn() {
       qc.invalidateQueries({ queryKey: ["progress"] });
       setPhase("result");
     } catch {
-      toast.error("Couldn't submit answer — please try again.");
+      toast.error(apiErrorMessage("Couldn’t submit your answer"));
       setSelected(null);
     } finally {
       setSubmitting(false);
@@ -204,8 +206,7 @@ export function CheckIn() {
 
             {phase === "question" && loadError && (
               <div className="aurora-checkin-err">
-                <p>Couldn&apos;t light today&apos;s question. Check your connection and try again.</p>
-                <button type="button" className="aurora-checkin-submit aurora-press" onClick={handleRetry}><span>Try again</span></button>
+                <ApiErrorNotice cause="Couldn’t light today’s question" />
                 <button type="button" className="aurora-checkin-skip" onClick={goDashboard}>Skip for today</button>
               </div>
             )}

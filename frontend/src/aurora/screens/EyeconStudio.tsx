@@ -13,6 +13,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { DEFAULT_AVATAR, PORTRAIT_TILES, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { useAvatar, useSaveAvatar } from "@/hooks/useAvatar";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
+import { apiErrorMessage } from "@/aurora/lib/apiError";
 
 type PortraitCat = keyof typeof PORTRAIT_TILES;
 
@@ -79,7 +81,7 @@ export function EyeconStudio() {
   if (isError) {
     return (
       <div className="studio-wrap">
-        <p className="studio-error">Couldn't load Eyecon. Please refresh and try again.</p>
+        <ApiErrorNotice cause="Couldn’t load your Eyecon" className="aurora-api-error--page" />
       </div>
     );
   }
@@ -168,7 +170,7 @@ export function EyeconStudio() {
         </section>
       </div>
 
-      {saveMut.isError && <p className="studio-error-inline">Couldn't save — check your connection and try again.</p>}
+      {saveMut.isError && <p className="studio-error-inline">{apiErrorMessage("Couldn’t save your Eyecon")}</p>}
 
       <footer className="studio-foot lib-foot">
         <button className="studio-surprise aurora-press" onClick={() => pick(randOf(ALL_REFS))}>🎲 Surprise me</button>
