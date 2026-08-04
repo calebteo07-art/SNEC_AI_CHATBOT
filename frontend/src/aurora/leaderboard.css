@@ -60,9 +60,20 @@
      down. They land near 1:1 at every tier now — and stay WIDER THAN THEY ARE TALL, which is
      the line between a plinth and a tower.
    · THE WHITE SPACE WAS THE DESKTOP CAP. A 1000px board on a maximised 1920 window is 920px of
-     empty page, wider than the ladder itself. 1340 with a 560px left column, and the stage is
-     STICKY: three items beside thirty empty their column by construction, so the leftover is
-     the stage's travel lane instead of a void.
+     empty page, wider than the ladder itself.
+     (That fix widened the two-column board to 1340 and pinned the stage. Both were UNDONE hours
+     later when the layout went back to one column — see below. The finding stands, the remedy
+     does not: a centred column at 760 still leaves margins on a 1920 screen, and that is the
+     price of the shape, not a defect to engineer away.)
+
+   STACKED AGAIN, on request, 2026-08-04 ("i want the layout to be like the old one"). Desktop is
+   ONE CENTRED COLUMN — podium on top, ladder beneath — the shape every tier had before the 4th
+   pass, and still the shape of every phone tier. Two columns bought 15 visible ranks against 9;
+   it cost a board that did not look like a leaderboard, and that was the wrong trade. What went
+   with the grid: the sticky stage and the right-anchored you-bar, which existed only to serve a
+   left column. In one column the viewport's HEIGHT is the entire budget — stage and ladder are
+   stacked in the same column now, so every pixel the blocks gain comes out of the rungs, which
+   is why desktop carries two height steps rather than one size.
 
    Kept, and still load-bearing:
    · LIGHT. Base luminance > 0.7 and the stack ENDS IN A SOLID so it is measurable.
@@ -79,10 +90,11 @@
      getBoundingClientRect). Skews live on pseudo-elements inside a clipping parent.
    · Motion frozen under BOTH reduce signals. 360px-safe. Touch targets >= 44px.
 
-   Phone-landscape and desktop are TWO COLUMNS: band + stage left, ladder right. A wide-and-short
-   viewport has horizontal room a single column throws away — at 844x390 stacked, the list would
-   start at y~321 and show ZERO rows. Every media query carries a HEIGHT term, because a 932px
-   landscape phone clears any min-width:860px desktop breakpoint. */
+   PHONE-LANDSCAPE — and only phone-landscape — is TWO COLUMNS: band + stage left, ladder right.
+   A wide-and-short viewport has horizontal room a single column throws away, and stacked at
+   844x390 the list would start at y~321 and show ZERO rows. That tier is not a style choice and
+   is not a candidate for the stacked layout. Every media query carries a HEIGHT term, because a
+   932px landscape phone clears any min-width:860px desktop breakpoint. */
 
 /* ── the canvas ──────────────────────────────────────────────────────────────
    Quiet on purpose: the objects are loud now, and a busy field behind loud objects is mud.
@@ -871,56 +883,81 @@
   .pod-nm { font-size: 11px; }
   .pod-score { font-size: 12px; gap: 4px; }
 }
-/* Desktop, guarded on HEIGHT so the 932x430 phone can never reach it. Same two columns, which
-   is what turns a tall empty margin into 13 visible rungs. */
+/* Desktop, guarded on HEIGHT so the 932x430 phone can never reach it.
+   ── STACKED, ONE CENTRED COLUMN — podium on top, ladder beneath it. Restored 2026-08-04 by
+   request ("i want the layout to be like the old one"): this is the shape every tier had before
+   the 4th pass, and it is still the shape of every phone tier, so desktop now differs from a
+   phone only in SIZE. The trade is stated plainly because it is real and it is permanent — the
+   two-column split bought 15 visible ranks against 9, and what it cost was a board that did not
+   look like a leaderboard. The 9 is still gated; nothing here is allowed to spend it.
+
+   NOTHING BELOW PLACES A GRID. The base `.lb-climb` flex column IS the layout and desktop only
+   scales it, which is why the sticky stage and the right-anchored you-bar are gone: both existed
+   solely to serve a left column that no longer exists, and a sticky element in a single column
+   would pin the podium over the ladder it is supposed to sit above.
+
+   ⚠ THE LANDSCAPE-PHONE TIER ABOVE STAYS TWO COLUMNS and is not a candidate for this. Stacked at
+   844x390 the list starts at y~321 and shows ZERO rows. That is height, not taste.
+
+   TWO HEIGHT STEPS, because in one column the viewport's HEIGHT is the whole budget: the stage
+   and the ladder are now stacked in the same column rather than sitting side by side, so every
+   pixel the blocks gain comes straight out of the rungs. A 1366x768 laptop gets the compact
+   stage and still clears 8 ranks; a maximised 1440x900 gets the full one and clears 9. */
 @media (min-width: 1024px) and (min-height: 620px) {
   .lb-climb {
     --mat-out: 3px; --mat-lip: 6px;
-    /* 1340, not 1000. A 1000px board on a maximised 1920 window is 920px of empty page — over
-       twice the width of the ladder itself — and that margin, not the layout, is what "too much
-       white space" was pointing at. The cap does not go further: the LADDER is held at ~720px
-       here (1340 - 32 padding - 560 - 26), and a rung wide enough to strand its name at x=200
-       and its score at x=850 is a spreadsheet row. Widen the left column, never the ladder. */
-    max-width: 1340px;
-    display: grid; grid-template-columns: 560px minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr; gap: 14px 26px; align-content: start;
-    padding: 18px 16px 36px;
+    /* 760: wider than the 640 the smaller tiers use, because a maximised window has room to
+       spare — and nowhere near the 1340 the two-column board could afford, because here the
+       ladder IS the page rather than one of two columns. A rung wide enough to strand its name
+       at x=200 and its score at x=850 is a spreadsheet row. */
+    max-width: 760px;
+    padding: 14px 16px 36px;
+    gap: 10px;
   }
-  .tb, .lb-filter, .pod { grid-column: 1; }
-  .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
-  /* The band grows with its column: 25px of name in a 560px head is a caption. */
-  .tb-head { padding: 12px 14px; }
-  .tb-name { font-size: 28px; }
-  /* STICKY, and this is the answer to the dead half-page rather than a flourish. Three items
-     beside a thirty-item ladder empty their column by construction: the stage ended at y~565 of
-     900 and everything under it was blank, then went blanker as you scrolled. Pinning turns that
-     column into the stage's travel lane — scroll to rank 25 and the three you are chasing are
-     still on screen. It needs BOTH `align-self: start` (a stretched item fills its area and has
-     nowhere to travel) and a grid area taller than itself, which row 3 is only because .lg-list
-     spans all three rows and the 1fr row absorbs the leftover. */
-  .pod { --pod-h: 360px; --top-h: 22px; --num-stroke: 6px; --num-ext: 3px;
-         align-self: start; position: sticky; top: 16px; }
-  .pod-slot[data-place="1"] { --pl-h: 200px; --face: 76px; --num-sz: 72px; --crown-w: 48px; }
-  .pod-slot[data-place="1"] .pod-fig { padding-top: 14px; }   /* headroom scales with the crown */
-  .pod-slot[data-place="2"] { --pl-h: 150px; --face: 58px; --num-sz: 54px; }
-  .pod-slot[data-place="3"] { --pl-h: 120px; --face: 58px; --num-sz: 46px; }
+  .tb-head { padding: 10px 13px; }
+  .tb-name { font-size: 24px; }
+  /* THE STAGE IS NARROWER THAN THE BOARD IT STANDS ON. Stretched across a 760px column the
+     champion's block would be ~294px wide — a 2:1 slab that reads as a bar chart's tallest bar
+     — so the STAGE is capped rather than the blocks grown, because block height is the one
+     thing the ladder pays for directly.
+     ⚠ `width`, not `max-width`. `.lb-climb` is a FLEX COLUMN, and in a flex column the cross
+     size comes from `align-items: stretch` — so `max-width` + `margin-inline: auto` (or
+     `align-self: center`, which does the same thing) cancels the stretch and drops the stage to
+     SHRINK-TO-FIT. That shipped 103x132 blocks: 261px of stage, and a champion TALLER THAN IT
+     IS WIDE, which is the tower the mass gate exists to catch. An explicit width is what makes
+     centring safe here. */
+  .pod {
+    --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px;
+    width: min(520px, 100%); align-self: center;
+  }
+  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 52px; --num-sz: 42px; --crown-w: 32px; }
+  .pod-slot[data-place="2"] { --pl-h: 82px; --face: 44px; --num-sz: 32px; }
+  .pod-slot[data-place="3"] { --pl-h: 66px; --face: 44px; --num-sz: 27px; }
+  .pod-nm { font-size: 13.5px; }
+  .pod-score { font-size: 15px; }
+  .lg-row { min-height: 56px; }
+  .lg-zone { min-height: 26px; }
+}
+/* The full-size stage, on a window tall enough to pay for it. Every value here was set by the
+   ranks budget working BACKWARDS from the fold, not by picking a nice size: 9 ranks at 1440x900
+   leaves the stage 255px, and the stage spends it on the figure first. */
+@media (min-width: 1024px) and (min-height: 860px) {
+  .lb-climb { padding: 16px 16px 40px; gap: 11px; }
+  .tb-head { padding: 11px 14px; }
+  .tb-name { font-size: 27px; }
+  .pod { --pod-h: 258px; --top-h: 18px; --num-stroke: 5.5px; }
+  .pod-slot[data-place="1"] { --pl-h: 118px; --face: 60px; --num-sz: 48px; --crown-w: 38px; }
+  .pod-slot[data-place="1"] .pod-fig { padding-top: 12px; }   /* headroom scales with the crown */
+  .pod-slot[data-place="2"] { --pl-h: 88px; --face: 50px; --num-sz: 38px; }
+  .pod-slot[data-place="3"] { --pl-h: 72px; --face: 50px; --num-sz: 32px; }
   .pod-nm { font-size: 15px; }
   .pod-score { font-size: 17px; }
-  /* Anchored over the LADDER, for the same reason as the landscape tier and found the same way
-     — in a screenshot. Centred on the viewport it floats across the left column, pointing at
-     nothing, and the one thing it exists to do is scroll you back to your own rung. */
-  .youbar {
-    left: auto; right: calc(max(0px, (100vw - 1340px)) / 2 + 16px); transform: none;
-    width: min(560px, calc(100vw - 640px));
-  }
-  .youbar:active { transform: translateY(3px); }
-  .lg-row { min-height: 64px; }
+  /* 58, not the 64 the two-column board used. Stacked, the ladder is what pays for the stage,
+     and at 64 a 1440x900 window landed on exactly 8 ranks — the floor, with zero slack, so any
+     later pixel anywhere above it fails CI. Six px of row height buys the 9th rank back without
+     taking anything off a plinth, and 58 still clears the 44px medallion inside it twice over. */
+  .lg-row { min-height: 58px; }
   .lg-zone { min-height: 30px; }
-  /* Same stacked readout as the landscape tier, same reason: even a 560px column will not hold
-     "1,550 Lumens to the promotion zone" and "Closes in 5d 22h" on one line at this type size. */
-  .tb-readout { flex-wrap: wrap; row-gap: 5px; }
-  .tb-chase { flex: 1 1 100%; }
-  .chase-l { white-space: normal; overflow: visible; }
 }
 /* Touch: every control on the board clears 44px. */
 @media (pointer: coarse) {

@@ -1284,7 +1284,9 @@ across half the viewport was the largest single surface exempting itself from th
 **Acceptance criteria when refining** (all gated in `league_assert.mjs`):
 - **≥8 ranks legible without scrolling** on a ≥700px-tall viewport, ≥6 on a landscape phone —
   counted as **podium places + list rows**, because a podium place is a rank you can read.
-  Measured 9 at 390×844 and 15 at 1440×900. Chrome above the first rank ≤250px.
+  Measured **9** at 390×844, **9** at 1440×900, **8** at 1366×768. Chrome above the first rank
+  ≤250px. `league_assert` sweeps the shared device matrix **plus a local 1366×768 laptop**, added
+  when desktop went back to one column — see "STACKED AGAIN" below.
 - **Plinth mass, both bounds** (added by the retune below): the champion's block is **≥0.78× its
   own figure stack** (≥0.6 on a landscape phone), and **no block is taller than it is wide**.
 - The podium holds **exactly ranks 1–3**, **DOM order 1-2-3**, **painted 2-1-3**, champion's
@@ -1319,10 +1321,12 @@ across half the viewport was the largest single surface exempting itself from th
   `RefObject`: the tracked element is an `<li>` or an `<article>` depending on rank, and those
   two cannot satisfy one invariant `RefObject<T>`. Tracking only rows silently stops following
   the half of the cohort most likely to scroll the board.
-- ⚠ **Phone-landscape AND desktop are TWO COLUMNS** (band + filter + stage left, ladder right),
-  every query carrying a **height** term. At 844×390 stacked, the list starts at y≈321 and shows
-  **zero** rows — an outright fail. A wide-and-short viewport has horizontal room a single column
-  throws away; so does a 1440×900 desktop, where two columns buy 13 rungs instead of 6.
+- ⚠ **PHONE-LANDSCAPE is TWO COLUMNS** (band + filter + stage left, ladder right), every query
+  carrying a **height** term. At 844×390 stacked, the list starts at y≈321 and shows **zero**
+  rows — an outright fail. A wide-and-short viewport has horizontal room a single column throws
+  away. *Desktop was two columns too until the same day's second retune put it back to one — see
+  "STACKED AGAIN" below. That reversal does NOT reach this tier and never should: here the split
+  is the difference between six rungs and none.*
 - ⚠ **The role-filter class names are load-bearing**: `league_assert` clicks
   `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. Restyled in place as a
   segmented switch, never renamed.
@@ -1370,23 +1374,46 @@ you size the stage to fill leftover page instead of to fit its own figure. Deskt
 200px under a 219px column for that reason and not because the space ran out.
 
 **The white space was the desktop cap, not the layout.** A 1000px board on a maximised 1920
-window is **920px of empty page — wider than the ladder itself**. Now **1340px** with a **560px**
-left column; the **ladder is still held at ~720px** (`1340 − 32 padding − 560 − 26`), because a
-rung wide enough to strand its name at x=200 and its score at x=850 is a spreadsheet row.
-**Widen the left column, never the ladder.**
+window is **920px of empty page — wider than the ladder itself**. That finding stands. Its remedy
+— widening the two-column board to 1340px with a 560px left column, pinning the stage
+`position: sticky`, and anchoring the you-bar right over the ladder — **was undone hours later**
+when the layout went back to one column. All three existed to serve a left column. See below.
 
-⚠ **The desktop stage is `position: sticky`.** Three items beside a thirty-item ladder empty
-their column *by construction* — the stage ended at y≈565 of 900 and everything below it was
-blank, then went blanker as you scrolled. Pinning turns the leftover into the stage's travel
-lane: scroll to rank 25 and the three you are chasing are still on screen. It needs **both**
-`align-self: start` (a stretched grid item fills its area and has nowhere to travel) **and** a
-grid area taller than itself — which row 3 only is because `.lg-list` spans all three rows and
-the `1fr` row absorbs the leftover. Break either and it silently stops sticking.
+#### STACKED AGAIN 2026-08-04 — desktop is ONE CENTRED COLUMN (a second refinement, same day)
 
-⚠ **The you-bar was floating over the empty left column on desktop** — centred on the viewport,
-in a two-column layout, pointing at nothing. It is now anchored right, over the ladder, the same
-fix the landscape tier already carried. Found in a screenshot with every assertion green, which
-is the third time on this feature.
+User: *"i want the layout to be like the old one"*, chosen from a stated fork against the
+alternatives. "The old one" is the **pre-4th-pass shape**: podium on top, ladder directly
+beneath, one centred column — still the shape of every phone tier, so **desktop now differs from
+a phone only in size**. The two-column split bought 15 visible ranks against 9; what it cost was
+a board that did not look like a leaderboard, and that was the wrong trade.
+
+**Deleted with the grid, and do not bring them back on their own**: the sticky stage (in one
+column it would pin the podium over the ladder it is supposed to sit *above*) and the
+right-anchored you-bar (the base rule already centres it correctly over a centred board).
+
+- **Board 760px** — wider than the 640 the smaller tiers use, because a maximised window has room
+  to spare; nowhere near 1340, because here the ladder **is** the page rather than one of two
+  columns. **A centred column at 760 still leaves ~340px of margin at 1440 and ~580 at 1920, and
+  that is the price of the shape, not a defect to engineer away.**
+- ⚠ **The stage is capped NARROWER than the board it stands on** (`width: min(520px, 100%)`).
+  Stretched across the full column the champion's block is ~294px wide — a 2:1 slab that reads as
+  a bar chart's tallest bar, which is the failure the whole STRUCK pass exists to prevent. Cap
+  the **stage**, never grow the blocks: block height is the one thing the ladder pays for.
+- ⚠ **`width`, not `max-width`.** `.lb-climb` is a **flex column**, so cross size comes from
+  `align-items: stretch` — and `max-width` + `margin-inline: auto` (or `align-self: center`,
+  identically) **cancels the stretch and drops the stage to shrink-to-fit**. That shipped a 261px
+  stage with **103×132 blocks: a champion taller than it is wide**, i.e. the exact tower the mass
+  bound above forbids. The mass gate caught it — the first time one of these checks failed on a
+  regression introduced *in the same session* rather than a known one.
+- ⚠ **TWO HEIGHT STEPS on desktop, not one size.** Stacked, the stage and the ladder share a
+  column, so **viewport height is the entire ranks budget** — a pixel of plinth is a pixel of
+  rung. ≥620px tall gets the compact stage (champion 203×108, rows 56); ≥860px gets the full one
+  (203×118, rows 58). At 64px rows a 1440×900 window landed on **exactly 8** — the floor with
+  zero slack — so 6px of row height buys the 9th back without touching a plinth.
+- ⚠ **`league_assert` now sweeps a local 1366×768 laptop.** It is the most common laptop and, once
+  height became the budget, the board's tightest real case: 1440×900 is 132px taller, which is two
+  whole rungs, so it stopped representing anything. The first stacked build measured **7 ranks**
+  there — under the floor — while 1440×900 looked fine.
 
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is

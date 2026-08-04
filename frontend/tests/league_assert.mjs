@@ -359,8 +359,15 @@ const measure = (p) => p.evaluate(() => {
 
 const b = await chromium.launch();
 
+/* 1366x768 is the most common laptop, and on 2026-08-04 it became the board's tightest case:
+   desktop went back to ONE COLUMN, so the stage and the ladder now stack in the same column and
+   the viewport's HEIGHT is the entire ranks budget. 1440x900 no longer represents it — that
+   window is 132px taller, which is two whole rungs. Local to this file rather than added to
+   VIEWPORTS, because it is a leaderboard-layout risk and not a device every harness must sweep. */
+const LAPTOP = { tag: "laptop", width: 1366, height: 768, touch: false };
+
 /* ── 1) geometry + structure, across the whole device matrix ─────────────────────────── */
-for (const vp of [...VIEWPORTS, DESKTOP]) {
+for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP]) {
   const ctx = await boardCtx(b, vp);
   const p = await openBoard(ctx);
   const m = await measure(p);
