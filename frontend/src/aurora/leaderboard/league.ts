@@ -38,6 +38,34 @@ export function nextDivisionName(division: number | null | undefined): string | 
   return d >= TOP_DIVISION ? null : DIVISION_NAMES[d];
 }
 
+/** What the NEXT division PAYS — the name and its formatted multiplier — or null when there
+ *  is nothing above you to name.
+ *
+ *  The band states this beside the promotion mechanic, because "finish top three" and "Gold
+ *  pays ×1.25" are one fact split across two screens otherwise: the reason to climb is the
+ *  rate, and until 2026-08-04 the rate was only readable inside the (?) sheet.
+ *
+ *  ⚠ `multipliers` is the SERVER's ladder, straight off the leaderboard payload. It is not
+ *  defaulted and not mirrored here on purpose: `division_multiplier` and
+ *  `division_multipliers` ship in the same response from the same list in
+ *  tools/gamification/league.py, so they cannot disagree with each other or with what a
+ *  student is actually paid. A hard-coded copy would drift the first time the economy is
+ *  retuned — silently, because a wrong multiplier still renders. An older server sending no
+ *  ladder gets no claim rather than an invented one.
+ *
+ *  Clamps exactly as nextDivisionName does: two helpers answering "what is above me" must
+ *  not disagree about a null column. */
+export function nextRungPayoff(
+  division: number | null | undefined, multipliers: number[],
+): { name: string; mult: string } | null {
+  const d = Math.max(1, Math.min(TOP_DIVISION, Math.trunc(Number(division) || 1)));
+  const name = nextDivisionName(d);
+  const m = multipliers?.[d];   // d is 1-based, so index d IS the rung above
+  if (!name || typeof m !== "number" || !Number.isFinite(m)) return null;
+  // 1.5, never 1.50 — trailing zeros make a game number look like a currency.
+  return { name, mult: `×${m.toFixed(2).replace(/\.?0+$/, "")}` };
+}
+
 const HOUR = 3600_000;
 const DAY = 24 * HOUR;
 const SGT_OFFSET = 8 * HOUR; // Asia/Singapore is UTC+8 year-round — no DST to model.
