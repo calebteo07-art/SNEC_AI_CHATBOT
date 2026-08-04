@@ -213,7 +213,6 @@ def evaluate_case(
         "investigations_feedback": domain_results["investigations"].get("feedback", ""),
         "diagnosis_feedback":    domain_results["diagnosis"].get("feedback", ""),
         "management_feedback":   domain_results["management"].get("feedback", ""),
-        "overall_feedback":      _build_overall(domain_results, total),
         "total_score":           total,
         "critical_hit":          critical_hit,
         "critical_total":        critical_total,
@@ -223,18 +222,3 @@ def evaluate_case(
               detail=f"case_id={case['case_id']} total={total}/40 checklist={critical_hit}/{critical_total}")
 
     return result
-
-
-def _build_overall(domain_results: dict, total: int) -> str:
-    """Compose a one-sentence overall summary from domain results."""
-    # < 5, not < 6: 5-7 is the COMPETENT band (rubric_prompts.py), so a 5 is a pass and
-    # must not be handed back to the student as a weakness to revise.
-    weak = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) < 5]
-    strong = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) >= 8]
-    grade = "Excellent" if total >= 36 else "Good" if total >= 28 else "Satisfactory" if total >= 20 else "Needs improvement"
-    summary = f"{grade} overall ({total}/40)."
-    if strong:
-        summary += f" Strong performance in: {', '.join(strong)}."
-    if weak:
-        summary += f" Focus revision on: {', '.join(weak)}."
-    return summary

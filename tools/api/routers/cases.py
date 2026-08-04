@@ -203,7 +203,6 @@ class DomainScore(BaseModel):
     diagnosis_feedback: str
     management_feedback: str
     total_score: int
-    overall_feedback: str
     critical_hit: int = 0
     critical_total: int = 0
     # Three-bucket /100 (the student-facing model), 40/30/30 — the checklist is the

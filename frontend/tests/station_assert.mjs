@@ -65,7 +65,7 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
   result: {
     history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
     history_feedback: "Thorough.", investigations_feedback: "Good.", diagnosis_feedback: "Correct.", management_feedback: "Reasonable.",
-    total_score: 31, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2,
+    total_score: 31, critical_hit: 2, critical_total: 2,
     // 40/30/30 — 30 + 22 + 26 = 78.
     score_100: 78, verdict: "Solid",
     checklist_coverage: 30, checklist_coverage_max: 40,
