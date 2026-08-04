@@ -8,6 +8,7 @@ endpoints and both assert the SECOND call awards nothing.
 from datetime import date
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
@@ -15,6 +16,17 @@ from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
 TODAY = date(2026, 8, 4)
+
+
+@pytest.fixture(autouse=True)
+def _no_board_reads():
+    """Home reads the league board. Those reads are not what this file tests, and an
+    unpatched one would fail against the suite's real-Supabase guard — an empty board
+    makes the strip None."""
+    with patch("tools.api.routers.home.db.get_active_leaderboard_profiles",
+               AsyncMock(return_value=[])), \
+         patch("tools.api.routers.home.db.get_all_consent", AsyncMock(return_value=[])):
+        yield
 
 
 def _cookies(sub: str = "ann") -> dict:
