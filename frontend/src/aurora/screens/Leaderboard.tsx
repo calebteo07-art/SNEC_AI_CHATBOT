@@ -69,6 +69,16 @@ export function Leaderboard() {
   const metalIdx = Math.max(0, Math.min(TOP_DIVISION - 1, division - 1));
   const promoteCount = data?.promote_count ?? 0;
   const you = entries.find((e) => e.is_you);
+  /* The scale every rung's gauge is drawn against: the top entry of whatever the server
+     just returned, which is rank-sorted.
+     ⚠ On a role-filtered view that is the best of THAT ROLE, not of the division — the
+     `role` param narrows the view server-side and the list is renumbered from 1 (see
+     tools/api/routers/student.py::leaderboard). The gauge therefore rescales with the
+     lens, which is the consistent choice: the ranks beside it have already rescaled.
+     Anchoring to the division leader is not available here — the filtered payload does
+     not carry them, and inventing a second scale the ranks disagree with would be worse
+     than either. */
+  const topXp = entries[0]?.xp ?? 0;
 
   const chase = useMemo(
     () => computeChase(entries, promoteCount, division >= TOP_DIVISION),
@@ -197,6 +207,7 @@ export function Leaderboard() {
                   e={e}
                   promo={lineAt !== null && i < lineAt}
                   onPeek={setPeek}
+                  topXp={topXp}
                   ref={e.is_you ? setYouEl : undefined}
                 />
               </Fragment>

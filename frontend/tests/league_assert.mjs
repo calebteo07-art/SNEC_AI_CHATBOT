@@ -246,6 +246,79 @@ const measure = (p) => p.evaluate(() => {
   return {
     vw, vh: window.innerHeight, over, targets, rasters, pageBg, inkProbe, rowStyle,
     root: one(".lb-climb"),
+    mainW: (() => { const el = document.querySelector(".aurora-main"); return el ? +el.getBoundingClientRect().width.toFixed(1) : null; })(),
+
+    /* ── HOW MUCH OF EACH RUNG IS ACTUALLY INKED ────────────────────────────────────────
+       "avoid white spaces at the sides" (2026-08-04) turned out to name TWO fields of dead
+       white, and this is the larger of them: at 1440 the name ended at x≈520 and the score
+       pill began at x≈1046, so 62% of an 848px rung was nothing at all. The board looked
+       narrow because its rows were empty, not only because the page beside it was.
+       Measured with a text RANGE, never an element rect: `.lg-meta` is a `1fr` grid track
+       and `.lg-nm` is a flex child, so both STRETCH to the track and report a width with no
+       relation to the ink inside them. An element-rect version of this check reads 0px of
+       gap on the exact board that produced the complaint. */
+    rowFill: (() => {
+      const row = document.querySelector(".lg-row");
+      const score = row?.querySelector(".lg-score");
+      const meta = row?.querySelector(".lg-meta");
+      if (!row || !score || !meta) return null;
+      const metaLeft = meta.getBoundingClientRect().left;
+      let ink = metaLeft;
+      const walk = document.createTreeWalker(meta, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        if (!n.nodeValue.trim()) continue;
+        const rg = document.createRange();
+        rg.selectNodeContents(n);
+        const b = rg.getBoundingClientRect();
+        if (b.width > 0) ink = Math.max(ink, b.right);
+      }
+      // Anything else riding between the name block and the score — stat chips, badges —
+      // is ink too, and is exactly how a wide rung is meant to be filled.
+      for (const el of row.children) {
+        if (el === score || el === meta) continue;
+        const b = el.getBoundingClientRect();
+        if (b.width > 0 && b.left >= metaLeft) ink = Math.max(ink, b.right);
+      }
+      return {
+        gap: +(score.getBoundingClientRect().left - ink).toFixed(1),
+        w: +row.getBoundingClientRect().width.toFixed(1),
+      };
+    })(),
+
+    /* The vertical rhythm, as the three LAYOUT gaps down the column. One flat 10px gap
+       between band, filter, stage and board is what "space out more aesthetically" was
+       about: four blocks spaced identically have no hierarchy, so the head does not read
+       as a head. Layout gaps, not optical ones — every struck object's hard lip hangs
+       ~6px below its border box, which getBoundingClientRect does not see. */
+    rhythm: (() => {
+      const r = (s) => { const el = document.querySelector(s); return el ? el.getBoundingClientRect() : null; };
+      const band = r(".tb"), filt = r(".lb-filter"), pod = r('[data-testid="podium"]'), list = r(".lg-list");
+      if (!band || !filt || !pod || !list) return null;
+      return {
+        bandToFilter: +(filt.top - band.bottom).toFixed(1),
+        filterToStage: +(pod.top - filt.bottom).toFixed(1),
+        stageToBoard: +(list.top - pod.bottom).toFixed(1),
+        /* The landscape-phone tier puts the ladder BESIDE the stage, where "the gap under
+           the stage" is not a quantity that exists — the list starts level with the band,
+           so the subtraction returns a large negative and any bound on it is meaningless.
+           Detected from geometry rather than from a media query, so the check follows the
+           layout instead of a copy of its breakpoint. */
+        stacked: list.left < pod.right - 1,
+      };
+    })(),
+
+    /* THE OUTLINE, on every struck object that claims a rung of the lip ladder. The file's
+       own first rule is a dark defining edge in --mat-ink, "never grey — grey on a coloured
+       fill reads as a CSS border". Three selectors were breaking it while the comment above
+       them said otherwise, and `.lg-score` is instantiated once per row. A comment is not a
+       constraint; this is. */
+    outlines: [".lg-rk", ".lg-score", ".lg-you", '.lg-mv[data-dir="up"]', ".lg-face", ".tb-mult"]
+      .map((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return { sel, w: null, c: null };
+        const cs = getComputedStyle(el);
+        return { sel, w: +parseFloat(cs.borderTopWidth || "0").toFixed(2), c: cs.borderTopColor };
+      }),
 
     /* THE check, and the one the pre-pass-4 harness had no opinion about at all: how many
        RANKS a student can read without scrolling.
@@ -379,8 +452,16 @@ const b = await chromium.launch();
    VIEWPORTS, because it is a leaderboard-layout risk and not a device every harness must sweep. */
 const LAPTOP = { tag: "laptop", width: 1366, height: 768, touch: false };
 
+/* A MAXIMISED large monitor, added 2026-08-04 with the ribbon bound above. Without it that
+   bound tests nothing: DESKTOP is 1440x900, where an 880px column already covers 61% of the
+   field, so every viewport in the matrix passed a check aimed squarely at the viewport the
+   complaint came from. A gate that cannot fail on the reported case is not a gate — this is
+   the same "precise measurement of the wrong thing" the pass-4 history warns about, in its
+   other form: precise measurement on the wrong DEVICE. */
+const WIDE = { tag: "wide", width: 1920, height: 1080, touch: false };
+
 /* ── 1) geometry + structure, across the whole device matrix ─────────────────────────── */
-for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP]) {
+for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
   const ctx = await boardCtx(b, vp);
   const p = await openBoard(ctx);
   const m = await measure(p);
@@ -505,6 +586,71 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP]) {
   } else if (m.rowStyle.h > 68) {
     bad(`${at}: a row is ${m.rowStyle.h}px tall — over 68px the board stops being scannable`);
   } else ok(`${at}: rows are flat ${m.rowStyle.h}px bands with no card chrome`);
+
+  /* ── THE BOARD IS NOT A RIBBON, AND THE RUNG IS NOT A SPREADSHEET ────────────────────
+     "avoid white spaces at the sides" (2026-08-04) — the THIRD report of it, and the first
+     time it was measured rather than argued about. It named TWO fields of dead white:
+
+       · BESIDE the board. An 880px column on a 1920px field is a ribbon down the middle
+         with 520px of untouched canvas either side.
+       · INSIDE every rung, which is the larger one and the one nobody had looked at: the
+         name ended at x≈520 and the score pill began at x≈1046, so 62% of an 848px row
+         was nothing at all. The board read as narrow because its ROWS were empty.
+
+     The two bounds pull against each other on purpose, which is what makes this a budget
+     rather than a preference: the cheap way to satisfy the first is to stretch the board,
+     and a stretched rung is exactly the spreadsheet row the lock has warned about since
+     the two-column split — the same complaint, moved inside the board. Width may only be
+     taken if the rung is filled, and the rung may only be filled with real content.
+
+     The ratio bound is deliberately BANDED rather than universal. Below ~1360 there is no
+     spare width to spend, and above ~2000 the honest answer is arena furniture beside the
+     ladder, not a 1500px rung — a ratio gate up there would mandate the spreadsheet this
+     check exists to forbid. */
+  if (!m.rowFill) bad(`${at}: could not measure how much of a rung is inked`);
+  else {
+    const share = m.rowFill.gap / m.rowFill.w;
+    if (share > 0.34) {
+      bad(`${at}: ${m.rowFill.gap}px of a ${m.rowFill.w}px rung is empty between the name and the score (${(share * 100).toFixed(0)}%, budget 34%) — that dead middle is the white space, and it is inside the board`);
+    } else ok(`${at}: a rung's dead middle is ${m.rowFill.gap}px of ${m.rowFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
+  }
+  if (m.mainW !== null && m.root && m.mainW >= 1360 && m.mainW <= 2000) {
+    const share = m.root.w / m.mainW;
+    if (share < 0.58) {
+      bad(`${at}: the board is ${m.root.w}px on a ${m.mainW}px field (${(share * 100).toFixed(0)}%, floor 58%) — a ribbon down the middle of the page`);
+    } else ok(`${at}: the board covers ${(share * 100).toFixed(0)}% of the ${m.mainW}px field (floor 58%)`);
+  }
+
+  /* THE RHYTHM IS GROUPED, NOT FLAT. Four stacked blocks on one identical gap have no
+     hierarchy — the band and the filter stop reading as one head and the stage stops
+     reading as a ceremony. Asserted as ORDER, never as pixels: the band and its filter
+     must sit closer together than the filter sits to the stage, and the stage must have at
+     least as much air beneath it. That survives a retune; a pinned 6/14/12 would not. */
+  if (!m.rhythm) bad(`${at}: could not measure the column's vertical rhythm`);
+  else if (!(m.rhythm.bandToFilter < m.rhythm.filterToStage)) {
+    bad(`${at}: the head and its filter sit ${m.rhythm.bandToFilter}px apart but the filter sits ${m.rhythm.filterToStage}px from the stage — equal spacing is not hierarchy`);
+  } else if (m.rhythm.stacked && m.rhythm.stageToBoard < m.rhythm.bandToFilter) {
+    bad(`${at}: the stage has ${m.rhythm.stageToBoard}px under it and the head has ${m.rhythm.bandToFilter}px — the ceremony needs at least the air the head gets`);
+  } else ok(`${at}: the column is grouped ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}px, not flat`);
+
+  /* THE OUTLINE, on every object claiming a rung of the lip ladder. Rule 1 of the file's
+     own recipe is a dark defining edge in --mat-ink — "never grey, because grey on a
+     coloured fill reads as a CSS border". Three selectors were breaking it under a comment
+     that said they did not, and `.lg-score` is instantiated once per row, so it was the
+     single flattest thing on the board and there were twenty-seven of them. The alpha term
+     is not pedantry: a 45%-alpha edge is a hairline that happens to be dark. */
+  {
+    const soft = m.outlines.filter((o) => {
+      if (o.w === null) return false;                    // absent element, not a failure
+      if (o.w < 1.5) return true;
+      const c = rgb(o.c);
+      return !c || (c[3] !== undefined && c[3] < 0.9) || lum(c) > 0.25;
+    });
+    if (soft.length) {
+      bad(`${at}: ${soft.length} struck object(s) carry no defining outline: ` +
+        soft.map((o) => `${o.sel} ${o.w}px ${o.c}`).join(" · "));
+    } else ok(`${at}: every struck object on the board wears the dark outline`);
+  }
 
   /* ── the promotion zone ─────────────────────────────────────────────────────────────
      A filled region with a labelled head and a struck cut, replacing a hairline with a

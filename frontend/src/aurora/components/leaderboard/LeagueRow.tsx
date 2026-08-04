@@ -23,8 +23,14 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
   e: LeaderboardEntry;
   promo: boolean;
   onPeek: (e: LeaderboardEntry) => void;
-}>(function LeagueRow({ e, promo, onPeek }, ref) {
+  /** The division leader's weekly Lumens — the scale the gauge below is drawn against.
+   *  Passed in rather than derived here because a row cannot see the board. */
+  topXp: number;
+}>(function LeagueRow({ e, promo, onPeek, topXp }, ref) {
   const mv = arrowFor(e.rank_delta);
+  // The gauge. Clamped both ways: a stale snapshot can put a row above the leader it was
+  // scaled against, and a bar wider than its own track paints outside the board.
+  const pct = topXp > 0 ? Math.max(0, Math.min(100, (e.xp / topXp) * 100)) : 0;
   return (
     <li className="lg-item" ref={ref} data-promo={promo || undefined}>
       <button
@@ -57,6 +63,17 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
             {e.streak_days > 0 && <span className="lg-streak">{e.streak_days}d</span>}
           </span>
         </span>
+        {/* THE GAUGE. It exists because of what the wide board actually looked like: at
+            1440 the name ended at x≈520 and the score began at x≈1046, so 62% of every
+            rung was blank — the largest field of dead white on the page was inside the
+            board, not beside it. Filling it with more chrome would have been decoration;
+            this is the one thing that legitimately WANTS horizontal room, which is what
+            turns "the board is too narrow" into a reason to widen it rather than a
+            reason to accept the margins.
+            aria-hidden: the row's own aria-label already states the Lumens, and a second
+            reading of the same number as a percentage is noise, not access. */}
+        <span className="lg-bar" aria-hidden style={{ ["--fill" as string]: `${pct}%` }} />
+
         <span className="lg-score">
           <Lumen size={13} decorative />
           {e.xp.toLocaleString()}
