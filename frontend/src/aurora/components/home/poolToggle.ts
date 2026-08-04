@@ -23,7 +23,6 @@ export const POOL_INVALIDATE_KEYS: string[][] = [
   ["progress"],
   ["flashcard-topics"],
   ["flashcards"],
-  ["flashcard-due-count"],
   ["leaderboard"],
   ["cases"],
 ];
