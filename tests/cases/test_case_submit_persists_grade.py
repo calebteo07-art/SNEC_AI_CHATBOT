@@ -44,7 +44,7 @@ _DOMAINS = {
 }
 # Pinned station score → the rich grade the persist path must forward.
 _SCORE = {
-    "score_100": 80, "total_score": 32, "verdict": "Competent",
+    "score_100": 80, "total_score": 32, "verdict": "Competent", "grade_scale": 2,
     "checklist_coverage": 32, "checklist_coverage_max": 40,
     "consult_technique": 24, "consult_technique_max": 30,
     "judgement_safety": 24, "judgement_safety_max": 30, "safe": False,
@@ -102,3 +102,7 @@ def test_submit_persists_rich_grade_to_case_progress():
     assert kw["missed_critical"] == ["Measure IOP with tonometer"]
     assert kw["coaching"]["focus"] == "escalate sooner"
     assert kw["coaching"]["missed"] == ["IOP"]
+    # The checklist is 40 of the 100 and was computed but never stored, so staff could not
+    # see the largest bucket at all; `grade_scale` stamps which maxima these sub-scores use.
+    assert kw["checklist_coverage"] == 32
+    assert kw["grade_scale"] == 2

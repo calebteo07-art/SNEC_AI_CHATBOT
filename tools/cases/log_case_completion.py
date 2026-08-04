@@ -26,10 +26,12 @@ async def log_case_completion(
     judgement_safety: int | None = None,
     missed_critical: list | None = None,
     coaching: dict | None = None,
+    checklist_coverage: int | None = None,
+    grade_scale: int | None = None,
 ) -> None:
     """Append a case completion record. Never raises. The rich OSCE-grade fields are
     additive and forwarded to db.insert_case_result, which degrades to the base four
-    columns until migration 011 is applied."""
+    columns until migrations 011 and 017 are applied."""
     try:
         await db.insert_case_result(
             student_id=student_id,
@@ -42,6 +44,8 @@ async def log_case_completion(
             judgement_safety=judgement_safety,
             missed_critical=missed_critical,
             coaching=coaching,
+            checklist_coverage=checklist_coverage,
+            grade_scale=grade_scale,
         )
         audit_log(
             "case_completed",

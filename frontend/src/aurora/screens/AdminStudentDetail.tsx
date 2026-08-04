@@ -14,6 +14,7 @@ import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 import { DivergingBar } from "@/aurora/components/admin/DivergingBar";
 import { masteryRows } from "@/aurora/components/admin/masteryView";
 import { buildStudentReportHtml, type StudentReportData } from "@/aurora/lib/studentReportExport";
+import { subScoreText, subScoreTitle } from "@/aurora/lib/caseGrade";
 import { DataTable } from "@/aurora/console/DataTable";
 import { BarList, type CsBarRow } from "@/aurora/console/BarList";
 import { Badge, MiniStat, Panel } from "@/aurora/console/Panel";
@@ -272,12 +273,14 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                   { key: "case", head: "Case", width: "1fr", primary: true, cell: (c) => c.case_id },
                   // score_100 is the Tier-2 scale; pre-Tier-2 rows only ever had /40.
                   { key: "score", head: "Score", width: "84px", cell: (c) => <span className="cs-num">{c.score_100 !== undefined ? `${c.score_100}/100` : `${c.total_score}/40`}</span> },
+                  // Denominators, always. These render bare INTEGERs from two scoring eras —
+                  // ×50 before 2026-08-04, 40/30/30 after — so "40·38" above "22·26" read as
+                  // a collapse that was only the rescale. caseGrade.ts owns which is which.
                   {
-                    key: "sub", head: "Sub-scores", width: "92px",
+                    key: "sub", head: "Sub-scores", width: "158px",
                     cell: (c) => (
-                      <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>
-                        {c.consult_technique !== undefined && c.judgement_safety !== undefined
-                          ? `${c.consult_technique}·${c.judgement_safety}` : "—"}
+                      <span className="cs-num" style={{ color: "var(--cs-ink-3)" }} title={subScoreTitle(c)}>
+                        {subScoreText(c)}
                       </span>
                     ),
                   },

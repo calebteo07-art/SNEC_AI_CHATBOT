@@ -446,15 +446,36 @@ async def test_insert_case_result_persists_rich_grade():
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         await db.insert_case_result(
             "stu-001", "case_x", 32, True,
-            score_100=80, safe=True, consult_technique=40, judgement_safety=40,
+            score_100=80, safe=True, consult_technique=24, judgement_safety=24,
             missed_critical=["Measure IOP"], coaching={"focus": "escalate sooner"},
+            checklist_coverage=32, grade_scale=2,
         )
     payload = client.table.return_value.insert.call_args[0][0]
     assert payload["score_100"] == 80
     assert payload["safe"] is True
-    assert payload["consult_technique"] == 40
+    assert payload["consult_technique"] == 24
     assert payload["missed_critical"] == ["Measure IOP"]
     assert payload["coaching"] == {"focus": "escalate sooner"}
+    # Migration 017 — the 40-point bucket, and the stamp that keeps a stored /30 sub-score
+    # from being read on the /50 scale it replaced.
+    assert payload["checklist_coverage"] == 32
+    assert payload["grade_scale"] == 2
+
+
+@pytest.mark.asyncio
+async def test_insert_case_result_writes_zero_coverage_not_null():
+    """Coverage 0 (a student who performed no steps) must reach the column as a real 0.
+
+    NULL is how a row says "written before the 40/30/30 rescale", so degrading a genuine
+    zero to NULL would relabel a current row as legacy and put its /30 sub-scores back on
+    the /50 scale — exactly the misread this column exists to end.
+    """
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result("stu-001", "case_x", 19, False, score_100=48,
+                                    checklist_coverage=0, grade_scale=2)
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload["checklist_coverage"] == 0
 
 
 @pytest.mark.asyncio

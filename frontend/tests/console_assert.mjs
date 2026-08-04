@@ -233,6 +233,25 @@ async function badgeContrast(page, where) {
         })));
     check(squashed.length === 0, `modal children squashed below their content: ${JSON.stringify(squashed)}`);
 
+    // 9. Sub-scores carry their denominators. The column prints stored INTEGERs from two
+    // scoring eras — consult/judgement were ×50 until 2026-08-04 and are 40/30/30 after —
+    // so bare numbers put a student's older attempt (40·38) above their newer one (22·26)
+    // and a trainer reads a collapse that is only a change of scale. Nothing about that is
+    // visible to a build or a type-check, and both rows render fine either way, so assert
+    // the TEXT: each era must show the maxima it was actually graded against.
+    await page.getByRole("tab", { name: "Virtual patients" }).click();
+    await page.waitForSelector('.cs-trow [data-label="Sub-scores"]', { timeout: 10000 });
+    const subs = await page.evaluate(() =>
+      [...document.querySelectorAll('.cs-trow:not(.cs-thead) [data-label="Sub-scores"]')]
+        .map((el) => el.textContent.trim()));
+    check(subs.includes("40/50 · 38/50"),
+      `legacy ×50 attempt must render /50 denominators, got ${JSON.stringify(subs)}`);
+    check(subs.includes("32/40 · 22/30 · 26/30"),
+      `current attempt must render all three buckets on 40/30/30, got ${JSON.stringify(subs)}`);
+    // The regression itself: two different scales must never print as one.
+    check(!subs.some((s) => /^\d+·\d+$/.test(s)),
+      `a sub-score rendered with no denominator at all: ${JSON.stringify(subs)}`);
+
     await badgeContrast(page, "student drill-down");
   } catch (e) {
     fails.push(`student drill-down: ${String(e.message).split("\n")[0]}`);

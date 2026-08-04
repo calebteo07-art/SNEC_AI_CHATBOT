@@ -120,6 +120,9 @@ export interface CaseResult {
   case_id: string; total_score: number; passed: boolean; completed_at: string;
   // Tier-2 OSCE grade (Phase-2 migration) — optional so the drill-down renders before it lands.
   score_100?: number; safe?: boolean; consult_technique?: number; judgement_safety?: number; missed_critical?: string[];
+  // Migration 017. `grade_scale` stamps which maxima the two sub-scores use (absent = the
+  // pre-2026-08-04 ×50 scheme); `checklist_coverage` is the third bucket, 40 of the 100.
+  checklist_coverage?: number; grade_scale?: number;
 }
 export interface StudentDetail {
   student_id: string; full_name: string; email: string; role: string;

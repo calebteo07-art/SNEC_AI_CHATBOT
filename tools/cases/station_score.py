@@ -29,6 +29,13 @@ SAFETY_CAP = 0.6
 CHECKLIST_MAX = 40
 SCHEME_MAX = 30
 
+# Which set of maxima produced a score, stamped onto every stored row (migration 017).
+# The sub-scores persist as bare INTEGERs, so when this scheme rescaled them from /50 to
+# /30 the stored rows of the two eras became indistinguishable and staff read the rescale
+# as a performance drop. Scale 1 was the two schemes ×50; scale 2 is these three buckets.
+# A NULL column means scale 1 — it predates the stamp. Bump this when the maxima move.
+GRADE_SCALE = 2
+
 _VERDICTS = (
     (85, "Exam-ready"),
     (70, "Solid"),
@@ -136,6 +143,7 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed,
 
     return {
         "score_100": score_100,
+        "grade_scale": GRADE_SCALE,
         "checklist_coverage": coverage,
         "checklist_coverage_max": CHECKLIST_MAX,
         "consult_technique": consult_technique,

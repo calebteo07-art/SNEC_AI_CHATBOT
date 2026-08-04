@@ -117,6 +117,21 @@ export const MASTERY = {
   retention_mastery: { value: 64,   cohort_avg: null, delta: null, cohort_n: 1, peers_n: 0 },
 };
 
+/* One OSCE attempt from each scoring era, because the staff Sub-scores column renders
+   `consult_technique` and `judgement_safety` straight out of storage and their maxima
+   MOVED: two schemes ×50 until 2026-08-04, three buckets 40/30/30 after. Undenominated,
+   these two rows read as a student collapsing from 40·38 to 22·26 when the underlying
+   proportions barely changed — 0.80/0.76 then 0.73/0.87. `grade_scale` is the stored stamp
+   that tells them apart, and its ABSENCE on the older row is what marks it legacy, so a
+   fixture where both rows carry it would pass while the real mixed table still lied. */
+export const ADMIN_CASES = [
+  { case_id: "C_legacy", total_score: 31, passed: true, completed_at: "2026-07-20T10:00:00Z",
+    score_100: 78, safe: true, consult_technique: 40, judgement_safety: 38 },
+  { case_id: "C_current", total_score: 32, passed: true, completed_at: "2026-08-04T10:00:00Z",
+    score_100: 80, safe: true, grade_scale: 2,
+    checklist_coverage: 32, consult_technique: 22, judgement_safety: 26 },
+];
+
 export async function mockApis(ctx, user) {
   await ctx.route("**/api/**", (r) => r.fulfill(J({ error: "not mocked" }, 404)));
   await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
@@ -218,12 +233,14 @@ export async function mockApis(ctx, user) {
   ] })));
   await ctx.route("**/api/admin/students", (r) => r.fulfill(J({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
   // Admin drill-down. Serves MASTERY (exported below) — the same object aurora_assert.mjs
-  // imports, so the two harnesses cannot disagree about what the modal shows.
+  // imports, so the two harnesses cannot disagree about what the modal shows. ADMIN_CASES
+  // covers BOTH OSCE scoring eras, because the sub-score column reads stored integers whose
+  // maxima changed underneath them (see the export below).
   await ctx.route("**/api/admin/student/*/detail", (r) => r.fulfill(J({
     student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA",
     session_count: 18, streak: 6, last_active: new Date().toISOString(),
     learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
-    supervisor_note: "", sessions: [], cases: [], total_tokens: 1000,
+    supervisor_note: "", sessions: [], cases: ADMIN_CASES, total_tokens: 1000,
     mastery: MASTERY,
   })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));

@@ -13,15 +13,19 @@ async def test_log_case_completion_passes_rich_grade_through():
     with patch("tools.cases.log_case_completion.db.insert_case_result", new=_insert):
         await log_case_completion(
             "stu-001", "case_x", 32, True,
-            score_100=80, safe=True, consult_technique=40, judgement_safety=40,
+            score_100=80, safe=True, consult_technique=24, judgement_safety=24,
             missed_critical=["Measure IOP"], coaching={"focus": "escalate sooner"},
+            checklist_coverage=32, grade_scale=2,
         )
     assert captured["score_100"] == 80
     assert captured["safe"] is True
-    assert captured["consult_technique"] == 40
-    assert captured["judgement_safety"] == 40
+    assert captured["consult_technique"] == 24
+    assert captured["judgement_safety"] == 24
     assert captured["missed_critical"] == ["Measure IOP"]
     assert captured["coaching"] == {"focus": "escalate sooner"}
+    # The 40-point bucket and the scheme stamp that keeps /30 rows readable next to /50 ones.
+    assert captured["checklist_coverage"] == 32
+    assert captured["grade_scale"] == 2
 
 
 @pytest.mark.asyncio

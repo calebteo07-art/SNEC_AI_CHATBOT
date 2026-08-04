@@ -9,7 +9,7 @@ Coverage counts every step alike — a CRITICAL step is worth the same one step 
 is punished separately (and once) by the ×SAFETY_CAP gate on Judgement. Pure +
 deterministic.
 """
-from tools.cases.station_score import compute_station_score, SAFETY_CAP
+from tools.cases.station_score import compute_station_score, SAFETY_CAP, GRADE_SCALE
 
 STEPS = [
     {"step_number": 1, "action": "Identify patient", "critical": True},
@@ -35,6 +35,21 @@ def test_perfect_score_is_100_and_exam_ready():
     assert s["safe"] is True
     assert s["missed_critical"] == []
     assert s["total_score"] == 40  # round(100 * 0.4), kept for progression/dashboards
+
+
+def test_score_stamps_the_grade_scale_so_stored_rows_keep_their_denominators():
+    """Every score carries the scheme that produced it.
+
+    `consult_technique` and `judgement_safety` persist as bare INTEGERs, and this scheme
+    rescaled them from /50 to /30. Without a stamp travelling alongside, stored rows from
+    the two eras are indistinguishable and staff read the rescale as a performance drop
+    (tests/api/test_admin_case_scale_marker.py). Bump this whenever the maxima move.
+    """
+    s = compute_station_score(FULL, STEPS, performed=[1, 2, 3, 4])
+    assert s["grade_scale"] == GRADE_SCALE == 2
+    # The stamp is what makes the stored maxima recoverable, so it must agree with them.
+    assert (s["checklist_coverage_max"], s["consult_technique_max"],
+            s["judgement_safety_max"]) == (40, 30, 30)
 
 
 def test_checklist_coverage_drives_40_points_of_the_score():

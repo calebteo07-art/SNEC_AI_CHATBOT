@@ -907,6 +907,12 @@ async def admin_student_detail(student_id: str, request: Request,
             row["consult_technique"] = int(c["consult_technique"])
         if c.get("judgement_safety") is not None:
             row["judgement_safety"] = int(c["judgement_safety"])
+        # Migration 017. Omitted rather than defaulted: their absence is what tells the
+        # frontend this row predates the 40/30/30 rescale and its sub-scores are still /50.
+        if c.get("checklist_coverage") is not None:
+            row["checklist_coverage"] = int(c["checklist_coverage"])
+        if c.get("grade_scale") is not None:
+            row["grade_scale"] = int(c["grade_scale"])
         if c.get("missed_critical") is not None:
             row["missed_critical"] = [str(m) for m in (c.get("missed_critical") or [])]
         return row
