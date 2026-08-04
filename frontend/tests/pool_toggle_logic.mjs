@@ -23,7 +23,7 @@ assert.strictEqual(activePool("OT"), "OT", "OT → OT");
 // 3) exact invalidation set from the naming contract (order-independent).
 assert.deepStrictEqual(
   [...POOL_INVALIDATE_KEYS].map((k) => k.join(".")).sort(),
-  ["cases", "flashcard-due-count", "flashcard-topics", "flashcards", "leaderboard", "progress"],
+  ["cases", "flashcard-topics", "flashcards", "leaderboard", "progress"],
   "invalidates every pool-dependent query key",
 );
 

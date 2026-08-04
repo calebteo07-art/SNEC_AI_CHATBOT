@@ -98,20 +98,6 @@ export function useFlashcards(setKey: string | null, enabled = true, n = 10, lev
   });
 }
 
-/** How many cards are due for review today (SM-2) — for the dashboard widget. */
-export function useDueCount() {
-  return useQuery<number>({
-    queryKey: ["flashcard-due-count"],
-    queryFn: async () => {
-      const res = await fetch("/api/flashcards/due-count", { credentials: "include" });
-      if (!res.ok) return 0;
-      const d = await res.json();
-      return d.count ?? 0;
-    },
-    staleTime: 5 * 60_000,
-  });
-}
-
 /** Grade ONE typed reasoning answer. Called in the background (not awaited on reveal). */
 export function useReasonCheck() {
   return useMutation<ReasonCheckResponse, Error, ReasonCheckPayload>({
@@ -142,7 +128,6 @@ export function useFlashcardComplete() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["flashcards"] });
-      qc.invalidateQueries({ queryKey: ["flashcard-due-count"] });
       qc.invalidateQueries({ queryKey: ["progress"] });
       // The rung just cleared moves the topic's x/5 counter — without this the
       // picker keeps showing the pre-deck count until the 10-minute staleTime.

@@ -29,8 +29,8 @@ const PERSIST_SCHEMA_VERSION = "10";  // bumped: ["leaderboard",…] gained you_
 /** Which queries are safe to write to the offline cache. The flashcards study DECK
  *  (["flashcards", …]) is deliberately excluded: it's ephemeral per-session content,
  *  persisting it stales the SM-2 / no-repeat rotation offline, and it's exactly the
- *  shape-drifting data that white-screened the study page. Topics, due-count, progress,
- *  cases, etc. stay persisted (useful and stable offline). */
+ *  shape-drifting data that white-screened the study page. Topics, progress, cases,
+ *  etc. stay persisted (useful and stable offline). */
 export function shouldPersistQueryKey(queryKey: readonly unknown[]): boolean {
   return queryKey[0] !== "flashcards";
 }

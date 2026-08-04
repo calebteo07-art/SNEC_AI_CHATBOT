@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from tools.api.shared import limiter, _case_cache, FORFEIT_PENALTY
 from tools.flashcards.flashcard_store import (
-    count_due_cards, get_due_cards, get_served_static_card_ids,
+    get_due_cards, get_served_static_card_ids,
     get_served_static_fronts, insert_cards, update_card_sm2,
 )
 from tools.flashcards.sm2 import next_review, due_date
@@ -447,21 +447,6 @@ async def flashcards_generate(
                                      served_idx, n=(n - len(out)))
             out += await _persist([pool[i] for i in picks])
     return mark_typed_cards(out, n)
-
-
-class DueCountResponse(BaseModel):
-    count: int
-
-
-@router.get("/api/flashcards/due-count", response_model=DueCountResponse)
-async def flashcards_due_count(current_user: CurrentUser = Depends(get_current_user)):
-    """How many cards are due for review today (SM-2) — surfaced on the dashboard."""
-    student_id = current_user["sub"]
-    try:
-        count = await count_due_cards(student_id)
-    except Exception:
-        count = 0
-    return DueCountResponse(count=count)
 
 
 # ── Batched deck completion (SM-2 + XP) ──────────────────────────────────────
