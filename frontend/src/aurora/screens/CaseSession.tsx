@@ -15,6 +15,7 @@ import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
 import { HelpButton } from "@/aurora/components/HelpButton";
+import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { StationBriefing } from "@/aurora/components/StationBriefing";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
@@ -24,7 +25,7 @@ import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
 import { admit, chipOutcome, dualHalf, dualHint, panelOnlySteps, type DualKind } from "@/aurora/lib/dualStep";
 import { timerState, formatClock } from "@/aurora/lib/stationTimer";
 import { submitErrorMessage } from "@/aurora/lib/submitError";
-import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
+import { buildSessionHtml, type SessionExportData, type ScoreBucket } from "@/aurora/lib/sessionExport";
 import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
@@ -46,12 +47,13 @@ type Channel = "patient" | "eyebot";
 interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel }
 interface ScorePart { label: string; pts: number; max: number }
 interface SchemeBreakdown { parts: ScorePart[]; total: number; max: number; capped: boolean; cap_reason: string }
-interface ScoreBreakdown { consult: SchemeBreakdown; judgement: SchemeBreakdown }
+interface ScoreBreakdown { checklist: SchemeBreakdown; consult: SchemeBreakdown; judgement: SchemeBreakdown }
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
   total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
   score_100: number; verdict: string;
+  checklist_coverage: number; checklist_coverage_max: number;
   consult_technique: number; consult_technique_max: number;
   judgement_safety: number; judgement_safety_max: number;
   safe: boolean; missed_critical: string[];
@@ -59,6 +61,38 @@ interface DomainResult {
   breakdown?: ScoreBreakdown;
 }
 interface Coaching { highlights: string[]; did_wrong: string[]; missed: string[]; focus: string }
+
+/** The grade's buckets — 40/30/30, checklist first because it is the largest and because
+    completing the procedure IS the allied-health competency. Defined ONCE: the debrief cards
+    and the saved report both render this, so the report can never omit a bucket the student
+    saw on screen. Every value and max comes from the backend, which owns the formula — this
+    hardcodes no weighting of its own. */
+function scoreBuckets(result: DomainResult): ScoreBucket[] {
+  const b = result.breakdown;
+  return [
+    {
+      label: "Checklist coverage",
+      pts: result.checklist_coverage, max: result.checklist_coverage_max,
+      sub: "How much of the procedure you actually completed",
+      parts: b?.checklist.parts,
+    },
+    {
+      label: "Consultation & Technique",
+      pts: result.consult_technique, max: result.consult_technique_max,
+      sub: "History-taking and how well you performed the examination(s)",
+      parts: b?.consult.parts,
+      notes: [result.history_feedback, result.investigations_feedback].filter(Boolean),
+    },
+    {
+      label: "Clinical Judgement & Safety",
+      pts: result.judgement_safety, max: result.judgement_safety_max,
+      sub: "Spotting the problem, triage, escalation & handover",
+      parts: b?.judgement.parts,
+      capReason: b?.judgement.capped ? b.judgement.cap_reason : undefined,
+      notes: [result.diagnosis_feedback, result.management_feedback].filter(Boolean),
+    },
+  ];
+}
 
 // Decode one action-channel message into a readable {who, text} row for the export —
 // mirrors EyeBotPanel's reveal/grade parsing so the saved transcript reads like the pane.
@@ -115,7 +149,7 @@ export function CaseSession() {
       return parsed.case_id === caseId ? parsed : null;
     } catch { return null; }
   });
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<"missing" | "api" | null>(null);
   const [station, setStation] = useState<StationData | null>(null);
 
   const [ticked, setTicked] = useState<Set<number>>(new Set());
@@ -205,9 +239,12 @@ export function CaseSession() {
   useEffect(() => {
     if (!caseId) return;
     fetch(`/api/cases/${caseId}/station`, { credentials: "include" })
-      .then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<StationData>; })
+      .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json() as Promise<StationData>; })
       .then((d) => { setStation(d); setCaseInfo(d.case); })
-      .catch(() => setLoadError(`Patient "${caseId}" not found.`));
+      /* A 404 is the only failure that means what it used to say for all of them: this
+         patient isn't there, and a reload will produce the same nothing. Everything else
+         — 5xx, an expired cookie, a dead proxy — is ours, and reads as ours. */
+      .catch((e: Error) => setLoadError(e.message === "404" ? "missing" : "api"));
   }, [caseId]);
 
   // Fire the briefing once the station has painted, so its anchors exist to spotlight.
@@ -631,8 +668,7 @@ export function CaseSession() {
       score: {
         score100: result.score_100, verdict: result.verdict, safe: result.safe,
         missedCritical: result.missed_critical,
-        consult: result.consult_technique, consultMax: result.consult_technique_max,
-        judgement: result.judgement_safety, judgementMax: result.judgement_safety_max,
+        buckets: scoreBuckets(result),
       },
       summary: {
         highlights: coaching?.highlights ?? [], didWrong: coaching?.did_wrong ?? [],
@@ -691,7 +727,9 @@ export function CaseSession() {
   if (loadError) {
     return (
       <div className="aurora-station-error">
-        <p>{loadError}</p>
+        {loadError === "missing"
+          ? <p>Patient &quot;{caseId}&quot; not found.</p>
+          : <ApiErrorNotice cause="Couldn’t open this station" />}
         <button type="button" onClick={() => router.push("/cases")}>← Back to patients</button>
       </div>
     );
@@ -895,27 +933,10 @@ function StationResult({ result, coaching, topic, saved, onSave, onMore, onDash 
   const tone = VERDICT_TONE[result.verdict] ?? "ok";
   const missedOne = result.missed_critical[0];
 
-  // The grade is exactly two AI schemes, each /50 — the checklist is no longer scored.
-  // Branda (2026-07-29): students couldn't tell why each scheme scored what it did. The
+  // Branda (2026-07-29): students couldn't tell why each bucket scored what it did. The
   // sub-scores come from the backend (it owns the formula) and the per-domain feedback has
   // been on the wire all along — the UI simply never rendered it.
-  const comps: { label: string; pts: number; max: number; sub: string;
-                 breakdown?: SchemeBreakdown; notes: string[] }[] = [
-    {
-      label: "Consultation & Technique",
-      pts: result.consult_technique, max: result.consult_technique_max,
-      sub: "History-taking and how well you performed the examination(s)",
-      breakdown: result.breakdown?.consult,
-      notes: [result.history_feedback, result.investigations_feedback].filter(Boolean),
-    },
-    {
-      label: "Clinical Judgement & Safety",
-      pts: result.judgement_safety, max: result.judgement_safety_max,
-      sub: "Spotting the problem, triage, escalation & handover",
-      breakdown: result.breakdown?.judgement,
-      notes: [result.diagnosis_feedback, result.management_feedback].filter(Boolean),
-    },
-  ];
+  const comps = scoreBuckets(result);
   return (
     <div className="aurora-station-result" data-tone={tone}>
       <div className="aurora-s100-head">
@@ -947,17 +968,17 @@ function StationResult({ result, coaching, topic, saved, onSave, onMore, onDash 
             <div className="aurora-s100-comp-top"><span>{c.label}</span><b>{c.pts}<small>/{c.max}</small></b></div>
             <div className="aurora-s100-bar"><div style={{ width: `${c.max ? (c.pts / c.max) * 100 : 0}%` }} /></div>
             <span className="aurora-s100-comp-sub">{c.sub}</span>
-            {c.breakdown && c.breakdown.parts.length > 0 && (
+            {c.parts && c.parts.length > 0 && (
               <p className="aurora-s100-maths" data-testid="score-maths">
-                {c.breakdown.parts.map((part) => `${part.label} ${part.pts}/${part.max}`).join(" · ")}
+                {c.parts.map((part) => `${part.label} ${part.pts}/${part.max}`).join(" · ")}
                 {" → "}
-                <b>{c.breakdown.total}/{c.breakdown.max}</b>
+                <b>{c.pts}/{c.max}</b>
               </p>
             )}
-            {c.breakdown?.capped && c.breakdown.cap_reason && (
-              <p className="aurora-s100-cap" data-testid="score-cap">⚠ {c.breakdown.cap_reason}</p>
+            {c.capReason && (
+              <p className="aurora-s100-cap" data-testid="score-cap">⚠ {c.capReason}</p>
             )}
-            {c.notes.map((n, i) => <p key={i} className="aurora-s100-why">{n}</p>)}
+            {(c.notes ?? []).map((n, i) => <p key={i} className="aurora-s100-why">{n}</p>)}
           </div>
         ))}
       </div>

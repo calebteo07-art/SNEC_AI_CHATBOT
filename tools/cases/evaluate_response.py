@@ -63,6 +63,17 @@ def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
         f"escalation, a correct routine plan — \"routine, patient keeps their appointment time\", "
         f"with the findings recorded for the doctor — earns full marks for management; never mark "
         f"it down for the absence of an urgency this case never had.\n"
+        # The trainers who tested the app could not pass their own stations. With only a
+        # HIGH (8-10) and a LOW (1-4) anchor the 5-7 band was undefined and ordinary
+        # competent work drifted downward. The COMPETENT anchors above fill the hole; this
+        # says out loud what standard to hold. Pinned by tests/cases/test_rubric_calibration.py.
+        f"CALIBRATION — grade to a COMPETENT standard, not a perfect one. This is a formative "
+        f"training station and the student is still learning the role, so a safe, competent "
+        f"performance that covers what this case turns on is a 7; it does not have to be "
+        f"exhaustive or elegant to score well. Reserve 0-4 for work that was unsafe, outside "
+        f"their scope, or that missed what this case actually turned on. Where a performance "
+        f"sits between two bands, award the HIGHER band — give the student the benefit of the "
+        f"doubt.\n"
         f"Base scores ONLY on what appears in the student conversation above — do not infer actions not mentioned.\n"
         f"Return ONLY valid JSON:\n"
         f'{{"history": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
@@ -186,7 +197,9 @@ def evaluate_case(
 
 def _build_overall(domain_results: dict, total: int) -> str:
     """Compose a one-sentence overall summary from domain results."""
-    weak = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) < 6]
+    # < 5, not < 6: 5-7 is the COMPETENT band (rubric_prompts.py), so a 5 is a pass and
+    # must not be handed back to the student as a weakness to revise.
+    weak = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) < 5]
     strong = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) >= 8]
     grade = "Excellent" if total >= 36 else "Good" if total >= 28 else "Satisfactory" if total >= 20 else "Needs improvement"
     summary = f"{grade} overall ({total}/40)."

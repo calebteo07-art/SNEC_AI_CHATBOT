@@ -1041,6 +1041,20 @@ html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; 
   .aurora-sboard-tiers { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ─────────────────── API failure notice ───────────────────
+   ONE panel for every student-facing API failure (ApiErrorNotice.tsx). Opaque on
+   purpose: it renders on the light AURORA canvas, the dark Forge, the dark arcade and
+   the League's material ground, so it cannot inherit a background it can't see. */
+.aurora-api-error { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px; padding: 14px 16px; border-radius: var(--radius); background: #FFF1F3; border: 1px solid rgba(217, 101, 112, 0.34); color: var(--on-rose); font-size: 14.6px; line-height: 1.45; text-align: center; }
+/* Element+class on purpose (0,2,1): the notice renders inside feature blocks that style
+   their own `p` / `button` descendants at (0,2,0) and are declared LATER in this file, so a
+   tie would hand this component's colours to whichever screen it happens to be on. */
+.aurora-api-error p.aurora-api-error-msg { margin: 0; color: var(--on-rose); font-size: 14.6px; font-weight: 500; }
+.aurora-api-error button.aurora-api-error-btn { flex: none; padding: 9px 17px; border-radius: 999px; border: none; background: var(--on-rose-2); color: #FFF; font-family: inherit; font-size: 14.6px; font-weight: 700; line-height: 1.2; cursor: pointer; }
+.aurora-api-error button.aurora-api-error-btn:hover { background: var(--on-rose); }
+/* Centred in an otherwise empty feature (Home, the League, the topic picker). */
+.aurora-api-error--page { max-width: 520px; margin: clamp(24px, 8vh, 72px) auto; }
+
 /* ─────────────────── Shared headings ─────────────────── */
 .aurora-eyebrow { font-family: var(--font-mono); font-size: 12.3px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
 .aurora-h1 { font-size: clamp(1.904rem, 3.4vw, 2.688rem); font-weight: 500; letter-spacing: -0.03em; color: var(--ink); margin: 0; line-height: 1.05; }
@@ -1205,8 +1219,6 @@ html[data-motion="reduce"] .aurora-atlas-readout::before, html[data-motion="redu
 .aurora-case--skeleton::before { display: none; }
 
 .aurora-cases-empty { padding: 30px 0; text-align: center; }
-.aurora-cases-error { padding: 14px 16px; background: rgba(217, 101, 112, 0.08); border: 1px solid rgba(217, 101, 112, 0.3); border-radius: var(--radius); color: var(--on-rose); font-size: 14.6px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.aurora-cases-error button { color: var(--on-rose-2); font-weight: 700; background: none; border: none; cursor: pointer; }
 
 @media (max-width: 920px) {
   .aurora-cases-body { grid-template-columns: 1fr; }
@@ -2098,8 +2110,7 @@ html[data-motion="reduce"] .aurora-coach-bubble, html[data-motion="reduce"] .aur
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
 
 .aurora-checkin-loading { text-align: center; padding: 30px 0; color: var(--cf-dim); }
-.aurora-checkin-err { text-align: center; padding: 8px 0; }
-.aurora-checkin-err p { color: var(--cf-dim); margin-bottom: 16px; }
+.aurora-checkin-err { text-align: center; padding: 8px 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 
 .aurora-checkin-q-topic { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
   letter-spacing: 0.2em; text-transform: uppercase; background: var(--cf-fire); -webkit-background-clip: text; background-clip: text; color: transparent; }

@@ -22,8 +22,28 @@ def test_parts_explain_the_consult_total():
     assert [p["label"] for p in consult["parts"]] == ["History-taking", "Examination technique"]
     assert [p["pts"] for p in consult["parts"]] == [8, 7]
     assert consult["total"] == out["consult_technique"]
-    assert consult["max"] == 50
+    assert consult["max"] == 30
     assert consult["capped"] is False
+
+
+def test_parts_explain_the_checklist_total():
+    """The biggest bucket needs the plainest arithmetic: 1 of 2 steps → half of 40."""
+    out = compute_station_score(GOOD, STEPS, [2], has_manual=True)
+    checklist = out["breakdown"]["checklist"]
+    assert [p["label"] for p in checklist["parts"]] == ["Steps performed"]
+    assert checklist["parts"][0]["pts"] == 1
+    assert checklist["parts"][0]["max"] == 2
+    assert checklist["total"] == out["checklist_coverage"] == 20
+    assert checklist["max"] == 40
+    assert checklist["capped"] is False
+
+
+def test_a_case_with_no_checklist_explains_nothing_rather_than_zero_of_zero():
+    """Full bucket, but no "0/0" arithmetic to render."""
+    out = compute_station_score(GOOD, [], [], has_manual=True)
+    checklist = out["breakdown"]["checklist"]
+    assert checklist["parts"] == []
+    assert checklist["total"] == 40
 
 
 def test_conversation_only_cases_show_history_alone():
@@ -59,4 +79,5 @@ def test_breakdown_totals_always_match_the_headline_score():
         for has_manual in (True, False):
             out = compute_station_score(GOOD, STEPS, performed, has_manual=has_manual)
             b = out["breakdown"]
-            assert b["consult"]["total"] + b["judgement"]["total"] == out["score_100"]
+            assert (b["checklist"]["total"] + b["consult"]["total"]
+                    + b["judgement"]["total"]) == out["score_100"]

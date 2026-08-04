@@ -183,6 +183,7 @@ class SchemeBreakdown(BaseModel):
 
 
 class ScoreBreakdown(BaseModel):
+    checklist: SchemeBreakdown = SchemeBreakdown()
     consult: SchemeBreakdown = SchemeBreakdown()
     judgement: SchemeBreakdown = SchemeBreakdown()
 
@@ -200,16 +201,19 @@ class DomainScore(BaseModel):
     overall_feedback: str
     critical_hit: int = 0
     critical_total: int = 0
-    # Two-scheme /100 (the student-facing model). The checklist is NOT part of the grade.
+    # Three-bucket /100 (the student-facing model), 40/30/30 — the checklist is the
+    # largest single bucket.
     score_100: int = 0
     verdict: str = ""
-    consult_technique: int = 0        # Consultation & Technique (0-50)
-    consult_technique_max: int = 50
-    judgement_safety: int = 0         # Clinical Judgement & Safety (0-50), safety-gated
-    judgement_safety_max: int = 50
+    checklist_coverage: int = 0       # Checklist coverage (0-40), deterministic
+    checklist_coverage_max: int = 40
+    consult_technique: int = 0        # Consultation & Technique (0-30)
+    consult_technique_max: int = 30
+    judgement_safety: int = 0         # Clinical Judgement & Safety (0-30), safety-gated
+    judgement_safety_max: int = 30
     safe: bool = True
     missed_critical: list[str] = []
-    # Why each scheme scored what it did — sub-scores + the safety cap. Additive with a
+    # Why each bucket scored what it did — sub-scores + the safety cap. Additive with a
     # default, so an older frontend during a deploy window simply ignores it.
     breakdown: ScoreBreakdown = ScoreBreakdown()
 
@@ -1192,6 +1196,8 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         "total_score": score["total_score"],
         "score_100": score["score_100"],
         "verdict": score["verdict"],
+        "checklist_coverage": score["checklist_coverage"],
+        "checklist_coverage_max": score["checklist_coverage_max"],
         "consult_technique": score["consult_technique"],
         "consult_technique_max": score["consult_technique_max"],
         "judgement_safety": score["judgement_safety"],

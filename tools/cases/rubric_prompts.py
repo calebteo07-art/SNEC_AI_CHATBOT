@@ -11,11 +11,18 @@ down for skipping a family history on a routine IOP check, and — the one that 
 us — for correctly not escalating a follow-up patient who simply keeps their
 appointment (Branda, 2026-08-03). Every anchor therefore says out loud that it is
 scored against THIS case. Pinned by tests/cases/test_rubric_applicability.py.
+
+The bands are HIGH / COMPETENT / LOW because two bands were not enough. With only
+HIGH (8-10, written as an exhaustive performance) and LOW (1-4), the whole 5-7 range was
+undefined and an ordinary competent run — the thing a real station actually produces —
+had nowhere to land, so the model drifted toward the low anchor. Trainers testing the app
+could not pass their own stations. The COMPETENT anchor is deliberately written as a
+PASS, not as a shortfall. Pinned by tests/cases/test_rubric_calibration.py.
 """
 
-# Each domain has two anchors: a high-performing and a low-performing example.
-# Two-shot keeps this small (~250 tokens/domain) yet strongly anchors the
-# distribution. becky §3 caches the block, so length costs prefill once, not per call.
+# Each domain has three anchors: high-performing, competent (the pass standard), and
+# low-performing. Three-shot keeps this small (~350 tokens/domain) yet strongly anchors
+# the distribution. becky §3 caches the block, so length costs prefill once, not per call.
 
 DOMAIN_FEW_SHOTS: dict[str, str] = {
 
@@ -32,6 +39,13 @@ HIGH SCORE (8-10) — Covered what this case turns on, systematically:
   for a routine follow-up it may be no more than symptoms since the last visit, drop
   compliance and any change in vision.
   → Score 9. Minor gap: one key_point for this case left unasked.
+
+COMPETENT PASS (5-7) — Got what this case turns on, without being exhaustive:
+  Student asked the questions this encounter actually depends on and built a usable
+  picture, but did not chase every avenue — a couple of this case's key_points went
+  unexplored, or the questioning wandered rather than following a clear order. Nothing
+  the presentation depended on was missed. This is a safe, competent history and a pass.
+  → Score 7. Sufficient and sound; depth and structure are what separate it from a 9.
 
 LOW SCORE (1-4) — Superficial, or missed what this case turned on:
   Student asked only "Can you describe your vision problem?" then jumped to ordering
@@ -52,6 +66,13 @@ HIGH SCORE (8-10) — Complete for this encounter, correctly performed and recor
   (fundus photos, OCT, visual fields, biometry) — with correct technique, quality checks
   and clear documentation.
   → Score 10. Comprehensive for this case, accurate, well-documented.
+
+COMPETENT PASS (5-7) — Did the tests this case needed, adequately:
+  Student performed and recorded the measurements this case turns on with sound
+  technique, but the documentation was thin, a quality/repeatability check went
+  unstated, or one secondary test the case lists was not reached. The record the
+  doctor receives is usable and nothing unsafe was done.
+  → Score 7. Competent and safe; polish and completeness separate it from a 9-10.
 
 LOW SCORE (1-4) — Skipped or poorly performed the tests this case needed:
   Student measured only IOP when this case also turned on visual acuity, or recorded
@@ -75,6 +96,12 @@ HIGH SCORE (8-10) — Recognised the pattern and triaged correctly:
   diagnosis. Concluding that there are no red flags, when there are none, is
   correct recognition and scores here.
   → Score 10. Accurate recognition and triage, stayed within role.
+
+COMPETENT PASS (5-7) — Read the picture correctly and triaged safely:
+  Student recognised the pattern this case presents and judged the urgency correctly —
+  or correctly concluded there were no red flags — but described it loosely and did not
+  spell out what pointed them there. Safe recognition, thinly reasoned, within role.
+  → Score 7. Competent triage; explicit reasoning is what separates it from a 9-10.
 
 LOW SCORE (1-4) — Missed red flags, mis-triaged, or over-reached:
   Student failed to spot red flags (treated a painful red eye with vision loss
@@ -104,6 +131,13 @@ HIGH SCORE (8-10) — Routed the patient correctly for this encounter, and docum
   → Score 10 as well. Correctly declining to escalate is the right plan here; a routine
   handover is a complete answer, and must not be marked down for the absence of an
   urgency this case never had.
+
+COMPETENT PASS (5-7) — Routed the patient correctly, documented adequately:
+  Student reached the right destination for this encounter — escalated what genuinely
+  needed escalating, or correctly left a routine patient on their routine pathway — and
+  left a handover the next clinician can act on, but the documentation was sparse or the
+  within-scope advice and safety-netting were brief. Stayed within role throughout.
+  → Score 7. Competent and safe routing; a fuller handover separates it from a 9-10.
 
 LOW SCORE (1-4) — Mis-routed, undocumented, or out of role:
   Student missed an escalation this case needed (a red flag routed as routine), or
