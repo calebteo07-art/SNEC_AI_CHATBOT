@@ -64,12 +64,28 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
        its two flanks pay for themselves by housing the two facts that had nowhere better to
        be: what standing here MEANS, and how long is left to do it. */
     <section className="pod-deck" data-testid="podium" aria-label="The top three this week">
+      {/* TWO LINES, NOT ONE (2026-08-04, "top 3 promote to gold is cut off"). This was a
+          nowrap pill in a track that is only as wide as the deck minus the stage — 134px at
+          1440 and 154px at 1366 against a 188px pill, so on EVERY window under 1500px it
+          overflowed its own cell, hid ~22-32px of itself under the second plinth and poked
+          ~13-23px out through the deck's left border. A centred nowrap pill in a `1fr` track
+          cannot be fixed by moving it: it has to stop being one line.
+          Both spans keep the text they always had — the gate reads textContent — and the
+          space that separates them lives INSIDE the second span, so it renders between them
+          on the phone's inline caption row and collapses at the head of its own line once
+          each span becomes a flex item on the deck. A whitespace text node between them
+          would have grown an anonymous third line box instead. */}
       {promoteCount > 0 && (
         <p className="pod-banner" data-testid="podium-promo">
-          <span className="pod-banner-ico" aria-hidden>▲</span>
-          {promoteTo
-            ? <>Top {promoteCount} <b>promote to {promoteTo}</b></>
-            : <>Top {promoteCount} <b>promote</b></>}
+          <span className="pod-banner-do">
+            <span className="pod-banner-ico" aria-hidden>▲</span>Top {promoteCount} promote
+          </span>
+          {promoteTo && <span className="pod-banner-to"> to {promoteTo}</span>}
+          {/* The half of the mechanic nothing outside the (?) sheet stated: this ladder only
+              goes UP. A weekly cut with no stated floor reads as a relegation risk, which is
+              the opposite of what it is — and on the deck it also gives the flank the third
+              line that lets it stand next to a 700px stage instead of hovering beside it. */}
+          <span className="pod-banner-sub">Nobody drops</span>
         </p>
       )}
 
@@ -141,8 +157,12 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
           rather than the location. */}
       {clock && (
         <span className="pod-clock" data-testid="lb-reset">
-          <span className="tb-dot" aria-hidden />
-          Closes in {clock}
+          <span className="pod-clock-l"><span className="tb-dot" aria-hidden />Closes in</span>
+          <span className="pod-clock-v"> {clock}</span>
+          {/* SGT, stated. The countdown is computed against Singapore's Monday boundary and
+              not the viewer's, which is up to 15 hours of difference — a reader in another
+              timezone has no way to know that from a bare "5d 1h". */}
+          <span className="pod-clock-sub">Monday, SGT</span>
         </span>
       )}
     </section>

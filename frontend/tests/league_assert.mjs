@@ -202,6 +202,10 @@ const measure = (p) => p.evaluate(() => {
   const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".pod-clock",
     ".tb-hook", ".pod-banner", ".lb-count", ".lg-role", ".lg-streak",
     ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk",
+    // The three words 2026-08-05 added, joining at the same time they ship. The first two are
+    // the SMALLEST type on the page and both sit on saturated fills; the counter sits on its
+    // own wash rather than on the strip, which is exactly where a 4.3:1 label hides.
+    ".pod-banner-sub", ".pod-clock-sub", ".lb-chip-n",
     // The stage carries text on saturated metal, which is exactly where "gold is a fill,
     // never a glyph" gets broken — so the podium's own type is probed too.
     ".pod-nm", ".pod-score", ".pod-num"]
@@ -473,6 +477,51 @@ const measure = (p) => p.evaluate(() => {
         text: (document.querySelector('[data-testid="podium-promo"]')?.textContent || "").replace(/\s+/g, " ").trim(),
       };
     })(),
+    /* THE FLANKS MAY NOT TOUCH THE STAGE (2026-08-04, "top 3 promote to gold is cut off").
+       The deck's two facts sit in `1fr` tracks either side of a fixed-width stage, and a
+       nowrap pill sizes ITSELF: at 1440 the track was 134px against a 188px pill, so ~32px of
+       "…to Gold" rendered UNDER the second plinth and ~23px poked out through the deck's own
+       border. Nothing on this page could see it — the overflow sweep tests the VIEWPORT's
+       edges, and a pill hidden behind an opaque plinth is inside them. Measured as real
+       overlap against the stage and against the deck's padding box, on every viewport. */
+    flanks: (() => {
+      const deck = document.querySelector(".pod-deck");
+      const pod = document.querySelector(".pod");
+      if (!deck || !pod) return null;
+      const d = deck.getBoundingClientRect(), s = pod.getBoundingClientRect();
+      const cs = getComputedStyle(deck);
+      const padL = d.left + parseFloat(cs.paddingLeft || "0") + parseFloat(cs.borderLeftWidth || "0");
+      const padR = d.right - parseFloat(cs.paddingRight || "0") - parseFloat(cs.borderRightWidth || "0");
+      const out = [];
+      for (const sel of [".pod-banner", ".pod-clock"]) {
+        const el = document.querySelector(sel);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        // Only the flanks that sit BESIDE the stage can collide with it; on the phone tier
+        // they are stacked underneath it, which is a different (and legal) geometry.
+        const beside = r.top < s.bottom - 1 && r.bottom > s.top + 1;
+        out.push({
+          sel,
+          onStage: beside ? +Math.max(0, Math.min(r.right, s.right) - Math.max(r.left, s.left)).toFixed(1) : 0,
+          escapes: +Math.max(0, padL - r.left, r.right - padR).toFixed(1),
+        });
+      }
+      return out;
+    })(),
+    /* The lens strip's dead middle, the same budget the rung carries. It measured 843px of
+       1148 empty at the top tier — the emptiest object on the page and the one nothing was
+       looking at, because every check here was aimed at the rung. */
+    lensFill: (() => {
+      const strip = document.querySelector(".lb-filter");
+      const chips = document.querySelector(".lb-chips");
+      const count = document.querySelector(".lb-count");
+      if (!strip || !chips || !count) return null;
+      const s = strip.getBoundingClientRect();
+      return {
+        w: +s.width.toFixed(1),
+        gap: +Math.max(0, count.getBoundingClientRect().left - chips.getBoundingClientRect().right).toFixed(1),
+      };
+    })(),
     /* THE MODULE, as rendered AREA rather than as "the element exists". The chip it replaced
        was 44x22 in a band over 1000px wide, which is the size you give an accounting detail
        — and "make the lumens multiplier more obvious" was the report. */
@@ -526,8 +575,19 @@ const LAPTOP = { tag: "laptop", width: 1366, height: 768, touch: false };
    other form: precise measurement on the wrong DEVICE. */
 const WIDE = { tag: "wide", width: 1920, height: 1080, touch: false };
 
+/* THE REPORTED WINDOW, and the third time this file has had to learn the same lesson: a bound
+   that cannot fail on the device the complaint came from is not a bound. "Top 3 promote to
+   Gold is cut off" was photographed at ~1489x838 — a 1080p laptop at 125-133% Windows scaling,
+   which is the single most common desktop viewport there is. It is WIDE but SHORT, and every
+   desktop entry above is either narrower (1366) or taller (1440x900, 1920x1080), so it fell
+   into a breakpoint cell nothing swept: the ≥860px height step missed it, the old ≥1500px
+   width step missed it, and it landed on the smallest board the desktop range can produce —
+   860px on its own 1489px field, 57.8%, straight through the ribbon floor above. Both of the
+   two defects the user reported lived in that cell. */
+const SHORT_WIDE = { tag: "short-wide", width: 1489, height: 838, touch: false };
+
 /* ── 1) geometry + structure, across the whole device matrix ─────────────────────────── */
-for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
+for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, WIDE]) {
   const ctx = await boardCtx(b, vp);
   const p = await openBoard(ctx);
   const m = await measure(p);
@@ -680,6 +740,31 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, WIDE]) {
       bad(`${at}: ${m.rowFill.gap}px of a ${m.rowFill.w}px rung is empty between the name and the score (${(share * 100).toFixed(0)}%, budget 34%) — that dead middle is the white space, and it is inside the board`);
     } else ok(`${at}: a rung's dead middle is ${m.rowFill.gap}px of ${m.rowFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
   }
+  /* THE FLANKS MAY NOT TOUCH THE STAGE. See the note on `flanks` in measure(): this is the
+     bug the user photographed, and it was invisible to every check on the page because the
+     overflow sweep looks at the VIEWPORT's edges and a pill hidden under an opaque plinth is
+     inside them. 0px of overlap, no tolerance — a flank that reaches the stage at all has
+     already lost characters off the end of a sentence. */
+  if (m.flanks === null) bad(`${at}: could not measure the deck's flanks`);
+  else {
+    const hit = m.flanks.filter((f) => f.onStage > 0 || f.escapes > 0.5);
+    if (hit.length) {
+      for (const f of hit) {
+        bad(`${at}: ${f.sel} overlaps the stage by ${f.onStage}px and escapes the deck by ${f.escapes}px — its text is being drawn under a plinth`);
+      }
+    } else ok(`${at}: both deck flanks clear the stage and stay inside the deck`);
+  }
+
+  /* THE LENS STRIP IS NOT AN EMPTY BAR — the rung's dead-middle budget, applied to the object
+     that was worse than the rung and that nothing was measuring: 843px of an 1148px strip. */
+  if (!m.lensFill) ok(`${at}: no role lens on this board (single-role cohort)`);
+  else {
+    const share = m.lensFill.gap / m.lensFill.w;
+    if (share > 0.34) {
+      bad(`${at}: ${m.lensFill.gap}px of the ${m.lensFill.w}px lens strip is empty between the chips and the readout (${(share * 100).toFixed(0)}%, budget 34%)`);
+    } else ok(`${at}: the lens strip's dead middle is ${m.lensFill.gap}px of ${m.lensFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
+  }
+
   if (m.mainW !== null && m.root && m.mainW >= 1360 && m.mainW <= 2000) {
     const share = m.root.w / m.mainW;
     if (share < 0.58) {

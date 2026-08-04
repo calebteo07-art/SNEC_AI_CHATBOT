@@ -34,6 +34,7 @@
    still load-bearing: the server closes the week on the Singapore Monday boundary
    (tools/shared/clock.py), so a viewer-local countdown is up to 15 hours wrong, which on a
    Sunday night is the difference between "still time" and "already over". */
+import type { CSSProperties } from "react";
 import { nextRungPayoff, DIVISION_NAMES, TOP_DIVISION } from "@/aurora/leaderboard/league";
 import type { Chase } from "@/aurora/leaderboard/league";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -83,7 +84,14 @@ export function TierBand({
             ⚠ The metal stays on .tb-pip itself, never on the label: league_assert samples the
             five rungs as PAINT, and a fill moved onto a child would pass the "five distinct
             metals" check on five grey pips. */}
-        <ol className="tb-pips" aria-label="League divisions">
+        {/* --road is how far along the route you are, as a fraction of the whole ladder. It
+            drives the rail's filled length at the widest tier, where the road spreads across
+            the band; every narrower tier ignores it. Derived from `division` rather than from
+            the pips' own states so the two can never disagree. */}
+        <ol
+          className="tb-pips" aria-label="League divisions"
+          style={{ "--road": `${(idx / Math.max(1, TOP_DIVISION - 1)) * 100}%` } as CSSProperties}
+        >
           {DIVISION_NAMES.map((name, i) => {
             const level = i + 1;
             const state = level === division ? "now" : level < division ? "past" : "next";

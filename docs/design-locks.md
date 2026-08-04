@@ -1716,6 +1716,86 @@ gauges' role hues) and a new underfilled-stage scenario.
 Spec `docs/superpowers/specs/2026-08-04-league-arcade-pass-design.md`, plan
 `docs/superpowers/plans/2026-08-04-league-arcade-pass.md`.
 
+#### THE DEAD MIDDLES 2026-08-04 — the same report again, and the cell nobody swept
+
+User, on the ARCADE build: *"you only changed the colors and look, but cards and elements are
+still crammed and not displayed clearly and maximising the huge laptop space screen, positioning
+is lacking. and eg: top 3 promote to gold is cut off and not displayed clearly"*
+
+**They were looking at a viewport this file had no entry for.** Measured from the screenshot and
+reproduced: **~1489×838** — a 1080p laptop at 125–133% Windows scaling, the most common desktop
+viewport there is. It is **wide but SHORT**, so it fell below the `min-height: 860px` step *and*
+below the old `min-width: 1500px` step, landing on the **smallest board the desktop range can
+produce**: 860px on its own 1489px field, **57.8%**, straight through this lock's own 58% ribbon
+floor. Both reported defects lived in that one breakpoint cell. Third time: **a bound that cannot
+fail on the reported device is not a bound.**
+
+**1. THE FLANKS MAY NOT TOUCH THE STAGE.** `.pod-banner` was a `white-space: nowrap` pill in a
+`1fr` track beside a fixed-width stage, and a nowrap pill sizes **itself**: 188.5px of pill in a
+**134px** track at 1440 and **154px** at 1366, so ~22–32px of "…to Gold" drew **under the second
+plinth** and ~13–23px poked out through the deck's own border. It happened on **every window
+under 1500px**. Both flanks are now **two-line modules** (label over value, plus a third line
+each — "Nobody drops", "Monday, SGT") which **cannot overflow by construction**, and they moved
+to `align-self: center`, which is also what lets them stand next to a 700px stage instead of
+hovering beside it.
+- ⚠ **The viewport-overflow sweep could never have caught this.** It tests the *viewport's*
+  edges, and a pill hidden behind an opaque plinth is inside them. The new bound measures real
+  overlap against `.pod` and escape from the deck's padding box, at **0px tolerance**.
+- ⚠ **The two sub-lines are DESKTOP lines.** On the phone caption row the flanks share ~350px.
+
+**2. THE ELASTIC TRACK WAS THE WRONG ONE, in three places.** This is the whole "crammed at the
+edges with nothing in between" report, and it is one mistake repeated:
+
+| object | elastic track was | measured void | now |
+|---|---|---|---|
+| `.lg-row` | the name block (`1.4fr`) | 250–400px inside **every** rung | name capped at **232px**, the **gauge** takes `1fr` |
+| `.lb-filter` | neither — both ends pinned | **527px** at 860, **843px** at 1180 | chips grow under a per-tier cap; each states its **own count** |
+| `.tb-readout` | the chase, left-aligned in it | ~680px at the top tier | a struck **leader groove** ties the chase to the hook |
+| `.tb-pips` (≥1400) | the pips, `justify-content: center` | ~280px of band either side | the road **spreads** across its track on a filled **rail** |
+
+- ⚠ **`minmax(a, Npx)`, never `max-content`, on the name track.** Every rung is its own grid, so
+  a content-sized name column is a **different width per row** and 27 gauges stop sharing a left
+  edge. A fixed cap is identical on every row by construction.
+- ⚠ **The gauge's MINIMUM stays 70px.** The landscape phone shares that rule and its ~450px
+  column overflows the row by 2px at 90 — clipped, not visible, so nobody finds it later.
+- ⚠ **The cap that was protecting against "spreadsheet rows" was protecting the wrong thing.**
+  Its reasoning ("a rung wide enough to strand its name at x=200 and its score at x=850") was
+  true *only while the name was elastic*. With the gauge elastic, width buys a longer **reading**
+  — so the desktop caps rose: **860→980**, **920→1060**, the wide tier re-keyed **1500→1400**
+  (1180), and a new **≥1700 tier at 1320**.
+
+**3. TWO FACTS THAT HAD NO HOME, given the space that was empty.** Filter chips carry their own
+counts (`All 20 · OA 7 · OT 7 · PSA 6`) — captured from the **unfiltered** payload and remembered,
+because `role` narrows `entries` server-side. The strip's other end now says **what the ranking is
+of**, which nothing outside the (?) sheet ever said. ⚠ **Two wordings, one per tier**: at 390px
+the chips cannot afford counts, so that end keeps the pool size; both spans always render, because
+an element that only exists at some widths only gets *checked* at some widths.
+
+**4. `.tb-league` was still ellipsing, at 430×932 and in landscape.** The earlier fix keyed it at
+`max-width: 420px` and measured 102px of box against 116px of text one breakpoint up. Now `≤520px`
+**or** the landscape-phone tier — that tier is short, not narrow, so its width tells you nothing
+about the head's actual space.
+
+**Measured after**: flank↔stage overlap **0.0px on every viewport** (was 22–32px *under a
+plinth*) · lens dead middle **843px → 10px (1%)** on desktop, ≤28% on phones · board share
+**72 · 82 · 79 · 69 %** at 1366 / 1440 / **1489** / 1920 (was 63 · 64 · **57.8** · 61.5) · ranks
+**9 · 8 · 9 · 10 · 8 · 9 · 9 · 12**, every tier still clearing its floor.
+
+**Gate**: `league_assert.mjs` — **347 assertions**, plus a **`short-wide` 1489×838** viewport and
+two new bounds (**no flank may touch the stage**, 0px tolerance; the **lens strip's dead middle**
+on the rung's own 34% budget). Both were **mutation-verified**: reintroducing the nowrap pill on
+the old 920px board fires the flank bound at **30.8–40.8px**, and reverting the chips fires the
+lens bound at **48–51%**, against **0.0px / 1%** on the shipped build.
+
+**⚠ The contrast sweep caught one of this pass's own additions the moment it joined.** The chip
+counter declared an **alpha** background, and a probe walks up to the first element that DECLARES
+a colour — so on the selected chip it read past the 92%-white pill to `--mat-ink` and reported a
+genuinely-13:1 label as **1.00:1**. The pixels were fine; the *declaration* was not, and the same
+arithmetic in reverse is exactly how an unreadable label ships. **Both surfaces are opaque solids
+now** (the composites the alphas produced, frozen), which is this file's existing rule — the same
+one `.pod-clock` already carries. `.pod-banner-sub` went **3.8:1 → 6.7:1** for the same reason.
+The sweep now covers **20 text styles**, up from 17.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.

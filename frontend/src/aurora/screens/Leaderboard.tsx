@@ -159,6 +159,25 @@ export function Leaderboard() {
 
   const next = nextDivisionName(division);
 
+  /* HOW MANY OF EACH ROLE (2026-08-04). The lens strip was a full-width bar holding three
+     control-sized chips at one end and a 12px count at the other — 527px of empty strip at a
+     860px board, 843px at 1180. Chips that state their own size fill it with the answer to
+     the question the strip already invites: not just "who am I racing" but "how many of them".
+     ⚠ CAPTURED WHILE THE LENS IS OFF. `role` narrows `entries` server-side, so a filtered
+     payload can only count its own role — the numbers have to come from the unfiltered read
+     and be remembered. `role` is null on first load, so they are always populated before any
+     chip can be pressed; a role restored from a future URL would simply show bare chips.
+     The count is exact: the payload carries the whole division, never a page of it. */
+  const counted = useMemo(() => {
+    if (role !== null) return null;
+    const n: Record<string, number> = {};
+    for (const e of entries) if (e.role) n[e.role] = (n[e.role] ?? 0) + 1;
+    return n;
+  }, [role, entries]);
+  const lastCounts = useRef<Record<string, number>>({});
+  useEffect(() => { if (counted) lastCounts.current = counted; }, [counted]);
+  const roleCounts = counted ?? lastCounts.current;
+
   /* The week clock. It used to live inside TierBand; it moved here on 2026-08-04 when the
      deck's right flank became its home, and the state came with it rather than being read
      twice. Starts null and fills in on the client — rendering a countdown during SSR would
@@ -206,19 +225,38 @@ export function Leaderboard() {
       {roles.length > 1 && (
         <div className="lb-filter">
           <div className="lb-chips" role="tablist" aria-label="Filter by role">
+            {/* ⚠ An explicit label on each chip. The count is a sibling text node with no
+                space before it, so the computed accessible name would be "OT7" — one token, and
+                a screen reader is entitled to say it as one. */}
             <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
-                    data-on={role === null} onClick={() => setRole(null)}>All</button>
+                    aria-label={`All roles, ${data?.pool_size || entries.length} students`}
+                    data-on={role === null} onClick={() => setRole(null)}>
+              All<span className="lb-chip-n">{data?.pool_size || entries.length}</span>
+            </button>
             {roles.map((r) => (
               <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
-                      data-role={r} data-on={role === r} onClick={() => setRole(r)}>{r}</button>
+                      aria-label={roleCounts[r] !== undefined ? `${r}, ${roleCounts[r]} students` : r}
+                      data-role={r} data-on={role === r} onClick={() => setRole(r)}>
+                {r}{roleCounts[r] !== undefined && <span className="lb-chip-n">{roleCounts[r]}</span>}
+              </button>
             ))}
           </div>
-          {/* "Who am I actually racing" is the first question a ladder invites, and until now
-              it was only answerable by counting rows. pool_size is the REAL division and
-              ignores the role filter, like promote_count — so it stays put when the lens
-              changes, which is the truth. */}
+          {/* "Who am I actually racing" moved ONTO the chips as counts (2026-08-04), which is
+              where it belongs — the number now sits on the control that selects that group.
+              This end of the strip takes the fact that had no home at all: what the ranking is
+              OF. Nothing outside the (?) sheet said it, and a ladder whose sort order you have
+              to guess is a ladder you cannot play deliberately. */}
+          {/* ⚠ TWO WORDINGS, one per tier, because each tier can only afford one of the two
+              facts. On a 390px strip the chips have no room for their counts, so this end
+              carries the pool size (its original job); on desktop the chips state their own
+              counts and this end is free to say what the ranking is OF. Both spans always
+              render — the contrast probe resolves `.lb-count` itself, and an element that
+              only exists at some widths is an element that only gets checked at some widths. */}
           {(data?.pool_size ?? 0) > 0 && (
-            <span className="lb-count" data-testid="lb-pool">{data?.pool_size} in your division</span>
+            <span className="lb-count" data-testid="lb-pool">
+              <span className="lb-count-sm">{data?.pool_size} in your division</span>
+              <span className="lb-count-lg">Ranked by Lumens earned this week</span>
+            </span>
           )}
         </div>
       )}
