@@ -35,13 +35,19 @@ export const PLACE_METALS: Record<number, Metal> = { 1: "gold", 2: "silver", 3: 
  *
  *  Five materials, five hues, checked as hues rather than luminances: warm brown → cool grey →
  *  deep gold → indigo-violet → cyan. Silver and platinum remain the pair most at risk of
- *  collapsing, so platinum is pushed hard into violet rather than merely "cooler". */
+ *  collapsing, so platinum is pushed hard into violet rather than merely "cooler".
+ *
+ *  ⚠ RE-CUT 2026-08-05 to the RARITY LADDER in leaderboard.css. The crest is the one place the
+ *  division's colour is authored in TSX rather than in CSS, so it is the one that silently
+ *  falls out of step: a grey shield on an azure Silver band is the same contradiction this
+ *  file's header opens with, arriving from the other direction. Each MID is the band's own
+ *  --f-lo, exactly — if those five change, these five change with them. */
 const STOPS: Record<Metal, readonly [string, string, string]> = {
-  bronze: ["#F0C398", "#B4652C", "#5E3011"],
-  silver: ["#E3EAF3", "#8C9BAD", "#465061"],
-  gold: ["#FFDF8F", "#DFA326", "#7A5206"],
-  platinum: ["#D3D8F7", "#7C86C9", "#3E4478"],
-  diamond: ["#B4F0FB", "#2FB3D4", "#12586F"],
+  bronze: ["#FFC79A", "#FF6320", "#8A2A05"],
+  silver: ["#B7E9FF", "#22B8F0", "#0A4E7A"],
+  gold: ["#FFE894", "#FFB800", "#7A5206"],
+  platinum: ["#E0CBFF", "#B478FA", "#46177F"],
+  diamond: ["#B9FBF2", "#2DE1D0", "#0A5F5B"],
 };
 
 /** A shield crest. `dim` fades a division you haven't reached.

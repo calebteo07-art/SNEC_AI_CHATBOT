@@ -721,6 +721,32 @@ const measure = (p) => p.evaluate(() => {
         hues: new Set(bars.map((el) => getComputedStyle(el, "::before").backgroundColor)).size,
       };
     })(),
+    /* THE REST OF THE MOST-REPEATED OBJECTS (2026-08-05). The gauge was coloured and the four
+       objects beside it on the same rung were not, so the ladder still resolved to grey at a
+       glance. Two claims, and both are about PAINT because a token that is set but overridden
+       reads exactly like a token that was never set:
+       · the rank token carries the division's own tint — a chroma floor, not a specific hue,
+         so re-tuning the palette does not have to re-tune the gate;
+       · the avatar medallion's lip is per-ROLE, counted the same way the gauge is. */
+    rungPaint: (() => {
+      const chroma = (s) => {
+        const m = (s ?? "").match(/[\d.]+/g)?.map(Number);
+        if (!m || m.length < 3) return null;
+        return Math.max(m[0], m[1], m[2]) - Math.min(m[0], m[1], m[2]);
+      };
+      const rk = document.querySelector(".lg-item:not([data-promo]) .lg-rk");
+      const faces = [...document.querySelectorAll(".lg-item .lg-face")];
+      return {
+        rkChroma: rk ? chroma(getComputedStyle(rk).backgroundColor) : null,
+        faces: faces.length,
+        faceLips: new Set(faces.map((el) => {
+          // The lip is the FIRST zero-blur offset layer in the shadow list; its colour is what
+          // a reader actually sees under the ring.
+          const m = getComputedStyle(el).boxShadow.match(/rgba?\([^)]*\)\s+0px\s+3px\s+0px\s+0px/);
+          return m ? m[0] : "none";
+        })).size,
+      };
+    })(),
     /* The visible multiplier only. `.tb-sr` spans carry the screen-reader sentence around it
        ("This division earns ... Lumens on everything you do"), and textContent would return
        all of it — so the chip's own visible text is read by subtracting them. */
@@ -1179,6 +1205,22 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     } else ok(`${at}: the gauges paint ${m.gaugeHues.hues} role colours across ${m.gaugeHues.bars} rungs`);
   }
 
+  /* The four objects beside the gauge on the same rung. The chroma floor is 32/255, and the
+     number is chosen so the bound can FAIL on the build it describes: the grey it replaced
+     (#DCE3EE) carries 18, and the five division tints carry 43–84 (platinum is the tightest,
+     gold the widest). A floor of 12 would have passed the old plate — precise measurement of
+     the wrong quantity, which is the mistake this file has now recorded three times. */
+  if (m.rungPaint) {
+    if (m.rungPaint.rkChroma === null) bad(`${at}: could not sample the rank token's fill — this check is testing nothing`);
+    else if (m.rungPaint.rkChroma < 32) {
+      bad(`${at}: the rank token's fill has ${m.rungPaint.rkChroma} of chroma — 27 grey plates is the ladder disagreeing with a page that is meant to be loud`);
+    } else ok(`${at}: the rank token carries the division's tint (chroma ${m.rungPaint.rkChroma})`);
+
+    if (m.rungPaint.faces >= 3 && m.rungPaint.faceLips < 2) {
+      bad(`${at}: ${m.rungPaint.faces} avatar medallions paint ${m.rungPaint.faceLips} lip colour — the ring is the object the eye rests on and it is back to grey`);
+    } else ok(`${at}: the medallion lips paint ${m.rungPaint.faceLips} role colours across ${m.rungPaint.faces} rungs`);
+  }
+
   /* ── the tier band ──────────────────────────────────────────────────────────────────
      The head of the board is made of the division's metal, so climbing re-skins the page. */
   if (m.bandMetal !== "silver") bad(`${at}: the tier band reads metal "${m.bandMetal}", expected "silver" for division 2`);
@@ -1452,6 +1494,59 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   if (promoRows !== 1) bad(`the underfilled board marked ${promoRows} promoted rows, expected 1`);
   else ok("the underfilled board marks its one promoted row");
   await ctx.close();
+}
+
+/* ── 5c) EVERY DIVISION'S BAND, not just the one the fixture mounts ────────────────────
+   ⚠ This file pins `division: 2`, so for its whole life the contrast sweep has probed the
+   SILVER band and nothing else — four of the five metals were paint that no check had ever
+   read. It shipped a real defect: `.tb-league` at #2E3440 on the old bronze band (#CE8746)
+   measured 4.27:1, under the same 4.5 floor enforced everywhere else on the page, under a
+   comment added specifically to fix that label's contrast.
+
+   A gate pinned to one fixture only tests that fixture. The band, the trophy road, the plinths
+   and the canvas wash are all per-division; this mounts all five and re-runs the two claims
+   that are actually per-metal — the head's ink is readable, and the band is still material
+   rather than white. Cheap, because it needs no geometry and no viewport matrix. */
+{
+  const METALS = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
+  for (let d = 1; d <= 5; d++) {
+    const ctx = await boardCtx(b, DESKTOP, {
+      board: { ...BOARD, division: d, division_name: METALS[d - 1], division_multiplier: LADDER[d - 1] },
+    });
+    const p = await openBoard(ctx);
+    const seen = await p.evaluate(() => {
+      const backdropOf = (el) => {
+        for (let n = el; n; n = n.parentElement) {
+          const c = getComputedStyle(n).backgroundColor;
+          const m = c.match(/[\d.]+/g)?.map(Number);
+          if (m && (m[3] === undefined || m[3] > 0.92)) return c;
+        }
+        return null;
+      };
+      // The head's own type, plus the numerals that land ON a plinth's metal.
+      return [".tb-name", ".tb-league", ".pod-num"].map((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return { sel, color: null, on: null };
+        return { sel, color: getComputedStyle(el).color, on: backdropOf(el) };
+      }).concat([{ sel: "__band", color: null, on: getComputedStyle(document.querySelector(".tb")).backgroundColor }]);
+    });
+    const band = rgb(seen.find((t) => t.sel === "__band").on);
+    if (!band || band[3] === 0) bad(`${METALS[d - 1]}: the tier band has no resolvable colour`);
+    else if (lum(band) > 0.86) bad(`${METALS[d - 1]}: the band's luminance is ${lum(band).toFixed(3)} — that is white, not a division`);
+    else ok(`${METALS[d - 1]}: the band is cast in its division (luminance ${lum(band).toFixed(3)})`);
+
+    const probes = seen.filter((t) => t.sel !== "__band");
+    const blind = probes.filter((t) => !t.color || !t.on).map((t) => t.sel);
+    if (blind.length) bad(`${METALS[d - 1]}: could not resolve ${blind.join(", ")} — this check is testing nothing`);
+    else {
+      const dim = probes.map((t) => ({ ...t, r: contrast(rgb(t.color), rgb(t.on)) })).filter((t) => t.r < 4.5);
+      if (dim.length) {
+        bad(`${METALS[d - 1]}: ${dim.length} style(s) below 4.5:1 on this division's own metal: ` +
+          dim.map((t) => `${t.sel} ${t.color} on ${t.on} ${t.r.toFixed(2)}:1`).join(" · "));
+      } else ok(`${METALS[d - 1]}: the head and the plinth numeral clear 4.5:1 on this division's metal`);
+    }
+    await ctx.close();
+  }
 }
 
 /* ── 6) the promotion zone is NOT drawn on a role-filtered view ──────────────────────── */
