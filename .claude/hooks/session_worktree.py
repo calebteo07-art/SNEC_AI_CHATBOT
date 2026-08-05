@@ -45,7 +45,9 @@ Ship a completed task straight to `main` (gates green first — `main` auto-depl
   git rebase origin/main    # if this pulls anything in, RE-RUN the gates
   git push origin HEAD:main # fast-forward; carries only your commits
 Re-fetch immediately before the push: origin/main has moved twice inside one
-verify cycle before. Then ExitWorktree (remove) once it's pushed.\
+verify cycle before. Stay in the worktree afterwards — it is good for the whole
+session, and exiting drops the node_modules you set up. Cleanup is the keep/remove
+prompt at session exit; only call ExitWorktree if the user asks.\
 """
 
 
