@@ -594,8 +594,12 @@
 .pod-banner, .pod-clock {
   align-self: end; box-sizing: border-box; min-width: 0; max-width: 100%;
   display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
-  padding: 4px 9px; border-radius: 999px;
-  font-size: 11px; font-weight: 700; line-height: 1.2;
+  padding: 5px 10px; border-radius: 999px;
+  /* ⚠ 11.5, not the 12 the desktop step below would suggest. These two pills are ONE nowrap
+     row inside a 316px content box on a 360px phone, and they already spend ~277 of it — the
+     caption row is the one place on this card where "bigger" is capped by the WIDTH of the
+     viewport rather than by the ranks budget. */
+  font-size: 11.5px; font-weight: 700; line-height: 1.2;
 }
 /* Gold, because it is the mechanic — the one meaning gold carries on this page. Pill rung:
    2px lip, 2px outline (never 1.5, which Chrome snaps to the banned 1px hairline at DPR 1). */
@@ -632,7 +636,7 @@
      OVERFLOWS downward, silently, and the stage ends up under the bottom nav while every
      measurement still passes (the gate's view.bottom is the scroller, which does not subtract
      the floating nav). min-height lets the box grow to its content and keeps the reserve. */
-  align-items: end; min-height: var(--pod-h, 252px);
+  align-items: end; min-height: var(--pod-h, 270px);
 }
 /* The ground. First child in the DOM, so it paints under every slot with no z-index game.
    left/right 0 deliberately — a floor bled past the container's padding fails the overflow
@@ -668,10 +672,16 @@
    blocks is a bar chart's tallest bar.
    The champion block must also stay WIDER THAN IT IS TALL at every tier. Past ~1:1 it stops
    being a plinth and becomes a tower, which is why the desktop tier tops out at 176px under a
-   193px column rather than chasing the empty space below it. */
-.pod-slot[data-place="1"] { order: 2; --pl-h: 118px; --face: 72px; --num-sz: 46px; --crown-w: 34px; animation-delay: .14s; }
-.pod-slot[data-place="2"] { order: 1; --pl-h: 90px; --face: 58px; --num-sz: 36px; animation-delay: .04s; }
-.pod-slot[data-place="3"] { order: 3; --pl-h: 72px; --face: 58px; --num-sz: 30px; animation-delay: .24s; }
+   193px column rather than chasing the empty space below it.
+   ⚠ ON A PHONE THAT CEILING IS THE BINDING ONE, and it is what caps this tier's share of
+   "enlarge the podium card and everything inside it" (2026-08-05). The champion's block is
+   1.26/3.26 of a 344px stage — 135px — so `--pl-h` may not pass ~130 no matter how much ranks
+   budget is left, and the mass floor then caps the FIGURE at block/0.78. Height is the free
+   axis on the desktop tiers and the LAST one here: 126 under a 152px figure is 0.83, and the
+   badge is where the rest of the growth went. */
+.pod-slot[data-place="1"] { order: 2; --pl-h: 126px; --face: 80px; --num-sz: 50px; --crown-w: 37px; animation-delay: .14s; }
+.pod-slot[data-place="2"] { order: 1; --pl-h: 100px; --face: 66px; --num-sz: 40px; animation-delay: .04s; }
+.pod-slot[data-place="3"] { order: 3; --pl-h: 82px; --face: 66px; --num-sz: 34px; animation-delay: .24s; }
 
 .pod-slot[data-place="1"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; --num-ink: #3A2600; }
 .pod-slot[data-place="2"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; --num-ink: #1F1F1F; }
@@ -726,12 +736,12 @@
   animation: pod-bob 3.4s ease-in-out infinite;
 }
 .pod-nm {
-  max-width: 100%; font-weight: 800; font-size: 13.5px; line-height: 1.2; color: var(--ink);
+  max-width: 100%; font-weight: 800; font-size: 14px; line-height: 1.2; color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .pod-score {
   display: inline-flex; align-items: center; gap: 5px;
-  font-family: var(--disp); font-weight: 800; font-size: 15px; line-height: 1.3;
+  font-family: var(--disp); font-weight: 800; font-size: 16px; line-height: 1.3;
   padding-bottom: 2px;   /* room for the thousands comma's descender */
   color: var(--ink);
 }
@@ -1427,10 +1437,10 @@
   .lb-climb { gap: 5px; padding-top: 4px; }
   .pod-fig { padding-bottom: 4px; }
   .pod-deck { margin: 6px 0 5px; padding: 7px 8px 5px; }
-  .pod { --pod-h: 216px; --top-h: 15px; }
-  .pod-slot[data-place="1"] { --pl-h: 102px; --face: 58px; --num-sz: 38px; --crown-w: 28px; }
-  .pod-slot[data-place="2"] { --pl-h: 78px; --face: 48px; --num-sz: 30px; }
-  .pod-slot[data-place="3"] { --pl-h: 62px; --face: 48px; --num-sz: 25px; }
+  .pod { --pod-h: 248px; --top-h: 16px; }
+  .pod-slot[data-place="1"] { --pl-h: 112px; --face: 66px; --num-sz: 42px; --crown-w: 31px; }
+  .pod-slot[data-place="2"] { --pl-h: 88px; --face: 56px; --num-sz: 34px; }
+  .pod-slot[data-place="3"] { --pl-h: 72px; --face: 56px; --num-sz: 28px; }
   .lg-row { min-height: 54px; }
 }
 /* Phone LANDSCAPE is WIDE AND SHORT: at 844x390 stacked, the list would start at y~321 and show
@@ -1721,22 +1731,30 @@
        · height — the deck's row is sized by the STAGE (the tallest of the three), so a flank
          under it grows for nothing. min-height + align-content is the whole mechanism.
      The stage itself is the one axis that IS charged, which is why it grows by tier below
-     and these numbers do not. */
+     and these numbers do not.
+     ⚠ AND THAT FREE HEIGHT IS BOUNDED NOW (2026-08-05, "enlarge the podium card and everything
+     inside the card"). The width half of that fix shipped; the height half did not, and it was
+     the larger void — 118 of a 232px row is 51%, so ~57px of empty deck sat above AND below
+     each module while the fill rule above claimed the cell was full. The floor is measured in
+     league_assert (`flankFill`, ≥0.65 of the stage), two-sided: a module TALLER than the stage
+     makes the ceremony the short thing on its own deck. Vertical padding is what grew with the
+     min-height — horizontal padding gives ground instead, because the binding cell is the 169px
+     flank a 1280x1024 window renders and a wrapped three-line module is only free by luck. */
   .pod-banner, .pod-clock {
     justify-self: center; align-self: center; margin-bottom: 0;
-    width: 100%; max-width: 264px; min-height: 118px;
-    display: grid; justify-items: center; align-content: center; gap: 3px;
+    width: 100%; max-width: 264px; min-height: 172px;
+    display: grid; justify-items: center; align-content: center; gap: 5px;
     white-space: normal; text-align: center; line-height: 1.15;
-    padding: 14px 16px; border-radius: 17px;
+    padding: 16px 14px; border-radius: 18px;
   }
   .pod-banner-do, .pod-clock-l {
-    font-size: 10.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
+    font-size: 11px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
   .pod-banner-to, .pod-clock-v {
-    font-family: var(--disp); font-weight: 800; font-size: 21px; letter-spacing: -.01em;
+    font-family: var(--disp); font-weight: 800; font-size: 24px; letter-spacing: -.01em;
   }
   .pod-banner-sub, .pod-clock-sub {
-    display: block; margin-top: 1px; font-size: 10px; font-weight: 700; letter-spacing: .03em;
+    display: block; margin-top: 1px; font-size: 10.5px; font-weight: 700; letter-spacing: .03em;
   }
   /* SOLID, never an alpha — this file's rule, and these are the two smallest words on the deck.
      A 72%-alpha ink on the banner's own --gold-lo measures 4.4:1, which is under AA for 9.5px;
@@ -1747,19 +1765,21 @@
   /* ⚠ 2nd AND 3rd GROW FOR FREE; THE CHAMPION DOES NOT. The stage's height is the height of the
      TALLEST column, which is always place 1 — so every pixel added to the champion's badge or
      block is a pixel off the ladder, while the same pixel on 2nd or 3rd costs nothing until
-     their column reaches his. At this tier place 2's column is 204px under a 232px champion,
-     which is where the plinth and badge growth here comes from at zero cost: 92/78 from 82/66,
-     56 of badge from 54, and the numerals a third bigger.
-     ⚠ The champion is UNCHANGED at this tier, and that is the trade being made rather than an
-     oversight: 1366x768 clears the 8-rank floor by ~13px, the rhythm above spends most of it,
-     and the two steps below are where he grows. He still leads — 2nd and 3rd may not pass him
-     (league_assert bounds the order), which is what keeps their free growth honest. */
-  .pod { --pod-h: 232px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px; }
-  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 46px; --crown-w: 32px; }
-  .pod-slot[data-place="2"] { --pl-h: 92px; --face: 56px; --num-sz: 38px; }
-  .pod-slot[data-place="3"] { --pl-h: 78px; --face: 56px; --num-sz: 32px; }
-  .pod-nm { font-size: 13px; }
-  .pod-score { font-size: 14px; }
+     their column reaches his. At this tier place 2's column is 218px under a 242px champion,
+     which is where the plinth and badge growth here comes from at zero cost.
+     ⚠ THE CHAMPION GROWS HERE NOW, AND THIS TIER IS THE ONE THAT COULD BARELY PAY (2026-08-05,
+     "enlarge the podium card and everything inside the card"). Measured rather than assumed:
+     1366x768 held 21.7px between the 8th rank and the fold, so the column takes 10 of it —
+     58 → 64 of badge and 108 → 110 of plinth — and leaves 11.7 against the day a font metric
+     moves. The two steps below started with 33 and 46 and spend proportionally more. He still
+     leads: 2nd and 3rd may not pass him (league_assert bounds both the badge and the plinth
+     order), which is what keeps their free growth honest. */
+  .pod { --pod-h: 242px; --top-h: 17px; --num-stroke: 5.5px; --num-ext: 3px; }
+  .pod-slot[data-place="1"] { --pl-h: 110px; --face: 64px; --num-sz: 50px; --crown-w: 35px; }
+  .pod-slot[data-place="2"] { --pl-h: 98px; --face: 62px; --num-sz: 42px; }
+  .pod-slot[data-place="3"] { --pl-h: 84px; --face: 62px; --num-sz: 35px; }
+  .pod-nm { font-size: 13.5px; }
+  .pod-score { font-size: 15px; }
   .pod-fig { padding-bottom: 3px; }
   .lg-row { min-height: 56px; }
   .lg-zone { min-height: 26px; }
@@ -1792,10 +1812,10 @@
   .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 20px; }
   .lb-chip { --chip-cap: 150px; }
   .pod-deck { padding: 11px 16px 0; }
-  .pod-banner, .pod-clock { min-height: 160px; padding: 17px 18px; border-radius: 19px; }
-  .pod-banner-do, .pod-clock-l { font-size: 11px; }
-  .pod-banner-to, .pod-clock-v { font-size: 25px; }
-  .pod-banner-sub, .pod-clock-sub { font-size: 10.5px; }
+  .pod-banner, .pod-clock { min-height: 218px; padding: 19px 16px; border-radius: 20px; }
+  .pod-banner-do, .pod-clock-l { font-size: 11.5px; }
+  .pod-banner-to, .pod-clock-v { font-size: 28px; }
+  .pod-banner-sub, .pod-clock-sub { font-size: 11px; }
   .tb-head { padding: 11px 16px; }
   .tb-name { font-size: 29px; }
   .tb-mult { padding: 7px 14px; }
@@ -1816,14 +1836,18 @@
      → 95px, and the plinth follows to 124 to stay a plinth rather than a tray.
      2nd and 3rd go 56 → 72 for NOTHING — their column is 234px under a 277px champion, so
      everything under that ceiling is free. Which is also why they may never lead: a badge
-     bigger than the champion's is the one shape this stage exists to forbid. */
-  .pod { --pod-h: 278px; --top-h: 20px; --num-stroke: 6px; }
-  .pod-slot[data-place="1"] { --pl-h: 124px; --face: 82px; --num-sz: 58px; --crown-w: 46px; }
+     bigger than the champion's is the one shape this stage exists to forbid.
+     ⚠ 82 → 90 and 124 → 134 on 2026-08-05 ("enlarge the podium card and everything inside the
+     card"). 1489x838 is the binding member of this step and it held 33.2px over the 8-rank
+     floor; the column takes 20.5 of it. Everything else that grew on this deck — both flanks,
+     each of them larger than the champion's badge — was free. */
+  .pod { --pod-h: 298px; --top-h: 22px; --num-stroke: 6.5px; }
+  .pod-slot[data-place="1"] { --pl-h: 134px; --face: 90px; --num-sz: 64px; --crown-w: 50px; }
   .pod-slot[data-place="1"] .pod-fig { padding-top: 9px; padding-bottom: 3px; }   /* headroom scales with the crown */
-  .pod-slot[data-place="2"] { --pl-h: 100px; --face: 72px; --num-sz: 46px; }
-  .pod-slot[data-place="3"] { --pl-h: 84px; --face: 72px; --num-sz: 40px; }
-  .pod-nm { font-size: 15px; }
-  .pod-score { font-size: 17px; }
+  .pod-slot[data-place="2"] { --pl-h: 112px; --face: 82px; --num-sz: 51px; }
+  .pod-slot[data-place="3"] { --pl-h: 96px; --face: 82px; --num-sz: 45px; }
+  .pod-nm { font-size: 16px; }
+  .pod-score { font-size: 18px; }
 }
 /* ── THE TALL WINDOW ───────────────────────────────────────────────────────────
    1440x900 and up, where the stage above still leaves 90px unspent. The split from the step
@@ -1834,16 +1858,19 @@
      which keeps the column reading the same at every height instead of jumping. */
   .lb-climb { gap: 22px; }
   .pod-deck { margin: 4px 0 0; padding: 13px 16px 0; }
-  .pod-banner, .pod-clock { min-height: 184px; padding: 20px; border-radius: 21px; }
-  .pod-banner-do, .pod-clock-l { font-size: 11.5px; }
-  .pod-banner-to, .pod-clock-v { font-size: 28px; }
-  .pod-banner-sub, .pod-clock-sub { font-size: 11px; }
-  .pod { --pod-h: 308px; --top-h: 22px; --num-stroke: 7px; }
-  .pod-slot[data-place="1"] { --pl-h: 136px; --face: 96px; --num-sz: 66px; --crown-w: 52px; }
-  .pod-slot[data-place="2"] { --pl-h: 112px; --face: 84px; --num-sz: 52px; }
-  .pod-slot[data-place="3"] { --pl-h: 94px; --face: 84px; --num-sz: 44px; }
-  .pod-nm { font-size: 16px; }
-  .pod-score { font-size: 18.5px; }
+  /* 248 of a 336px stage, and the horizontal padding comes DOWN to 18: the binding flank on
+     this step is not 1440x900's 189px cell but 1280x1024's 169px one, and "TOP 3 PROMOTE" at
+     12px needs ~119 of the 125 that 22px of side padding would leave it. */
+  .pod-banner, .pod-clock { min-height: 248px; padding: 22px 18px; border-radius: 22px; gap: 6px; }
+  .pod-banner-do, .pod-clock-l { font-size: 12px; }
+  .pod-banner-to, .pod-clock-v { font-size: 31px; }
+  .pod-banner-sub, .pod-clock-sub { font-size: 11.5px; }
+  .pod { --pod-h: 336px; --top-h: 24px; --num-stroke: 7.5px; }
+  .pod-slot[data-place="1"] { --pl-h: 152px; --face: 106px; --num-sz: 74px; --crown-w: 58px; }
+  .pod-slot[data-place="2"] { --pl-h: 126px; --face: 98px; --num-sz: 58px; }
+  .pod-slot[data-place="3"] { --pl-h: 108px; --face: 98px; --num-sz: 50px; }
+  .pod-nm { font-size: 17px; }
+  .pod-score { font-size: 20px; }
   .lg-nm { font-size: 16.5px; }
   .lg-sub { font-size: 12.5px; }
   .lg-score { font-size: 16.5px; }

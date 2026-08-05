@@ -2033,6 +2033,76 @@ all 9 viewports), the lens with a **6px margin and a 999px radius** (`toRowAbove
 lip** (fires the deepest branch on all 5 desktop viewports). The rhythm order fired at **19 above
 / 23 below**. On the shipped build: nested, 0px, ±0/0px, no radius, no lip.
 
+#### BIGGER, AND MEASURED 2026-08-05 — the third "bigger" on one card, and the void was VERTICAL
+> *"enlarge the podium card and everything inside the card"* — a refinement **within** the ARCADE
+> lock. Nothing is restyled: the same objects, the same material, the same recipe, larger.
+
+**THE CARD IS ALREADY AS WIDE AS THE PAGE.** `.pod-deck` is full-board-width at every tier, so
+"enlarge the card" can only mean **height plus interior**, and the interior has exactly three
+cost classes. Naming them is the whole of this entry, because the previous two "bigger" reports
+were each spent on one class and left the others untouched:
+
+| what | costs | why |
+|------|-------|-----|
+| the CHAMPION's column (badge, plinth, name, score) | **the ranks budget, 1:1** | the stage's height *is* place 1's column |
+| 2nd and 3rd, and both FLANKS | **nothing**, up to the champion | the deck's row is sized by its tallest child |
+| the stage's WIDTH | **the flanks** | `--stage-w` is a fixed track; the flanks are what is left of the row |
+
+That third line is why the stage stayed at 520/620/700 and this pass is a height pass. Widening
+the stage is free against the ranks budget and *not* free against the card — it is taken straight
+out of the two modules, which are also "inside the card".
+
+**THE FLANKS WERE THE VOID, AND IT WAS INVISIBLE TO EVERY BOUND.** 08-05 already made the flank
+fill its cell *across* and wrote "the flank fills its cell" into the CSS. Down the other axis it
+was **118 of a 232px row — 51%** — so ~57px of empty deck sat above **and** below each module.
+Nothing could see it: the module's own box was full, its cell was full across, and the deck had no
+overflow. `min-height` 118/160/184 → **172/218/248**, which is the single largest visible change
+here and cost the ladder nothing.
+
+**Shipped**, per tier (before → after):
+
+| tier | stage | champion block | badge ring | flank | ranks slack |
+|------|-------|----------------|-----------|-------|-------------|
+| ≥620 · 1366×768 | 232 → **242** | 203×108 → **203×110** | 71 → **77** | 118 → **172** | 21.7 → **11.7** |
+| ≥830 · 1489×838 | 278 → **298** | 273×124 → **273×134** | 95 → **103** | 160 → **218** | 33.2 → **13.2** |
+| ≥900 · 1440×900 | 308 → **336** | 273×136 → **273×152** | 109 → **119** | 184 → **248** | 45.6 → **17.6** |
+| phone · 390×844 | 261 → **279** | 135×118 → **135×126** | 85 → **93** | caption row | 55.3 → **34.8** |
+| phone · 360×800 | 229 → **249** | 125×102 → **125×112** | 71 → **79** | caption row | 62.3 → **39.8** |
+
+Numerals, crowns, names and scores scale with them. **Landscape phone is deliberately unchanged**:
+its ladder is a second column, so the ranks gate cannot see the stage's lip running under the
+floating nav — the tier's own CSS has said since 08-04 that growth there is unpayable, and it is
+the one tier where that is still true. **360×800 goes 9 ranks → 8**: it clears the floor, and it
+is the one place the card was bought with a rung.
+
+⚠ **ON A PHONE THE PLINTH IS CAPPED BY WIDTH, NOT BY THE BUDGET.** 390×844 held 55px of slack and
+still could not take it: the champion's block is `1.26/3.26` of a 344px stage = **135px**, and a
+block taller than it is wide is the tower the mass gate forbids. `--pl-h` stops at 126 with 35px
+of budget unspent, and the mass floor then caps the FIGURE at `block/0.78`. The desktop tiers are
+budget-bound; the phone is geometry-bound, and the two look identical until you measure.
+
+⚠ **THE HORIZONTAL PADDING CAME DOWN WHILE THE VERTICAL WENT UP.** The binding flank on the ≥900
+step is not 1440×900's 189px cell but **1280×1024's 169px** one, where `TOP 3 PROMOTE` at 12px
+needs ~119 of the 125px that 22px of side padding would leave. A wrapped three-line module is only
+free by luck.
+
+**Gate**: `league_assert.mjs` — **438 assertions**, up from 433. One new bound, `flankFill`, and it
+is **two-sided on purpose**:
+- **floor** — the shorter flank must reach **65%** of the stage it stands beside. This is the void
+  above, stated as a number.
+- **ceiling** — and neither flank may exceed the stage. *"It was free"* is exactly the argument
+  that ends with the ceremony as the short object on its own deck.
+
+It fires only where the modules share the stage's row, detected from geometry (`flank.top <
+stage.bottom`) rather than from a hard-coded breakpoint — on a phone they are a caption row
+**below** the stage and the ratio would mean nothing.
+
+**Mutation-verified in two builds, one per branch.** The **floor** fired on the pre-change build
+itself — 51%/58%/60% across all five desktop viewports, which is the cleanest possible proof that
+the bound describes the reported defect and not the fix. The **ceiling** fired at `min-height:
+400px` beside a 242px stage. Every other podium bound already in the file — plinth order, badge
+order, mass floor 0.78, the tower ceiling, the 8-rank floor — held unchanged through all of it.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.

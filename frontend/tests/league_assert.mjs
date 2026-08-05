@@ -468,6 +468,28 @@ const measure = (p) => p.evaluate(() => {
         lip: cs ? hardLip(cs.boxShadow) : null,
       };
     }),
+    /* THE FLANKS AGAINST THE STAGE THEY STAND BESIDE ("enlarge the podium card and everything
+       inside the card", 2026-08-05). The deck's grid row is sized by the STAGE, so a flank
+       shorter than it leaves empty deck ABOVE AND BELOW itself — and that void is invisible to
+       every bound this file already had, because the flank's own box is full and its cell is
+       full ACROSS. 118 of a 232px row read as two small labels either side of a ceremony while
+       the "flank fills its cell" comment in the CSS said the opposite.
+       `side` is what tells the two layouts apart without hard-coding a breakpoint: on a phone
+       the modules are a caption row BELOW the stage (grid-areas "stage stage" / "banner clock")
+       and share none of its height, so the ratio would be meaningless there. */
+    flank: (() => {
+      const stage = document.querySelector(".pod");
+      const ban = document.querySelector(".pod-banner");
+      const clk = document.querySelector(".pod-clock");
+      if (!stage || !ban || !clk) return null;
+      const s = stage.getBoundingClientRect();
+      const b = ban.getBoundingClientRect(), c = clk.getBoundingClientRect();
+      return {
+        stageH: +s.height.toFixed(1),
+        banH: +b.height.toFixed(1), clkH: +c.height.toFixed(1),
+        side: b.top < s.bottom - 1 && c.top < s.bottom - 1,
+      };
+    })(),
     matBoard: material(".lg-list"),
     matBand: material(".tb"),
 
@@ -851,6 +873,26 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     } else if (!(f1 > f2 && f2 >= f3)) {
       bad(`${at}: the badges are ${f1}/${f2}/${f3}px for 1st/2nd/3rd — the champion's portrait must be the largest on the stage`);
     } else ok(`${at}: the badges step down ${f1} > ${f2} ≥ ${f3}px`);
+
+    /* THE DECK HAS NO DEAD BANDS IN IT (2026-08-05, "enlarge the podium card and everything
+       inside the card" — the third "bigger" report on this one card). Two-sided on purpose:
+         · FLOOR — a flank under 0.65 of the stage leaves a strip of empty deck above AND below
+           itself, which is what the first two reports were actually looking at. The flank's own
+           box was full and its cell was full across, so nothing here could see it. Free to fix:
+           the row is sized by the stage, so a shorter flank grows for nothing.
+         · CEILING — and that is exactly why it needs one. A flank TALLER than the stage makes
+           the ceremony the short object on its own deck, and "it was free" is the argument that
+           gets you there. */
+    if (m.flank && m.flank.side) {
+      const { stageH, banH, clkH } = m.flank;
+      const fill = Math.min(banH, clkH) / stageH;
+      if (!(stageH > 0)) bad(`${at}: could not measure the stage the flanks stand beside`);
+      else if (fill < 0.65) {
+        bad(`${at}: the deck's flanks are ${banH}/${clkH}px beside a ${stageH}px stage (${(fill * 100).toFixed(0)}%, floor 65%) — the shortfall is empty deck above AND below each module, and the stage's row is free height`);
+      } else if (banH > stageH + 0.5 || clkH > stageH + 0.5) {
+        bad(`${at}: a flank is ${Math.max(banH, clkH)}px beside a ${stageH}px stage — the ceremony must be the tallest thing on its own deck`);
+      } else ok(`${at}: the flanks fill ${(fill * 100).toFixed(0)}% of the ${stageH}px stage row (${banH}/${clkH}px, 65-100%)`);
+    }
   }
 
   if (m.crowns !== 1) bad(`${at}: ${m.crowns} crowns on the board, expected exactly 1`);
