@@ -591,6 +591,69 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     clamped pager; the month calendar's day-name-derived leading offset; `streak-tile` /
     `lumen-ladder` / `greeting-leaderboard` testids; the whole browser harness suite green.
 
+  ### Amendment 2026-08-06 — COLOUR (user directive: "the smaller cards within the big card
+  are all same color and are boring, i want a variety of vibrant colors", "the homepage
+  background change to something more game like and contrast better with the top card")
+
+  The STRUCK material above is unchanged — the lip ladder, the ink outline, the hard-stop
+  fills, the flat rung and every acceptance bound still hold exactly as written. What
+  changes is that **the deck's objects stop sharing one furniture colour.**
+
+  - **Criterion changed (f) — "one deck, one furniture colour" is SUPERSEDED.** That rule
+    produced `.hm-hud` and `.hm-lb` in the same `#FBEFD9` cream, at opposite corners of a
+    `#F1E3C7` cream plate, beside a white `.hm-board`. Re-materialising four objects into
+    one colour is how a deck ends up correctly built and boring. **Hue is now identity on
+    the deck**, one meaning each, and there is still no fifth system:
+    | object | fill | why that hue |
+    |---|---|---|
+    | `.hm-hud` status rail | indigo `#2E2148` / `#41305F` | the machine. It already contained the XP groove; now the bar and the recess are one object, and the certified gold lands on it as light instead of as tint |
+    | `.hm-greet` | warm peach → lavender (unchanged) | you |
+    | `.hm-board` | plate `#F6F1FF`, head `#6D28D9` | **violet is the quest** — already the deck's rule, now spent at full strength instead of at its palest tint |
+    | `.hm-chest` | gold `#DFA828` (unchanged) | **gold is Lumens** |
+    | `.hm-lb` rank strip | azure `#BEDCFF` | The League — the only route off the deck |
+    ⚠ The strip stays **light** rather than a saturated blue for one reason: **green still
+    has to read on it.** Promotion is the strip's one piece of good news and mint on
+    mid-blue is the muddiest pair on the deck, so `#0F6B36` — not taste — sets the ceiling
+    on this hue, and `#BEDCFF` *is* that ceiling (green 4.7:1, gold glyph 3.4:1; one step
+    further and both need re-inking to buy a blue nobody asked for). ⚠ The division still
+    does **not** paint it — the ARCADE pass left promotion as the only thing that changes
+    colour.
+  - **Criterion changed (g) — the canvas.** `.aurora-main:has(.aurora-home)` was `#F1E3CF`
+    carrying a `#F1E3C7` deck: the page and the object on it were the same colour to within
+    one step of the sixth digit, which is why a 2.5px outline over a 5px lip still read as
+    part of the paper. The stage is now **cool periwinkle `#DED8F5`** under a vignette, a
+    short warm beam behind the deck, and 2px diagonal banding at 4% ink. ⚠ **Separation
+    here is a HUE change, not a brightness one, and that is enforced**: `leaderboard.css`
+    pins the stage above **0.7 relative luminance**, `#DED8F5` is **0.712**, and the
+    plate/stage luminance contrast is therefore only 1.09:1 — warm-vs-cool plus the vignette
+    carry all of it. The first pass sat at 0.641, looked right, and broke the doctrine; it
+    was corrected **up**, because a stage that reads correct at one desk is not the same
+    claim as a stage that meets the number. The dark rail is a *component* on a light stage,
+    exactly as the `#140B26` vault has been since July.
+  - **Every ink re-derived against the fill that moved, not left as inherited debt:**
+    `.hm-hudxp-*` → `#FFF6EC` 15.2:1 / `#C9BCE0` 8.5:1 on the rail; `.hm-qhead` → white
+    7.1:1 and a solid `#E9DDFF` tally 5.5:1 (never white-at-85%-opacity, which is a
+    contrast number nobody can look up); `.hm-qspent` `#1E7A46`→`#17693C` 5.6:1 and
+    `.hm-lb`'s secondary `--hink2`→`#4E4557` 7.1:1, both of which fell under AA *because
+    the surface moved* and are therefore fixed in the same pass.
+  - **Criterion changed (h) — the greeting card's height.** `.hm-greet` now carries
+    `::before { float:left; width:0; padding-top:29.5% }`. ⚠ **This is load-bearing, not
+    styling.** The Veo loop is 1280×720 and the mascot spans 385 source px of it; on a card
+    wider than 16:9 `object-fit:cover` scales by WIDTH, so she is drawn at
+    `385 × cardW/1280` **however tall the card is** — measured at 1512px she rendered 225px
+    inside a 206px card and lost her feet ("the waving eyecon is cut off"). `object-position`
+    cannot fix that; it only chooses which end is amputated. A float's `padding-top` is a
+    percentage of the containing block's WIDTH, so one declaration holds at every card width
+    across all three tiers where the loop renders, and `overflow:hidden` already makes the
+    card the BFC that contains it. It is switched **off** in both phone tiers, where
+    `.hm-eyeconloop` is `display:none` and the height would come straight out of the fold
+    budget. With the lock in place `object-position` is `50% 66%` — the mascot's own centre,
+    correct at every width — and the per-tier overrides are **deleted, not retuned**.
+  - **Acceptance added**: `frontend/tests/_home_shot.mjs` (underscore-prefixed, not a gate)
+    reports the visible source band against the mascot's known bounds, so "she is cut off"
+    is a number. Every bound in the acceptance list above still passes unchanged, including
+    the 390×844 fold budget — the height lock does not reach the phone.
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar

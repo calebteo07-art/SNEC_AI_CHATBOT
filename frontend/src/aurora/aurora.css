@@ -66,15 +66,54 @@
 html[data-motion="reduce"] .aurora-mesh span { animation: none; }
 @media (prefers-reduced-motion: reduce) { .aurora-mesh span { animation: none; } }
 
-/* Home (student dashboard) warm canvas. Scoped with :has(.aurora-home) so it never
-   touches the other student screens or the rail. Soft peach/rose/lilac light bleeds
-   over a warm cream base; the drifting mesh is hidden so the backdrop stays calm. */
+/* Home (student dashboard) — THE STAGE. Scoped with :has(.aurora-home) so it never
+   touches the other student screens or the rail; the drifting mesh stays hidden.
+
+   ⚠ IT WENT COOL BECAUSE THE DECK IS WARM. The old canvas was #F1E3CF and the deck plate
+   it carries is #F1E3C7 — the same colour to within one step of the sixth digit. A page
+   and the object on it cannot both be warm cream: the plate had a 2.5px outline and a 5px
+   lip and STILL read as part of the paper, which is most of why the screen looked flat
+   ("the homepage background is quite boring, and does not contrast with the top card").
+   ⚠ SEPARATION HERE IS A HUE CHANGE, NOT A BRIGHTNESS ONE, and that is a constraint
+   rather than a preference: `leaderboard.css` pins the stage above 0.7 relative luminance
+   ("bright arcade on a LIGHT stage"), and two of its four rejected passes were the dark
+   ones. #DED8F5 is L=0.712 — over the line, and deliberately only just. The plate on it is
+   L=0.778, so the plate/stage LUMINANCE contrast is 1.09:1 and carries almost nothing; the
+   whole separation is warm-vs-cool plus the vignette. The first pass at this sat at 0.641,
+   which looked right and broke the doctrine, so it was corrected up rather than argued
+   down — a stage that reads correct at one desk is not the same claim as a stage that
+   meets the number.
+
+   Five layers, front to back:
+   1. THE VIGNETTE — the corners fall away from the centre. This is what makes it a STAGE
+      rather than a fill, and it is the layer doing most of the "game" work.
+   2. THE HOUSE LIGHT — a warm pool at the top, so the deck sits inside a beam. It is
+      deliberately SHORT (40% of the viewport height, not 58%): a beam that reaches half
+      way down the page is not a beam, it is a second background, and the first pass at
+      this washed the field out exactly where the deck needed something cool to sit on.
+   3/4. two cool washes that keep the field from reading as one printed colour.
+   5. THE ARCADE FLOOR — 2px diagonal banding at 4% ink. Deliberately below the threshold
+      where it reads as stripes; it reads as a surface with a weave, which is what a flat
+      fill can never do. Kept off the phone tier, where a 2px repeat on a 3x display is a
+      moire risk and buys nothing at that size. */
 .aurora-main:has(.aurora-home) {
   background:
-    radial-gradient(72% 58% at 6% -8%, #FBDDBE 0%, transparent 54%),
-    radial-gradient(64% 54% at 102% -4%, #F7D3C4 0%, transparent 52%),
-    radial-gradient(80% 60% at 50% 116%, #EFD7C9 0%, transparent 60%),
-    #F1E3CF;
+    radial-gradient(132% 94% at 50% 32%, rgba(58,38,108,0) 44%, rgba(58,38,108,.17) 100%),
+    radial-gradient(76% 40% at 50% -4%, rgba(255,247,230,.94) 0%, rgba(255,247,230,.34) 42%, rgba(255,247,230,0) 74%),
+    radial-gradient(58% 46% at 0% 16%, #CCC2F7 0%, transparent 60%),
+    radial-gradient(60% 48% at 100% 30%, #F2C4E7 0%, transparent 58%),
+    repeating-linear-gradient(135deg, rgba(42,31,61,.04) 0 2px, transparent 2px 9px),
+    #DED8F5;
+}
+@media (pointer: coarse) {
+  .aurora-main:has(.aurora-home) {
+    background:
+      radial-gradient(150% 80% at 50% 26%, rgba(58,38,108,0) 46%, rgba(58,38,108,.15) 100%),
+      radial-gradient(96% 26% at 50% -3%, rgba(255,247,230,.94) 0%, rgba(255,247,230,.34) 42%, rgba(255,247,230,0) 74%),
+      radial-gradient(70% 34% at 0% 12%, #CCC2F7 0%, transparent 60%),
+      radial-gradient(72% 36% at 100% 26%, #F2C4E7 0%, transparent 58%),
+      #DED8F5;
+  }
 }
 .aurora-main:has(.aurora-home) .aurora-mesh { display: none; }
 
