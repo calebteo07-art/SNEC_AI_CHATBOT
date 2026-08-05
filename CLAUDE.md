@@ -130,7 +130,10 @@ git push origin HEAD:main   # fast-forward; carries only your commits
 ```
 
 Re-`git fetch` immediately *before* the push — `origin/main` has moved twice inside one
-verify cycle. Then `ExitWorktree` (remove). **Never push the shared checkout's local
+verify cycle. Then keep working in the same worktree (it's good for the whole session,
+and leaving drops the `node_modules` you set up); cleanup is the keep/remove prompt at
+session exit, so only call `ExitWorktree` when the user asks. **Never push the shared
+checkout's local
 `main`** — it carries other sessions' unpushed, unverified work.
 
 **Exception:** a change that breaks prod the moment it lands but *before* out-of-band
