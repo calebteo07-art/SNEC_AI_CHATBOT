@@ -508,6 +508,88 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     all motion (rarity glows, next-pulse, flame, ember, vault breathe, shelf auto-scroll) freezes
     under `prefers-reduced-motion` / `data-motion=reduce`; `streak-tile` + `lumen-ladder` testids
     and the collected/next/locked badge states unchanged; aurora harness green on a prod build.
+- **GAME HUD (2026-08-05, user directive: "the current homepage is decent, but does not feel
+  like a addictive game i want it to be")**: spec
+  `docs/superpowers/specs/2026-08-05-home-hud-phase2-design.md`, plan
+  `docs/superpowers/plans/2026-08-05-home-hud-phase2.md`. Phase 1 (backend loop: daily
+  quests, a deterministic daily chest, timed XP boosts, `GET /api/home`) shipped
+  2026-08-04; migration 018 applied 2026-08-05. This is Phase 2, the visible half.
+  - **THE DIAGNOSIS WAS MATERIAL, NOT COLOUR — and the first reading of it was wrong.**
+    Phase 1's spec called The League "dark STRUCK arcade". It is not: `leaderboard.css`
+    line 1 says *"bright arcade on a light stage"* and its doctrine pins base luminance
+    > 0.7. Two of that file's four rejected passes were the dark ones. Home was never too
+    light — it was **flat**, built from the exact four things `leaderboard.css:15-19`
+    names as "the house style of a generated dashboard": 1px hairlines, blurred shadows,
+    pastel fills, smooth washes. Home's own tokens were the evidence (`--sh`, `--sh-lg`
+    at 5-30% blur; `--sheen`; `border:1px solid` on `.hm-chip` and `.hm-panel`). **Phase 2
+    is a re-materialisation. The palette is kept; the surfaces change.**
+  - **Three zones.** `.hm-deck` (new, owns the fold: StatusBar · greeting host + QuestBoard ·
+    ChestTile + RankStrip) → `FeatureCarousel` → `.hm-record` (was `.hm-lower`: StreakTile +
+    LumenLadder). **Nothing is deleted.**
+  - **THE LIP LADDER — exactly four depths**, ported from `leaderboard.css` so Home and The
+    League are one material: structural 5px/2.5px (`.hm-deck .hm-board .hm-fcard .hm-panel
+    .hm-streak .hm-greet .hm-hud`), medallion 3px/2px (`.hm-chest .hm-badge`), pill 2px/2px
+    (`.hm-chip .hm-claim .hm-boost .hm-risk .hm-lb .hm-pool-seg`), **flat — no lip, no
+    outline** (`.hm-quest` rows, the ~35 month-calendar cells, the canvas). The flat rung is
+    load-bearing: striking the element you instantiate 35 times is how "material everywhere"
+    collapses into "the whole page is buttons". ⚠ **Never 1px or 1.5px** — Chrome snaps used
+    border-width to whole device pixels, so 1.5px *renders* as the banned hairline;
+    differentiation comes from lip depth, which is an offset and does not snap. ⚠ The press
+    depth is scoped to `:where(button,a,[role="button"])` — the pill rung carries both
+    controls and readouts, and only a control may claim depth-on-press.
+  - **Criterion changed (a) — material.** SUPERSEDES "toybox vibrancy" (2026-07-11): glossy
+    vinyl, gloss sheens, blurred heat-glows and smooth candy washes. This is a change of
+    *surface*, not of boldness — the directive was "don't hold back", and a hard-stop fill
+    under an ink outline is more vivid than a gloss wash, not less.
+  - **Criterion changed (b) — layout.** SUPERSEDES `.hm-hero` (greeting + StreakTile side by
+    side). `.hm-hero` is retired; `StreakTile` moves into the record **unchanged**. The streak
+    numeral is **not** duplicated into the status bar — only the new at-risk countdown lives
+    there, so two numerals can never disagree.
+  - **Criterion changed (c) — type scale.** SUPERSEDES the 2026-07-10 "headline 50→62px"
+    enlargement. The headline drops so the board can own the fold; it has the least claim on
+    it. The greeting **engine** (`pickGreeting`, day-of-year rotation, the `<em>` accent) is
+    untouched. Also removed: the greeting's level/XP readout (`.hm-lvl` / `.hm-lvbar` /
+    `.hm-z`) — it duplicated four numbers the status bar now owns, and one number needs one
+    owner.
+  - **Criterion changed (d) — the leaderboard tease.** SUPERSEDES the 2026-07-14 BOLD candy
+    gradient pill. `.hm-lb` is now the struck **RankStrip** carrying live standing (division ·
+    rank of pool · Lumens to promotion; "you're in the promotion zone" at `rank <= promote_count`;
+    "top division — hold your rank" when `promote_count === 0`, checked FIRST since `1 <= 0`
+    is false and would otherwise fall through to a gap). Still **one** control, not a revived
+    CTA row; keeps `data-testid="greeting-leaderboard"`. `@keyframes hm-lb-pulse` and
+    `hm-lb-shine` are deleted. It says "Lumens", not "XP" — this app has one name for that
+    currency.
+  - **Criterion changed (e) — `.hm-lower`.** SUPERSEDED in *placement only*: the record is
+    calendar + vault, two-up on desktop, stacked on phone. The ONE-vault decision stands.
+  - **The chest may not leak its prize.** `GET /api/home` returns the drop's `key` and `label`
+    **even when sealed** — the roll is a pure function of `(student_id, date)`, so the endpoint
+    computes it either way. The DOM may only see them once `claimed === true` or this session's
+    own claim returned. Everything reads `chestReveal()`; nothing reads `chest.label`. ⚠ The
+    ceremony fires on the **claim action**, never on render — a ceremony keyed on
+    `claimed === false` re-fires on every mount before the refetch settles — and only on
+    `ok === true`, because showing loot the server did not grant is the same lie as painting
+    "0 XP" on a failed read. `already_claimed` reconciles silently.
+  - **An UNKNOWN is never a ZERO.** A null quests payload renders "couldn't load", never
+    "0/3"; an undefined `done_today` renders no streak alarm at all. `questRollup` returns
+    null for an empty array too — the backend always generates exactly three quests, so zero
+    means the read degraded.
+  - **Acceptance (new, gated by `frontend/tests/home_hud_assert.mjs`, auto-discovered by
+    `start-harness.sh` and therefore in CI)**: at **390×844** the status bar, all three quest
+    rows and the chest are **above the fold**; a sealed chest leaks its label into no text,
+    attribute or markup; no struck object renders a border under 2px; every struck object ends
+    in a **fully opaque `background-color`** (a gradient-only box has none, so a contrast probe
+    walks past it and measures the wrong surface); 0px horizontal page overflow and nothing on
+    the deck rotates its own box (a rotated square reports a bounding box 1.41× its width and
+    escapes an overflow sweep even under `overflow:hidden`); claim/chest touch targets ≥44px.
+  - ⚠ **Reduced motion freezes the shake, the burst and the confetti — but NOT the two
+    countdowns.** The boost timer and the streak deadline keep ticking under both signals;
+    only their pulse/glow freezes. A frozen clock lies about the time, and reduced motion is
+    about vestibular safety, not about withholding information. Gated.
+  - **Acceptance preserved**: WCAG-AA on every surface against its new solid fill; 390px-safe;
+    every generated asset (the Veo greeting loop, the three mascot cut-outs, the 20 medallions);
+    the coverflow mechanics **including hover-pause**; the vault's paged-frame-of-five and its
+    clamped pager; the month calendar's day-name-derived leading offset; `streak-tile` /
+    `lumen-ladder` / `greeting-leaderboard` testids; the whole browser harness suite green.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
