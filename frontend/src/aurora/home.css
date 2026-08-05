@@ -867,3 +867,154 @@ html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldo
 }
 html[data-motion="reduce"] .aurora-home .hm-boost::after { animation:none !important; }
 html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !important; }
+
+/* ══════════════════ THE QUEST BOARD (.hm-board — QuestBoard.tsx) ══════════════════
+   Three quests on ONE plate. Structural rung, and the League's .lg-list / .lg-row
+   relationship copied exactly: the plate owns the radius and the clip, so every row is a
+   BAND ACROSS the board rather than a card floating on it.
+
+   ⚠ THE ROWS ARE FLAT — no lip, no outline, no radius of their own. This is the League's
+   own finding inverted: a 1px hairline instantiated 27 times was the largest single surface
+   exempting itself from the recipe, and .lg-row stays flat precisely so the ladder never
+   competes with the struck objects riding on it. Three quest rows are that repeat here, and
+   striking them is how "material everywhere" collapses into "the whole page is buttons".
+   What separates them is a MACHINED GROOVE on the wrapper (a 2px dark channel at 18% with a
+   lit return under it), which is a seam between two panels rather than an edge on either.
+
+   COLOUR — one meaning per hue, no fourth system:
+   · VIOLET IS THE QUEST. The head band and an unfinished meter.
+   · GREEN IS COMPLETE. A finished meter, the claim button, the spent check. It is the only
+     green on the deck, so it means one thing.
+   Every struck object ends in a solid background-color set to the DARKER band of its own
+   hard-stop fill, so a contrast probe measures the worst case instead of walking past a
+   gradient to the page. Measured against those darker bands:
+     --hink #2B2431 on the white plate = 15.0:1     --hink2 #6D6474 on it = 5.6:1
+     #3F2478 on the violet head #E9E0FF = 9.6:1     --violet-d #6D28D9 on white = 7.1:1
+     #08331A on the claim green #3FD177 = 7.1:1     #1E7A46 on a spent row #F7F4FC = 4.9:1 */
+.hm-board {
+  --lip-c:#CDBFEC;
+  display:flex; flex-direction:column; overflow:hidden;
+  border-radius:18px;
+  background-color:#FFFFFF;
+}
+/* The head band, built like the League's .lg-zone: a solid fill under a hard-stop plane,
+   a lit top edge and a dark return at the bottom. It names the mechanic once — "today's"
+   is the whole explanation a daily quest needs — and carries the tally, which is the one
+   number that must never be invented (see rule 1 in QuestBoard.tsx). */
+.hm-qhead {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:0; padding:6px 13px; min-height:28px;
+  font-family:var(--font-home); font-weight:800; font-size:11.5px;
+  letter-spacing:.07em; text-transform:uppercase; color:#3F2478;
+  background-color:#E9E0FF;
+  background-image:linear-gradient(180deg,#F5F0FF 0%,#F5F0FF 42%,#E9E0FF 42%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7), inset 0 -3px 0 rgba(88,54,168,.22);
+}
+.hm-qtally { font-family:var(--font-sans); font-weight:700; font-size:11px; letter-spacing:.04em;
+  white-space:nowrap; opacity:.85; }
+
+.hm-qs { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+/* NOT a hairline: a 2px dark channel with a lit return under it reads as a machined groove
+   between two panels. A border is inside the rect, so the seam measures 0.00. */
+.hm-qitem + .hm-qitem {
+  border-top:2px solid rgba(42,31,61,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+/* A SOLID tint, never a wash: the probe can resolve it, and a gradient over white lets an
+   element claim white as its backdrop while rendering on something darker. */
+.hm-qitem[data-state="ready"] { background-color:#F1FBF3; }
+.hm-qitem[data-state="claimed"] { background-color:#F7F4FC; }
+
+/* THE FLAT RUNG. Every property here is a refusal — the row has no material of its own and
+   must never grow any; its material is carried by the plate under it and the pill on it. */
+.hm-quest {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center;
+  gap:4px 10px; padding:8px 13px;
+  border:0; border-radius:0; box-shadow:none; background-color:transparent;
+}
+.hm-qt { grid-area:1 / 1; margin:0; font-family:var(--font-home); font-weight:700;
+  font-size:14px; line-height:1.25; letter-spacing:-.01em; color:var(--hink); }
+.hm-qp { grid-area:2 / 1; display:flex; align-items:center; gap:8px; min-width:0; }
+/* The reward slot spans both text rows, so a 44px touch target sets the row height once
+   instead of stacking under the title. */
+.hm-quest > .hm-claim, .hm-quest > .hm-qspent, .hm-quest > .hm-qrew {
+  grid-row:1 / span 2; grid-column:2; justify-self:end; align-self:center;
+}
+
+/* The meter is the object that looks better wider, so IT owns the flexible track — never
+   the count beside it (an auto text track next to a bar is how a 334px row becomes a 107px
+   bar). Same channel as the HUD's XP bar: a dark recess with a zero-blur inset edge and no
+   outline of its own, which is the flat rung. */
+.hm-qbar { flex:1; min-width:0; height:10px; border-radius:999px; overflow:hidden;
+  background-color:#3B2E52; box-shadow:inset 0 2px 0 0 rgba(20,13,32,.5); }
+.hm-qbar > span { display:block; height:100%; border-radius:999px;
+  background-color:#7C5CF6;
+  background-image:linear-gradient(180deg,#A48BFF 0%,#A48BFF 44%,#7C5CF6 44%);
+  box-shadow:inset 0 -2px 0 0 rgba(58,28,138,.5);
+  transition:width .5s var(--spring); }
+.hm-qitem[data-state="ready"] .hm-qbar > span,
+.hm-qitem[data-state="claimed"] .hm-qbar > span {
+  background-color:#3FD177;
+  background-image:linear-gradient(180deg,#6BE49A 0%,#6BE49A 44%,#3FD177 44%);
+  box-shadow:inset 0 -2px 0 0 rgba(11,92,48,.5); }
+.hm-qn { flex:none; font-weight:700; font-size:12px; color:var(--hink2);
+  font-variant-numeric:tabular-nums; }
+
+/* GREEN MEANS CLAIMABLE — the pill rung, and the only control on the board. min-width is
+   as load-bearing as min-height: the touch floor is 44 SQUARE. */
+.hm-claim {
+  --lip-c:#1E8F4E;
+  display:inline-flex; align-items:center; gap:5px;
+  min-height:44px; min-width:44px; padding:0 14px; border-radius:14px;
+  font-family:var(--font-home); font-weight:800; font-size:13.5px; letter-spacing:-.01em;
+  color:#08331A; cursor:pointer;
+  background-color:#3FD177;
+  background-image:linear-gradient(180deg,#6BE49A 0%,#6BE49A 46%,#3FD177 46%);
+}
+.hm-claim b { font-weight:800; font-variant-numeric:tabular-nums; }
+/* In flight. Every claim button on the board goes down together, not just the one tapped:
+   two payouts in flight move the same XP total, and the second one is never what the
+   student meant. `progress` says so with the cursor. */
+.hm-claim:disabled { opacity:.55; cursor:progress; }
+.hm-claim:focus-visible { outline:3px solid var(--violet-d); outline-offset:3px; }
+
+/* Claimed: the reward stays on screen, spent. Dimmed by INK, not by opacity — a faded
+   surface still has to be readable, and 4.9:1 is a number rather than a hope. */
+.hm-qspent { display:inline-flex; align-items:center; gap:5px; padding:0 6px;
+  font-family:var(--font-home); font-weight:800; font-size:13.5px; color:#1E7A46; }
+.hm-qspent .ico { width:17px; height:17px; stroke-width:2.4; }
+.hm-qitem[data-state="claimed"] .hm-qt { color:var(--hink2); }
+.hm-qrew { padding:0 6px; font-family:var(--font-home); font-weight:800; font-size:13.5px;
+  color:var(--violet-d); font-variant-numeric:tabular-nums; }
+
+/* The failure panel is the app's one shape for a failed read, and it sits INSIDE the plate:
+   the board still exists, it just cannot say what is in it. Never "0/3". */
+.hm-board .aurora-api-error { margin:12px; }
+
+/* phone portrait: the fold budget is the whole design problem here — the status bar, all
+   three of these rows and the chest must fit inside 844px. */
+@media (max-width:640px) and (pointer:coarse) {
+  .hm-board { border-radius:16px; }
+  .hm-qhead { padding:5px 11px; min-height:26px; font-size:11px; }
+  .hm-quest { padding:7px 11px; gap:3px 9px; }
+  .hm-qt { font-size:13.5px; }
+  .hm-qbar { height:9px; }
+  .hm-claim { padding:0 12px; font-size:13px; }
+}
+/* phone landscape is WIDE + SHORT: there is width to spare and no height to spend, so the
+   row goes to ONE line — title, meter and reward abreast — and the board loses ~20px. */
+@media (max-height:480px) and (pointer:coarse) {
+  .hm-qhead { padding:4px 12px; min-height:24px; }
+  .hm-quest { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto; padding:5px 12px; }
+  .hm-qt { grid-area:1 / 1; font-size:13px; }
+  .hm-qp { grid-area:1 / 2; }
+  .hm-quest > .hm-claim, .hm-quest > .hm-qspent, .hm-quest > .hm-qrew { grid-row:1; grid-column:3; }
+  .hm-claim { min-height:44px; }
+}
+
+/* ⚠ DECORATION ONLY — the meter's fill transition, nothing else. There is no clock on this
+   board, and if one ever lands here it does NOT belong in this block. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-home .hm-qbar > span { transition:none !important; }
+}
+html[data-motion="reduce"] .aurora-home .hm-qbar > span { transition:none !important; }
