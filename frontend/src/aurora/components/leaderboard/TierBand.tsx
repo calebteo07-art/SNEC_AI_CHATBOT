@@ -33,8 +33,16 @@
    dead space and the band's readout had gained a third item. The SGT rule is unchanged and
    still load-bearing: the server closes the week on the Singapore Monday boundary
    (tools/shared/clock.py), so a viewer-local countdown is up to 15 hours wrong, which on a
-   Sunday night is the difference between "still time" and "already over". */
-import type { CSSProperties } from "react";
+   Sunday night is the difference between "still time" and "already over".
+
+   ⚠ THE ROLE LENS IS THE BAND'S THIRD ROW since 2026-08-05 ("combine the top 2 cards, silver
+   league and role filter, into 1 and make it seamless"). It arrives as `children` rather than
+   as props: its state is the query key `useLeaderboard` runs on, so it belongs in
+   Leaderboard.tsx beside the read it drives, and threading five values (roles, role, setRole,
+   the remembered counts, pool_size) through this component to render markup it does not own
+   would be a worse coupling than a slot. What the band supplies is the SURFACE — the card,
+   its clip and its radius — which is the whole of what "seamless" means here. */
+import type { CSSProperties, ReactNode } from "react";
 import { nextRungPayoff, DIVISION_NAMES, TOP_DIVISION } from "@/aurora/leaderboard/league";
 import type { Chase } from "@/aurora/leaderboard/league";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -45,7 +53,7 @@ import { Crest, METALS } from "./Metals";
 const mult = (n: number) => `×${Number(n ?? 1).toFixed(2).replace(/\.?0+$/, "")}`;
 
 export function TierBand({
-  division, divisionName, multiplier, multipliers, chase, onRules,
+  division, divisionName, multiplier, multipliers, chase, onRules, children,
 }: {
   division: number;
   divisionName: string;
@@ -59,6 +67,10 @@ export function TierBand({
   multipliers: number[];
   chase: Chase;
   onRules: () => void;
+  /** The band's LAST row, clipped by the card's own radius — the role lens today. Optional,
+   *  and falsy on a single-role cohort, which is why nothing here special-cases its absence:
+   *  the band is then exactly the two rows it has always been. */
+  children?: ReactNode;
 }) {
   // Counting up to the gap makes the number feel earned. useCountUp freezes itself under
   // reduced motion, so this needs no guard of its own.
@@ -148,6 +160,11 @@ export function TierBand({
             : <><b>{divisionName}</b> pays {mult(multiplier)} — the ceiling</>}
         </p>
       </div>
+
+      {/* The lens, on the card's bottom edge — closest to the ladder it narrows, which is the
+          only place a control belongs. Nothing wraps it: a box here would be the very seam
+          this row exists to remove. */}
+      {children}
     </section>
   );
 }

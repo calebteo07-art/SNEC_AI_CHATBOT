@@ -19,11 +19,14 @@
    restored: 1.7x and 2x were held to the pixel across three rejected passes, which is what
    precise measurement of the wrong thing looks like.
 
-   Top to bottom: a tier BAND wearing the division's own metal (crest, name, trophy-road pips,
-   the chase and the clock as a HUD readout) → the PODIUM (ranks 1-3, painted 2-1-3) → the role
-   filter → ONE board holding rank 4 down, as a single surface with the promotion zone as a
-   filled gold region ended by a struck cut. Everything that used to be explained in sentences
-   is a region you can see; the rules live behind the (?).
+   THREE objects, top to bottom (2026-08-05 — it was four):
+     · the HEAD, one card in the division's own metal, in three rows behind one clip — the
+       crest/name/trophy road, the chase readout, and the role lens on its bottom edge;
+     · the PODIUM (ranks 1-3, painted 2-1-3);
+     · ONE board holding rank 4 down, as a single surface with the promotion zone as a filled
+       gold region ended by a struck cut.
+   Everything that used to be explained in sentences is a region you can see; the rules live
+   behind the (?).
 
    There is NO visibility panel here (removed on request, 2026-08-02). The board is therefore
    everyone-by-default with no in-app way out: POST /api/leaderboard/prefs still works and the
@@ -217,49 +220,57 @@ export function Leaderboard() {
         multipliers={data?.division_multipliers ?? []}
         chase={chase}
         onRules={() => setRules(true)}
-      />
-
-      {/* The strip shares the board's edge (2026-08-04). `role="tablist"` moves onto the
-          inner group so the list still contains only tabs — the count beside them is a
-          readout, not a control. */}
-      {roles.length > 1 && (
-        <div className="lb-filter">
-          <div className="lb-chips" role="tablist" aria-label="Filter by role">
-            {/* ⚠ An explicit label on each chip. The count is a sibling text node with no
-                space before it, so the computed accessible name would be "OT7" — one token, and
-                a screen reader is entitled to say it as one. */}
-            <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
-                    aria-label={`All roles, ${data?.pool_size || entries.length} students`}
-                    data-on={role === null} onClick={() => setRole(null)}>
-              All<span className="lb-chip-n">{data?.pool_size || entries.length}</span>
-            </button>
-            {roles.map((r) => (
-              <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
-                      aria-label={roleCounts[r] !== undefined ? `${r}, ${roleCounts[r]} students` : r}
-                      data-role={r} data-on={role === r} onClick={() => setRole(r)}>
-                {r}{roleCounts[r] !== undefined && <span className="lb-chip-n">{roleCounts[r]}</span>}
+      >
+        {/* THE LENS IS THE BAND'S THIRD ROW (2026-08-05, "combine the top 2 cards, silver
+            league and role filter, into 1 and make it seamless"). It was the block below it,
+            sharing the board's edge — which was the 08-04 answer and got the page as far as
+            four objects agreeing where the margins were. Two struck cards stacked a few px
+            apart still read as two things to look at, and the head is ONE thing.
+            Nesting rather than restyling is what makes "seamless" structural: `.tb` clips, so
+            the strip cannot have a radius, an outline or a lip of its own, and there is
+            nothing left to keep in sync by hand. The state stays HERE because `role` is the
+            query key `useLeaderboard` runs on; the band contributes the surface.
+            `role="tablist"` sits on the inner group so the list still contains only tabs —
+            the count beside them is a readout, not a control. */}
+        {roles.length > 1 && (
+          <div className="lb-filter">
+            <div className="lb-chips" role="tablist" aria-label="Filter by role">
+              {/* ⚠ An explicit label on each chip. The count is a sibling text node with no
+                  space before it, so the computed accessible name would be "OT7" — one token,
+                  and a screen reader is entitled to say it as one. */}
+              <button type="button" role="tab" aria-selected={role === null} className="lb-chip"
+                      aria-label={`All roles, ${data?.pool_size || entries.length} students`}
+                      data-on={role === null} onClick={() => setRole(null)}>
+                All<span className="lb-chip-n">{data?.pool_size || entries.length}</span>
               </button>
-            ))}
+              {roles.map((r) => (
+                <button key={r} type="button" role="tab" aria-selected={role === r} className="lb-chip"
+                        aria-label={roleCounts[r] !== undefined ? `${r}, ${roleCounts[r]} students` : r}
+                        data-role={r} data-on={role === r} onClick={() => setRole(r)}>
+                  {r}{roleCounts[r] !== undefined && <span className="lb-chip-n">{roleCounts[r]}</span>}
+                </button>
+              ))}
+            </div>
+            {/* "Who am I actually racing" moved ONTO the chips as counts (2026-08-04), which is
+                where it belongs — the number now sits on the control that selects that group.
+                This end of the strip takes the fact that had no home at all: what the ranking
+                is OF. Nothing outside the (?) sheet said it, and a ladder whose sort order you
+                have to guess is a ladder you cannot play deliberately. */}
+            {/* ⚠ TWO WORDINGS, one per tier, because each tier can only afford one of the two
+                facts. On a 390px strip the chips have no room for their counts, so this end
+                carries the pool size (its original job); on desktop the chips state their own
+                counts and this end is free to say what the ranking is OF. Both spans always
+                render — the contrast probe resolves `.lb-count` itself, and an element that
+                only exists at some widths only gets checked at some widths. */}
+            {(data?.pool_size ?? 0) > 0 && (
+              <span className="lb-count" data-testid="lb-pool">
+                <span className="lb-count-sm">{data?.pool_size} in your division</span>
+                <span className="lb-count-lg">Ranked by Lumens earned this week</span>
+              </span>
+            )}
           </div>
-          {/* "Who am I actually racing" moved ONTO the chips as counts (2026-08-04), which is
-              where it belongs — the number now sits on the control that selects that group.
-              This end of the strip takes the fact that had no home at all: what the ranking is
-              OF. Nothing outside the (?) sheet said it, and a ladder whose sort order you have
-              to guess is a ladder you cannot play deliberately. */}
-          {/* ⚠ TWO WORDINGS, one per tier, because each tier can only afford one of the two
-              facts. On a 390px strip the chips have no room for their counts, so this end
-              carries the pool size (its original job); on desktop the chips state their own
-              counts and this end is free to say what the ranking is OF. Both spans always
-              render — the contrast probe resolves `.lb-count` itself, and an element that
-              only exists at some widths is an element that only gets checked at some widths. */}
-          {(data?.pool_size ?? 0) > 0 && (
-            <span className="lb-count" data-testid="lb-pool">
-              <span className="lb-count-sm">{data?.pool_size} in your division</span>
-              <span className="lb-count-lg">Ranked by Lumens earned this week</span>
-            </span>
-          )}
-        </div>
-      )}
+        )}
+      </TierBand>
 
       {podium.length > 0 && (
         <Podium
