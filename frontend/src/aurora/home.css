@@ -17,6 +17,26 @@
   --sh:0 1px 2px rgba(80,50,20,.05), 0 12px 28px -14px rgba(90,58,24,.20);
   --sh-lg:0 2px 6px rgba(80,50,20,.07), 0 28px 54px -24px rgba(90,58,24,.30);
   --pop:0 12px 26px -8px rgba(240,80,30,.5);
+  /* ── STRUCK material (Phase 2). The League's five moves, same tokens, so Home and
+     The League read as one game. leaderboard.css:15-19 names Home's OLD construction —
+     1px hairlines, blurred shadows, pastel fills, smooth washes — as the generated-
+     dashboard house style. --sh / --sh-lg / --sheen above are exactly that and are
+     retained ONLY for the objects Phase 2 does not restrike.
+
+     THE LIP LADDER — exactly four depths. A fifth gets a lip only if another gives one
+     up, or "material everywhere" collapses into "the whole page is buttons".
+       structural  5px / 2.5px   .hm-deck .hm-board .hm-fcard .hm-panel
+       medallion   3px / 2px     .hm-chest .hm-badge
+       pill        2px / 2px     .hm-chip .hm-claim .hm-boost .hm-lb
+       flat        none          .hm-quest rows, calendar cells, the canvas
+
+     ⚠ NEVER 1px, and never 1.5px: Chrome snaps a used border-width to whole device
+     pixels, so a 1.5px outline RENDERS as the banned hairline and getComputedStyle
+     reports "1px". Differentiation comes from lip DEPTH, which is an offset and does
+     not snap. Gated in home_hud_assert.mjs. */
+  --mat-ink:#2A1F3D;      /* warm near-black violet — never grey, never #000 */
+  --mat-out:2.5px;
+  --mat-lip:5px;
   --hr:24px;
   /* D4: wider canvas so the bento fills the page and every card grows sideways
      (ricoe "homepage sides too much white space, enlarge all cards sideways"). */
@@ -33,11 +53,33 @@
 .hm-logo { width:40px; height:40px; display:inline-flex; }
 .hm-wm { color:var(--ink); }
 .hm-topr { display:flex; align-items:center; gap:12px; }
-.hm-chip { display:flex; align-items:center; gap:9px; background:linear-gradient(180deg,#FFF6E6,#FCEAC8); border:1px solid #F1DCB2; border-radius:999px; padding:6px 8px 6px 16px; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), var(--sh); }
+/* The level pill — the smallest and most-repeated of Home's old-construction objects, and
+   the first restruck: a #F1DCB2 hairline over a smooth wash under a blurred shadow was all
+   four symptoms in one 46px box. Now the PILL rung (2px outline / 2px lip, .struck-pill).
+   · The dropped `inset 0 1px 0 rgba(255,255,255,.6)` is not a loss. On the pill rung the LIT
+     TOP EDGE (move 4) is carried by the hard-stop fill itself — a light plane held to 46%,
+     then a step. That is how every League pill is built (.lg-rk, .lg-mv, .tb-help carry no
+     inset); only the medallion rung adds one. The gloss line existed to fake a lit top on a
+     surface that had no moulding, and the moulding is here now.
+   · `background-color` is not redundant with the gradient: a gradient-only box has no
+     computed background-color, so a contrast probe walks past it to the page and measures
+     the wrong surface. It is set to the DARKER band, so the probe reads the worst case.
+   · Vertical padding drops 6px→5px to pay for the outline going 1px→2px. That holds the
+     pill's outer height at 46px and its optical inset at 7px — both unchanged. It is not
+     cosmetic: home_mobile_assert fails .hm-chip above 1.9x its 24.8px line-height (47.1px),
+     and an un-paid-for 48px would have broken that gate at the desktop viewport. */
+.hm-chip { display:flex; align-items:center; gap:9px; --lip-c:#E3C489;
+  background-color:#FCEAC8;
+  background-image:linear-gradient(180deg,#FFF6E6 0%,#FFF6E6 46%,#FCEAC8 46%);
+  border-radius:999px; padding:5px 8px 5px 16px; }
 .hm-medal { width:32px; height:32px; border-radius:50%; background:linear-gradient(140deg,#FBBF24,#F97316); display:flex; align-items:center; justify-content:center; color:#fff; }
 .hm-medal .ico { width:19px; height:19px; }
 .hm-chip b { font-family:var(--font-home); font-weight:700; font-size:15px; }
-.hm-chip small { color:var(--hink3); font-weight:600; font-size:12.5px; }
+/* The rank name was --hink3 #A99FAB, which is 2.15:1 on the pill's fill — it failed AA on the
+   old wash too (2.38:1 on its lightest band), so the restrike inherits the defect rather than
+   causing it, and fixes it here because this is the rule that now names the fill. --hink2 is
+   4.76:1 on #FCEAC8, measured against the DARKER band the text crosses. */
+.hm-chip small { color:var(--hink2); font-weight:600; font-size:12.5px; }
 /* ── content-pool toggle (trainer/admin only; spec §4) — mirrors .console-segment on the warm surface ── */
 .hm-pool { display:flex; align-items:center; gap:8px; }
 .hm-pool-seg { display:inline-flex; gap:3px; padding:3px; background:linear-gradient(180deg,#FFF6E6,#FCEAC8); border:1px solid #F1DCB2; border-radius:999px; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), var(--sh); }
@@ -413,6 +455,49 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 @keyframes badge-shine { 0%,55%{background-position:150% 0;} 100%{background-position:-90% 0;} }
 @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 3px rgba(124,92,246,.22),0 6px 16px -5px rgba(124,92,246,.45);} 50%{box-shadow:0 0 0 6px rgba(124,92,246,.30),0 6px 20px -5px rgba(124,92,246,.6);} }
 @keyframes badge-legend { 0%,100%{filter:drop-shadow(0 0 6px rgba(251,191,36,.7));} 50%{filter:drop-shadow(0 0 13px rgba(124,92,246,.85));} }
+
+/* ── the struck depths ───────────────────────────────────────────────────────
+   Move 2 of the five: a HARD LIP is an offset shadow with ZERO BLUR, plus a second
+   shadow at the same offset carrying the outline as SPREAD — that second one is what
+   wraps the keyline around the lip's left and right crescents instead of stopping
+   where the box does. Blur may describe the ground; it may never describe an edge.
+   The third (blurred) shadow is the GROUND, and is the only blur permitted.
+   --lip-c is each object's own lip colour — a darker sibling of its fill — declared on
+   the object; the fallback only keeps an un-tuned object from losing its lip. */
+.aurora-home .struck-structural {
+  border:var(--mat-out) solid var(--mat-ink);
+  box-shadow:
+    0 var(--mat-lip) 0 0 var(--lip-c, #D9CDB6),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42,31,61,.34);
+}
+.aurora-home .struck-medallion {
+  border:2px solid var(--mat-ink);
+  box-shadow:
+    0 3px 0 0 var(--lip-c, #D9CDB6),
+    0 3px 0 2px var(--mat-ink),
+    0 9px 12px -5px rgba(42,31,61,.32);
+}
+.aurora-home .struck-pill {
+  border:2px solid var(--mat-ink);
+  box-shadow: 0 2px 0 0 var(--lip-c, #D9CDB6), 0 2px 0 2px var(--mat-ink);
+}
+/* A pressed object loses its lip and sinks by exactly the lip's height — the press IS
+   the depth being spent. Deliberately NOT frozen under reduced motion: it has no
+   transition, so it is an instantaneous state change rather than motion, and it is the
+   only feedback that the object was hit. Home's other two press transforms
+   (.hm-pool-seg button, .hm-eyeconmenu-btn) and the League's .tb-help:active are
+   un-gated for the same reason — those lists freeze `transition`, never the press.
+   ⚠ :active matches ANY element under the pointer, including a plain div. Every other
+   object on the pill rung (.hm-claim .hm-boost .hm-lb) is a button, but .hm-chip is a
+   readout, so it currently depresses on press with nothing behind it. Left as-is rather
+   than narrowing a shared mixin from inside one object's task — if a third non-
+   interactive object joins the rung, scope this to :where(button,a,[role="button"]). */
+.aurora-home .struck-pill:active,
+.aurora-home .struck-medallion:active {
+  transform:translateY(2px);
+  box-shadow: 0 0 0 0 var(--lip-c, #D9CDB6), 0 0 0 2px var(--mat-ink);
+}
 
 /* ── responsive ── */
 @media (max-width:900px) {
