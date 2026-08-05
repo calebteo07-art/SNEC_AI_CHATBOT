@@ -30,9 +30,15 @@ const PERSIST_SCHEMA_VERSION = "10";  // bumped: ["leaderboard",…] gained you_
  *  (["flashcards", …]) is deliberately excluded: it's ephemeral per-session content,
  *  persisting it stales the SM-2 / no-repeat rotation offline, and it's exactly the
  *  shape-drifting data that white-screened the study page. Topics, progress, cases,
- *  etc. stay persisted (useful and stable offline). */
+ *  etc. stay persisted (useful and stable offline).
+ *
+ *  ["home"] is excluded for the same reason: it is DAY-SCOPED. Rehydrating yesterday's
+ *  cache paints yesterday's three quest titles and a chest that reads unclaimed, for
+ *  one frame before the refetch lands. Correct-looking and wrong is the worst kind.
+ *  No PERSIST_SCHEMA_VERSION bump: a key that is never persisted cannot be rehydrated,
+ *  and no existing persisted shape changed. */
 export function shouldPersistQueryKey(queryKey: readonly unknown[]): boolean {
-  return queryKey[0] !== "flashcards";
+  return queryKey[0] !== "flashcards" && queryKey[0] !== "home";
 }
 
 /* Persistence is browser-only — this module is also evaluated during server
