@@ -131,47 +131,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-lvbar > span::after { content:""; position:absolute; top:0; bottom:0; left:0; width:38%; mix-blend-mode:screen; pointer-events:none;
   background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.8) 50%,transparent 70%); animation:hm-xp-shine 2.6s linear infinite; }
 @keyframes hm-xp-shine { 0% { transform:translateX(-130%); } 100% { transform:translateX(360%); } }
-/* leaderboard tease — a BOLD candy CTA under the XP bar (user directive 2026-07-14:
-   "make it in your face"). Loud saturated gradient + gloss + a travelling shine sweep +
-   an attention pulse, still held to the left column so it never overlaps the right-side
-   mascot. White text on dark-enough stops (WCAG-AA) + a soft text-shadow for pop. */
-.hm-lb { position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:10px; width:fit-content; max-width:420px;
-  margin-top:20px; padding:13px 20px 13px 15px; border-radius:999px; text-decoration:none; white-space:nowrap;
-  font-family:var(--font-home); font-weight:800; font-size:16.5px; letter-spacing:-.01em;
-  color:#fff; text-shadow:0 1px 2px rgba(80,10,40,.35);
-  background:linear-gradient(100deg,#7C3AED 0%,#C21E7A 52%,#C2410C 100%);
-  box-shadow:0 10px 22px -8px rgba(236,72,153,.55), inset 0 2px 0 rgba(255,255,255,.4), inset 0 0 0 1px rgba(255,255,255,.22);
-  animation:hm-lb-pulse 2.4s ease-in-out infinite;
-  transition:transform .18s cubic-bezier(.2,.9,.3,1.25); }
-/* glossy vinyl top-highlight */
-.hm-lb::before { content:""; position:absolute; inset:0 0 55% 0; border-radius:inherit; pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.5),transparent); }
-/* travelling shine sweep — pulls the eye straight to the CTA */
-.hm-lb::after { content:""; position:absolute; top:0; bottom:0; left:0; width:42%; pointer-events:none; mix-blend-mode:screen;
-  background:linear-gradient(100deg,transparent 28%,rgba(255,255,255,.85) 50%,transparent 72%); animation:hm-lb-shine 2.8s linear infinite; }
-.hm-lb > * { position:relative; } /* keep text + icons above the gloss/shine layers */
-.hm-lb .ico { width:21px; height:21px; color:#fff; }
-.hm-lb .ico:first-child { color:#FFD84D; filter:drop-shadow(0 1px 1px rgba(120,40,10,.4)); } /* gold medal pops on the gradient */
-.hm-lb .ico:last-child { transition:transform .2s ease; }
-.hm-lb:hover { transform:translateY(-2px) scale(1.035); }
-.hm-lb:hover .ico:last-child { transform:translateX(4px); }
-.hm-lb:focus-visible { outline:3px solid #fff; outline-offset:3px; }
-@keyframes hm-lb-pulse {
-  0%,100% { box-shadow:0 10px 22px -8px rgba(236,72,153,.55), 0 0 0 0 rgba(236,72,153,0), inset 0 2px 0 rgba(255,255,255,.4), inset 0 0 0 1px rgba(255,255,255,.22); }
-  50% { box-shadow:0 16px 30px -6px rgba(236,72,153,.75), 0 0 22px 3px rgba(124,58,237,.4), inset 0 2px 0 rgba(255,255,255,.45), inset 0 0 0 1px rgba(255,255,255,.3); }
-}
-@keyframes hm-lb-shine { 0% { transform:translateX(-140%); } 100% { transform:translateX(360%); } }
-/* reduced motion — freeze the pulse, shine, lift + arrow-nudge (the loud static pill stays). */
-@media (prefers-reduced-motion: reduce) {
-  .hm-lb { animation:none; transition:none; }
-  .hm-lb::after { animation:none; opacity:0; }
-  .hm-lb .ico:last-child { transition:none; }
-  .hm-lb:hover { transform:none; } .hm-lb:hover .ico:last-child { transform:none; }
-}
-html[data-motion="reduce"] .hm-lb { animation:none; transition:none; }
-html[data-motion="reduce"] .hm-lb::after { animation:none; opacity:0; }
-html[data-motion="reduce"] .hm-lb .ico:last-child { transition:none; }
-html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover .ico:last-child { transform:none; }
+/* The leaderboard control (.hm-lb) used to live here, as a candy CTA under the XP bar. It
+   is now the deck's RANK STRIP and its rules moved with it — see "THE RANK STRIP" near the
+   bottom of this file. Nothing on the greeting card styles it any more. */
 /* the default mascot sits BEHIND the full-bleed Veo loop (z-index:0) — it's the
    reduced-motion / no-video fallback that shows through when the clip is absent. */
 .hm-iriswrap { position:absolute; right:-34px; bottom:0; width:236px; height:210px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
@@ -535,7 +497,6 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-greet-veil { background:linear-gradient(96deg, rgba(255,246,236,.92) 0%, rgba(255,246,236,.82) 44%, rgba(255,246,236,.42) 64%, rgba(255,246,236,0) 84%); }
   .hm-lvl { max-width:62%; margin-top:20px; }
   .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
-  .hm-lb { margin-top:16px; font-size:15px; padding:11px 17px 11px 13px; }
   /* five-across on a phone leaves a ~58px slot, so the gap and the label ramp come down
      with it — the frame keeps showing five, which is the point of the pager */
   .hm-badges { --bgap:8px; }
@@ -609,9 +570,6 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lvl .hm-lr b { font-size:15.5px; }
   .hm-lvl .hm-lr .hm-z { font-size:13px; }
   .hm-lvbar { height:13px; }
-  /* min-height, not padding maths: the pill must clear the 44px touch-target floor at
-     whatever the type ramp resolves to (it measured 39px tall on the landscape ramp). */
-  .hm-lb { margin-top:16px; font-size:15px; padding:12px 17px 12px 13px; max-width:100%; min-height:44px; }
 
   /* streak tile + vaults: trim the padding that made every card read oversized */
   .hm-streak { padding:18px 20px; }
@@ -653,7 +611,6 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lvl .hm-lr { flex-direction:row; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:7px; }
   .hm-lvl .hm-lr b { font-size:14px; } .hm-lvl .hm-lr .hm-z { font-size:12px; }
   .hm-lvbar { height:11px; }
-  .hm-lb { margin-top:11px; font-size:13.5px; padding:9px 14px 9px 11px; min-height:44px; }
   /* phone landscape: same as portrait — no living mascot on the greeting card. This tier
      keeps the desktop-style card, so hide BOTH the full-bleed Veo loop and the fallback
      logo that would otherwise show bottom-right (user directive 2026-07-20). */
@@ -1144,6 +1101,88 @@ html[data-motion="reduce"] .aurora-home .hm-qbar > span { transition:none !impor
 }
 html[data-motion="reduce"] .aurora-home .hm-chest,
 html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important; }
+
+/* ══════════════════ THE RANK STRIP (.hm-lb — RankStrip.tsx) ══════════════════
+   The League standing, on the PILL rung. It used to be a candy CTA under the greeting
+   card's XP bar: a saturated violet→crimson gradient under a blurred 22px shadow, with a
+   gloss pseudo, a travelling shine sweep and an attention pulse — every symptom
+   leaderboard.css:15-19 names as the generated-dashboard house style, stacked on the one
+   object that links to The League.
+
+   ⚠ IT KEEPS ITS OLD HOOKS. `.hm-lb` and data-testid="greeting-leaderboard" are unchanged
+   because the control's JOB is unchanged — it opens the leaderboard — and two green gates
+   (home_mobile_assert.mjs, aurora_assert.mjs) reach for it by exactly those names.
+
+   ⚠ THIS OBJECT CARRIED THE DEFECT BOUND 4 EXISTS TO CATCH. Its fill was a gradient and
+   nothing else, so `background-color` computed to rgba(0,0,0,0): a contrast probe walked
+   straight past it to the page and measured the wrong surface, reading green having
+   measured nothing. It now ends in a SOLID, and that solid is the DARKER band of its own
+   hard-stop fill, so the probe reads the worst case.
+
+   COLOUR — the deck's three existing meanings, and no fourth system:
+   · GOLD MEANS THE MECHANIC. The medal glyph wears the deck's certified gold ink #9A6A08
+     (the boost chip's and the chest's own lip colour) — the League ranks on Lumens.
+   · GREEN MEANS UPWARD MOVEMENT, and only when there IS a climb. The summit line and the
+     failed read stay neutral, because neither one is movement.
+   · HUE IS IDENTITY — and it is deliberately NOT spent here. The strip does not wear the
+     division's metal: the ARCADE pass fixed the League's field and left promotion as the
+     only thing that changes colour, so a strip repainting itself Bronze→Diamond would
+     reintroduce exactly what that pass superseded. The division is a NAME.
+   The surface is the status bar's cream verbatim — one deck, one furniture colour, one
+   certified pair rather than a second that drifts. Measured against the darker band #FBEFD9:
+     --hink #2B2431 = 13.2:1    --hink2 #6D6474 = 4.95:1
+     green #0F6B36  = 5.81:1    gold #9A6A08 (glyph, 3:1 floor) = 4.16:1
+
+   ⚠ NO `white-space:nowrap`, which the old pill had. It pins min-content at the full
+   one-line width, and a box that then refuses to shrink inside its track walks straight off
+   a 390px viewport — the same trap documented on .hm-boost, and the deck's overflow budget
+   is 0px.
+   ⚠ NO ANIMATION AND NO TRANSITION, so this block needs no reduced-motion freeze. The
+   press-depth from .struck-pill is the whole feedback, and it is a state change rather than
+   motion (see the note on the :active rung above). */
+.hm-lb {
+  --lip-c:#E1CDA3;
+  display:flex; align-items:center; gap:11px;
+  width:100%; min-height:46px; padding:6px 12px 6px 13px; border-radius:14px;
+  text-decoration:none; color:var(--hink);
+  background-color:#FBEFD9;
+  background-image:linear-gradient(180deg,#FFFAF0 0%,#FFFAF0 44%,#FBEFD9 44%);
+}
+/* The copy is the object that looks better wider, so it is the one that grows and both
+   glyphs are fixed. min-width:0 is what lets a long division name shrink instead of
+   pushing the strip past the viewport. */
+.hm-lb-copy { display:flex; flex-direction:column; gap:1px; flex:1; min-width:0; }
+.hm-lb-s { font-family:var(--font-home); font-weight:800; font-size:14.5px; line-height:1.2;
+  letter-spacing:-.01em; }
+.hm-lb-dot { margin:0 3px; color:var(--hink2); }
+.hm-lb-g { font-weight:700; font-size:12px; line-height:1.25; color:var(--hink2); }
+.hm-lb-g[data-tone="up"] { color:#0F6B36; }
+.hm-lb .ico { width:19px; height:19px; flex:none; }
+.hm-lb .hm-lb-medal { color:#9A6A08; }
+.hm-lb .hm-lb-go { color:var(--hink2); }
+/* The failed read (league === null): the same strip, the same route, nothing numeric.
+   Quiet rather than absent — the leaderboard is still one tap away when Home cannot say
+   the rank, and a rank it cannot read is never a rank it invents. */
+.hm-lb[data-state="unknown"] .hm-lb-s { font-weight:700; color:var(--hink2); }
+.hm-lb[data-state="unknown"] .hm-lb-medal { color:var(--hink2); }
+.hm-lb:focus-visible { outline:3px solid var(--violet-d); outline-offset:3px; }
+
+/* phone portrait: ~48px, and every pixel comes out of the same 844px the status bar, the
+   three quest rows and the chest have already spent. The whole strip is the control, so
+   min-height is the 44px touch floor. */
+@media (max-width:640px) and (pointer:coarse) {
+  .hm-lb { gap:10px; min-height:46px; padding:6px 11px 6px 12px; border-radius:13px; }
+  .hm-lb-s { font-size:14px; }
+  .hm-lb-g { font-size:11.5px; }
+  .hm-lb .ico { width:18px; height:18px; }
+}
+/* phone landscape is WIDE + SHORT — trim height, keep the 44px floor */
+@media (max-height:480px) and (pointer:coarse) {
+  .hm-lb { gap:9px; min-height:44px; padding:5px 11px; border-radius:12px; }
+  .hm-lb-s { font-size:13.5px; }
+  .hm-lb-g { font-size:11px; }
+  .hm-lb .ico { width:17px; height:17px; }
+}
 
 /* ══════════════════ THE CEREMONY (.hm-cer — ChestCeremony.tsx) ══════════════════
    PORTALED TO <body>, so `.aurora-home`'s custom properties DO NOT REACH IT. Every value
