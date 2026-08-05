@@ -1526,12 +1526,25 @@
        860px board inside a ~1490px window at 58% of the field. Height is still the axis that
        costs ranks; this one is still free. */
     max-width: 980px;
-    padding: 8px 16px 36px;
-    gap: 6px;
+    padding: 6px 16px 36px;
+    /* ⚠ 13, from 6, AND THE UNIT IS NOT WHAT IT LOOKS LIKE ("cards and elements still crammed
+       together... space out the silver league card, the all/OA/OT/PSA card, the podium card
+       and the 4th-place card with each other"). Every struck object's hard lip is PAINT below
+       its border box — `.tb` ends in `0 6px 0 3px var(--mat-ink)`, so 9px of outlined lip
+       hangs under a box that getBoundingClientRect reports as ending at its border. The old
+       6px gap was therefore MINUS 3px of visible space: the band's lip and the filter's top
+       edge overlapped, which is exactly what "crammed" looks like, and every number this file
+       had collected about the rhythm said 6/15/13 and read as fine.
+       Optical, per tier: 4 / 12 / 9 here, 5 / 13 / 11 at ≥830, 7 / 17 / 15 at ≥900.
+       ⚠ This is why 1366x768 gives the champion's badge back (see the stage below): the gap is
+       charged THREE times down the column and this tier has ~13px of slack in total. Between
+       the two things asked for, the separation is the one that was named first and the one
+       that costs a third as much. */
+    gap: 13px;
   }
-  /* The stage buys its own air; the top padding funds it. Net −2px against the flat 10px
-     gap this replaces, which matters because 1366x768 sits ON the 8-rank floor. */
-  .pod-deck { margin: 9px 0 7px; }
+  /* The stage buys its own air; the top padding funds it. Layout 13/17/18 down the column,
+     which is optical 4/12/9 once each lip is subtracted. */
+  .pod-deck { margin: 4px 0 5px; }
   /* ⚠ The centring that used to live here is GONE (2026-08-04). "A control should be the
      size of its controls" was right about the CHIPS and wrong about the strip: a pill
      floating on the centre line was one of the four widths on four centres that made the
@@ -1593,6 +1606,10 @@
     --stage-w: 520px;
     grid-template-columns: minmax(0, 1fr) minmax(0, var(--stage-w)) minmax(0, 1fr);
     grid-template-areas: "banner stage clock";
+    /* 16, from the phone's 8: the flanks fill their tracks now, so this gap is the only thing
+       between a module's outline and a plinth's. It is taken out of the FLANK, which is free —
+       the stage is a fixed track and does not move. */
+    column-gap: 16px;
     padding: 10px 14px 0;
   }
   /* THE FLANKS BECOME MODULES. Each one was a single nowrap pill parked on the deck's floor
@@ -1604,20 +1621,32 @@
      `align-self: center` rather than `end`: a two-line module on the floor line reads as a
      footnote to the plinth beside it; centred against the figures it reads as one of three
      things standing on the deck. */
+  /* ⚠ THE FLANK FILLS ITS CELL (2026-08-05, "make the elements in the podium card bigger to
+     prevent white space"). Both modules were content-sized pills — 142x74 and 103x70 — parked
+     in the middle of a ~200px cell beside a 236-306px stage, so ~60% of each flank was empty
+     deck and the deck read as two small labels either side of the ceremony.
+     Both axes are FREE here, and that is why this is where the "bigger" goes:
+       · width — the cell is `minmax(0, 1fr)` and costs the ranks budget nothing. The cap is
+         what stops the 1700px tier turning a three-line module into a 269px banner.
+       · height — the deck's row is sized by the STAGE (the tallest of the three), so a flank
+         under it grows for nothing. min-height + align-content is the whole mechanism.
+     The stage itself is the one axis that IS charged, which is why it grows by tier below
+     and these numbers do not. */
   .pod-banner, .pod-clock {
     justify-self: center; align-self: center; margin-bottom: 0;
-    display: grid; justify-items: center; gap: 2px;
+    width: 100%; max-width: 264px; min-height: 118px;
+    display: grid; justify-items: center; align-content: center; gap: 3px;
     white-space: normal; text-align: center; line-height: 1.15;
-    padding: 11px 16px; border-radius: 15px;
+    padding: 14px 16px; border-radius: 17px;
   }
   .pod-banner-do, .pod-clock-l {
-    font-size: 10px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
+    font-size: 10.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
   .pod-banner-to, .pod-clock-v {
-    font-family: var(--disp); font-weight: 800; font-size: 18px; letter-spacing: -.01em;
+    font-family: var(--disp); font-weight: 800; font-size: 21px; letter-spacing: -.01em;
   }
   .pod-banner-sub, .pod-clock-sub {
-    display: block; margin-top: 1px; font-size: 9.5px; font-weight: 700; letter-spacing: .03em;
+    display: block; margin-top: 1px; font-size: 10px; font-weight: 700; letter-spacing: .03em;
   }
   /* SOLID, never an alpha — this file's rule, and these are the two smallest words on the deck.
      A 72%-alpha ink on the banner's own --gold-lo measures 4.4:1, which is under AA for 9.5px;
@@ -1625,23 +1654,57 @@
   .pod-banner-sub { color: var(--ink-on-gold); }
   .pod-clock-sub { color: #CFCADB; }                          /* 9.7:1 on --mat-ink */
   .pod-banner-ico { font-size: 9px; }
-  .pod { --pod-h: 234px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px; }
-  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 42px; --crown-w: 32px; }
-  .pod-slot[data-place="2"] { --pl-h: 82px; --face: 54px; --num-sz: 32px; }
-  .pod-slot[data-place="3"] { --pl-h: 66px; --face: 54px; --num-sz: 27px; }
+  /* ⚠ 2nd AND 3rd GROW FOR FREE; THE CHAMPION DOES NOT. The stage's height is the height of the
+     TALLEST column, which is always place 1 — so every pixel added to the champion's badge or
+     block is a pixel off the ladder, while the same pixel on 2nd or 3rd costs nothing until
+     their column reaches his. At this tier place 2's column is 204px under a 232px champion,
+     which is where the plinth and badge growth here comes from at zero cost: 92/78 from 82/66,
+     56 of badge from 54, and the numerals a third bigger.
+     ⚠ The champion is UNCHANGED at this tier, and that is the trade being made rather than an
+     oversight: 1366x768 clears the 8-rank floor by ~13px, the rhythm above spends most of it,
+     and the two steps below are where he grows. He still leads — 2nd and 3rd may not pass him
+     (league_assert bounds the order), which is what keeps their free growth honest. */
+  .pod { --pod-h: 232px; --top-h: 16px; --num-stroke: 5px; --num-ext: 3px; }
+  .pod-slot[data-place="1"] { --pl-h: 108px; --face: 58px; --num-sz: 46px; --crown-w: 32px; }
+  .pod-slot[data-place="2"] { --pl-h: 92px; --face: 56px; --num-sz: 38px; }
+  .pod-slot[data-place="3"] { --pl-h: 78px; --face: 56px; --num-sz: 32px; }
   .pod-nm { font-size: 13px; }
   .pod-score { font-size: 14px; }
   .pod-fig { padding-bottom: 3px; }
   .lg-row { min-height: 56px; }
   .lg-zone { min-height: 26px; }
 }
-/* The full-size stage, on a window tall enough to pay for it. Every value here was set by the
-   ranks budget working BACKWARDS from the fold, not by picking a nice size: 9 ranks at 1440x900
-   leaves the stage 255px, and the stage spends it on the figure first. */
-@media (min-width: 1024px) and (min-height: 860px) {
-  .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 7px; }
+/* ── THE FULL STAGE ────────────────────────────────────────────────────────────
+   On a window tall enough to pay for it. Every value here was set by the ranks budget working
+   BACKWARDS from the fold, not by picking a nice size.
+
+   ⚠ KEYED AT 830 SINCE 2026-08-05, down from 860, and the re-key IS the fix for "cards and
+   elements still crammed together in the laptop version". 860 was derived when the only tall
+   entry in the matrix was 1440x900, so it drew the line just under that window and nowhere
+   near the budget. Measured instead of assumed, the 8th rank on the compact stage lands at
+   y=737 and the scroller ends at (viewport height − 8):
+
+     1366x768   22.7px of slack   compact, and it stays compact — it cannot pay
+     1280x800   54.7px
+     1489x838   92.7px            THE REPORTED WINDOW, on the compact stage
+     1536x864   49.5px            (1080p at 125%, the other most common desktop viewport)
+
+   Both of the commonest desktop viewports there are — a 1080p panel at 125% scaling, in either
+   of its two widths — were sitting between the steps on the SMALL stage while holding 50-93px
+   of unspent budget. This step costs ~57px, which is why it is gated at the height that can
+   actually pay it rather than at the height of the one machine the matrix happened to hold.
+   Third time this file has learned the same lesson; the first two were about width. */
+@media (min-width: 1024px) and (min-height: 830px) {
+  /* 14, from 7 — this tier has the budget the one below does not. Layout 14/18/20 down the
+     column, which is 5/13/11 once each lip is subtracted, against −3/10/4 on the build that
+     was called crammed: the band and the filter were overlapping there. */
+  .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 14px; }
   .lb-chip { --chip-cap: 150px; }
-  .pod-deck { margin: 10px 0 8px; }
+  .pod-deck { margin: 4px 0 6px; padding: 11px 16px 0; }
+  .pod-banner, .pod-clock { min-height: 160px; padding: 17px 18px; border-radius: 19px; }
+  .pod-banner-do, .pod-clock-l { font-size: 11px; }
+  .pod-banner-to, .pod-clock-v { font-size: 25px; }
+  .pod-banner-sub, .pod-clock-sub { font-size: 10.5px; }
   .tb-head { padding: 11px 16px; }
   .tb-name { font-size: 29px; }
   .tb-mult { padding: 7px 14px; }
@@ -1651,28 +1714,54 @@
   .tb-pip { min-width: 46px; height: 23px; }
   .tb-pip[data-state="now"] { min-width: 52px; height: 28px; }
   .tb-hook { font-size: 13px; }
-  /* The stage widens with the board — 620 of 848, so the champion lands ~242x132. Both
-     numbers move together on purpose: growing the block height alone would have made it a
-     tower, and growing the stage width alone would have made it a slab.
-     The first build of this tier came in at 140px of block and cost the 9th rank — 8 with
-     zero slack. The 8px came back off the BLOCK rather than off the board width, because
-     width is free and height is the only thing the ladder pays for. */
+  /* The stage widens with the board — 620 of 1028, and 700 of 1148 once the ≥1400 width step
+     applies, where the champion lands 273x124. Both numbers move together on purpose: growing
+     the block height alone makes a tower, growing the stage width alone makes a slab. */
   .pod-deck { --stage-w: 620px; }
+  /* THE BADGE IS THE THING THAT WAS ASKED FOR ("enlarge the eyecon badges on the podium"), and
+     it is the single most expensive pixel on the page: the stage's height is the champion's
+     column, so +1 of --face on place 1 is −1 from the ladder, and the mass floor
+     (block ≥ 0.78x its own figure) drags the plinth up behind it. 58 → 82 here, a 71px ring
+     → 95px, and the plinth follows to 124 to stay a plinth rather than a tray.
+     2nd and 3rd go 56 → 72 for NOTHING — their column is 234px under a 277px champion, so
+     everything under that ceiling is free. Which is also why they may never lead: a badge
+     bigger than the champion's is the one shape this stage exists to forbid. */
   .pod { --pod-h: 278px; --top-h: 20px; --num-stroke: 6px; }
-  .pod-slot[data-place="1"] { --pl-h: 132px; --face: 80px; --num-sz: 56px; --crown-w: 44px; }
+  .pod-slot[data-place="1"] { --pl-h: 124px; --face: 82px; --num-sz: 58px; --crown-w: 46px; }
   .pod-slot[data-place="1"] .pod-fig { padding-top: 9px; padding-bottom: 3px; }   /* headroom scales with the crown */
-  .pod-slot[data-place="2"] { --pl-h: 106px; --face: 68px; --num-sz: 44px; }
-  .pod-slot[data-place="3"] { --pl-h: 86px; --face: 68px; --num-sz: 38px; }
+  .pod-slot[data-place="2"] { --pl-h: 100px; --face: 72px; --num-sz: 46px; }
+  .pod-slot[data-place="3"] { --pl-h: 84px; --face: 72px; --num-sz: 40px; }
   .pod-nm { font-size: 15px; }
   .pod-score { font-size: 17px; }
+}
+/* ── THE TALL WINDOW ───────────────────────────────────────────────────────────
+   1440x900 and up, where the stage above still leaves 90px unspent. The split from the step
+   above is the row height as much as the stage: a 56px rung is what buys an 838px window the
+   full-size ceremony, and a 900px one does not have to make that trade. */
+@media (min-width: 1024px) and (min-height: 900px) {
+  .lb-climb { gap: 16px; }
+  .pod-deck { margin: 6px 0 8px; padding: 13px 16px 0; }
+  .pod-banner, .pod-clock { min-height: 184px; padding: 20px; border-radius: 21px; }
+  .pod-banner-do, .pod-clock-l { font-size: 11.5px; }
+  .pod-banner-to, .pod-clock-v { font-size: 28px; }
+  .pod-banner-sub, .pod-clock-sub { font-size: 11px; }
+  .pod { --pod-h: 308px; --top-h: 22px; --num-stroke: 7px; }
+  .pod-slot[data-place="1"] { --pl-h: 136px; --face: 96px; --num-sz: 66px; --crown-w: 52px; }
+  .pod-slot[data-place="2"] { --pl-h: 112px; --face: 84px; --num-sz: 52px; }
+  .pod-slot[data-place="3"] { --pl-h: 94px; --face: 84px; --num-sz: 44px; }
+  .pod-nm { font-size: 16px; }
+  .pod-score { font-size: 18.5px; }
   .lg-nm { font-size: 16.5px; }
   .lg-sub { font-size: 12.5px; }
   .lg-score { font-size: 16.5px; }
   .lg-rk { font-size: 15px; }
-  /* 58, not the 64 the two-column board used. Stacked, the ladder is what pays for the stage,
-     and at 64 a 1440x900 window landed on exactly 8 ranks — the floor, with zero slack, so any
-     later pixel anywhere above it fails CI. Six px of row height buys the 9th rank back without
-     taking anything off a plinth, and 58 still clears the 44px medallion inside it twice over. */
+  /* 58, not the 64 the two-column board used, and not the 56 the step below keeps. Stacked, the
+     ladder is what pays for the stage: at 64 a 1440x900 window landed on exactly 8 ranks with
+     ZERO slack, so any later pixel anywhere above it failed CI. 58 leaves ~35px there and still
+     clears the 44px medallion inside it. The ≥830 step stays at 56 deliberately — a 56px rung is
+     exactly what buys an 838px window the full-size ceremony, and this one need not make that
+     trade. Row height is the ladder's own share of the budget, and the only lever that pays for
+     the stage without touching a plinth. */
   .lg-row { min-height: 58px; }
   .lg-zone { min-height: 30px; }
 }

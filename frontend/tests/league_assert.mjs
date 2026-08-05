@@ -306,10 +306,36 @@ const measure = (p) => p.evaluate(() => {
       const r = (s) => { const el = document.querySelector(s); return el ? el.getBoundingClientRect() : null; };
       const band = r(".tb"), filt = r(".lb-filter"), pod = r('[data-testid="podium"]'), list = r(".lg-list");
       if (!band || !filt || !pod || !list) return null;
+      /* HOW FAR THE LIP HANGS BELOW THE BORDER BOX. Every struck object on this page ends in a
+         zero-blur offset shadow with a spread — `.tb` carries `0 6px 0 3px var(--mat-ink)`, so
+         9px of outlined lip is PAINTED under a box that getBoundingClientRect reports as ending
+         at its border. That is not decoration to be ignored: it is the object's visible bottom
+         edge, and the space a reader perceives between two cards is the layout gap MINUS it.
+         Blur must be 0 — a soft cast shadow is depth, not an edge, and counting it would make
+         every gap on the page look 9px smaller than it reads. */
+      const lip = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return 0;
+        return (getComputedStyle(el).boxShadow || "").split(/,(?![^(]*\))/).reduce((mx, part) => {
+          if (/inset/.test(part)) return mx;
+          const n = (part.match(/-?[\d.]+px/g) || []).map(parseFloat);
+          if (n.length < 3 || n[2] !== 0) return mx;
+          return Math.max(mx, n[1] + (n.length >= 4 ? n[3] : 0));
+        }, 0);
+      };
       return {
         bandToFilter: +(filt.top - band.bottom).toFixed(1),
         filterToStage: +(pod.top - filt.bottom).toFixed(1),
         stageToBoard: +(list.top - pod.bottom).toFixed(1),
+        /* THE SAME THREE GAPS AS A READER SEES THEM. This is the measurement the "still crammed
+           together" report was about and the one this file did not have: at 6/15/13 of layout
+           the band's lip and the filter's top edge were overlapping by 3px, and every number
+           collected about the rhythm said the column was correctly grouped. */
+        optical: [
+          +(filt.top - band.bottom - lip(".tb")).toFixed(1),
+          +(pod.top - filt.bottom - lip(".lb-filter")).toFixed(1),
+          +(list.top - pod.bottom - lip(".pod-deck")).toFixed(1),
+        ],
         /* The landscape-phone tier puts the ladder BESIDE the stage, where "the gap under
            the stage" is not a quantity that exists — the list starts level with the band,
            so the subtraction returns a large negative and any bound on it is meaningless.
@@ -392,6 +418,13 @@ const measure = (p) => p.evaluate(() => {
            can step down perfectly and still all be trays. */
         w: block ? +block.getBoundingClientRect().width.toFixed(1) : null,
         figH: fig ? +fig.getBoundingClientRect().height.toFixed(1) : null,
+        /* THE BADGE, which is what "enlarge the eyecon badges" was about (2026-08-05). It is
+           also the one measurement that makes the stage's cost model legible: the stage's
+           height is the CHAMPION's column, so 2nd and 3rd may grow up to his for free while
+           every pixel of his is a pixel off the ladder. That asymmetry is a standing invitation
+           to grow the two cheap ones past the expensive one, which would put the biggest
+           portrait on the stage above a smaller champion. */
+        faceW: (() => { const f = el.querySelector(".pod-face"); return f ? +f.getBoundingClientRect().width.toFixed(1) : null; })(),
         bg: cs ? cs.backgroundColor : null,
         border: cs ? +parseFloat(cs.borderTopWidth || "0").toFixed(1) : null,
         lip: cs ? hardLip(cs.boxShadow) : null,
@@ -492,6 +525,7 @@ const measure = (p) => p.evaluate(() => {
       const cs = getComputedStyle(deck);
       const padL = d.left + parseFloat(cs.paddingLeft || "0") + parseFloat(cs.borderLeftWidth || "0");
       const padR = d.right - parseFloat(cs.paddingRight || "0") - parseFloat(cs.borderRightWidth || "0");
+      const colGap = parseFloat(cs.columnGap || "0") || 0;
       const out = [];
       for (const sel of [".pod-banner", ".pod-clock"]) {
         const el = document.querySelector(sel);
@@ -501,9 +535,19 @@ const measure = (p) => p.evaluate(() => {
         // they are stacked underneath it, which is a different (and legal) geometry.
         const beside = r.top < s.bottom - 1 && r.bottom > s.top + 1;
         out.push({
-          sel,
+          sel, beside,
           onStage: beside ? +Math.max(0, Math.min(r.right, s.right) - Math.max(r.left, s.left)).toFixed(1) : 0,
           escapes: +Math.max(0, padL - r.left, r.right - padR).toFixed(1),
+          /* The flank's own grid TRACK, read off the geometry either side of it rather than
+             from a copy of the template: the template changes at every tier and a copy of it
+             here drifts silently. Left flank = deck's padding edge → the stage; right flank =
+             the stage → the deck's padding edge. */
+          cell: !beside ? null : +(sel === ".pod-banner"
+            ? (s.left - colGap) - padL
+            : padR - (s.right + colGap)).toFixed(1),
+          w: +r.width.toFixed(1),
+          h: +r.height.toFixed(1),
+          stageH: +s.height.toFixed(1),
         });
       }
       return out;
@@ -586,8 +630,20 @@ const WIDE = { tag: "wide", width: 1920, height: 1080, touch: false };
    two defects the user reported lived in that cell. */
 const SHORT_WIDE = { tag: "short-wide", width: 1489, height: 838, touch: false };
 
+/* A 5:4 MONITOR, and the only entry that is here for a CODE PATH rather than for a device.
+   The desktop range is two axes — a width step at 1400 and height steps at 620/830/900 — and
+   every wide entry above is ≥1400, so the full stage had only ever been measured at its 700px
+   width on an 1180-1320px board. `--stage-w: 620px` inside a 1060px board, which is what every
+   1024-1399px window ≥830 tall actually renders, was reachable by nobody in the matrix: the
+   flank tracks are ~185px there rather than ~197-269, and that is the tightest they get on any
+   desktop tier. 1280x1024 is a real resolution that lands squarely in that cell.
+   ⚠ It is NOT the ranks-budget case. Slack rises with height inside a step, so the binding
+   member of a height step is its SHORTEST window — 1489x838 for ≥830 and 1440x900 for ≥900,
+   both already above. This one is about width. */
+const FIVE_FOUR = { tag: "five-four", width: 1280, height: 1024, touch: false };
+
 /* ── 1) geometry + structure, across the whole device matrix ─────────────────────────── */
-for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, WIDE]) {
+for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   const ctx = await boardCtx(b, vp);
   const p = await openBoard(ctx);
   const m = await measure(p);
@@ -671,6 +727,21 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, WIDE]) {
     const metals = new Set(m.podiumBlocks.map((s) => s.bg));
     if (metals.size !== 3) bad(`${at}: the three places paint ${metals.size} distinct colour(s) — gold, silver and bronze must be materials, not labels`);
     else ok(`${at}: the three places wear three distinct metals`);
+
+    /* THE CHAMPION WEARS THE BIGGEST BADGE (2026-08-05). Not decoration — it guards the stage's
+       cost model. The stage's height is the champion's column, so 2nd and 3rd can be grown all
+       the way up to his for FREE while every pixel of his comes straight off the ladder, and
+       that asymmetry is a standing invitation to spend "make the badges bigger" on the two
+       cheap ones. Do that and the crowned portrait is the smallest of the three.
+       Ordered, never pinned: the sizes change at four tiers and a pinned 96/84 would fail on
+       the next retune while this survives it. */
+    const faces = Object.fromEntries(m.podiumBlocks.map((s) => [s.place, s.faceW]));
+    const [f1, f2, f3] = [faces["1"], faces["2"], faces["3"]];
+    if (![f1, f2, f3].every((f) => typeof f === "number" && f > 0)) {
+      bad(`${at}: could not measure all three podium badges (got ${JSON.stringify([f1, f2, f3])})`);
+    } else if (!(f1 > f2 && f2 >= f3)) {
+      bad(`${at}: the badges are ${f1}/${f2}/${f3}px for 1st/2nd/3rd — the champion's portrait must be the largest on the stage`);
+    } else ok(`${at}: the badges step down ${f1} > ${f2} ≥ ${f3}px`);
   }
 
   if (m.crowns !== 1) bad(`${at}: ${m.crowns} crowns on the board, expected exactly 1`);
@@ -753,6 +824,26 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, WIDE]) {
         bad(`${at}: ${f.sel} overlaps the stage by ${f.onStage}px and escapes the deck by ${f.escapes}px — its text is being drawn under a plinth`);
       }
     } else ok(`${at}: both deck flanks clear the stage and stay inside the deck`);
+
+    /* AND THEN IT FILLS IT (2026-08-05, "make the elements in the podium card bigger to prevent
+       white space"). The bound the pass before this one did not have, and the defect it left
+       behind: the flanks were made un-clippable and then left CONTENT-sized, so each one was a
+       142x74 pill adrift in a ~197px track beside a 283px stage — 28% of its width and 74% of
+       its height empty deck, which is precisely the white space that got reported.
+       There is no budget argument for leaving them small, which is why this is a floor rather
+       than a preference: the track is `1fr` (free) and the deck's row is sized by the STAGE, so
+       a flank grows in both axes for nothing. The stage is the only object on the deck whose
+       size is charged to the ladder.
+       Guarded to the flanks that sit BESIDE the stage: on the phone tier they are a caption row
+       underneath it, where "its own track" is the whole deck and the ratio means nothing. */
+    for (const f of m.flanks.filter((x) => x.beside && x.cell > 0)) {
+      const fill = f.w / f.cell, tall = f.h / f.stageH;
+      if (fill < 0.85) {
+        bad(`${at}: ${f.sel} is ${f.w}px in a ${f.cell}px track (${(fill * 100).toFixed(0)}%, floor 85%) — the deck's white space is a flank that never filled its own cell`);
+      } else if (tall < 0.4) {
+        bad(`${at}: ${f.sel} is ${f.h}px tall beside a ${f.stageH}px stage (${(tall * 100).toFixed(0)}%, floor 40%) — a label beside the ceremony, not one of three objects standing on the deck`);
+      } else ok(`${at}: ${f.sel} fills ${(fill * 100).toFixed(0)}% of its track and ${(tall * 100).toFixed(0)}% of the stage's height`);
+    }
   }
 
   /* THE LENS STRIP IS NOT AN EMPTY BAR — the rung's dead-middle budget, applied to the object
@@ -782,7 +873,21 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, WIDE]) {
     bad(`${at}: the head and its filter sit ${m.rhythm.bandToFilter}px apart but the filter sits ${m.rhythm.filterToStage}px from the stage — equal spacing is not hierarchy`);
   } else if (m.rhythm.stacked && m.rhythm.stageToBoard < m.rhythm.bandToFilter) {
     bad(`${at}: the stage has ${m.rhythm.stageToBoard}px under it and the head has ${m.rhythm.bandToFilter}px — the ceremony needs at least the air the head gets`);
-  } else ok(`${at}: the column is grouped ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}px, not flat`);
+  /* AND THE TIGHTEST OF THE THREE IS STILL A VISIBLE GAP (2026-08-05, "cards and elements still
+     crammed together in the laptop version — space out the silver league card, the
+     all/OA/OT/PSA card, the podium card and the 4th-place card with each other").
+     ⚠ MEASURED OPTICALLY, and that is the entire point. The order check above passed on a
+     column whose band and filter were TOUCHING: 6px of layout gap under a lip that paints 9px
+     below the border box is −3px of visible space. Every number this file had about the rhythm
+     agreed the column was correctly grouped while two of the four cards overlapped on screen —
+     the same "precise measurement of the wrong thing" its own history warns about, this time
+     about the wrong QUANTITY rather than the wrong device.
+     A floor rather than a pin: the three values still move freely per tier (4/12/9 · 5/13/11 ·
+     7/17/15) and only the smallest is bounded. Desktop only — on a 390px phone every one of
+     those pixels is a pixel of ladder, and the report was about a laptop. */
+  } else if (vp.width >= 1024 && m.rhythm.stacked && Math.min(...m.rhythm.optical) < 3) {
+    bad(`${at}: the column's tightest VISIBLE gap is ${Math.min(...m.rhythm.optical)}px (optical ${m.rhythm.optical.join("/")} from layout ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}, floor 3px on desktop) — a lip that paints below its own border box is the card's edge, not the gap`);
+  } else ok(`${at}: the column is grouped ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}px layout — ${m.rhythm.optical.join("/")}px visible once each lip is subtracted`);
 
   /* THE OUTLINE, on every object claiming a rung of the lip ladder. Rule 1 of the file's
      own recipe is a dark defining edge in --mat-ink — "never grey, because grey on a
