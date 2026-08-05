@@ -107,11 +107,31 @@ POSIX snippets above also run via the Bash tool.
 
 ## Git
 
+**Worktree per session (user policy, 2026-08-05).** Several sessions edit this repo at
+once. **Before your first `Edit`/`Write`, call `EnterWorktree`** — it branches from
+`origin/main` (`worktree.baseRef: fresh`), so you never inherit another session's
+unpushed commits, WIP files, index or `.next`. The `SessionStart` hook
+(`session_worktree.py`) tells you which side you're on. Read-only work needs no worktree.
+A fresh worktree has no `node_modules`: junction it to the main repo for `typecheck`
+(`next build` through a junction needs `--webpack`; Turbopack rejects an out-of-root
+symlink), or `npm ci` in the worktree when a concurrent session is churning the shared
+dir. Drop the junction with the reparse-point delete, **never `Remove-Item -Recurse`**.
+
 After a completed task, stage + commit + **push directly to `main`** — no feature
 branch, no asking first (user policy, 2026-06-29). `main` auto-deploys to Render prod,
 so **verify green first** (the relevant pytest / typecheck / build / assert harness
-must pass) — never ship red. Stage only the files for this task (the tree often carries
-unrelated dirty files).
+must pass) — never ship red. Stage only the files for this task. Ship from the worktree:
+
+```bash
+git add <this task's files> && git commit
+git fetch origin main
+git rebase origin/main      # if this pulls anything in, RE-RUN the gates
+git push origin HEAD:main   # fast-forward; carries only your commits
+```
+
+Re-`git fetch` immediately *before* the push — `origin/main` has moved twice inside one
+verify cycle. Then `ExitWorktree` (remove). **Never push the shared checkout's local
+`main`** — it carries other sessions' unpushed, unverified work.
 
 **Exception:** a change that breaks prod the moment it lands but *before* out-of-band
 setup (a new required env var/secret, a DB migration, a fail-closed guard) — still
