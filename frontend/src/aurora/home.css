@@ -25,10 +25,10 @@
 
      THE LIP LADDER — exactly four depths. A fifth gets a lip only if another gives one
      up, or "material everywhere" collapses into "the whole page is buttons".
-       structural  5px / 2.5px   .hm-deck .hm-board .hm-fcard .hm-panel
+       structural  5px / 2.5px   .hm-deck .hm-hud .hm-board .hm-fcard .hm-panel
        medallion   3px / 2px     .hm-chest .hm-badge
-       pill        2px / 2px     .hm-chip .hm-claim .hm-boost .hm-lb
-       flat        none          .hm-quest rows, calendar cells, the canvas
+       pill        2px / 2px     .hm-chip .hm-claim .hm-boost .hm-risk .hm-lb
+       flat        none          .hm-quest rows, the XP groove, calendar cells, the canvas
 
      ⚠ NEVER 1px, and never 1.5px: Chrome snaps a used border-width to whole device
      pixels, so a 1.5px outline RENDERS as the banned hairline and getComputedStyle
@@ -719,3 +719,151 @@ html[data-motion="reduce"] .aurora-home .hm-big::before,
 html[data-motion="reduce"] .aurora-home .hm-panel--lumen,
 html[data-motion="reduce"] .aurora-home .hm-caldot,
 html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldot { animation:none !important; }
+
+/* ══════════════════ THE HUD STATUS BAR (.hm-hud — StatusBar.tsx) ══════════════════
+   The deck's top rail: who you are, how far the next level is, and the clocks that are
+   running right now. STRUCTURAL rung — it is the head the quest board and the chest hang
+   under, and there is exactly one of it.
+
+   ⚠ THE CLOCKS KEEP TICKING UNDER REDUCED MOTION. Everything frozen at the bottom of this
+   block is DECORATION — the boost's glow and the meter's fill transition. The 1s interval
+   that drives the numerals lives in StatusBar.tsx and is deliberately un-gated: reduced
+   motion is about vestibular safety, not about withholding information, and a stopped
+   clock lies about how long a boost has left.
+
+   COLOUR, straight off the League's header (leaderboard.css:88-94):
+   · GOLD MEANS THE MECHANIC. The meter's fill and the boost chip are the SAME gold because
+     they are the same mechanic — Lumens. Reusing the League's certified #DFA828/#3A2600
+     pair rather than mixing a second gold is what keeps "gold" a meaning instead of a look.
+   · FLAME MEANS THE STREAK — Home's own established streak identity (.hm-flame), spent
+     here on the one thing that can end today.
+   · Hue is never identity on this bar, and there is no fourth colour system.
+
+   EVERY OBJECT ENDS IN A SOLID background-color, set to the DARKER band of its own
+   hard-stop fill so a contrast probe measures the worst case instead of walking past a
+   gradient to the page. Measured against those darker bands:
+     --hink #2B2431 on #FBEFD9 = 13.2:1        --hink2 #6D6474 on #FBEFD9 = 4.95:1
+     #3A2600 on gold #DFA828   = 6.70:1        #7A2E06 on ember #FBD7B4  = 6.97:1
+   The gold pair is the League's own number, re-derived here and identical — one gold, one
+   certified ink, two screens. */
+.hm-hud {
+  --lip-c:#E1CDA3;
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center;
+  gap:10px 18px; padding:12px 16px; border-radius:20px;
+  background-color:#FBEFD9;
+  background-image:linear-gradient(180deg,#FFFAF0 0%,#FFFAF0 42%,#FBEFD9 42%);
+}
+/* grid kids without this refuse to shrink below min-content and push the page past 390px */
+.hm-hud > * { min-width:0; }
+.hm-hud .hm-chip { max-width:100%; }
+/* the League's .lg-sr / .tb-sr, ported: labels a sighted reader gets from context */
+.hm-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap; border:0; }
+
+/* ── the XP meter — the object that looks better wider, so it owns the 1fr track ── */
+.hm-hudxp { display:flex; flex-direction:column; gap:6px; }
+.hm-hudxp-l { display:flex; align-items:baseline; gap:7px; margin:0; flex-wrap:wrap; }
+.hm-hudxp-n { font-weight:800; font-size:19px; line-height:1; color:var(--hink); font-variant-numeric:tabular-nums; }
+.hm-hudxp-d { font-weight:600; font-size:13px; color:var(--hink2); }
+.hm-hudxp-g { margin-left:auto; font-weight:700; font-size:12.5px; color:var(--hink2); }
+/* A CHANNEL CUT INTO the bar, not a fifth rung: a dark machined recess with a ZERO-BLUR
+   inset edge (blur may describe the ground, never an edge) and no outline of its own —
+   which is the flat rung. The dark channel is what makes the unfilled remainder legible;
+   a cream groove on a cream bar reads as nothing at 14px. */
+.hm-hudxp-bar { height:14px; border-radius:999px; overflow:hidden;
+  background-color:#3B2E52; box-shadow:inset 0 2px 0 0 rgba(20,13,32,.55); }
+.hm-hudxp-bar > span { display:block; height:100%; border-radius:999px;
+  background-color:#DFA828;
+  background-image:linear-gradient(180deg,#F7D264 0%,#F7D264 44%,#DFA828 44%);
+  box-shadow:inset 0 -2px 0 0 rgba(122,82,6,.5);
+  transition:width .5s var(--spring); }
+
+/* ── the clocks ── */
+/* isolation, not z-index: the boost's glow is a z-index:-1 pseudo, and without a stacking
+   context here it would paint BEHIND .hm-hud's own background and vanish. */
+.hm-hudclocks { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;
+  position:relative; isolation:isolate; }
+/* ⚠ THE CHIPS WRAP, AND ONLY THE NUMERALS DO NOT. `white-space:nowrap` on the whole chip
+   pins its min-content at its full one-line width, which a 390px phone cannot pay: the
+   chip then refuses to shrink inside its track and walks straight off the viewport (the
+   deck's overflow budget is 0px). Wrapping is free here because the label is a sentence
+   and the countdown is the only thing that must never break mid-value. */
+.hm-boost, .hm-risk { display:inline-flex; align-items:center; flex-wrap:wrap; gap:3px 7px;
+  padding:5px 13px; border-radius:999px; }
+.hm-boost .ico, .hm-risk .ico { width:17px; height:17px; stroke-width:2; }
+.hm-boost b, .hm-risk b, .hm-boost-t { font-family:var(--font-home); font-weight:800;
+  font-size:15px; letter-spacing:-.01em; white-space:nowrap; }
+.hm-boost small, .hm-risk small { font-weight:700; font-size:12px; }
+
+.hm-boost { position:relative; --lip-c:#9A6A08; color:#3A2600;
+  background-color:#DFA828;
+  background-image:linear-gradient(180deg,#F5C63F 0%,#F5C63F 46%,#DFA828 46%); }
+/* tabular + a floor on the width so "9:59" -> "10:00" cannot shuffle the chip every minute */
+.hm-boost-t { font-variant-numeric:tabular-nums; min-width:4.4ch; text-align:right; }
+
+.hm-risk { --lip-c:#E0A874; color:#7A2E06;
+  background-color:#FBD7B4;
+  background-image:linear-gradient(180deg,#FFEBD6 0%,#FFEBD6 46%,#FBD7B4 46%); }
+.hm-risk b { font-variant-numeric:tabular-nums; }
+
+/* The bar's ONLY motion: a slow breath of light AROUND the live boost — never on the
+   numerals, and never on the lip (the lip IS .struck-pill's box-shadow; animating it would
+   erase the depth the whole material language is built from). */
+.hm-boost::after { content:""; position:absolute; inset:-5px; z-index:-1; border-radius:999px;
+  pointer-events:none;
+  background:radial-gradient(closest-side, rgba(245,198,63,.85), rgba(245,198,63,0));
+  animation:hm-boost-breathe 2.4s ease-in-out infinite; }
+@keyframes hm-boost-breathe { 0%,100% { opacity:.32; } 50% { opacity:.9; } }
+
+/* phone portrait: 134px at 390x844 (desktop is 74px in one row), and the height is the
+   whole design problem — every pixel here is spent out of the fold budget the quest rows
+   and the chest still have to fit inside. */
+@media (max-width:640px) and (pointer:coarse) {
+  /* TWO COLUMNS THAT OVERLAP, and every item placed EXPLICITLY. Measured, in order:
+     · auto-flow put the three items on THREE rows (a `grid-column:1/-1` meter cannot start
+       in an occupied row 1, so it took row 2 and pushed the clocks to a row 3) — 194px.
+     · stacking who-you-are over the clocks — 186px, because a ~190px clock column wraps
+       BOTH chips to two lines and then adds their heights together.
+     The clocks are a column of their own spanning both rows, so the chip+meter stack and
+     the chip stack are paid CONCURRENTLY instead of in series. Every pixel here comes out
+     of the same 844px the quest rows and the chest have to fit inside.
+
+     ⚠ THE CLOCK TRACK IS CAPPED AT 44%, NOT `auto`, and the cap is the whole point: grid
+     sizes an auto track to MAX-CONTENT before the fr track sees any free space, so the
+     streak chip's sentence took 213 of 334px and left the meter 107 — a text box eating the
+     track that belongs to the object that looks better wider. A percentage resolves against
+     the grid's own content box, so the split holds at every width instead of being
+     negotiated by content. The chips wrap onto two lines inside their cap, which costs no
+     height: they were already running in parallel with the chip+meter stack. */
+  .hm-hud { grid-template-columns:minmax(0,1fr) minmax(0,44%); gap:8px 10px; padding:10px 12px; border-radius:18px; }
+  .hm-hud .hm-chip { grid-row:1; grid-column:1; }
+  .hm-hudxp { grid-row:2; grid-column:1; }
+  .hm-hudclocks { grid-row:1 / span 2; grid-column:2; flex-direction:column; flex-wrap:nowrap;
+    align-items:flex-end; gap:6px; }
+  .hm-hudxp-n { font-size:17px; }
+  .hm-hudxp-d, .hm-hudxp-g { font-size:12px; }
+  .hm-boost b, .hm-risk b, .hm-boost-t { font-size:14px; }
+  .hm-boost small, .hm-risk small { font-size:11.5px; }
+  /* a squeezed chip wraps its label onto a second line, and a 999px radius pushes that
+     line into the curve — a 16px rounded rect carries two lines with the same lip */
+  .hm-boost, .hm-risk { border-radius:16px; padding:5px 11px; }
+  .hm-boost::after { border-radius:18px; }
+}
+/* phone landscape is WIDE + SHORT: keep the one-row grid (there is width to spare) and
+   spend the saving on height. */
+@media (max-height:480px) and (pointer:coarse) {
+  .hm-hud { gap:8px 12px; padding:9px 13px; }
+  .hm-hudxp-bar { height:12px; }
+  .hm-hudxp-n { font-size:16px; }
+  .hm-hudxp-d, .hm-hudxp-g { font-size:12px; }
+}
+
+/* ⚠ DECORATION ONLY. The countdowns are NOT here and must never be: see the header of this
+   block, and the assertion in _home_hud_assert.mjs that waits 1.4s under reduce and
+   requires [data-testid="boost-timer"] to have CHANGED. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-home .hm-boost::after { animation:none !important; }
+  .aurora-home .hm-hudxp-bar > span { transition:none !important; }
+}
+html[data-motion="reduce"] .aurora-home .hm-boost::after { animation:none !important; }
+html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !important; }
