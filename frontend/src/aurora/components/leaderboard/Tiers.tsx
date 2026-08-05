@@ -1,63 +1,71 @@
-/* The five division metals, as inline SVG.
+/* The five division tiers, as inline SVG.
 
    This file exists because of one report: "the league tiers are unclear and do not make
    sense to users". The board used to render all five divisions in the same gold, on purpose
    — the old rule was "division is carried by luminance, never hue, so five metals never
-   fight one accent". That rule is what broke them: a SILVER rung painted gold is a
-   contradiction the reader has to resolve before they can read the ladder at all.
+   fight one accent". That rule is what broke them: a rung painted a colour that contradicts
+   its own name is something the reader has to resolve before they can read the ladder at all.
 
    The rule now: hue is identity ONLY here, on the tier band and on the podium. Gold everywhere
    else on the board still means the mechanic (the promotion zone, the cut, your row), so the
-   two never collide — a gold *crest* is the Gold division, a gold *plinth* is first place, and
+   two never collide — a gold *crest* is the Solar division, a gold *plinth* is first place, and
    gold *anything else* is "this is live".
+
+   ⚠ NAMED FOR THE LIGHT THEY ARE, not for a metal (2026-08-06). These keys were
+   bronze/silver/gold/platinum/diamond right up until the rename, which meant every CSS
+   selector on the board said `silver` while painting electric azure — the same contradiction
+   the paragraph above opens with, hiding one layer down where only the next author would meet
+   it. The five here ARE the five in league.py DIVISIONS, lowercased, in order.
 
    Still zero rasters: every crest is a path, so nothing can drift out of registration the way
    the deleted ped-*.webp overlays did. league_assert fails on any background-image: url(). */
 
-export const METALS = ["bronze", "silver", "gold", "platinum", "diamond"] as const;
-export type Metal = (typeof METALS)[number];
+export const TIERS = ["ember", "volt", "solar", "nova", "prism"] as const;
+export type Tier = (typeof TIERS)[number];
 
-/** The medal a finishing PLACE wears on the podium.
+/** The tier a finishing PLACE wears on the podium.
  *
- *  A separate axis from the division metals above, even though three of the names collide:
- *  first place is gold whether the division is Bronze or Diamond. Keeping them in one lookup
- *  would make "gold" ambiguous at exactly the moment a Gold-division board renders a gold
- *  band above a gold plinth and the reader has to work out which gold means what. */
-export const PLACE_METALS: Record<number, Metal> = { 1: "gold", 2: "silver", 3: "bronze" };
+ *  A separate axis from the divisions above, even though it draws from the same five: first
+ *  place is gold whether the division is Ember or Prism. Keeping them in one lookup would make
+ *  "solar" ambiguous at exactly the moment a Solar-division board renders a gold band above a
+ *  gold plinth and the reader has to work out which gold means what.
+ *  Gold / azure / vermilion, which is the ladder's own top three read as 1-2-3 — the podium
+ *  and the ladder are made of one set of colours rather than two. */
+export const PLACE_TIERS: Record<number, Tier> = { 1: "solar", 2: "volt", 3: "ember" };
 
 /** hi / mid / low stops, pitched for the LIGHT canvas (2026-08-03).
  *
  *  The previous set was tuned for a near-black stage, where a metal reads by its bright stop.
- *  On white that inverts: #FFFFFF and #F2FDFF highlights simply vanish, which is why silver,
- *  platinum and diamond collapsed into one another. Every hi stop is therefore pulled off
- *  white, and the MID — the stop that carries the identity — is saturated enough to hold its
- *  own against the canvas.
+ *  On white that inverts: #FFFFFF and #F2FDFF highlights simply vanish, which is why the three
+ *  pale metals collapsed into one another. Every hi stop is therefore pulled off white, and the
+ *  MID — the stop that carries the identity — is saturated enough to hold its own against the
+ *  canvas.
  *
- *  Five materials, five hues, checked as hues rather than luminances: warm brown → cool grey →
- *  deep gold → indigo-violet → cyan. Silver and platinum remain the pair most at risk of
- *  collapsing, so platinum is pushed hard into violet rather than merely "cooler".
+ *  Five hues, checked as hues rather than luminances: vermilion → azure → gold → violet →
+ *  aqua, spread right around the wheel so no two rungs can collapse the way the old
+ *  silver/platinum pair did.
  *
  *  ⚠ RE-CUT 2026-08-05 to the RARITY LADDER in leaderboard.css. The crest is the one place the
  *  division's colour is authored in TSX rather than in CSS, so it is the one that silently
- *  falls out of step: a grey shield on an azure Silver band is the same contradiction this
- *  file's header opens with, arriving from the other direction. Each MID is the band's own
+ *  falls out of step: a grey shield on an azure band is the same contradiction this file's
+ *  header opens with, arriving from the other direction. Each MID is the band's own
  *  --f-lo, exactly — if those five change, these five change with them. */
-const STOPS: Record<Metal, readonly [string, string, string]> = {
-  bronze: ["#FFC79A", "#FF6320", "#8A2A05"],
-  silver: ["#B7E9FF", "#22B8F0", "#0A4E7A"],
-  gold: ["#FFE894", "#FFB800", "#7A5206"],
-  platinum: ["#E0CBFF", "#B478FA", "#46177F"],
-  diamond: ["#B9FBF2", "#2DE1D0", "#0A5F5B"],
+const STOPS: Record<Tier, readonly [string, string, string]> = {
+  ember: ["#FFC79A", "#FF6320", "#8A2A05"],
+  volt: ["#B7E9FF", "#22B8F0", "#0A4E7A"],
+  solar: ["#FFE894", "#FFB800", "#7A5206"],
+  nova: ["#E0CBFF", "#B478FA", "#46177F"],
+  prism: ["#B9FBF2", "#2DE1D0", "#0A5F5B"],
 };
 
 /** A shield crest. `dim` fades a division you haven't reached.
  *
- *  Gradient ids are namespaced by metal, and only one crest — the current division's, on the
- *  tier band — renders at a time. Two crests of the SAME metal would share one gradient
+ *  Gradient ids are namespaced by tier, and only one crest — the current division's, on the
+ *  tier band — renders at a time. Two crests of the SAME tier would share one gradient
  *  definition: identical content, so that is harmless rather than a bug waiting to happen. */
-export function Crest({ metal, size = 26, dim = false }: { metal: Metal; size?: number; dim?: boolean }) {
-  const [hi, mid, lo] = STOPS[metal];
-  const gid = `crest-${metal}`;
+export function Crest({ tier, size = 26, dim = false }: { tier: Tier; size?: number; dim?: boolean }) {
+  const [hi, mid, lo] = STOPS[tier];
+  const gid = `crest-${tier}`;
   return (
     <svg
       className="crest" width={size} height={size * (32 / 28)} viewBox="0 0 28 32"

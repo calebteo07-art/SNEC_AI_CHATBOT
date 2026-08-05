@@ -5,8 +5,8 @@ and nothing else. Every Lumen earned anywhere in the app now scales with it.
 
 The rules that matter, and each has a test below because each is a way to get it wrong:
   · Only EARNINGS scale. A forfeit penalty passed through the same multiplier would punish
-    a Diamond student 2x for the same mistake, which is the exact opposite of a reward.
-  · The ladder is monotonic and starts at 1.0, so Bronze is never taxed for being new.
+    a Prism student 2x for the same mistake, which is the exact opposite of a reward.
+  · The ladder is monotonic and starts at 1.0, so Ember is never taxed for being new.
   · Rounding is half-UP and deterministic. Python's round() is banker's rounding
     (round(4.5) == 4, round(5.5) == 6), and a game economy that rounds a 5-Lumen chat
     reward differently depending on whether the total is odd is indefensible to a student.

@@ -18,28 +18,28 @@ import {
 // ── the HOOK: what the next division pays, read off the server's own ladder ──
 // A hard-coded copy of the economy drifts the first time it is retuned — silently, because
 // a wrong multiplier still renders. These all read `multipliers` from the payload.
-assert.deepStrictEqual(nextRungPayoff(2, [1, 1.1, 1.25, 1.5, 2]), { name: "Gold", mult: "×1.25" });
-assert.deepStrictEqual(nextRungPayoff(1, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
-assert.deepStrictEqual(nextRungPayoff(3, [1, 1.1, 1.25, 1.5, 2]), { name: "Platinum", mult: "×1.5" });
+assert.deepStrictEqual(nextRungPayoff(2, [1, 1.1, 1.25, 1.5, 2]), { name: "Solar", mult: "×1.25" });
+assert.deepStrictEqual(nextRungPayoff(1, [1, 1.1, 1.25, 1.5, 2]), { name: "Volt", mult: "×1.1" });
+assert.deepStrictEqual(nextRungPayoff(3, [1, 1.1, 1.25, 1.5, 2]), { name: "Nova", mult: "×1.5" });
 // Trailing zeros make a game number look like a currency: ×2, never ×2.00.
-assert.deepStrictEqual(nextRungPayoff(4, [1, 1.1, 1.25, 1.5, 2]), { name: "Diamond", mult: "×2" });
+assert.deepStrictEqual(nextRungPayoff(4, [1, 1.1, 1.25, 1.5, 2]), { name: "Prism", mult: "×2" });
 assert.strictEqual(nextRungPayoff(5, [1, 1.1, 1.25, 1.5, 2]), null);  // the summit pays into nothing
 assert.strictEqual(nextRungPayoff(2, []), null);          // older server: no road, so no claim
 assert.strictEqual(nextRungPayoff(2, [1, 1.1]), null);    // never read past the end of the ladder
 // Bad data CLAMPS rather than throwing, and it clamps the same way nextDivisionName does —
 // two helpers that answer "what is above me" must not disagree about a null column.
-assert.deepStrictEqual(nextRungPayoff(null, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
-assert.deepStrictEqual(nextRungPayoff(0, [1, 1.1, 1.25, 1.5, 2]), { name: "Silver", mult: "×1.1" });
+assert.deepStrictEqual(nextRungPayoff(null, [1, 1.1, 1.25, 1.5, 2]), { name: "Volt", mult: "×1.1" });
+assert.deepStrictEqual(nextRungPayoff(0, [1, 1.1, 1.25, 1.5, 2]), { name: "Volt", mult: "×1.1" });
 assert.strictEqual(nextRungPayoff(99, [1, 1.1, 1.25, 1.5, 2]), null);
 
 // ── 0) divisions mirror tools/gamification/league.py ──
-assert.deepStrictEqual([...DIVISION_NAMES], ["Bronze", "Silver", "Gold", "Platinum", "Diamond"]);
-assert.strictEqual(nextDivisionName(1), "Silver");
-assert.strictEqual(nextDivisionName(4), "Diamond");
+assert.deepStrictEqual([...DIVISION_NAMES], ["Ember", "Volt", "Solar", "Nova", "Prism"]);
+assert.strictEqual(nextDivisionName(1), "Volt");
+assert.strictEqual(nextDivisionName(4), "Prism");
 assert.strictEqual(nextDivisionName(5), null);       // the summit promotes into nothing
 // A null / bogus column clamps instead of throwing — the board must survive bad data.
-assert.strictEqual(nextDivisionName(null), "Silver");
-assert.strictEqual(nextDivisionName(0), "Silver");
+assert.strictEqual(nextDivisionName(null), "Volt");
+assert.strictEqual(nextDivisionName(0), "Volt");
 assert.strictEqual(nextDivisionName(99), null);
 
 // ── 1) the week close is Monday 00:00 SGT (= Sunday 16:00 UTC), never viewer-local ──
@@ -106,7 +106,7 @@ assert.strictEqual(promotionLineIndex(0, 30, 0), null);
 // promote_count landing inside the podium → the line sits at the very top of the list.
 assert.strictEqual(promotionLineIndex(3, 9, 3), 0);
 assert.strictEqual(promotionLineIndex(3, 9, 1), 0);
-// Diamond (no promotion at the top division) → no line at all.
+// Prism (no promotion at the top division) → no line at all.
 assert.strictEqual(promotionLineIndex(3, 27, 0), null);
 // A line past the end of the rendered rows would imply everyone visible promotes — don't draw.
 assert.strictEqual(promotionLineIndex(3, 2, 7), null);
@@ -149,12 +149,12 @@ assert.strictEqual(above.kind, "hold");
 assert.strictEqual(above.value, 2560);           // your 7660 − E's 5100
 assert.match(above.label, /#5/);
 
-// Diamond: there is nothing above the top division, so it never says "promotion zone".
+// Prism: there is nothing above the top division, so it never says "promotion zone".
 const top = computeChase(board(5), 0, true);
 assert.strictEqual(top.kind, "summit");
 assert.strictEqual(top.value, 2560);             // D's 7660 − your 5100
 assert.doesNotMatch(top.label, /promotion/i);
-// Diamond #1 has no one above → no number, just the hold.
+// Prism #1 has no one above → no number, just the hold.
 assert.strictEqual(computeChase(board(1), 0, true).value, null);
 assert.strictEqual(computeChase(board(1), 0, true).kind, "summit");
 

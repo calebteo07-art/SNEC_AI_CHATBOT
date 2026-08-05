@@ -2344,6 +2344,108 @@ highlights brighten); the board interior staying `#FFFFFF`, chosen by the user o
 variant; the ceremony's from→to pills staying generic (the payload carries division names as
 strings, and mapping name → metal there would be a second source of truth for the ladder); the
 promotion mechanic; the backend.
+
+#### THE LADDER OF LIGHT 2026-08-06 — the names catch up, the field becomes the division
+
+User: *"rename all tiers to match the colors and make them simple and catchy. and change the
+background of the page match more beautifully with all page elements, and improve the top card,
+it is too bad and ugly now, maybe can have lesser things or smaller size you decide."*
+
+Three criteria change, all named. Geometry, the lip ladder, the ranks budget, the one edge, the
+elastic-track rule and the flank bounds are untouched and still gated.
+
+**1. ⚠ THE DIVISIONS ARE NAMED FOR THEIR COLOUR — `Ember · Volt · Solar · Nova · Prism`.** This
+completes the pass above, which repainted the ladder and left the *nouns* behind: the loudest
+word on the page was the one thing contradicting it, because a band reading **"Silver League"**
+in electric azure asks the reader to resolve a contradiction before they can read the rung. Each
+name **is** its colour, and the set escalates the way light does — a coal, an arc, a star, a star
+going off, and light split into all of it. The currency is **Lumens**, so the ladder a student
+climbs is now made of the thing they earn. Costs no migration: the DB has stored `division` as an
+integer since 016, and `division_name` is derived (`tools/gamification/league.py::DIVISIONS`, the
+single source).
+- ⚠ **The internal keys were renamed too, and that is the half that matters to the next author.**
+  `data-metal="silver"` painted electric azure for a whole pass — the same contradiction one
+  layer down, where only a maintainer meets it. `Metals.tsx` → **`Tiers.tsx`**, `METALS`/`Metal` →
+  `TIERS`/`Tier`, `data-metal` → **`data-tier`**, values `ember|volt|solar|nova|prism`. A rename
+  that stops at the display string leaves the contradiction alive in every CSS selector.
+- `PLACE_TIERS` is still a **separate axis** from the divisions (first place is gold in every
+  division) but now draws from the same five: `solar / volt / ember`, which is the ladder's own
+  top three read as 1-2-3. The podium and the ladder are one set of colours instead of two.
+- The names are also **shorter** (5 characters at the longest, against 8) — which is what pays
+  for the larger name in criterion 3.
+
+**2. THE FIELD IS THE DIVISION'S OWN WEATHER, and this retires "the field is FIXED".** That rule
+was right about what it was fixing (a grey Silver page) and produced the report this pass answers.
+The canvas carried **six** hues — pink, cyan, violet, green, amber over four-hue diagonal candy
+stripes — at the same weight as the objects standing on it. Two failures, and neither is about
+loudness: it carried hues that appear **nowhere else on the page** (nothing is green; the
+up-arrow's mint is a 10×10 pill), and it argued with the band, the deck and the ladder separately.
+- **The rule now: three families, and every one is already an object on the page** — the
+  DIVISION's hue (`--arena-wash`), its PARTNER (`--arena-glow`, the counter-note that keeps a
+  one-hue field from reading as a tint), and GOLD (the mechanic — the zone, the multiplier, the
+  chase number and the deck are all gold, so the footlights are the page's own accent rather than
+  a sixth colour). Eight layers become **six**; five blooms become three plus a spotlight.
+- **The stripes are ONE hue at `.10` on a third duty cycle**, against four hues at `.13–.16` on a
+  half cycle. Same 135°, still parallel and uniform, still not a dot grid and still not the banned
+  sunburst — just no longer the loudest object on the page.
+- **`--arena-base`, `--arena-deep` and `--arena-stripe` are per-division as a SET.** This reverses
+  *"ONE deep surface, not five — ground stopped being identity when the canvas did"*: the criterion
+  that changed is the canvas, so a single violet apron under an Ember board is now a hue the page
+  carries in exactly one place. **Variety did not leave, it lives on the LADDER** (27 role-tinted
+  gauges, medallions and rank plates) — a field is a field.
+- The deck's corner blooms were *"in the CANVAS's own hues"* **in the comment only** — fixed pink
+  and fixed cyan, written when the canvas was fixed. They read `--arena-glow`/`--arena-wash` now,
+  which is what that sentence always meant.
+
+**3. THE TOP CARD GETS A BASE AND A FOCAL POINT.** It measured well and read badly: at 1148px it
+was a **9.6:1 letterbox of two pale rows**, above a cream deck and a white ladder, with six
+evenly-weighted objects strung along a line. Nothing was wrong with any one of them.
+- **The readout row is a dark `--mat-ink` CONSOLE**, not a white strip. It gives the card a base,
+  and it turns three rows into *badge / display / controls* — three materials that say what the
+  rows are. Not a new material either: `.pod-clock` and `.tb-clock` are already `--mat-ink` HUD
+  chips holding white type, so this is that chip grown to the row it always was. Gold on near-black
+  is the one place this palette gets to be an arcade readout — the chase number goes from **6.9:1
+  to 10.0:1**, which is the rare change that is louder *and* more legible.
+- **The leader rule is deleted.** A 2px groove spanning ~700px between the chase and the hook —
+  furniture invented to fill a void, and the third-longest hairline on a page whose recipe bans
+  hairlines. On a console the space between two readings is what a readout looks like.
+- **The name and the crest grow** (26 → 29/34px, 38 → 42/50px); the road's `1fr` absorbs it, and
+  the locked rungs go `.58 → .74` so three of the five plates stop reading as washed-out noise.
+  ⚠ **The road STAYS, and the "lesser things" option was measured before being declined**: the
+  head's dead-middle bound is 34%, and with the road gone a 1148px head holds ~686px of content —
+  **39% empty**. The road is not decoration there, it is the only elastic object in the row.
+- ⚠ **HEIGHT IS NOT FREE, and 1366×768 is the window that cannot pay.** The first version (46px
+  crest, 31px name, 12px padding) put the head at **77px** and cost the **eighth visible rank** on
+  the most common laptop — the exact viewport the ranks budget exists for. Keyed at ≥1400 for the
+  large step and a modest one below, per this lock's own rule that *a height step's binding member
+  is its shortest window*.
+
+**Measured after**: `league_assert` **490 assertions, 0 failures** (was 466) · five divisions paint
+five distinct fields, every one a light solid (**0.941 · 0.946 · 0.965 · 0.928 · 0.959**, floor
+0.70) · every band still under the 0.86 ceiling (**0.303 · 0.409 · 0.555 · 0.300 · 0.590**) · the
+console at **0.018** · `repeat` on layer 5 of 7 · all 20 probed text styles ≥4.5:1 · ranks visible
+≥8 on every viewport · `aurora_assert`, `home_hud_assert`, `league_logic` and pytest green ·
+typecheck clean.
+
+**Mutation-verified**, all three new bounds at once — **28 failures, exit 1**: a white readout
+fires the console ceiling at **1.000** *and* drags `.chase-n`/`.chase-l`/`.tb-hook` to
+**1.54 / 1.72 / 1.72:1**, which is the coupling the CSS comment claims (the inks are cut *for* the
+dark fill, so reverting the fill silently ships three sub-AA labels) · one extra bloom without a
+matching `no-repeat` fires *"`repeat` on layer 5 but the tiling gradient is layer 6 of 8"* · one
+shared `--arena-base` fires *"the five divisions paint 1 distinct canvas base"*.
+- ⚠ **The first version of the layer check was VACUOUS and had to be rewritten.** Chrome *cycles*
+  a short `background-repeat` list up to the layer count before reporting it, so comparing the two
+  computed lengths can never fail — and the shorthand's final colour-only layer counts as an image
+  layer of `none`, so "six gradients" computes as seven. What a cycled list actually does is slide
+  `repeat` onto the **wrong layer**, so that is what the gate reads now.
+
+**Out of scope, deliberately**: every layout, spacing and geometry decision in this lock; the road
+(see criterion 3 — its removal is a layout regression, not a simplification); the multiplier
+module, which is loud on a standing request; the deck's gold base (it is the *promotion* object);
+the board interior staying `#FFFFFF`; the ceremony's from→to pills; the promotion mechanic and the
+economy. `tools/leaderboard/crest_art.py` and `generate_board_art.py` still describe literal
+metals — they are **dead raster generators** for art the board deleted (every crest is an inline
+path), left alone rather than renamed.
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating

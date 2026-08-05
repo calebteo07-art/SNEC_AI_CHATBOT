@@ -129,63 +129,97 @@
    background-color at all, so every white-on-canvas glyph would measure against nothing.
    Transparent stops are written rgba(c, 0), never `transparent` — the keyword interpolates
    through grey and dirties the bloom. */
-/* ⚠ THE FIELD IS FIXED, and that BREAKS the rule the pass above set — deliberately, on
-   request ("i want the entire page to be rich in variety of bright and vibrant colors").
-   The canvas used to wear the viewer's own division metal, which was a good rule that bought
-   a bad result: Silver's metal IS grey, so the largest surface in the app desaturated at the
-   tier most of the cohort actually sits in. Four of the five divisions were a pale wash.
+/* ⚠ THE FIELD IS THE DIVISION'S OWN WEATHER (2026-08-06), and it is the THIRD answer this
+   canvas has had. The history is the argument, so it stays:
 
-   Identity did not disappear, it moved DOWN A LAYER. The metal WASH below still tints the top
-   of the page in your own division's colour, and the band, the podium, the road and the crest
-   are all still cast in it — so climbing still visibly re-skins the screen. What the canvas
-   stops doing is being the only thing carrying it.
+   · The field wore your division's metal, one hue. Rejected — Silver's metal IS grey, so the
+     largest surface in the app desaturated at the tier most of the cohort sits in.
+   · The field went FIXED and six-hued, on "i want the entire page to be rich in variety of
+     bright and vibrant colors": pink, cyan, violet, green and amber blooms over four-hue
+     diagonal candy stripes. That fixed the desaturation and bought the report this pass
+     answers — "change the background of the page [to] match more beautifully with all page
+     elements". It read as gift wrap. Two reasons, and both are about MATCHING rather than
+     about loudness: the field carried hues that appear NOWHERE else on the page (nothing is
+     green, and the up-arrow's mint is a 10x10 pill), and it carried them at the same weight
+     as the objects standing on it, so a saturated band, an amber deck and a white ladder all
+     sat on a surface arguing with each of them separately.
+
+   THE RULE NOW: the page is painted from THREE families and no more, and every one of them is
+   already an object on it —
+     1. the DIVISION's own hue (--arena-wash), which the band, the crest, the road, the rank
+        token and the lane all wear;
+     2. its PARTNER (--arena-glow), the second hue of the same pair — the counter-note that
+        keeps a one-hue field from reading as a tint;
+     3. GOLD, the mechanic — the promotion zone, the multiplier, the chase number and the
+        podium deck are all gold, so the footlights under the stage are the page's own
+        accent rather than a sixth colour.
+   Variety did not leave; it moved onto the LADDER, which is where the 08-05 pass put it (27
+   role-tinted gauges, medallions and rank plates). A field is a field.
+
+   ⚠ THE STRIPES ARE ONE HUE AT .10, on a third duty cycle. Four hues at .13-.16 on a half
+   cycle is a candy cane — the pattern was reading as the loudest object on the page while the
+   board floated on top of it. Same 135deg, same parallel-and-uniform rule, still not a dot
+   grid and still not the banned sunburst: quieter, and now the division's own.
 
    Everything the previous passes pinned still holds and is still gated: the stack ENDS IN AN
    OPAQUE LIGHT SOLID (the contrast probe walks to the nearest ancestor with alpha > 0.92, so a
    gradient-only canvas would measure every white glyph against nothing), luminance stays well
-   over the 0.7 floor, transparent stops are rgba(c, 0) rather than the keyword (which
-   interpolates through grey and dirties a bloom), it is NOT a dot grid, and the stripes are
-   still parallel and uniform rather than the banned pass-2 sunburst.
+   over the 0.7 floor, and transparent stops are rgba(c, 0) rather than the keyword (which
+   interpolates through grey and dirties a bloom).
    ⚠ The blooms are radial and soft-edged on purpose. .aurora-main does not scroll, so any
    HARD horizontal edge here would sit perfectly still while the ladder slid past it. */
 .aurora-main:has(.lb-climb) {
-  --arena-base: #FFFBF4;
-  /* Bronze is the default so a pre-migration null division still gets a real arena. */
-  --arena-wash: rgba(255, 99, 32, .4);
-  /* One token, one job: the LANE's stripe (see § THE LANE). The canvas cycles four hues
-     inline below rather than through a variable, because four tokens that can only ever be
-     set together are four chances for three of them to be. */
-  --arena-stripe: rgba(140, 70, 255, .16);
-  /* ⚠ Alphas raised again 2026-08-05 ("not loud and vibrant enough"). Same eight layers, same
-     order, same rules — the blooms are just no longer apologetic. The ARCADE pass already had
-     to raise these once after a screenshot; this is the second time, and the reason is the
-     same both times: a bloom that passes the luminance floor with room to spare is a bloom
-     that could have been stronger. The white spotlight over the stage is what keeps the
-     podium in a pool of light no matter how loud the field gets. */
+  /* EMBER IS THE DEFAULT, so a pre-migration null division still gets a real arena — and the
+     five tokens below are set as a SET. A base tinted for one division under another one's
+     wash is the mismatch this pass exists to remove, which is why they move together. */
+  --arena-base: #FFF7F1;
+  --arena-wash: rgba(255, 99, 32, .42);
+  --arena-glow: rgba(255, 46, 138, .34);
+  --arena-stripe: rgba(255, 99, 32, .10);
+  --arena-deep: #F8D3BE;
   background:
-    radial-gradient(52% 26% at 50% 20%, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 72%),
-    radial-gradient(96% 42% at 50% -10%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(40% 32% at 2% 8%, rgba(255, 64, 120, .58) 0%, rgba(255, 64, 120, 0) 70%),
-    radial-gradient(40% 32% at 98% 20%, rgba(0, 200, 240, .60) 0%, rgba(0, 200, 240, 0) 70%),
-    radial-gradient(34% 30% at 8% 78%, rgba(140, 70, 255, .50) 0%, rgba(140, 70, 255, 0) 72%),
-    radial-gradient(36% 30% at 94% 88%, rgba(70, 226, 130, .48) 0%, rgba(70, 226, 130, 0) 72%),
-    radial-gradient(48% 36% at 50% 104%, rgba(255, 176, 20, .58) 0%, rgba(255, 176, 20, 0) 72%),
+    /* The spotlight over the stage. First, so it sits on top of everything and keeps the
+       podium in a pool of light no matter how loud the field gets. */
+    radial-gradient(58% 30% at 50% 18%, rgba(255, 255, 255, .94) 0%, rgba(255, 255, 255, 0) 74%),
+    /* The division, overhead — the largest statement of who you are on the page. */
+    radial-gradient(104% 46% at 50% -12%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
+    /* Its partner, entering from both top corners. */
+    radial-gradient(44% 34% at -4% 14%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(44% 34% at 104% 26%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
+    /* Gold footlights under the stage: the same gold the deck, the zone and the chase wear. */
+    radial-gradient(52% 32% at 50% 106%, rgba(255, 184, 0, .46) 0%, rgba(255, 184, 0, 0) 74%),
     repeating-linear-gradient(135deg,
-      rgba(140, 70, 255, .15) 0 24px, rgba(255, 255, 255, 0) 24px 48px,
-      rgba(0, 190, 230, .15) 48px 72px, rgba(255, 255, 255, 0) 72px 96px,
-      rgba(255, 64, 120, .13) 96px 120px, rgba(255, 255, 255, 0) 120px 144px,
-      rgba(255, 176, 20, .16) 144px 168px, rgba(255, 255, 255, 0) 168px 192px),
+      var(--arena-stripe) 0 26px, rgba(255, 255, 255, 0) 26px 78px),
     var(--arena-base);
-  /* ⚠ EIGHT values for eight image layers, in order. The stripe is the only repeating one,
-     and miscounting here silently tiles a bloom across the page. */
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  /* ⚠ SIX values for six image layers, in order. The stripe is the only repeating one, and
+     miscounting here silently tiles a bloom across the page. */
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
 }
-/* The wash is the LAST per-metal thing on the canvas, and it is the deliberate remainder:
-   it is what keeps "climbing re-skins the screen" true now that the base does not. */
-.aurora-main:has(.lb-climb[data-metal="silver"]) { --arena-wash: rgba(34, 184, 240, .42); }
-.aurora-main:has(.lb-climb[data-metal="gold"]) { --arena-wash: rgba(255, 184, 0, .42); }
-.aurora-main:has(.lb-climb[data-metal="platinum"]) { --arena-wash: rgba(180, 120, 250, .42); }
-.aurora-main:has(.lb-climb[data-metal="diamond"]) { --arena-wash: rgba(45, 225, 208, .44); }
+/* The whole field per division, as one block each — base, wash, partner, stripe and the lane's
+   apron. This is what "climbing re-skins the screen" means now that it is not one bloom's job.
+   The partner is chosen to sit a long way round the wheel from the lead so the pair reads as
+   two colours rather than as one tint at two strengths, and every base clears the 0.7
+   luminance floor by a wide margin (0.93-0.97) — this is still the light Aurora canvas. */
+.aurora-main:has(.lb-climb[data-tier="volt"]) {
+  --arena-base: #F3FAFF; --arena-wash: rgba(34, 184, 240, .44);
+  --arena-glow: rgba(124, 77, 255, .32); --arena-stripe: rgba(34, 184, 240, .10);
+  --arena-deep: #C4E6FA;
+}
+.aurora-main:has(.lb-climb[data-tier="solar"]) {
+  --arena-base: #FFFBF0; --arena-wash: rgba(255, 184, 0, .44);
+  --arena-glow: rgba(255, 92, 60, .32); --arena-stripe: rgba(255, 150, 0, .10);
+  --arena-deep: #FBE3AE;
+}
+.aurora-main:has(.lb-climb[data-tier="nova"]) {
+  --arena-base: #FAF5FF; --arena-wash: rgba(180, 120, 250, .44);
+  --arena-glow: rgba(255, 92, 200, .32); --arena-stripe: rgba(160, 90, 250, .10);
+  --arena-deep: #DFC9F8;
+}
+.aurora-main:has(.lb-climb[data-tier="prism"]) {
+  --arena-base: #F1FDFB; --arena-wash: rgba(45, 225, 208, .46);
+  --arena-glow: rgba(90, 150, 255, .32); --arena-stripe: rgba(45, 205, 190, .10);
+  --arena-deep: #BEF0E8;
+}
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 /* ── THE LANE ─────────────────────────────────────────────────────────────────
@@ -223,15 +257,20 @@
     content: "";
     position: absolute; top: 0; bottom: 0; z-index: 0; pointer-events: none;
     width: max(0px, calc(50% - var(--lane, 1400px) / 2));
-    /* The stripe layer is declared TWICE at the same pitch — two passes of the same
-       ~7% alpha compose to ~14%, which is the density the apron needs without inventing
-       a second stripe token that could drift from the canvas's. */
+    /* The stripe layer is declared THREE times at the same pitch — the canvas's own token
+       dropped to .10 in the 08-06 pass, and the apron needs roughly three passes of it to
+       stay a step denser than the lane it borders. Layering the one token rather than
+       inventing a second is what keeps the two surfaces from ever drifting apart. */
     background:
       repeating-linear-gradient(135deg,
         var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
       repeating-linear-gradient(135deg,
         var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
-      radial-gradient(70% 40% at 50% 4%, rgba(255, 92, 138, .3) 0%, rgba(255, 92, 138, 0) 74%),
+      repeating-linear-gradient(135deg,
+        var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
+      /* The partner hue, entering over the top of the apron — the same second note the
+         canvas carries, so the ground either side of the lane belongs to the same pair. */
+      radial-gradient(70% 40% at 50% 4%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
       linear-gradient(180deg, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 46%),
       var(--arena-deep, #ECE4D8);
   }
@@ -255,10 +294,14 @@
    there is no width at which a 20px stub appears and reads as a rendering bug.
    ⚠ --mat-ink lives on .lb-climb, which is a DESCENDANT — the flanks are on .aurora-main
    and cannot inherit it, so the outline colour above is written as a literal fallback. */
-/* ONE deep surface, not five. The apron is GROUND — it is the part of the page the board is
-   not standing on — and ground stopped being identity when the canvas did. The metal still
-   reaches the flanks through --arena-wash, which the wall's own gradient stack reads. */
-.aurora-main:has(.lb-climb) { --arena-deep: #DCC4FA; --lane: 1400px; }
+/* ⚠ FIVE DEEP SURFACES AGAIN, 2026-08-06, and this reverses "ONE deep surface, not five —
+   ground stopped being identity when the canvas did". The criterion that changed is the one
+   that made the reversal necessary: the canvas is the division's own weather again, so a
+   single violet apron under an Ember or a Prism board is a hue the page carries in exactly one
+   place. `ground is not identity` was a rule about not repeating the badge; matching the field
+   it borders is a different claim, and it is the one the report was about. Set with the rest of
+   the tokens above, as a set — the value here is only the Ember default and the lane width. */
+.aurora-main:has(.lb-climb) { --lane: 1400px; }
 
 .lb-climb {
   /* THE outline, and the lip ladder. */
@@ -269,6 +312,10 @@
   --ink: #1F1F1F;
   --ink-2: #5F6368;
   --ink-3: #6E7378;
+  /* The label ink for anything sitting on a --mat-ink console (the band's readout row). Solid
+     rather than a white alpha: the contrast probe resolves a colour, not a composite, and a
+     rgba(255,255,255,.8) label reports as white-on-nothing. 8.9:1. */
+  --con-ink: #C9C2D8;
 
   /* Gold, split by JOB. --ink-on-gold is the only ink allowed ON a gold fill; --gold-ink is a
      gold-toned WORD and belongs on white surfaces only. */
@@ -360,9 +407,11 @@
    the contrast probe resolves against; every one of the five clears 5.5:1 for --ink.
 
    ⚠ A RARITY LADDER, NOT FIVE METALS (2026-08-05, on request: the tiers read "too basic and not
-   vibrant and wild enough"). "Silver" is painted AZURE — the colour marks the rung, it no longer
-   illustrates the noun. Literal metal was the direct cause: silver IS grey and platinum IS a
-   pale periwinkle, so the two divisions most of the cohort sits in desaturated the object that
+   vibrant and wild enough"). The rung that was Silver is painted AZURE — the colour marks the
+   rung, it no longer illustrates a noun. (The nouns caught up on 2026-08-06: the divisions are
+   Ember · Volt · Solar · Nova · Prism, named for these five colours, so nothing here contradicts
+   the word beside it any more.) Literal metal was the direct cause: silver IS grey and platinum
+   IS a pale periwinkle, so the two divisions most of the cohort sits in desaturated the object that
    names them. The ARCADE pass wrote that finding down and spent it only on the CANVAS; the band,
    the road, the plinths and the wash stayed literal. This is the rest of that fix.
 
@@ -375,11 +424,11 @@
    --f-flash is a SECOND HUE, a thin rim at the top of the head's hard-stop stack. One extra
    stop in a gradient that already existed, and it is the whole of "wild" that a single base
    colour cannot buy: the band reads as two-tone enamel instead of as one tint. */
-.tb[data-metal="bronze"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
-.tb[data-metal="silver"] { --f-flash: #C9B6FF; --f-hi: #9FE3FF; --f-mid: #54CBF8; --f-lo: #22B8F0; --f-lip: #0B5F94; }
-.tb[data-metal="gold"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; }
-.tb[data-metal="platinum"] { --f-flash: #FF9BE0; --f-hi: #DCC2FF; --f-mid: #C79BFF; --f-lo: #B478FA; --f-lip: #5B21B6; }
-.tb[data-metal="diamond"] { --f-flash: #F2A8FF; --f-hi: #A8F5EC; --f-mid: #5BEEE0; --f-lo: #2DE1D0; --f-lip: #0A7A75; }
+.tb[data-tier="ember"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
+.tb[data-tier="volt"] { --f-flash: #C9B6FF; --f-hi: #9FE3FF; --f-mid: #54CBF8; --f-lo: #22B8F0; --f-lip: #0B5F94; }
+.tb[data-tier="solar"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; }
+.tb[data-tier="nova"] { --f-flash: #FF9BE0; --f-hi: #DCC2FF; --f-mid: #C79BFF; --f-lo: #B478FA; --f-lip: #5B21B6; }
+.tb[data-tier="prism"] { --f-flash: #F2A8FF; --f-hi: #A8F5EC; --f-mid: #5BEEE0; --f-lo: #2DE1D0; --f-lip: #0A7A75; }
 
 /* THE RECIPE, structural tier. The second lip shadow carries the outline as SPREAD rather than
    as a second Y offset, so the keyline wraps the lip's side crescents too. */
@@ -458,11 +507,11 @@
 /* The road wears the rarity ladder's own bases, so five 11px dots are five HUES around the
    wheel rather than five steps of luminance — which is the one place the old palette had
    nothing left to say, at the size where a wash reads as grey. */
-.tb-pip[data-metal="bronze"] { --pm: #FF6320; }
-.tb-pip[data-metal="silver"] { --pm: #22B8F0; }
-.tb-pip[data-metal="gold"] { --pm: #FFB800; }
-.tb-pip[data-metal="platinum"] { --pm: #B478FA; }
-.tb-pip[data-metal="diamond"] { --pm: #2DE1D0; }
+.tb-pip[data-tier="ember"] { --pm: #FF6320; }
+.tb-pip[data-tier="volt"] { --pm: #22B8F0; }
+.tb-pip[data-tier="solar"] { --pm: #FFB800; }
+.tb-pip[data-tier="nova"] { --pm: #B478FA; }
+.tb-pip[data-tier="prism"] { --pm: #2DE1D0; }
 .tb-pip[data-state="next"] { opacity: .3; }
 .tb-pip[data-state="now"] {
   width: 17px; height: 17px; border-width: 2px;
@@ -512,46 +561,56 @@
 }
 .tb-help:active { transform: translateY(2px); box-shadow: 0 0 0 0 var(--chip-lip), 0 0 0 2px var(--mat-ink); }
 
-/* The readout strip: the one number worth acting on, and the deadline it runs against. A white
-   instrument inset into the metal, so both it and the band stay measurable surfaces. */
+/* THE READOUT IS A DARK CONSOLE (2026-08-06), and it was a white strip.
+   Report: "improve the top card, it is too bad and ugly now". The head measured well and read
+   badly, and the reason is one thing rather than five: at 1148px it was a 9.6:1 letterbox of
+   TWO PALE ROWS, sitting above a cream deck and a white ladder. The card's bottom half had
+   nothing to be — the same white as the two objects under it, so the band stopped at the metal
+   and everything below it belonged to the page.
+   Dark gives the card a BASE: a saturated faceplate, a console under it, a tray of controls
+   under that — three materials that say badge / display / input, which is what the three rows
+   actually are. It is not a new material either. `.pod-clock` and `.tb-clock` are already
+   --mat-ink HUD chips holding white type; this is that chip, grown to the row it always was.
+   And gold on near-black is the one place this palette gets to be an arcade readout: the chase
+   number is 10.0:1 here against 6.9:1 on white, which is the rare change that is louder AND
+   more legible. */
 .tb-readout {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 7px 11px; background-color: #FFFFFF;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 12px;
+  background-color: var(--mat-ink);
   border-top: var(--mat-out) solid var(--mat-ink);
+  /* The lit return every inset row on this card carries — at 10% here, because a 70% white
+     line on near-black is a highlight, not a bevel. */
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .1);
 }
-.tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 6px; }
-/* THE LEADER. `.tb-chase` already grows to fill the readout, so the void was never between the
-   two facts — it was INSIDE the left one, whose text is left-aligned in a box ~700px wide at
-   the top tier. The same material the board uses 27 times over (a 2px groove with a lit
-   return), spent on tying the instruction to what it pays instead of leaving them stranded at
-   two edges. Not a hairline and not a new hue — the two things this file's recipe bans.
-   Off below 700px: a phone readout has no slack for it to take. */
-.tb-chase::after { content: ""; display: none; }
-@media (min-width: 700px) {
-  .tb-chase::after {
-    display: block; flex: 1 1 auto; min-width: 12px; align-self: center; margin: 0 3px;
-    border-top: 2px solid rgba(42, 31, 61, .16);
-    box-shadow: 0 2px 0 rgba(255, 255, 255, .95);
-  }
-}
+.tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 7px; }
+/* ⚠ THE LEADER RULE IS GONE with the white strip. It was a 2px groove with a lit return,
+   spanning ~700px between the chase and the hook to tie them together — furniture invented to
+   fill a void, and the third-longest hairline on a page whose recipe bans hairlines. On the
+   console the space between the two readings is what a readout looks like; there is nothing
+   left to bridge. */
 /* THE HOOK. The chase says what to do; this says what doing it PAYS, in the same glance —
    the two halves of the mechanic were on two different screens until the road came out of
-   the (?) sheet. Gold WORD on white (--gold-ink, 6.9:1), never the fill's ink. */
+   the (?) sheet.
+   ⚠ RE-INKED FOR THE CONSOLE. --ink-2 is a 6.1:1 grey on white and 2.9:1 here; both words are
+   now cut for the dark fill (8.9:1 and 10.0:1) and --gold-ink, which is a gold-toned word for
+   WHITE surfaces only, would have been 1.6:1. This is exactly the substitution --ink-on-gold
+   exists to stop people getting wrong in the other direction. */
 .tb-hook {
   flex: 0 0 auto; margin: 0; white-space: nowrap;
-  font-size: 12px; font-weight: 700; color: var(--ink-2);
+  font-size: 12px; font-weight: 700; color: var(--con-ink);
 }
-.tb-hook b { font-weight: 800; color: var(--gold-ink); }
+.tb-hook b { font-weight: 800; color: var(--gold-mid); }
 /* "Promote →" is the instruction and the chase beside it already gives one; on a narrow
    readout it is the half that gives way, so the PAYOFF survives at full width. */
 .tb-hook-do { display: none; }
 @media (min-width: 700px) { .tb-hook-do { display: inline; } }
 .chase-n {
-  font-family: var(--disp); font-weight: 800; font-size: 18px; line-height: 1;
-  color: var(--gold-ink);   /* a gold WORD, on white — 6.9:1 */
+  font-family: var(--disp); font-weight: 800; font-size: 19px; line-height: 1;
+  color: var(--gold-mid);   /* gold on the console — 10.0:1, the loudest legible pair here */
 }
 .chase-l {
-  font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  font-size: 12.5px; font-weight: 600; color: var(--con-ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 /* The clock is a dark HUD chip: it declares its own solid, so the probe measures white-on-ink
@@ -642,11 +701,16 @@
      band is the one hard edge on the card), and the blooms are raised and moved UP so they
      wash the flanks rather than the floor. Ink on the declared solid is 13.8:1 — this whole
      card had ~15:1 of headroom it was not spending. Third time this file records the same
-     lesson: "the numbers pass" and "it reads as vibrant" are different claims. */
+     lesson: "the numbers pass" and "it reads as vibrant" are different claims.
+     ⚠ AND THEY WERE THE CANVAS'S HUES ONLY IN THE COMMENT (2026-08-06). Fixed pink and fixed
+     cyan, written when the canvas was fixed too — so once the field went back to the
+     division's own pair, an Ember page put a cyan flank on the one card in the middle of it.
+     They read the same two tokens the canvas does now, which is what the sentence above always
+     meant: the field showing THROUGH the stage, not the stage claiming an identity. */
   background-image:
     radial-gradient(46% 84% at 50% 98%, rgba(255, 190, 40, .78) 0%, rgba(255, 190, 40, 0) 72%),
-    radial-gradient(42% 96% at -2% 62%, rgba(255, 64, 120, .50) 0%, rgba(255, 64, 120, 0) 76%),
-    radial-gradient(42% 96% at 102% 62%, rgba(0, 200, 240, .50) 0%, rgba(0, 200, 240, 0) 76%),
+    radial-gradient(42% 96% at -2% 62%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 76%),
+    radial-gradient(42% 96% at 102% 62%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
     linear-gradient(180deg,
       #FFF8E4 0%, #FFF8E4 12%, #FFE9BC 12.01%, #FFE9BC 70%, #F8CE7E 70.01%, #F8CE7E 100%);
   box-shadow:
@@ -1096,16 +1160,16 @@
    were the largest single flat surface left on the board after the gauges were coloured. A
    light TINT, never the base: this plate carries a numeral, so it stays on the readable side
    of the ladder (9.5:1 at the darkest) while still telling you which division's board you are
-   looking at. Set on .lb-climb, which is where data-metal lives. */
+   looking at. Set on .lb-climb, which is where data-tier lives. */
 /* Bronze is the default, exactly as --arena-wash does it above: a pre-migration null division
    gets a real tint rather than a near-neutral one. A light violet-grey fallback measured 15 of
    chroma — under the gate's own 32 floor, so "no division" would have shipped the grey plate
    this pass exists to remove, on the one board nobody tests. */
-.lb-climb, .lb-climb[data-metal="bronze"] { --rk-hi: #FFF6EE; --rk-mid: #FFE7D5; --rk-lo: #FBD9C0; --rk-lip: #DCA57F; }
-.lb-climb[data-metal="silver"] { --rk-hi: #F4FCFF; --rk-mid: #DDF2FD; --rk-lo: #C7E8FA; --rk-lip: #86C0DE; }
-.lb-climb[data-metal="gold"] { --rk-hi: #FFFBEE; --rk-mid: #FFF0C9; --rk-lo: #FCE4A8; --rk-lip: #D9B85F; }
-.lb-climb[data-metal="platinum"] { --rk-hi: #FBF6FF; --rk-mid: #EFE3FE; --rk-lo: #E2D0FB; --rk-lip: #B79BE0; }
-.lb-climb[data-metal="diamond"] { --rk-hi: #F1FEFC; --rk-mid: #D8F8F3; --rk-lo: #BFF1E9; --rk-lip: #77CCC1; }
+.lb-climb, .lb-climb[data-tier="ember"] { --rk-hi: #FFF6EE; --rk-mid: #FFE7D5; --rk-lo: #FBD9C0; --rk-lip: #DCA57F; }
+.lb-climb[data-tier="volt"] { --rk-hi: #F4FCFF; --rk-mid: #DDF2FD; --rk-lo: #C7E8FA; --rk-lip: #86C0DE; }
+.lb-climb[data-tier="solar"] { --rk-hi: #FFFBEE; --rk-mid: #FFF0C9; --rk-lo: #FCE4A8; --rk-lip: #D9B85F; }
+.lb-climb[data-tier="nova"] { --rk-hi: #FBF6FF; --rk-mid: #EFE3FE; --rk-lo: #E2D0FB; --rk-lip: #B79BE0; }
+.lb-climb[data-tier="prism"] { --rk-hi: #F1FEFC; --rk-mid: #D8F8F3; --rk-lo: #BFF1E9; --rk-lip: #77CCC1; }
 .lg-rk {
   box-sizing: border-box; display: grid; place-items: center; width: 32px; height: 26px;
   border: 2px solid var(--mat-ink); border-radius: 7px;
@@ -1738,12 +1802,30 @@
      inverts it: the name track's base size is 0, so when the head runs out of room the NAME
      gives way and ellipses — which is what the old comment claimed and what this now does.
      The margin is not the safety here, but it is real: the name is one of five server
-     constants (league.py DIVISION_NAMES) and the longest, "Platinum", takes 191px of ~560. */
+     constants (league.py DIVISION_NAMES); the longest was "Platinum" at 191px of ~560, and
+     since the 08-06 rename none of the five exceeds 5 characters, so the margin only grew. */
   .tb-head {
     grid-template-columns: auto minmax(0, max-content) minmax(min-content, 1fr) auto auto;
     gap: 18px; padding: 11px 14px;
   }
-  .tb-name { font-size: 26px; }
+  /* ⚠ THE HEAD NEEDED A FOCAL POINT (2026-08-06). At 26px in an 1148px card the division —
+     the one word the whole page is about — was smaller than the score on rank 9, and the card
+     read as a toolbar: six evenly-weighted objects strung along a line. The name and the crest
+     are the two objects that ARE the badge, so they are the two that grow; everything else on
+     the row is unchanged, and the road's `1fr` absorbs the difference.
+     The five names are shorter now (Ember/Volt/Solar/Nova/Prism against Bronze…Platinum), so
+     the WIDTH is bought rather than borrowed: the longest is 5 characters where it was 8.
+     ⚠ THE HEIGHT IS NOT, AND THIS TIER IS THE ONE THAT CANNOT PAY. The crest drives the head's
+     row height, and the first version of this bump (46px crest, 31px name, 12px padding) put
+     the head at 77px and cost the EIGHTH VISIBLE RANK at 1366x768 — the most common laptop, and
+     the exact viewport the ranks budget exists for. The lock's own rule: a height step's
+     binding member is its shortest window, so the big version is keyed at ≥1400 (where the
+     narrowest viewport is 838px tall and has the room) and this tier takes the modest one. */
+  .tb-name { font-size: 29px; }
+  /* Scaled in CSS rather than by the size prop, which is one number for every tier — the phone
+     head has five children in 342px and cannot pay for this. 28x32 is the crest's viewBox. */
+  .tb-crest .crest { width: 42px; height: 48px; }
+  .chase-n { font-size: 21px; }
   .tb-mult { padding: 6px 12px; }
   .tb-mult-n { font-size: 22px; }
   .tb-mult-l { font-size: 9px; }
@@ -1760,9 +1842,14 @@
   .tb-pip[data-state="now"] {
     width: auto; height: 26px; min-width: 48px; border-radius: 8px;
   }
-  /* A locked rung reads its label against a 30%-opacity metal, which is not a surface a
-     contrast probe can measure — so the ink goes dark and the plate keeps the fade. */
-  .tb-pip[data-state="next"] { opacity: .58; }
+  /* A locked rung reads its label against a faded metal, which is not a surface a contrast
+     probe can measure — so the ink goes dark and the plate keeps the fade.
+     ⚠ .74, not .58 (2026-08-06). Three of the five plates are locked on a typical board, and at
+     .58 over a saturated band they were the washed-out objects in the middle of the head — the
+     road read as a stray slider rather than as a route. Still a clear step below an earned
+     plate's full opacity, and the gate's own rule (locked must be ≥0.15 dimmer than earned)
+     has 0.26 of margin. */
+  .tb-pip[data-state="next"] { opacity: .74; }
   .tb-pip[data-state="next"] .tb-px { color: var(--ink); }
   /* SPREAD, on a filled rail. Centred in an elastic track the five plates are a huddle in
      the middle of a void; spread across it with the rail behind them they are a route with
@@ -1771,8 +1858,10 @@
      the rail cannot disagree with what it runs under. 9px is the floor, not the spacing —
      `space-between` only falls back to it when the track is tight. */
   .tb-pips { justify-content: space-between; gap: 9px; }
+  /* 7px, not 5 (2026-08-06). A 5px rail under 21px plates spanning ~700px is a hairline by
+     proportion — it read as a slider's track rather than as the road the plates stand on. */
   .tb-pips::before, .tb-pips::after {
-    content: ""; position: absolute; top: 50%; height: 5px; border-radius: 999px;
+    content: ""; position: absolute; top: 50%; height: 7px; border-radius: 999px;
     transform: translateY(-50%); z-index: 0; pointer-events: none;
   }
   .tb-pips::before {
@@ -1919,8 +2008,9 @@
   .pod-banner-do, .pod-clock-l { font-size: 11.5px; }
   .pod-banner-to, .pod-clock-v { font-size: 28px; }
   .pod-banner-sub, .pod-clock-sub { font-size: 11px; }
-  .tb-head { padding: 11px 16px; }
-  .tb-name { font-size: 29px; }
+  .tb-head { padding: 12px 16px; }
+  .tb-name { font-size: 34px; }
+  .tb-crest .crest { width: 50px; height: 57.1px; }
   .tb-mult { padding: 7px 14px; }
   .tb-mult-n { font-size: 25px; }
   .tb-mult-l { font-size: 9.5px; }

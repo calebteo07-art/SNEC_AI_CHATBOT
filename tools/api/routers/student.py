@@ -621,7 +621,7 @@ class LbResponse(BaseModel):
     you_would_be_rank: int | None = None
     roles: list[str]
     division: int = 1
-    division_name: str = "Bronze"
+    division_name: str = "Ember"
     # What the division PAYS. Sent rather than mirrored in TypeScript: the economy has one
     # source of truth (tools/gamification/league.py), and a copy in the client is a copy
     # that drifts the first time the ladder is retuned — silently, since a wrong number
@@ -724,8 +724,8 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
         division_multipliers=list(DIVISION_MULTIPLIERS),
         pool_size=len(pool),
         # ⚠ ZERO AT THE SUMMIT. close_week has always refused to promote anyone out of
-        # Diamond, but the live payload did not agree with it: it sent the pool's raw count,
-        # so a Diamond board drew a promotion cut and gold podium lips for a promotion that
+        # Prism, but the live payload did not agree with it: it sent the pool's raw count,
+        # so a Prism board drew a promotion cut and gold podium lips for a promotion that
         # cannot happen. The client had no way to tell — promotionLineIndex documents "the
         # top division promotes nobody" as a null case and gets there only via a 0 it was
         # never sent. Found 2026-08-04 while giving the stage a banner that says the count

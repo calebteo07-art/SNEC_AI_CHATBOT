@@ -8,10 +8,26 @@ import hashlib
 import math
 from datetime import date
 
-# (level, display name). Reuses the colours/names students already see on the board, so the
-# rename from "lifetime XP tier" to "earned division" needs no new art or vocabulary.
+# (level, display name).
+#
+# A LADDER OF LIGHT, renamed 2026-08-06 ("rename all tiers to match the colors and make them
+# simple and catchy"). The divisions stopped being metals on 2026-08-05 — the board paints a
+# game-rarity hue ladder — and the names were the half that did not move: "Silver" labelled an
+# electric-azure band and "Diamond" a prismatic aqua one, so the loudest word on the page was
+# the one thing contradicting it.
+#
+# Each name IS its colour, and the set escalates as light does: a coal, an arc, a star, a star
+# going off, and light split into all of it. The currency is Lumens, so the ladder a student
+# climbs is made of the thing they earn.
+#   Ember  #FF6320 vermilion · Volt  #22B8F0 azure · Solar #FFB800 gold
+#   Nova   #B478FA violet    · Prism #2DE1D0 aqua
+#
+# ⚠ These strings are DISPLAY ONLY. The database stores `division` as an integer everywhere
+# (migration 016), so renaming costs no migration and no backfill — but the payload field
+# `division_name` is read by the board, the home rank strip and the promotion ceremony, so the
+# five here are the single source and nothing may hard-code a copy.
 DIVISIONS: list[tuple[int, str]] = [
-    (1, "Bronze"), (2, "Silver"), (3, "Gold"), (4, "Platinum"), (5, "Diamond"),
+    (1, "Ember"), (2, "Volt"), (3, "Solar"), (4, "Nova"), (5, "Prism"),
 ]
 TOP_DIVISION = 5
 POOL_MAX = 30  # Duolingo's pool size; above this a division splits into balanced pools
@@ -28,7 +44,7 @@ POOL_MAX = 30  # Duolingo's pool size; above this a division splits into balance
 #   · The staff console does not compare raw XP between students, so a multiplied Lumen
 #     never distorts a supervisor's read of who practised more. Check that again before
 #     any analytics work starts ranking on `xp`.
-# Indexed by division - 1. Loud on purpose: Diamond doubling is the point of Diamond, and
+# Indexed by division - 1. Loud on purpose: Prism doubling is the point of Prism, and
 # a ladder a student cannot recite is not a goal they can chase.
 DIVISION_MULTIPLIERS: list[float] = [1.0, 1.1, 1.25, 1.5, 2.0]
 
@@ -51,7 +67,7 @@ def division_name(division) -> str:
 
 
 def division_multiplier(division) -> float:
-    """The Lumens multiplier this division earns. 1.0 at Bronze — the bottom rung is never
+    """The Lumens multiplier this division earns. 1.0 at Ember — the bottom rung is never
     taxed for being new."""
     return DIVISION_MULTIPLIERS[_clamp_division(division) - 1]
 

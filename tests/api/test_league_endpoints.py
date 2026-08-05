@@ -86,7 +86,7 @@ def test_board_is_scoped_to_the_viewers_division():
     assert [e["name"] for e in body["entries"]] == ["Ann Aa", "Bob Bb", "Cy Cc", "Dee Dd"]
     assert all(e["division"] == 3 for e in body["entries"])   # no d2_eve, no d4_fay
     assert body["division"] == 3
-    assert body["division_name"] == "Gold"
+    assert body["division_name"] == "Solar"
     assert body["pool_size"] == 4          # 4 visible members of division 3
     assert body["promote_count"] == 3
 
@@ -113,7 +113,7 @@ def test_role_filter_is_a_view_only_and_never_moves_the_promotion_line():
     # ...but the league facts describe the whole division, unchanged.
     assert filtered["pool_size"] == unfiltered["pool_size"] == 4
     assert filtered["promote_count"] == unfiltered["promote_count"] == 3
-    assert filtered["division"] == 3 and filtered["division_name"] == "Gold"
+    assert filtered["division"] == 3 and filtered["division_name"] == "Solar"
 
 
 def test_student_id_never_reaches_the_client():
@@ -126,8 +126,8 @@ def test_student_id_never_reaches_the_client():
 
 
 def test_the_summit_promotes_nobody():
-    """close_week has always refused to promote out of Diamond, but the live payload sent the
-    pool's raw count anyway — so a Diamond board drew a promotion cut and gold podium lips for
+    """close_week has always refused to promote out of Prism, but the live payload sent the
+    pool's raw count anyway — so a Prism board drew a promotion cut and gold podium lips for
     a promotion that cannot happen, and the client had no way to know. promotionLineIndex
     documents "the top division promotes nobody" as a null case it can only reach via a 0."""
     top = [_p(f"d5_{i}", 5, 500 - i * 10) for i in range(6)]
@@ -190,7 +190,7 @@ def test_degrades_to_one_undivided_board_before_migration_016():
     assert r.status_code == 200
     body = r.json()
     assert [e["name"] for e in body["entries"]] == ["Bob Bb", "Ann Aa"]  # everyone, XP desc
-    assert body["division"] == 1 and body["division_name"] == "Bronze"
+    assert body["division"] == 1 and body["division_name"] == "Ember"
     assert all(e["division"] == 1 for e in body["entries"])
     assert all(e["rank_delta"] is None for e in body["entries"])  # no rank_prev column yet
 
@@ -290,8 +290,8 @@ def test_unseen_result_is_returned_with_both_division_names():
     assert body["outcome"] == "promoted"
     assert body["rank_final"] == 2
     assert body["xp_final"] == 7660
-    assert body["from_division_name"] == "Silver"   # raced division 2...
-    assert body["to_division_name"] == "Gold"       # ...promoted into 3
+    assert body["from_division_name"] == "Volt"   # raced division 2...
+    assert body["to_division_name"] == "Solar"       # ...promoted into 3
     lw.assert_awaited_once_with("d3_ann", PREV)     # the CLOSED week, never the live one
 
 
@@ -299,7 +299,7 @@ def test_a_held_result_names_the_same_division_twice():
     """`to` advances only on a promotion — telling a held student they moved up would be a
     lie the very next board read contradicts."""
     body = league_result(row=RESULT_ROW | {"outcome": "held", "rank_final": 9})[0].json()
-    assert body["from_division_name"] == body["to_division_name"] == "Silver"
+    assert body["from_division_name"] == body["to_division_name"] == "Volt"
 
 
 def test_result_is_not_returned_twice():
