@@ -3,6 +3,9 @@
    Run under Node type stripping:
      node --experimental-strip-types frontend/tests/hud_logic.mjs */
 import assert from "node:assert";
+import { execFileSync } from "node:child_process";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   chestReveal, sgtMsToMidnight, streakRisk, boostRemaining, formatCountdown, questRollup,
 } from "../src/aurora/lib/hud.ts";
@@ -27,10 +30,38 @@ assert.strictEqual(sgtMsToMidnight(Date.parse("2026-08-05T16:00:00Z")), 86_400_0
   "at SGT midnight a whole day remains");
 assert.strictEqual(sgtMsToMidnight(Date.parse("2026-08-05T15:00:00Z")), 3_600_000,
   "23:00 SGT leaves one hour");
-// The same instant, read by a device in New York, must give the SAME answer.
-assert.strictEqual(sgtMsToMidnight(Date.parse("2026-08-05T15:00:00Z")),
-                   sgtMsToMidnight(new Date("2026-08-05T11:00:00-04:00").getTime()),
-  "the offset is fixed at +08:00 — the device's timezone cannot move SGT midnight");
+// The two assertions above only prove sgtMsToMidnight is a pure function of nowMs —
+// they say nothing about which timezone the arithmetic actually used, because
+// Date.parse(...) and `new Date(...).getTime()` both collapse to the identical epoch
+// ms BEFORE the function ever runs. A device-local-midnight implementation passes a
+// same-epoch-ms comparison too, and on a box whose own TZ happens to be +08:00 it
+// passes even the two assertions above — which is exactly this dev box, so "green
+// locally" was never evidence for the fixed-offset property. The only real gate is
+// asking a process whose OS timezone genuinely is NOT +08:00 what it computes.
+//
+// Spawns real `node` children pinned to two different TZs via the environment (never
+// a shell — execFileSync passes argv directly, so there is no quoting to get wrong),
+// each importing hud.ts fresh and evaluating sgtMsToMidnight at the same instant used
+// above. Proven by mutation: swapping the fixed +08:00 offset for `new Date(nowMs)`
+// local-midnight arithmetic fails this loop under TZ=America/New_York while the two
+// fixed-point assertions above keep passing.
+const HUD_URL = pathToFileURL(path.join(import.meta.dirname, "../src/aurora/lib/hud.ts")).href;
+
+function sgtMsToMidnightUnderTZ(tz) {
+  return Number(execFileSync(
+    process.execPath,
+    ["--experimental-strip-types", "-e",
+     `import(${JSON.stringify(HUD_URL)}).then(m => ` +
+       `process.stdout.write(String(m.sgtMsToMidnight(${Date.parse("2026-08-05T15:00:00Z")}))));`],
+    { env: { ...process.env, TZ: tz }, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+  ));
+}
+
+for (const tz of ["America/New_York", "Etc/GMT-8"]) {
+  assert.strictEqual(sgtMsToMidnightUnderTZ(tz), 3_600_000,
+    `sgtMsToMidnight must return the same 1h-to-midnight answer under TZ=${tz} as under ` +
+    "SGT — the +08:00 offset is a fixed constant, not the runtime's local midnight");
+}
 
 // ── streak risk is informative, and silent once the day is done ──────────────
 const t = Date.parse("2026-08-05T15:00:00Z"); // 23:00 SGT
