@@ -151,24 +151,30 @@
 .aurora-main:has(.lb-climb) {
   --arena-base: #FFFBF4;
   /* Bronze is the default so a pre-migration null division still gets a real arena. */
-  --arena-wash: rgba(226, 154, 94, .3);
+  --arena-wash: rgba(255, 99, 32, .4);
   /* One token, one job: the LANE's stripe (see § THE LANE). The canvas cycles four hues
      inline below rather than through a variable, because four tokens that can only ever be
      set together are four chances for three of them to be. */
-  --arena-stripe: rgba(124, 78, 245, .11);
+  --arena-stripe: rgba(140, 70, 255, .16);
+  /* ⚠ Alphas raised again 2026-08-05 ("not loud and vibrant enough"). Same eight layers, same
+     order, same rules — the blooms are just no longer apologetic. The ARCADE pass already had
+     to raise these once after a screenshot; this is the second time, and the reason is the
+     same both times: a bloom that passes the luminance floor with room to spare is a bloom
+     that could have been stronger. The white spotlight over the stage is what keeps the
+     podium in a pool of light no matter how loud the field gets. */
   background:
     radial-gradient(52% 26% at 50% 20%, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 72%),
     radial-gradient(96% 42% at 50% -10%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(40% 32% at 2% 8%, rgba(255, 92, 138, .42) 0%, rgba(255, 92, 138, 0) 70%),
-    radial-gradient(40% 32% at 98% 20%, rgba(38, 205, 235, .44) 0%, rgba(38, 205, 235, 0) 70%),
-    radial-gradient(34% 30% at 8% 78%, rgba(124, 78, 245, .34) 0%, rgba(124, 78, 245, 0) 72%),
-    radial-gradient(36% 30% at 94% 88%, rgba(120, 226, 122, .34) 0%, rgba(120, 226, 122, 0) 72%),
-    radial-gradient(48% 36% at 50% 104%, rgba(255, 186, 40, .44) 0%, rgba(255, 186, 40, 0) 72%),
+    radial-gradient(40% 32% at 2% 8%, rgba(255, 64, 120, .58) 0%, rgba(255, 64, 120, 0) 70%),
+    radial-gradient(40% 32% at 98% 20%, rgba(0, 200, 240, .60) 0%, rgba(0, 200, 240, 0) 70%),
+    radial-gradient(34% 30% at 8% 78%, rgba(140, 70, 255, .50) 0%, rgba(140, 70, 255, 0) 72%),
+    radial-gradient(36% 30% at 94% 88%, rgba(70, 226, 130, .48) 0%, rgba(70, 226, 130, 0) 72%),
+    radial-gradient(48% 36% at 50% 104%, rgba(255, 176, 20, .58) 0%, rgba(255, 176, 20, 0) 72%),
     repeating-linear-gradient(135deg,
-      rgba(127, 90, 240, .10) 0 24px, rgba(255, 255, 255, 0) 24px 48px,
-      rgba(27, 158, 186, .10) 48px 72px, rgba(255, 255, 255, 0) 72px 96px,
-      rgba(232, 90, 120, .09) 96px 120px, rgba(255, 255, 255, 0) 120px 144px,
-      rgba(214, 150, 20, .11) 144px 168px, rgba(255, 255, 255, 0) 168px 192px),
+      rgba(140, 70, 255, .15) 0 24px, rgba(255, 255, 255, 0) 24px 48px,
+      rgba(0, 190, 230, .15) 48px 72px, rgba(255, 255, 255, 0) 72px 96px,
+      rgba(255, 64, 120, .13) 96px 120px, rgba(255, 255, 255, 0) 120px 144px,
+      rgba(255, 176, 20, .16) 144px 168px, rgba(255, 255, 255, 0) 168px 192px),
     var(--arena-base);
   /* ⚠ EIGHT values for eight image layers, in order. The stripe is the only repeating one,
      and miscounting here silently tiles a bloom across the page. */
@@ -176,10 +182,10 @@
 }
 /* The wash is the LAST per-metal thing on the canvas, and it is the deliberate remainder:
    it is what keeps "climbing re-skins the screen" true now that the base does not. */
-.aurora-main:has(.lb-climb[data-metal="silver"]) { --arena-wash: rgba(157, 172, 194, .34); }
-.aurora-main:has(.lb-climb[data-metal="gold"]) { --arena-wash: rgba(245, 198, 63, .34); }
-.aurora-main:has(.lb-climb[data-metal="platinum"]) { --arena-wash: rgba(169, 178, 232, .34); }
-.aurora-main:has(.lb-climb[data-metal="diamond"]) { --arena-wash: rgba(127, 220, 240, .36); }
+.aurora-main:has(.lb-climb[data-metal="silver"]) { --arena-wash: rgba(34, 184, 240, .42); }
+.aurora-main:has(.lb-climb[data-metal="gold"]) { --arena-wash: rgba(255, 184, 0, .42); }
+.aurora-main:has(.lb-climb[data-metal="platinum"]) { --arena-wash: rgba(180, 120, 250, .42); }
+.aurora-main:has(.lb-climb[data-metal="diamond"]) { --arena-wash: rgba(45, 225, 208, .44); }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 /* ── THE LANE ─────────────────────────────────────────────────────────────────
@@ -252,7 +258,7 @@
 /* ONE deep surface, not five. The apron is GROUND — it is the part of the page the board is
    not standing on — and ground stopped being identity when the canvas did. The metal still
    reaches the flanks through --arena-wash, which the wall's own gradient stack reads. */
-.aurora-main:has(.lb-climb) { --arena-deep: #E7D8FA; --lane: 1400px; }
+.aurora-main:has(.lb-climb) { --arena-deep: #DCC4FA; --lane: 1400px; }
 
 .lb-climb {
   /* THE outline, and the lip ladder. */
@@ -266,21 +272,34 @@
 
   /* Gold, split by JOB. --ink-on-gold is the only ink allowed ON a gold fill; --gold-ink is a
      gold-toned WORD and belongs on white surfaces only. */
-  --gold-hi: #FFF0BE;
-  --gold-mid: #F5C63F;
-  --gold-lo: #DFA828;
-  --gold-lip: #9A6A08;
+  /* ⚠ ONE GOLD, 2026-08-05. The rarity ladder's Gold division is #FFB800 and this family was
+     still #DFA828 — so a gold BANNER sat on a gold PLINTH in two different golds, a few pixels
+     apart on the same deck. The mechanic's gold and the division's gold have always been meant
+     to be the same material (the lock's rule is that they never COLLIDE in meaning, not that
+     they differ in hue). Both inks re-measured: 8.3:1 on the fill, 6.9:1 for the word on white,
+     and the split between them is still load-bearing. */
+  --gold-hi: #FFF6C2;
+  --gold-mid: #FFC92E;
+  --gold-lo: #FFB800;
+  --gold-lip: #9A5E00;
   --ink-on-gold: #3A2600;
   --gold-ink: #7A5206;
 
+  /* THE NEUTRALS ARE WARM VIOLET-GREY, not cool blue-grey (2026-08-05). These five tokens build
+     the rank token, the score pill's lip, the medallion, the filter tray and the board's own
+     lip — the objects drawn most often on the page — and a cool blue-grey is the one family
+     that belongs to a dashboard rather than to --mat-ink. Same job, same luminance, tuned to
+     the outline every object on this board already wears. */
   --chip-hi: #FFFFFF;
-  --chip-mid: #EDF1F8;
-  --chip-lo: #DCE3EE;
-  --chip-lip: #B6C0D2;
-  --plate-lip: #C9D0DE;
+  --chip-mid: #F3EEF8;
+  --chip-lo: #E3DAEE;
+  --chip-lip: #C0B0D4;
+  --plate-lip: #CFC1E0;
 
-  --up-fill: #D8F2E2;
-  --up-ink: #14602A;
+  /* Vivid, not pale. Movement is the highest-signal datum on a rung and it read as a mint
+     sticker; 7.4:1, so it gained saturation without spending any legibility. */
+  --up-fill: #7DF0B0;
+  --up-ink: #0B4A20;
 
   /* ROLE IS IDENTITY — the same licence the band has to wear a metal, spent on the object
      that repeats 27 times. Added 2026-08-04 ("more variety of pop of colors in this entire
@@ -288,10 +307,14 @@
      ladder, and the flattest object on a page is the one drawn most often.
      Each pair is a WORD colour (the darker, and every one of the three clears 5.4:1 on the
      row's white) and a bar highlight. Fill only — never an outline, never a lip — so role
-     can never out-shout the gold that means promotion. */
-  --role-oa: #5B3BC4;   --role-oa-hi: #8266E8;
-  --role-ot: #0E6C80;   --role-ot-hi: #23A0BA;
-  --role-psa: #B32B54;  --role-psa-hi: #E4587D;
+     can never out-shout the gold that means promotion.
+     ⚠ ONLY THE HIGHLIGHTS BRIGHTENED (2026-08-05). The word colours are contrast-pinned on the
+     row's white (7.3 / 6.0 / 6.2:1) and brightening them is how a 3:1 role tag ships; the
+     highlight carries no text, so the two-tone step on the bar is where the vibrancy is free.
+     --role-soft is new: the medallion's lip, so 27 avatar rings stop being grey. */
+  --role-oa: #5B3BC4;   --role-oa-hi: #A98BFF;   --role-oa-soft: #C9B6F5;
+  --role-ot: #0E6C80;   --role-ot-hi: #2FD3EE;   --role-ot-soft: #9FDDEA;
+  --role-psa: #B32B54;  --role-psa-hi: #FF6F9C;  --role-psa-soft: #F4AFC3;
   /* A deepened Gemini blue. The gradient `var(--gemini)` has no background-color at all, so
      white-on-it measures against the page and its own #4285F4 head is 3.56:1 — this is 6.6:1
      and declares a solid the probe can actually read. */
@@ -332,14 +355,31 @@
 }
 
 /* ── the tier band ────────────────────────────────────────────────────────────
-   The head, cast in the division's own material, so climbing visibly re-skins the top of the
+   The head, cast in the division's own colour, so climbing visibly re-skins the top of the
    page — the reward five identical white cards could never pay. --f-lo is the declared solid
-   the contrast probe resolves against; every one of the five clears 5.6:1 for --ink. */
-.tb[data-metal="bronze"] { --f-hi: #FFE3C2; --f-mid: #E29A5E; --f-lo: #CE8746; --f-lip: #8E5220; }
-.tb[data-metal="silver"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; }
-.tb[data-metal="gold"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; }
-.tb[data-metal="platinum"] { --f-hi: #EAEDFF; --f-mid: #A9B2E8; --f-lo: #8B95D6; --f-lip: #5B64A8; }
-.tb[data-metal="diamond"] { --f-hi: #D6F7FF; --f-mid: #7FDCF0; --f-lo: #4CC3DC; --f-lip: #1B8AA6; }
+   the contrast probe resolves against; every one of the five clears 5.5:1 for --ink.
+
+   ⚠ A RARITY LADDER, NOT FIVE METALS (2026-08-05, on request: the tiers read "too basic and not
+   vibrant and wild enough"). "Silver" is painted AZURE — the colour marks the rung, it no longer
+   illustrates the noun. Literal metal was the direct cause: silver IS grey and platinum IS a
+   pale periwinkle, so the two divisions most of the cohort sits in desaturated the object that
+   names them. The ARCADE pass wrote that finding down and spent it only on the CANVAS; the band,
+   the road, the plinths and the wash stayed literal. This is the rest of that fix.
+
+   ⚠ VIVIDNESS WAS NEVER THE CONSTRAINT — that is why this is a token swap and not a redesign.
+   Measured before choosing: these saturated bases clear the 4.5 floor by MORE than the washes
+   they replace (gold 7.7→9.5, diamond 8.0→10.0). The old palette was desaturated by choice.
+   The one real limit is that ultraviolet is dark: the requested #A855F7 lands at 4.2:1, under
+   AA, so platinum is #B478FA — hue is what reads as ultraviolet, not darkness.
+
+   --f-flash is a SECOND HUE, a thin rim at the top of the head's hard-stop stack. One extra
+   stop in a gradient that already existed, and it is the whole of "wild" that a single base
+   colour cannot buy: the band reads as two-tone enamel instead of as one tint. */
+.tb[data-metal="bronze"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
+.tb[data-metal="silver"] { --f-flash: #C9B6FF; --f-hi: #9FE3FF; --f-mid: #54CBF8; --f-lo: #22B8F0; --f-lip: #0B5F94; }
+.tb[data-metal="gold"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; }
+.tb[data-metal="platinum"] { --f-flash: #FF9BE0; --f-hi: #DCC2FF; --f-mid: #C79BFF; --f-lo: #B478FA; --f-lip: #5B21B6; }
+.tb[data-metal="diamond"] { --f-flash: #F2A8FF; --f-hi: #A8F5EC; --f-mid: #5BEEE0; --f-lo: #2DE1D0; --f-lip: #0A7A75; }
 
 /* THE RECIPE, structural tier. The second lip shadow carries the outline as SPREAD rather than
    as a second Y offset, so the keyline wraps the lip's side crescents too. */
@@ -357,8 +397,11 @@
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center; gap: 10px; padding: 9px 11px;
   background-color: var(--f-lo);
+  /* FOUR hard stops now — the --f-flash rim is the second hue. Still hard-stopped, so it is a
+     moulded surface rather than the wash rule 3 bans; a 9% band on a ~54px head is ~5px. */
   background-image: linear-gradient(180deg,
-    var(--f-hi) 0%, var(--f-hi) 30%,
+    var(--f-flash, var(--f-hi)) 0%, var(--f-flash, var(--f-hi)) 9%,
+    var(--f-hi) 9.01%, var(--f-hi) 30%,
     var(--f-mid) 30.01%, var(--f-mid) 74%,
     var(--f-lo) 74.01%, var(--f-lo) 100%);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(42, 31, 61, .18);
@@ -371,8 +414,14 @@
   letter-spacing: -.025em; font-size: clamp(19px, 5.4vw, 25px); color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-/* Solid, not an alpha: over the darkest band a 62%-alpha ink lands at 4.3:1. */
-.tb-league { font-weight: 600; font-size: .66em; color: #2E3440; }
+/* Solid, not an alpha: over the darkest band a 62%-alpha ink lands at 4.3:1.
+   ⚠ AND THE SOLID THAT REPLACED IT WENT ONE STEP TOO FEW. #2E3440 measured 4.27:1 on the OLD
+   bronze band (#CE8746) — under the same 4.5 floor this file enforces everywhere else, shipped
+   under this very comment. It survived because league_assert mounts division 2 and ONLY 2, so
+   the contrast sweep has never once probed the other four metals. --ink now, and hierarchy is
+   carried where it always actually was: 800/25px against 600/16px, never by 1.5% of luminance.
+   The per-metal sweep in league_assert is the structural half of the fix. */
+.tb-league { font-weight: 600; font-size: .66em; color: var(--ink); }
 /* ⚠ 520, not the 420 this used to be (2026-08-04). The rule that "League" gives way before the
    DIVISION does was right and was keyed too tight: measured with a Range, `.tb-name` was still
    ellipsising at 430x932 (102px of box for 116px of text) and on the landscape phone (79 of
@@ -406,11 +455,14 @@
    in a phone-width column, and the lock's rule is that anything added to it has to be paid
    for THERE. On a phone the road stays five dots and the module carries the number. */
 .tb-px { display: none; }
-.tb-pip[data-metal="bronze"] { --pm: #E29A5E; }
-.tb-pip[data-metal="silver"] { --pm: #C6D2E2; }
-.tb-pip[data-metal="gold"] { --pm: #F5C63F; }
-.tb-pip[data-metal="platinum"] { --pm: #A9B2E8; }
-.tb-pip[data-metal="diamond"] { --pm: #7FDCF0; }
+/* The road wears the rarity ladder's own bases, so five 11px dots are five HUES around the
+   wheel rather than five steps of luminance — which is the one place the old palette had
+   nothing left to say, at the size where a wash reads as grey. */
+.tb-pip[data-metal="bronze"] { --pm: #FF6320; }
+.tb-pip[data-metal="silver"] { --pm: #22B8F0; }
+.tb-pip[data-metal="gold"] { --pm: #FFB800; }
+.tb-pip[data-metal="platinum"] { --pm: #B478FA; }
+.tb-pip[data-metal="diamond"] { --pm: #2DE1D0; }
 .tb-pip[data-state="next"] { opacity: .3; }
 .tb-pip[data-state="now"] {
   width: 17px; height: 17px; border-width: 2px;
@@ -571,18 +623,34 @@
   align-items: end; column-gap: 8px; padding: 6px 10px 4px;
   border: var(--mat-out) solid var(--mat-ink);
   border-radius: 18px;
-  background-color: #FFF6E6;
+  background-color: #FFE9BC;
   /* A GOLD SPOTLIGHT under the champion, over the hard-stop fill. The deck is wide now, and
      a wide flat fill is exactly the wash this file's recipe bans — this is what stops the
      flanks reading as a field of beige. Gold rather than the division metal: the deck is the
      PROMOTION object, and identity is already carried by the band, the plinths, the road,
-     the crest and the canvas wash. */
+     the crest and the canvas wash.
+     ⚠ THE SPOTLIGHT WAS RIGHT AND THE FLANKS WERE STILL BEIGE (2026-08-05). A radial at 50%
+     reaches the centre and nothing else, so the two ends of an 1148px deck — where the flank
+     modules live — were the flat fill the comment above says this stops being. Two corner
+     blooms now, in the CANVAS's own hues rather than in the division's: the gold/promotion
+     split above still holds, because these are the field showing THROUGH the stage, not the
+     stage claiming an identity.
+     ⚠ MEASURED AGAIN AFTER A SCREENSHOT, and the first attempt was too timid — the blooms sat
+     at .30 in the very bottom corners, where the plinths cover them, so the deck still read as
+     the field of beige this comment claims it stops being. The base is a real amber now, the
+     white top band is a warm tint rather than #FFFFFF (a pure-white stripe under a saturated
+     band is the one hard edge on the card), and the blooms are raised and moved UP so they
+     wash the flanks rather than the floor. Ink on the declared solid is 13.8:1 — this whole
+     card had ~15:1 of headroom it was not spending. Third time this file records the same
+     lesson: "the numbers pass" and "it reads as vibrant" are different claims. */
   background-image:
-    radial-gradient(44% 78% at 50% 98%, rgba(255, 206, 92, .5) 0%, rgba(255, 206, 92, 0) 72%),
+    radial-gradient(46% 84% at 50% 98%, rgba(255, 190, 40, .78) 0%, rgba(255, 190, 40, 0) 72%),
+    radial-gradient(42% 96% at -2% 62%, rgba(255, 64, 120, .50) 0%, rgba(255, 64, 120, 0) 76%),
+    radial-gradient(42% 96% at 102% 62%, rgba(0, 200, 240, .50) 0%, rgba(0, 200, 240, 0) 76%),
     linear-gradient(180deg,
-      #FFFFFF 0%, #FFFFFF 15%, #FFF6E6 15.01%, #FFF6E6 70%, #FBE9C6 70.01%, #FBE9C6 100%);
+      #FFF8E4 0%, #FFF8E4 12%, #FFE9BC 12.01%, #FFE9BC 70%, #F8CE7E 70.01%, #F8CE7E 100%);
   box-shadow:
-    0 var(--mat-lip) 0 0 #D9BE8A,
+    0 var(--mat-lip) 0 0 #C79338,
     0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
     0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42, 31, 61, .3);
 }
@@ -683,9 +751,13 @@
 .pod-slot[data-place="2"] { order: 1; --pl-h: 100px; --face: 66px; --num-sz: 40px; animation-delay: .04s; }
 .pod-slot[data-place="3"] { order: 3; --pl-h: 82px; --face: 66px; --num-sz: 34px; animation-delay: .24s; }
 
-.pod-slot[data-place="1"] { --f-hi: #FFF0BE; --f-mid: #F5C63F; --f-lo: #DFA828; --f-lip: #9A6A08; --num-ink: #3A2600; }
-.pod-slot[data-place="2"] { --f-hi: #F4F8FF; --f-mid: #C6D2E2; --f-lo: #9DACC2; --f-lip: #6E7E96; --num-ink: #1F1F1F; }
-.pod-slot[data-place="3"] { --f-hi: #FFE3C2; --f-mid: #E29A5E; --f-lo: #CE8746; --f-lip: #8E5220; --num-ink: #2A1405; }
+/* The three places follow the rarity ladder's own gold / azure / vermilion, so the stage and
+   the road are one colour system — a grey 2nd plinth beside an azure Silver pip would read as
+   two different boards. --num-ink is per place because a numeral lands ON the metal: 8.3 / 7.2
+   / 5.9:1 against each block's declared --f-lo. */
+.pod-slot[data-place="1"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; --num-ink: #3A2600; }
+.pod-slot[data-place="2"] { --f-flash: #C9B6FF; --f-hi: #9FE3FF; --f-mid: #54CBF8; --f-lo: #22B8F0; --f-lip: #0B5F94; --num-ink: #1F1F1F; }
+.pod-slot[data-place="3"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; --num-ink: #2A1405; }
 
 /* The figure: crown, portrait in a struck ring, name, score. A button, like a row, so all three
    open the same peek sheet — a podium you cannot touch is a picture of a leaderboard. */
@@ -763,8 +835,13 @@
   border: var(--mat-out) solid var(--mat-ink);
   border-radius: 4px 4px 10px 10px;
   background-color: var(--f-lo);
+  /* The same --f-flash rim the band's head carries, so the stage and the head are one
+     material. The fallback matters: an UNDEFINED custom property invalidates the whole
+     background-image at computed-value time — the plinth would silently lose its moulding
+     and keep only its solid, which reads as a flat slab rather than as a broken rule. */
   background-image: linear-gradient(180deg,
-    var(--f-hi) 0%, var(--f-hi) 17%,
+    var(--f-flash, var(--f-hi)) 0%, var(--f-flash, var(--f-hi)) 5%,
+    var(--f-hi) 5.01%, var(--f-hi) 17%,
     var(--f-mid) 17.01%, var(--f-mid) 62%,
     var(--f-lo) 62.01%, var(--f-lo) 100%);
   box-shadow:
@@ -890,10 +967,12 @@
      chip that is --mat-ink under a 92% white pill — a real 13:1 label reported as 1.00:1, and
      the same arithmetic in reverse is how a genuinely unreadable one ships. The values are the
      composites the alphas produced, frozen.
-     #3C4043, not --ink-2: --ink-2 lands at 4.3:1 here, under AA for a 10px numeral. */
-  color: #3C4043; background-color: #DBDEE7;      /* 7.4:1 */
+     #3C4043, not --ink-2: --ink-2 lands at 4.3:1 here, under AA for a 10px numeral.
+     ⚠ Re-tinted warm 2026-08-05 with the rest of the neutrals; still two OPAQUE SOLIDS, and
+     both re-measured rather than eyeballed. */
+  color: #3C4043; background-color: #E3DCEC;      /* 7.8:1 */
 }
-.lb-chip[data-on="true"] .lb-chip-n { color: var(--mat-ink); background-color: #EEEDF0; }  /* 13.0:1 */
+.lb-chip[data-on="true"] .lb-chip-n { color: var(--mat-ink); background-color: #F0ECF4; }  /* 13.1:1 */
 .lb-chip:hover { color: var(--ink); }
 /* SELECTED stays dark-on-white regardless of role: a chip filled with its role colour would
    read as a row rather than as the control that filters them. */
@@ -1013,13 +1092,27 @@
 
 /* FIVE STRUCK OBJECTS PER ROW. This is what makes 27 rows read as a game board rather than a
    table, and it is where the row's material lives — `.lg-row` itself is pinned flat. */
+/* THE RANK TOKEN WEARS THE DIVISION (2026-08-05). It is drawn once per rung — 27 grey plates
+   were the largest single flat surface left on the board after the gauges were coloured. A
+   light TINT, never the base: this plate carries a numeral, so it stays on the readable side
+   of the ladder (9.5:1 at the darkest) while still telling you which division's board you are
+   looking at. Set on .lb-climb, which is where data-metal lives. */
+/* Bronze is the default, exactly as --arena-wash does it above: a pre-migration null division
+   gets a real tint rather than a near-neutral one. A light violet-grey fallback measured 15 of
+   chroma — under the gate's own 32 floor, so "no division" would have shipped the grey plate
+   this pass exists to remove, on the one board nobody tests. */
+.lb-climb, .lb-climb[data-metal="bronze"] { --rk-hi: #FFF6EE; --rk-mid: #FFE7D5; --rk-lo: #FBD9C0; --rk-lip: #DCA57F; }
+.lb-climb[data-metal="silver"] { --rk-hi: #F4FCFF; --rk-mid: #DDF2FD; --rk-lo: #C7E8FA; --rk-lip: #86C0DE; }
+.lb-climb[data-metal="gold"] { --rk-hi: #FFFBEE; --rk-mid: #FFF0C9; --rk-lo: #FCE4A8; --rk-lip: #D9B85F; }
+.lb-climb[data-metal="platinum"] { --rk-hi: #FBF6FF; --rk-mid: #EFE3FE; --rk-lo: #E2D0FB; --rk-lip: #B79BE0; }
+.lb-climb[data-metal="diamond"] { --rk-hi: #F1FEFC; --rk-mid: #D8F8F3; --rk-lo: #BFF1E9; --rk-lip: #77CCC1; }
 .lg-rk {
   box-sizing: border-box; display: grid; place-items: center; width: 32px; height: 26px;
   border: 2px solid var(--mat-ink); border-radius: 7px;
-  background-color: var(--chip-lo);
-  background-image: linear-gradient(180deg, var(--chip-hi) 0%, var(--chip-hi) 40%,
-                                            var(--chip-mid) 40.01%, var(--chip-lo) 100%);
-  box-shadow: 0 2px 0 0 var(--chip-lip), 0 2px 0 2px var(--mat-ink);
+  background-color: var(--rk-lo);
+  background-image: linear-gradient(180deg, var(--rk-hi) 0%, var(--rk-hi) 40%,
+                                            var(--rk-mid) 40.01%, var(--rk-lo) 100%);
+  box-shadow: 0 2px 0 0 var(--rk-lip), 0 2px 0 2px var(--mat-ink);
   font-family: var(--disp); font-weight: 800; font-size: 15px; color: #333A44;
 }
 .lg-item[data-promo] .lg-rk {
@@ -1046,7 +1139,7 @@
   box-shadow: 0 2px 0 0 rgba(20, 96, 42, .38), 0 2px 0 2px var(--mat-ink);
 }
 .lg-mv[data-dir="down"] {
-  background-color: var(--chip-lo); color: #5A6072;
+  background-color: var(--chip-lo); color: #51576B;   /* 5.0:1 on the warmed --chip-lo */
   border: 2px solid var(--mat-ink);
   box-shadow: 0 2px 0 0 var(--chip-lip), 0 2px 0 2px var(--mat-ink);
 }
@@ -1058,12 +1151,16 @@
   position: relative; box-sizing: border-box; width: 44px; height: 44px;
   display: grid; place-items: center;
   border: 2px solid var(--mat-ink); border-radius: 50%;
-  background-color: var(--chip-mid);
+  background-color: var(--role-soft, var(--chip-mid));
   /* The lit top edge was missing here and present on .pod-face — move 4 of the recipe (one
      key light from above) skipped on the object that appears twenty-seven times, which is
-     most of why the ladder read softer than the stage. */
+     most of why the ladder read softer than the stage.
+     ⚠ THE LIP WEARS THE ROW'S ROLE (2026-08-05). Twenty-seven grey rings under twenty-seven
+     coloured gauges was the ladder disagreeing with itself about its own colour code. The lip
+     only — the ring's edge stays --mat-ink, so this is still a fill and never an outline, which
+     is the rule that keeps role from out-shouting the gold that means promotion. */
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 31, 61, .18),
-              0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
+              0 3px 0 0 var(--role-soft, var(--chip-lip)), 0 3px 0 2px var(--mat-ink);
 }
 .lg-item[data-promo] .lg-face { box-shadow:
   inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 31, 61, .18),
@@ -1124,15 +1221,17 @@
 .lg-bar {
   display: none; position: relative; box-sizing: border-box; overflow: hidden;
   height: 13px; border-radius: 999px;
-  background-color: #E9EDF4;
+  /* Warm violet-grey, like the rest of the neutrals: the unfilled part of 27 gauges is a large
+     surface, and a cool blue-grey groove behind a vermilion fill reads as two colour systems. */
+  background-color: #EDE4F3;
   border: 2px solid var(--mat-ink);
   box-shadow: inset 0 2px 0 rgba(42, 31, 61, .16);
 }
 /* The fill is a child, not a background-size trick: a hard-stop gradient on a
    percentage-sized layer would rescale its own bevel with the value. */
-.lg-item[data-role="OA"] { --role: var(--role-oa); --role-hi: var(--role-oa-hi); }
-.lg-item[data-role="OT"] { --role: var(--role-ot); --role-hi: var(--role-ot-hi); }
-.lg-item[data-role="PSA"] { --role: var(--role-psa); --role-hi: var(--role-psa-hi); }
+.lg-item[data-role="OA"] { --role: var(--role-oa); --role-hi: var(--role-oa-hi); --role-soft: var(--role-oa-soft); }
+.lg-item[data-role="OT"] { --role: var(--role-ot); --role-hi: var(--role-ot-hi); --role-soft: var(--role-ot-soft); }
+.lg-item[data-role="PSA"] { --role: var(--role-psa); --role-hi: var(--role-psa-hi); --role-soft: var(--role-psa-soft); }
 /* Graphite is the FALLBACK now, not the default: a row whose role the server did not send
    still gets a readable bar rather than an unset custom property. */
 .lg-bar::before {
@@ -1336,12 +1435,16 @@
 .lr-div {
   font-size: 12px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase;
   border-radius: 999px; padding: 6px 15px; border: 2px solid #2A1F3D; color: #4B5168;
-  background-color: #EDF1F8;
+  /* Warmed with the rest of the neutrals — this pill is the DIVISION YOU LEFT, so a cool
+     blue-grey was the last object on this screen still speaking the old palette. It stays
+     generic rather than wearing that division's own colour: the payload carries the name as a
+     string, and mapping name → metal here would be a second source of truth for the ladder. */
+  background-color: #F3EEF8;
 }
 .lr-to {
-  background-color: #DFA828;
-  background-image: linear-gradient(180deg, #FFF0BE 0%, #FFF0BE 38%, #F5C63F 38.01%, #DFA828 100%);
-  color: #3A2600; box-shadow: 0 3px 0 0 #9A6A08, 0 3px 0 2px #2A1F3D;
+  background-color: #FFB800;
+  background-image: linear-gradient(180deg, #FFF6C2 0%, #FFF6C2 38%, #FFC92E 38.01%, #FFB800 100%);
+  color: #3A2600; box-shadow: 0 3px 0 0 #9A5E00, 0 3px 0 2px #2A1F3D;
 }
 .lr-arrow { color: #9A6A08; font-size: 17px; }
 .lr-line { margin: 6px 0 0; font-size: 15px; color: #33394A; }

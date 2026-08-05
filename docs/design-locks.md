@@ -2185,7 +2185,102 @@ the bound describes the reported defect and not the fix. The **ceiling** fired a
 400px` beside a 242px stage. Every other podium bound already in the file — plinth order, badge
 order, mass floor 0.78, the tower ceiling, the 8-rank floor — held unchanged through all of it.
 
-## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
+#### THE RARITY LADDER 2026-08-05 — divisions stop being metals, and the ink rule was never gated
+
+User: *"i like the current design of the leaderboard page but not really the color choices
+(including the tiers as they are too basic and not vibrant and wild enough) … more wild and
+vibrant but still beautiful and game-like addicting"*.
+
+**"I like the current design" is the load-bearing half.** Every geometry criterion this lock
+carries — the one edge, the lip ladder, the ranks budget, the optical gap, the three height
+steps, the elastic-track rule, the flank bounds, the plinth mass floor — is untouched and still
+gated. **This pass changes colour and nothing else.** Two criteria change, both named, plus one
+defect found on the way.
+
+**1. ⚠ DIVISIONS ARE A RARITY LADDER, NOT MATERIALS. This retires "hue is identity … cast in the
+division's own material"** as a *literal* rule, chosen by the user against a metal-true
+alternative. The five divisions now read as game-rarity tiers — vermilion, electric azure, gold,
+ultraviolet, prismatic aqua — so **"Silver" is painted blue**, deliberately: the colour marks the
+rung, it no longer illustrates the noun. This is the direct answer to the complaint, and it is
+the *third* time this file has recorded the same root cause. The ARCADE pass already wrote it
+down — *"Silver's metal IS grey, so the largest surface in the app desaturated at the tier most
+of the cohort sits in"* — and fixed it only for the **canvas**, leaving the band, the road, the
+plinths and the wash still cast in literal metal. Four of five divisions still rendered a pale
+wash on the object that names them.
+- **Vividness was never the constraint, which is the finding that made this cheap.** Measured
+  before choosing anything: every *new* saturated base clears the 4.5 floor with room to spare
+  and the ladder as a whole gains margin (bronze **5.6 → 5.5:1**, silver **7.2 → 7.2:1**, gold
+  **7.7 → 9.5:1**, platinum **5.8 → 5.5:1**, diamond **8.0 → 10.0:1**). The old palette was
+  desaturated **by choice, not by
+  contrast budget**. Only ultraviolet had to be lightened from the requested `#A855F7` (4.2:1,
+  under AA) to `#B478FA` — the hue is what reads as ultraviolet, not the darkness.
+- **Each band carries a SECOND hue** in a thin `--f-flash` rim at the top of the head's hard-stop
+  stack (bronze→gold, silver→lilac, gold→cream, platinum→hot pink, diamond→magenta). One extra
+  stop in one existing gradient; it is what makes the head read as two-tone enamel rather than as
+  one tint, and it is the whole of "wild" that the base colours cannot buy on their own.
+- ⚠ **The stack still ends in an opaque light solid, the canvas still measures >0.7, and the band
+  still measures under the 0.86 "that is white, not metal" ceiling.** Those are the three things
+  that made two dark boards fail, and none of them moved.
+
+**2. THE LADDER'S REPEATED OBJECTS GET COLOUR; THE BOARD DOES NOT.** Chosen by the user over a
+louder variant that tinted the board surface itself. The rank token wears a light tint of the
+division, the avatar medallion's lip wears the row's role hue, the movement pill goes vivid mint,
+and the neutral family shifts from **cool blue-grey to warm violet-grey** so it belongs to
+`--mat-ink` instead of to a dashboard. **The board interior stays `#FFFFFF`** — 27 names and 27
+scores are what the page is actually for, and the five struck objects per row lose their pop the
+moment the surface behind them stops being neutral. This is the same reasoning the ARCADE pass
+used for the gauges, spent on the four objects it did not reach.
+
+**3. ⚠ THE DEFECT: `.tb-league` HAS BEEN UNDER AA ON THE BRONZE BAND THE WHOLE TIME, and the
+gate cannot see it.** `league_assert` fixes the board at **division 2**, so the contrast sweep has
+only ever probed the **Silver** band — the other four metals are never measured. On Bronze
+(`--f-lo: #CE8746`) the shipped `#2E3440` lands at **4.27:1**, under the 4.5 floor the same file
+enforces everywhere else, *under a comment that was added specifically to fix this label's
+contrast*. It went one step and stopped. Fixed by taking `.tb-league` to `var(--ink)` — hierarchy
+there is carried by size and weight (800/25px against 600/16px), never by that 1.5% of luminance —
+and by holding **every** new `--f-lo` at ≥5.3:1 against it, not just the one the harness looks at.
+- ⚠ **A gate pinned to one fixture only tests that fixture.** The band, the road, the plinths and
+  the wash are all per-division and only one division is ever mounted. The **new per-division
+  sweep** mounts all five and re-runs the two claims that are actually per-metal (the head's ink
+  is readable; the band is still material rather than white). Cheap — no geometry, no viewport
+  matrix — and it is what turns "four of five metals are unmeasured paint" into a gated surface.
+
+**4. ONE GOLD.** The `--gold-*` family was still `#DFA828` while the ladder's Gold division became
+`#FFB800`, so a gold **banner** sat on a gold **plinth** in two different golds, a few pixels apart
+on the same deck. Unified to the division's own gold. The lock's rule is that the mechanic's gold
+and a division's gold never **collide in meaning** — never that they differ in hue. Both inks
+re-measured: **8.3:1** on the fill, **6.9:1** for the word on white, and that split stays
+load-bearing.
+
+**5. ⚠ THE DECK'S FLANKS WERE STILL BEIGE, and the first fix was too timid to see.** The blooms
+went in at `.30` in the very **bottom corners** — which the plinths cover — so a screenshot showed
+the same field of beige the comment above it claims to prevent. This card had **~15:1** of ink
+headroom and was spending none of it. Base is a real amber now, the pure-white top band is a warm
+tint (a `#FFFFFF` stripe under a saturated band is the one hard edge on the card), and the blooms
+moved **up** to wash the flanks rather than the floor. **Third time this file records it**: "the
+numbers pass" and "it reads as vibrant" are different claims, and only one of them has a gate.
+
+**Measured after**: `league_assert` **466 assertions, 0 failures** · every division's band clears
+the 0.86 "that is white" ceiling (**0.303 · 0.409 · 0.555 · 0.300 · 0.590**) and every head +
+plinth numeral clears 4.5:1 on its own metal · all **20** probed text styles still clear 4.5:1 ·
+five distinct pips, three distinct plinths, zero rasters, canvas luminance unchanged · rank-token
+chroma **18 → 51** · `aurora_assert` 52/0 · typecheck clean.
+
+**Mutation-verified**, all four new bounds, by reintroducing every defect at once — **20 failures,
+exit 1**: `.tb-league` fires at **exactly 4.27:1 on Bronze** (the arithmetic's prediction, now
+measured) · rank-token chroma at **18** against the 32 floor, on every viewport · the medallion
+lips at **1 colour**. ⚠ **And it found one more**: the old `#2E3440` measures **4.17:1 on the NEW
+platinum band** — so keeping that token while shipping the rarity ladder would have shipped a
+*second* sub-AA label, on a division the harness had never probed either.
+
+**Out of scope, deliberately**: every layout, spacing, size and geometry decision in this lock;
+the podium's gold **spotlight** staying gold rather than per-division (the deck is the *promotion*
+object — identity is carried by the band, plinths, road, crest and wash, and that split is still
+right); the role hues' **word** colours (they are contrast-pinned on white — only the bar
+highlights brighten); the board interior staying `#FFFFFF`, chosen by the user over a tinted
+variant; the ceremony's from→to pills staying generic (the payload carries division names as
+strings, and mapping name → metal there would be a second source of truth for the ladder); the
+promotion mechanic; the backend.
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
