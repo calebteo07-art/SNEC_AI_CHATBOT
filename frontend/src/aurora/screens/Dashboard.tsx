@@ -97,7 +97,7 @@ export function Dashboard() {
         <div className="hm-topr">
           {(user?.role === "trainer" || user?.role === "admin") && <PoolToggle />}
           {!progressUnknown && (
-            <div className="hm-chip">
+            <div className="hm-chip struck-pill">
               <span>Level <b>{level}</b> <small>· {rank}</small></span>
               <span className="hm-medal"><Icon name="medal" /></span>
             </div>
