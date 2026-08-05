@@ -14,7 +14,7 @@ export function LumenBadge({ badge, state, toNext = 0 }: {
     : `Reach ${badge.at.toLocaleString()}`;
 
   return (
-    <li className="hm-badge" data-state={state} data-rarity={badge.rarity}
+    <li className="hm-badge struck-medallion" data-state={state} data-rarity={badge.rarity}
       title={state === "collected" ? badge.tagline : `${badge.name} · ${badge.at.toLocaleString()} Lumens`}>
       <span className="hm-badge-medal">
         {/* eslint-disable-next-line @next/next/no-img-element -- static asset, standalone build */}

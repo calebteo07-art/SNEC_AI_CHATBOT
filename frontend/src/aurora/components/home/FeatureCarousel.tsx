@@ -217,7 +217,7 @@ export function FeatureCarousel() {
           <Link
             key={f.href}
             href={f.href}
-            className={`hm-fcard ${f.tone}`}
+            className={`hm-fcard struck-structural ${f.tone}`}
             data-testid="feature-card"
             ref={(el) => { cardsRef.current[idx] = el; }}
           >

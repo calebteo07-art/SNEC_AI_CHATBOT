@@ -25,10 +25,18 @@
 
      THE LIP LADDER — exactly four depths. A fifth gets a lip only if another gives one
      up, or "material everywhere" collapses into "the whole page is buttons".
-       structural  5px / 2.5px   .hm-deck .hm-hud .hm-board .hm-fcard .hm-panel
+       structural  5px / 2.5px   .hm-deck .hm-hud .hm-board .hm-greet .hm-fcard
+                                 .hm-panel .hm-streak
        medallion   3px / 2px     .hm-chest .hm-badge
-       pill        2px / 2px     .hm-chip .hm-claim .hm-boost .hm-risk .hm-lb
+       pill        2px / 2px     .hm-chip .hm-pool-seg .hm-claim .hm-boost .hm-risk .hm-lb
        flat        none          .hm-quest rows, the XP groove, calendar cells, the canvas
+
+     THE FLAT RUNG IS NOT A LEFTOVER, it is the other half of the recipe. Home instantiates
+     3 quest rows and ~35 calendar cells; the League's own finding is that a 9%-alpha
+     hairline instantiated 27 times was the largest single surface exempting itself from
+     the recipe, and that `.lg-row` stays flat precisely so the ladder never competes with
+     the objects riding on it. Striking a repeated element is exactly how "material
+     everywhere" collapses into "the whole page is buttons".
 
      ⚠ NEVER 1px, and never 1.5px: Chrome snaps a used border-width to whole device
      pixels, so a 1.5px outline RENDERS as the banned hairline and getComputedStyle
@@ -80,9 +88,19 @@
    causing it, and fixes it here because this is the rule that now names the fill. --hink2 is
    4.76:1 on #FCEAC8, measured against the DARKER band the text crosses. */
 .hm-chip small { color:var(--hink2); font-weight:600; font-size:12.5px; }
-/* ── content-pool toggle (trainer/admin only; spec §4) — mirrors .console-segment on the warm surface ── */
+/* ── content-pool toggle (trainer/admin only; spec §4) ──
+   It carried the level chip's disease VERBATIM — a 1px #F1DCB2 hairline over a smooth
+   #FFF6E6→#FCEAC8 wash under a blurred --sh — on the one object that sits DIRECTLY BESIDE
+   the restruck chip in .hm-topr. So staff, and only staff, were the users looking at a
+   struck pill next to a flat one. Same PILL rung, same fill, same lip: one furniture
+   colour rather than a second that drifts.
+   Padding 3px→2px pays for the outline going 1px→2px, so the switch's outer height is
+   unchanged and it still lines up with the chip beside it. */
 .hm-pool { display:flex; align-items:center; gap:8px; }
-.hm-pool-seg { display:inline-flex; gap:3px; padding:3px; background:linear-gradient(180deg,#FFF6E6,#FCEAC8); border:1px solid #F1DCB2; border-radius:999px; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), var(--sh); }
+.hm-pool-seg { display:inline-flex; gap:3px; padding:2px; --lip-c:#E3C489;
+  background-color:#FCEAC8;
+  background-image:linear-gradient(180deg,#FFF6E6 0%,#FFF6E6 46%,#FCEAC8 46%);
+  border-radius:999px; }
 .hm-pool-seg button { border:none; background:none; padding:7px 16px; border-radius:999px; font-family:var(--font-home); font-weight:700; font-size:13.5px; letter-spacing:-.01em; color:var(--hink2); cursor:pointer; transition:color .15s, background .15s, box-shadow .15s, transform .15s var(--spring); }
 .hm-pool-seg button:hover:not([data-active="true"]) { color:var(--hink); }
 .hm-pool-seg button:active { transform:scale(.95); }
@@ -144,8 +162,19 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    fit inside; 36px keeps the greeting a greeting without spending the budget. The greeting
    ENGINE is untouched — pickGreeting, the day-of-year rotation and the <em> accent word all
    read exactly as before, and greeting_assert.mjs asserts the text, never the size. */
-.hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px; box-shadow:var(--sh-lg);
-  background:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFC6DC 46%, #E4D3FF 100%); }
+/* STRUCTURAL rung. It kept its old material — a three-stop pastel wash under a blurred
+   --sh-lg — while sitting INSIDE the struck deck, which is the one place a flat object
+   reads as an accident rather than as a choice. The radial is unchanged in origin, size
+   and hue; it just STEPS at 42% instead of easing across the whole card, which is move 3:
+   a gradient easing across a box is a wash, one that holds a colour and then steps is a
+   moulded surface. The lip is a darker lavender because the OUTER plane is the lavender —
+   a lip is a darker sibling of the fill it sits under, not of the fill's brightest patch.
+   ⚠ `inset:0` on the Veo loop, the veil and the ::after bloom resolves against the PADDING
+   box, so all three land inside the new outline and the card frames them. */
+.hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px;
+  --lip-c:#BFA6E8;
+  background-color:#E4D3FF;
+  background-image:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFE0B7 42%, #E4D3FF 42%); }
 .hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
 .hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
@@ -201,14 +230,29 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-greet-body { position:relative; z-index:3; }
 
 /* ── streak tile ── */
-/* daily-streak card — a BOLD orange→deep-orange gradient with a yellow heat-glow
-   behind the flame (the flame's own colours). Every label/number is white/light for
-   contrast on the warm fill (white large text stays >=3:1 on this deep orange), and
-   the flame is a clean white outline. */
+/* daily-streak card — a BOLD orange→deep-orange fill with a yellow heat-glow behind the
+   flame (the flame's own colours). STRUCTURAL rung: the record's other half, and the
+   largest object on the page that was still built the rejected way — a 1px 30%-white
+   hairline (grey-on-colour, which is exactly what reads as a CSS border) over a smooth
+   three-stop wash under a blurred --sh-lg.
+   ⚠ THE HARD STOP CANNOT REGRESS CONTRAST, and that is not a hope: the two planes are the
+   old ramp's own ENDPOINTS (#F1600C, #C9420A), so every pixel of the card is a colour it
+   already had and the whole lower half moves to the DARKEST of them. Measured on the new
+   solid #C9420A (the darker plane, and the background-color a probe resolves): #fff is
+   4.92:1, and only a near-solid white gets there at all.
+   That is why the FOUR translucent-white labels on this card (.hm-slbl .92, .hm-nexttier
+   .hm-nl .90, .hm-caldone .82, .hm-caldows li .72) are now solid: they measured 3.25-4.39:1
+   here and 2.6-3.4:1 on the old ramp's lighter bands — under AA either way, so they are
+   fixed in the same pass that names the fill they land on rather than left as a defect this
+   change would be blamed for. The calendar CELLS keep their alpha ladder: there it ENCODES
+   STATE (done/today/missed/rest/upcoming), and they are the ~35 repeated elements that stay
+   flat. Every text colour on this card is now >= 4.92:1 except those cells. */
 .hm-streak { position:relative; overflow:hidden; border-radius:var(--hr); color:#fff;
-  background:radial-gradient(72% 64% at 13% 46%, rgba(255,201,74,.62) 0%, rgba(255,165,45,.18) 44%, transparent 70%),
-    linear-gradient(150deg, #F1600C 0%, #E4530B 52%, #C9420A 100%);
-  border:1px solid rgba(255,255,255,.30); box-shadow:var(--sh-lg); padding:22px 28px;
+  --lip-c:#8A2C05;
+  background-color:#C9420A;
+  background-image:radial-gradient(72% 64% at 13% 46%, rgba(255,201,74,.62) 0%, rgba(255,165,45,.18) 44%, transparent 70%),
+    linear-gradient(150deg, #F1600C 0%, #F1600C 46%, #C9420A 46%);
+  padding:22px 28px;
   display:flex; flex-direction:column; justify-content:space-between; }
 .hm-streak::before { content:""; position:absolute; left:44px; top:112px; width:7px; height:7px; border-radius:50%;
   background:radial-gradient(circle,#FFE08A,#FF9E2C); opacity:0; pointer-events:none; z-index:1;
@@ -234,7 +278,7 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 }
 @keyframes hm-flame-core { 0%,100% { opacity:.9; transform:translateY(0) scaleY(1); } 50% { opacity:1; transform:translateY(-1px) scaleY(1.08); } }
 .hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; color:#fff; text-shadow:0 2px 8px rgba(120,40,0,.38); }
-.hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:rgba(255,255,255,.92); text-transform:uppercase; margin-top:3px; }
+.hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:#fff; text-transform:uppercase; margin-top:3px; }
 /* ── month calendar (replaced the seven jewel week-dots 2026-07-29) ──
    The whole month on the orange card: seven columns, every cell keeps its DATE NUMBER
    and the state is carried by the fill, so it still reads as a calendar you can find a
@@ -244,10 +288,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-cal { margin-top:14px; }
 .hm-calhead { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:8px; }
 .hm-calmonth { font-family:var(--font-home); font-weight:700; font-size:14.5px; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.3); }
-.hm-caldone { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:rgba(255,255,255,.82); }
+.hm-caldone { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#fff; }
 .hm-caldows, .hm-calgrid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; list-style:none; margin:0; padding:0; }
 .hm-caldows { margin-bottom:4px; }
-.hm-caldows li { text-align:center; font-size:10px; font-weight:700; letter-spacing:.06em; color:rgba(255,255,255,.72); }
+/* Solid, not 72% white: on this deep orange only a near-solid white clears AA (the fill's
+   own #fff is 4.92:1 and .72 was 3.25:1), and size + letter-spacing already carry the
+   hierarchy these two labels were spending alpha on. The CELLS below keep their alpha
+   ladder — there it ENCODES STATE, and they are the ~35 repeated elements that stay flat. */
+.hm-caldows li { text-align:center; font-size:10px; font-weight:700; letter-spacing:.06em; color:#fff; }
 .hm-calday { display:flex; justify-content:center; }
 .hm-caldot { width:100%; aspect-ratio:1; max-width:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
   font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;
@@ -263,7 +311,7 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-calday[data-state="rest"] .hm-caldot { background:transparent; color:rgba(255,255,255,.46); border-color:rgba(255,255,255,.14); }
 .hm-calday[data-state="upcoming"] .hm-caldot { background:rgba(255,255,255,.09); color:rgba(255,255,255,.58); }
 .hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,.30); display:flex; align-items:center; justify-content:space-between; }
-.hm-nexttier .hm-nl { font-size:15px; color:rgba(255,255,255,.9); } .hm-nexttier .hm-nl b { color:#fff; font-weight:700; }
+.hm-nexttier .hm-nl { font-size:15px; color:#fff; } .hm-nexttier .hm-nl b { color:#fff; font-weight:700; }
 .hm-nexttier .hm-tag { position:relative; overflow:hidden; font-size:12px; font-weight:800; color:#fff; border-radius:999px; padding:6px 13px; letter-spacing:.01em;
   background:rgba(255,255,255,.20); border:1px solid rgba(255,255,255,.42); box-shadow:0 4px 10px -4px rgba(120,40,0,.4); text-shadow:0 1px 2px rgba(120,40,0,.35); }
 .hm-nexttier .hm-tag::before { content:""; position:absolute; inset:0; background:var(--sheen); opacity:.4; pointer-events:none; }
@@ -288,15 +336,30 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    margins follow; FeatureCarousel reads the laid-out width back via offsetWidth and
    derives the coverflow spacing from it, so the two never drift apart. The defaults are
    the desktop 466x300 / -233 / -150 verbatim. */
+/* ⚠ THE FRAME ONLY. The coverflow MECHANICS are locked and gated by three harnesses
+   (home_carousel_assert, hover_pause_assert, hoverPause_logic): drift, tap-to-nearest,
+   arrows, keyboard and hover-pause all read the card's LAID-OUT size back off the DOM
+   (offsetWidth/offsetHeight) and derive SX/DZ and the hover hot zone from it. The 2.5px
+   outline costs that measurement NOTHING because `box-sizing:border-box` is global
+   (styles/eyebot.css) — width stays var(--fcw), so offsetWidth, the centering margins and
+   every ratio derived from them are byte-identical. Under content-box it would have been
+   +5px and every one of those would have drifted. */
 .hm-fcard { position:absolute; left:50%; top:50%; width:var(--fcw,466px); height:var(--fch,300px);
   margin-left:calc(var(--fcw,466px) / -2); margin-top:calc(var(--fch,300px) / -2);
   border-radius:26px; padding:34px 34px 30px; color:#fff; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
-  box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
-/* bold candy tone gradients — dark enough on the LEFT (where the text lives) for white
-   to stay WCAG-legible, brighter on the right where the mascot bleeds in. */
-.hm-fcard.tutor { background:linear-gradient(105deg,#5B21B6 0%,#7C3AED 46%,#9D6BFF 100%); }
-.hm-fcard.vp    { background:linear-gradient(105deg,#0B6E62 0%,#0EA894 48%,#26D3B8 100%); }
-.hm-fcard.flash { background:linear-gradient(105deg,#C81E5B 0%,#F4557A 46%,#FF9F43 100%); }
+  transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
+/* Bold candy tones, now MOULDED rather than washed: each tone holds its dark plane across
+   the left 46% — where the copy lives — and steps once. The baked art covers all of it, so
+   this is the fallback surface; what it must not be is a gradient AND NOTHING ELSE, which
+   is what left `background-color` computing to rgba(0,0,0,0) and a contrast probe walking
+   past the card to the page. Each ends in the DARK plane as a solid, which is the plane the
+   text actually lands on. --lip-c is each tone's own darker sibling. */
+.hm-fcard.tutor { --lip-c:#3B1785; background-color:#5B21B6;
+  background-image:linear-gradient(105deg,#5B21B6 0%,#5B21B6 46%,#7C3AED 46%); }
+.hm-fcard.vp    { --lip-c:#06423A; background-color:#0B6E62;
+  background-image:linear-gradient(105deg,#0B6E62 0%,#0B6E62 46%,#0EA894 46%); }
+.hm-fcard.flash { --lip-c:#7E1039; background-color:#C81E5B;
+  background-image:linear-gradient(105deg,#C81E5B 0%,#C81E5B 46%,#F4557A 46%); }
 /* the baked full card art (themed background + mascot hero in one image), full-bleed under the
    text; the .hm-fcard.<tone> gradient above stays as a fallback if the webp is missing. */
 .hm-fcard-art { position:absolute; inset:0; width:100%; height:100%; z-index:0;
@@ -328,23 +391,53 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 /* min-width:0 is load-bearing, not tidiness: a grid item defaults to min-width:auto, so
    the panel would GROW to the ~2350px of the 20-medallion shelf instead of letting the
    shelf scroll inside it. */
-.hm-panel { position:relative; min-width:0; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
+/* ⚠ THE BASE CLASS IS WHERE THE HAIRLINE LIVED — `border:1px solid var(--line)` — and
+   .hm-panel--lumen only RETINTS it. Striking the modifier would have left the 1px
+   underneath it, painted violet. STRUCTURAL rung. */
+.hm-panel { position:relative; min-width:0; border-radius:var(--hr); padding:22px 24px;
+  --lip-c:#DCC9A4;
+  background-color:#FFFCF6;
+  background-image:linear-gradient(180deg,#FFFFFF 0%,#FFFFFF 42%,#FFFCF6 42%); }
 /* the dark collectible VAULT (was a light tint) — a glowing "display case" that reads as
    an addicting game card: GOLD treasure over royal violet, tied to the warm page by the
    shared radius/underline/seal. The hot glow blooms from below (behind the opaque
    medallions) so the header band stays dark and every label keeps WCAG-legible white;
    a slow inset glow breathes for game-feel. */
+/* The retint keeps its three layers; what changes is that they are now background-IMAGE
+   over a SOLID (#140B26, the linear's own darkest stop). The `background` shorthand reset
+   background-color to transparent, so the darkest surface on Home had no colour a contrast
+   probe could resolve — bound 4's defect, on the panel whose every label is light-on-dark.
+   Its --lip-c is darker than --mat-ink on purpose: on a near-black object the lip reads as
+   thickness against the LIGHT PAGE behind it, not against its own outline. */
 .hm-panel--lumen {
-  background:
+  --lip-c:#120A22;
+  background-color:#140B26;
+  background-image:
     radial-gradient(122% 100% at 50% 118%, #FFC63A 0%, #C67A18 30%, rgba(198,122,24,0) 62%),
     radial-gradient(96% 96% at 100% 0%, rgba(139,101,232,.40), transparent 58%),
     linear-gradient(158deg, #251749 0%, #1A0F33 55%, #140B26 100%);
-  border-color:#3E2C6A;
   animation:hm-vault-lumen 7s ease-in-out infinite;
 }
+/* ⚠ THE LIP IS A BOX-SHADOW, AND SO IS THE GLOW — so the glow has to CARRY the lip or it
+   erases it. A running animation outranks every normal declaration, which is why the three
+   struck layers are repeated in both keyframes; and this rest state is (0,3,0) because
+   `.aurora-home .struck-structural` is (0,2,0) declared LATER in this file, so an
+   equal-specificity rule here would lose. Under either reduce signal the animation resolves
+   to none and this rule is what remains: the vault stops breathing and keeps its depth. */
+.aurora-home .hm-panel.hm-panel--lumen {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -44px 60px -36px rgba(251,191,36,.32),
+    inset 0 42px 62px -40px rgba(139,101,232,.42),
+    0 var(--mat-lip) 0 0 var(--lip-c),
+    0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink),
+    0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42,31,61,.34);
+}
 @keyframes hm-vault-lumen {
-  0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -44px 60px -36px rgba(251,191,36,.32), inset 0 42px 62px -40px rgba(139,101,232,.42), var(--sh-lg); }
-  50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -52px 74px -30px rgba(251,191,36,.55), inset 0 48px 70px -36px rgba(139,101,232,.62), var(--sh-lg); }
+  0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -44px 60px -36px rgba(251,191,36,.32), inset 0 42px 62px -40px rgba(139,101,232,.42),
+    0 var(--mat-lip) 0 0 var(--lip-c), 0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink), 0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42,31,61,.34); }
+  50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -52px 74px -30px rgba(251,191,36,.55), inset 0 48px 70px -36px rgba(139,101,232,.62),
+    0 var(--mat-lip) 0 0 var(--lip-c), 0 var(--mat-lip) 0 var(--mat-out) var(--mat-ink), 0 calc(var(--mat-lip) + 8px) 14px -5px rgba(42,31,61,.34); }
 }
 /* dark-vault legibility: lift every label to warm white + a soft shadow so it reads over
    the glow (the small count / note / meta sit above the brightest patch, hence the shadow). */
@@ -378,18 +471,45 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    first and last badge actually on show.
    `overflow-x:auto` forces overflow-y to compute to auto too (CSS can't have one axis
    visible and the other not), so the vertical padding is load-bearing: without it the
-   ★ seal at top:-6px, the 5px collected float, and the rarity glow are all clipped. */
+   ★ seal at top:-6px, the 5px collected float, and the rarity glow are all clipped.
+   ⚠ THE PADDING IS WHAT KEEPS THE STRUCK BADGE OUT OF THE CLIP. A scroll container clips
+   at its PADDING box, and the medallion rung's keyline wraps the lip as 2px of SPREAD —
+   left, right and below the badge's own box. Without room the first and last badge OF
+   EVERY PAGE would have that crescent sliced flat, and the ground shadow cut with it. The
+   inline 3px does not cost the pager anything: the slot is `(100% - 4*gap)/5` of the
+   CONTENT box, so five still span the frame exactly, stride is still contentBox + one gap,
+   and max scrollLeft is still exactly 3 strides — LumenLadder measures both off the DOM.
+   ⚠ BUT THE PADDING MOVES THE SNAP POINTS, and `scroll-padding-inline` is what moves them
+   back. `scroll-snap-align:start` aligns a badge's start edge with the SNAPPORT's start,
+   and the snapport is the scrollport inset by scroll-padding — so with padding-left:3px and
+   no scroll-padding, page 1's snap point is scrollLeft 3 rather than 0. Proximity snapping
+   then dragged every programmatic `scrollLeft = k * stride` three pixels off its own page,
+   which aurora_assert's ±1px rest check caught immediately (measured: "the vault never came
+   to rest on page 1 after ‹"). Inset the snapport by the same 3px and the snap points are
+   exactly k * stride again. */
 .hm-badges { --bgap:14px;
-  position:relative; display:flex; gap:var(--bgap); list-style:none; margin:0; padding:10px 0 6px;
+  position:relative; display:flex; gap:var(--bgap); list-style:none; margin:0; padding:10px 3px 14px;
   overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x proximity;
-  scrollbar-width:none; }
+  scroll-padding-inline:3px; scrollbar-width:none; }
 .hm-badges::-webkit-scrollbar { display:none; }
 .hm-badges:focus-visible { outline:2px solid rgba(255,255,255,.8); outline-offset:3px; border-radius:12px; }
 /* Exactly five slots span the frame: five widths + the four gaps between them. flex-shrink:0
    is still required — without it the other fifteen children would compress the row to fit
-   and the frame would never scroll. */
+   and the frame would never scroll.
+   MEDALLION rung — a plate the medal sits IN, which is what turns a shelf of floating art
+   into a display case with slots. The plate is a shade LIGHTER than the vault so the gold
+   bloom still reads around it, and it is opaque, which is the same reason the art is: the
+   glow blooms from below and every label on it has to stay legible. Measured on the darker
+   band #2B1B52 — name #FCF5EC 14.1:1, meta 7.6:1, locked name 5.3:1.
+   ⚠ flex-basis follows box-sizing, and box-sizing is border-box globally, so the 2px
+   outline does NOT change the slot width: five still span the frame and the pager's stride
+   is untouched (aurora_assert gates it to ±1px, sub-pixel). */
 .hm-badge { flex:0 0 calc((100% - 4 * var(--bgap)) / 5); scroll-snap-align:start;
-  display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
+  --lip-c:#150C2C;
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px;
+  padding:7px 6px 9px; border-radius:22px;
+  background-color:#2B1B52;
+  background-image:linear-gradient(180deg,#3A2769 0%,#3A2769 44%,#2B1B52 44%); }
 
 /* pager — sits on the note row so it costs no extra height */
 .hm-vaultbar { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
@@ -524,10 +644,11 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      legibility veil carries a stronger cream wash across the left ~66% (she stays visible
      on the right) — keeps the headline/sub WCAG-legible where they meet her. */
   .hm-greet-veil { background:linear-gradient(96deg, rgba(255,246,236,.92) 0%, rgba(255,246,236,.82) 44%, rgba(255,246,236,.42) 64%, rgba(255,246,236,0) 84%); }
-  /* five-across on a phone leaves a ~58px slot, so the gap and the label ramp come down
-     with it — the frame keeps showing five, which is the point of the pager */
+  /* five-across on a phone leaves a ~58px slot, so the gap, the plate's own padding and
+     the label ramp all come down with it — the frame keeps showing five, which is the
+     point of the pager */
   .hm-badges { --bgap:8px; }
-  .hm-badge { gap:6px; }
+  .hm-badge { gap:6px; padding:5px 4px 7px; border-radius:15px; }
   .hm-badge-art { border-radius:16px; }
   .hm-badge-name { font-size:11px; line-height:1.1; }
   .hm-badge-meta { font-size:9px; letter-spacing:0; }
@@ -670,7 +791,8 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 
   .hm-panel { padding:14px 14px; }
   .hm-ph { font-size:16.5px; margin-bottom:12px; padding-bottom:9px; }
-  .hm-badges { --bgap:10px; padding:8px 0 4px; }
+  .hm-badges { --bgap:10px; padding:8px 3px 12px; }
+  .hm-badge { padding:5px 5px 7px; border-radius:18px; }
   .hm-badge-medal { max-width:104px; }
   .hm-badge-name { font-size:12px; } .hm-badge-meta { font-size:10px; }
   .hm-vaultbtn { width:44px; height:44px; font-size:20px; }

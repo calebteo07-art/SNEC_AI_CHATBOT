@@ -10,7 +10,7 @@ export function StreakTile({ detail }: { detail?: StreakDetail }) {
   if (!detail) return null;
 
   return (
-    <section className="hm-streak" data-testid="streak-tile" aria-label={`${detail.current}-day streak`}>
+    <section className="hm-streak struck-structural" data-testid="streak-tile" aria-label={`${detail.current}-day streak`}>
       <div className="hm-sh">
         <span className="hm-t"><Icon name="flame" /> Daily streak</span>
       </div>

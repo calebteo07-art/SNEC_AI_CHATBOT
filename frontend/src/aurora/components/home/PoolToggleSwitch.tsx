@@ -41,7 +41,7 @@ export function PoolToggle() {
 
   return (
     <div className="hm-pool">
-      <div className="hm-pool-seg" role="tablist" aria-label="Content pool">
+      <div className="hm-pool-seg struck-pill" role="tablist" aria-label="Content pool">
         {POOL_SEGMENTS.map((s) => (
           <button
             key={s.value}

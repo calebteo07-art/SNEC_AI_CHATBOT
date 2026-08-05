@@ -30,7 +30,7 @@ export function GreetingHero({ greeting }: { greeting: Greeting }) {
   const post = i >= 0 ? greeting.title.slice(i + greeting.emphasis.length) : "";
 
   return (
-    <section className="hm-greet">
+    <section className="hm-greet struck-structural">
       {/* base layer: full-bleed Veo loop + soft legibility veil. The default
          <EyeconLogo> stays mounted (bottom-right, beneath the clip) as the
          reduced-motion / no-video fallback — and to satisfy the greeting harness. */}
