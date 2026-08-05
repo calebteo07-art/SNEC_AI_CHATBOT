@@ -275,10 +275,21 @@ try {
   if (t0 === null) {
     bad('[data-testid="boost-timer"] is not rendered — the status bar must expose the live boost countdown under that testid. The mock ships boost.multiplier=2 with ~25 minutes left, so formatCountdown() renders "M:SS" and the text changes every second.');
   } else {
-    await rp.waitForTimeout(1400);
-    const t1 = await readBoost();
+    // POLL for a change, do NOT sample once after a fixed wait. The invariant is "the clock
+    // is not frozen", which is a question about the app; a single sample after 1.4s also
+    // measures how fast the BOX is, and this one runs 23 harnesses back to back. A 1s tick
+    // observed through a 1.4s window is one delayed React commit away from a false RED — it
+    // produced exactly that twice, and the countdown was provably ticking both times
+    // (25:00 -> 24:59 -> 24:58 sampled directly, identical under both motion settings).
+    // Widening the WINDOW does not weaken the assertion: a cleared interval never changes
+    // the text, so it still fails — it just no longer fails for being slow.
+    let t1 = t0;
+    for (let i = 0; i < 16 && t1 === t0; i++) {
+      await rp.waitForTimeout(500);
+      t1 = await readBoost();
+    }
     if (t1 === t0) {
-      bad(`the boost countdown is FROZEN under prefers-reduced-motion — still "${t0}" after 1.4s.`
+      bad(`the boost countdown is FROZEN under prefers-reduced-motion — still "${t0}" after 8s.`
         + " THIS IS THE ASSERTION MOST LIKELY TO BE 'FIXED' THE WRONG WAY, so read this before"
         + " changing it: reduced motion is about VESTIBULAR SAFETY, not about withholding"
         + " information, and a stopped clock lies to a student about how long their boost has"
