@@ -297,15 +297,16 @@ const measure = (p) => p.evaluate(() => {
       };
     })(),
 
-    /* The vertical rhythm, as the three LAYOUT gaps down the column. One flat 10px gap
-       between band, filter, stage and board is what "space out more aesthetically" was
-       about: four blocks spaced identically have no hierarchy, so the head does not read
-       as a head. Layout gaps, not optical ones — every struck object's hard lip hangs
-       ~6px below its border box, which getBoundingClientRect does not see. */
+    /* The vertical rhythm, as the LAYOUT gaps down the column — TWO of them since 2026-08-05,
+       where there were three. Four blocks spaced identically had no hierarchy ("space out more
+       aesthetically"), so the band and its filter took the tight gap and the rest took a wider
+       one; the filter is now the band's third ROW, which is the same grouping said
+       structurally, and the column is head → stage → board. What is left to get wrong is
+       whether either remaining gap is visible and which side of the stage carries more air. */
     rhythm: (() => {
       const r = (s) => { const el = document.querySelector(s); return el ? el.getBoundingClientRect() : null; };
-      const band = r(".tb"), filt = r(".lb-filter"), pod = r('[data-testid="podium"]'), list = r(".lg-list");
-      if (!band || !filt || !pod || !list) return null;
+      const band = r(".tb"), pod = r('[data-testid="podium"]'), list = r(".lg-list");
+      if (!band || !pod || !list) return null;
       /* HOW FAR THE LIP HANGS BELOW THE BORDER BOX. Every struck object on this page ends in a
          zero-blur offset shadow with a spread — `.tb` carries `0 6px 0 3px var(--mat-ink)`, so
          9px of outlined lip is PAINTED under a box that getBoundingClientRect reports as ending
@@ -324,16 +325,14 @@ const measure = (p) => p.evaluate(() => {
         }, 0);
       };
       return {
-        bandToFilter: +(filt.top - band.bottom).toFixed(1),
-        filterToStage: +(pod.top - filt.bottom).toFixed(1),
+        headToStage: +(pod.top - band.bottom).toFixed(1),
         stageToBoard: +(list.top - pod.bottom).toFixed(1),
-        /* THE SAME THREE GAPS AS A READER SEES THEM. This is the measurement the "still crammed
+        /* THE SAME GAPS AS A READER SEES THEM. This is the measurement the "still crammed
            together" report was about and the one this file did not have: at 6/15/13 of layout
            the band's lip and the filter's top edge were overlapping by 3px, and every number
            collected about the rhythm said the column was correctly grouped. */
         optical: [
-          +(filt.top - band.bottom - lip(".tb")).toFixed(1),
-          +(pod.top - filt.bottom - lip(".lb-filter")).toFixed(1),
+          +(pod.top - band.bottom - lip(".tb")).toFixed(1),
           +(list.top - pod.bottom - lip(".pod-deck")).toFixed(1),
         ],
         /* The landscape-phone tier puts the ladder BESIDE the stage, where "the gap under
@@ -347,6 +346,45 @@ const measure = (p) => p.evaluate(() => {
            on the two-column tier too. "The list starts below the stage" is the thing the
            name actually means. */
         stacked: list.top >= pod.bottom - 1,
+      };
+    })(),
+
+    /* ── THE HEAD IS ONE CARD ────────────────────────────────────────────────────────────
+       2026-08-05: "combine the top 2 cards, silver league and role filter, into 1 and make it
+       seamless". "Seamless" is FOUR independent things, so all four are measured rather than
+       the one that is easiest to see from a screenshot:
+         · the strip is INSIDE the band, not a sibling styled to look adjacent;
+         · it starts exactly where the row above it ends — no gap, no overlap;
+         · it spans the band's full inner width, so the card has no notch in its side;
+         · it draws no edge of its OWN.
+       ⚠ The last is the one a restyle would leave behind, and it is the loudest. A hard lip is
+       how every object on this page says "I end here"; a strip that sits flush but keeps its
+       3px outlined lip paints that mark straight across the middle of a card, in the one place
+       where nothing ends. Radius is the same failure in the other direction: rounded corners
+       inside a rounded card read as a chip lying on it.
+       Null on a single-role cohort, where no strip renders at all and the head is its two rows. */
+    seam: (() => {
+      const band = document.querySelector(".tb");
+      const strip = document.querySelector(".lb-filter");
+      if (!band || !strip) return null;
+      const above = strip.previousElementSibling;
+      const b = band.getBoundingClientRect(), s = strip.getBoundingClientRect();
+      const bs = getComputedStyle(band), ss = getComputedStyle(strip);
+      return {
+        nested: band.contains(strip),
+        toRowAbove: above ? +(s.top - above.getBoundingClientRect().bottom).toFixed(1) : null,
+        insetL: +(s.left - (b.left + parseFloat(bs.borderLeftWidth || "0"))).toFixed(1),
+        insetR: +((b.right - parseFloat(bs.borderRightWidth || "0")) - s.right).toFixed(1),
+        radius: Math.max(...["borderTopLeftRadius", "borderTopRightRadius",
+          "borderBottomLeftRadius", "borderBottomRightRadius"].map((k) => parseFloat(ss[k]) || 0)),
+        /* Any OUTER zero-blur shadow with an offset or a spread is a lip. `inset` is excluded
+           deliberately: the lit return this row keeps is what makes it read as recessed into
+           the faceplate, which is the opposite of an edge. */
+        lip: (ss.boxShadow || "").split(/,(?![^(]*\))/).some((part) => {
+          if (/inset/.test(part)) return false;
+          const n = (part.match(/-?[\d.]+px/g) || []).map(parseFloat);
+          return n.length >= 3 && n[2] === 0 && (n[1] !== 0 || (n[3] || 0) !== 0);
+        }),
       };
     })(),
 
@@ -484,9 +522,13 @@ const measure = (p) => p.evaluate(() => {
     /* ONE EDGE (2026-08-04). "The cards and elements are not spaced out nicely" measured as
        four widths on four centres: at 1500+ an 1148px band, a ~470px filter, a 700px stage
        and an 1148px ladder, none of them agreeing where the page's edges were. No amount of
-       per-block spacing fixes that, and no check on this page was looking at it. */
+       per-block spacing fixes that, and no check on this page was looking at it.
+       ⚠ THREE BLOCKS SINCE 2026-08-05, and dropping the filter from this list is not a
+       weakening. It is a row inside the band now, so its edges are the band's PADDING box —
+       an inset of exactly one border-width, which this bound would read as a disagreement.
+       The thing it is actually inset from is checked far more tightly by `seam` above. */
     edges: (() => {
-      const rs = [".tb", ".lb-filter", '[data-testid="podium"]', ".lg-list"]
+      const rs = [".tb", '[data-testid="podium"]', ".lg-list"]
         .map((sel) => document.querySelector(sel)).filter(Boolean)
         .map((el) => el.getBoundingClientRect());
       if (rs.length < 3) return null;
@@ -561,9 +603,25 @@ const measure = (p) => p.evaluate(() => {
       const count = document.querySelector(".lb-count");
       if (!strip || !chips || !count) return null;
       const s = strip.getBoundingClientRect();
+      /* ⚠ FROM THE LAST CHIP, NOT FROM `.lb-chips`'s BOX (2026-08-05). The group is
+         `flex: 1 1 auto` at desktop and its chips are capped, so the GROUP's right edge sits
+         10px from the readout while the last CHIP is ~400px away — this bound reported 1%
+         across a 36% void on every desktop viewport. Third object on this page to be measured
+         by its box instead of its ink; `.lg-nm` and `.tb-name` are the other two, and both
+         needed the same correction. */
+      const last = [...chips.querySelectorAll(".lb-chip")].pop();
+      const from = (last || chips).getBoundingClientRect().right;
+      const gap = Math.max(0, count.getBoundingClientRect().left - from);
+      /* WHAT IS ACTUALLY EMPTY is the slack the connector does not span. `.lb-chips::after` is
+         the same 2px groove `.tb-chase` wears one row up — a void with a rule through it is
+         tied together, which is the whole reason that rule exists. */
+      const rule = getComputedStyle(chips, "::after");
+      const spans = rule.content && rule.content !== "none" ? parseFloat(rule.width) || 0 : 0;
       return {
         w: +s.width.toFixed(1),
-        gap: +Math.max(0, count.getBoundingClientRect().left - chips.getBoundingClientRect().right).toFixed(1),
+        gap: +gap.toFixed(1),
+        spans: +spans.toFixed(1),
+        empty: +Math.max(0, gap - spans).toFixed(1),
       };
     })(),
     /* ── THE HEAD'S DEAD MIDDLE, and its ESCAPES ────────────────────────────────────────
@@ -898,13 +956,16 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   }
 
   /* THE LENS STRIP IS NOT AN EMPTY BAR — the rung's dead-middle budget, applied to the object
-     that was worse than the rung and that nothing was measuring: 843px of an 1148px strip. */
+     that was worse than the rung and that nothing was measuring: 843px of an 1148px strip.
+     ⚠ Measured from the LAST CHIP since 2026-08-05, and against what the connector does not
+     span. Read off `.lb-chips`'s box it said 1% while ~36% of the row was void, which is the
+     exact shape of this page's recurring defect: precise measurement of the wrong quantity. */
   if (!m.lensFill) ok(`${at}: no role lens on this board (single-role cohort)`);
   else {
-    const share = m.lensFill.gap / m.lensFill.w;
+    const share = m.lensFill.empty / m.lensFill.w;
     if (share > 0.34) {
-      bad(`${at}: ${m.lensFill.gap}px of the ${m.lensFill.w}px lens strip is empty between the chips and the readout (${(share * 100).toFixed(0)}%, budget 34%)`);
-    } else ok(`${at}: the lens strip's dead middle is ${m.lensFill.gap}px of ${m.lensFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
+      bad(`${at}: ${m.lensFill.empty}px of the ${m.lensFill.w}px lens row is empty between the last chip and the readout (${(share * 100).toFixed(0)}%, budget 34%) — ${m.lensFill.gap}px of slack with ${m.lensFill.spans}px of connector through it`);
+    } else ok(`${at}: the lens row's dead middle is ${m.lensFill.empty}px of ${m.lensFill.w}px (${(share * 100).toFixed(0)}%, budget 34%) — ${m.lensFill.gap}px of slack, ${m.lensFill.spans}px spanned`);
   }
 
   /* THE BAND IS NOT AN EMPTY BAR EITHER — the same budget again, on the head. It is the third
@@ -934,31 +995,51 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     } else ok(`${at}: the board covers ${(share * 100).toFixed(0)}% of the ${m.mainW}px field (floor 58%)`);
   }
 
-  /* THE RHYTHM IS GROUPED, NOT FLAT. Four stacked blocks on one identical gap have no
-     hierarchy — the band and the filter stop reading as one head and the stage stops
-     reading as a ceremony. Asserted as ORDER, never as pixels: the band and its filter
-     must sit closer together than the filter sits to the stage, and the stage must have at
-     least as much air beneath it. That survives a retune; a pinned 6/14/12 would not. */
-  if (!m.rhythm) bad(`${at}: could not measure the column's vertical rhythm`);
-  else if (!(m.rhythm.bandToFilter < m.rhythm.filterToStage)) {
-    bad(`${at}: the head and its filter sit ${m.rhythm.bandToFilter}px apart but the filter sits ${m.rhythm.filterToStage}px from the stage — equal spacing is not hierarchy`);
-  } else if (m.rhythm.stacked && m.rhythm.stageToBoard < m.rhythm.bandToFilter) {
-    bad(`${at}: the stage has ${m.rhythm.stageToBoard}px under it and the head has ${m.rhythm.bandToFilter}px — the ceremony needs at least the air the head gets`);
-  /* AND THE TIGHTEST OF THE THREE IS STILL A VISIBLE GAP (2026-08-05, "cards and elements still
+  /* THE HEAD IS ONE CARD, MEASURED FOUR WAYS. This replaces the old "the band and its filter
+     sit closer together than the filter sits to the stage" ordering, and it is strictly
+     stronger: that check inferred the grouping from a ratio between two gaps, and passed on a
+     build where the two cards were OVERLAPPING. There is no gap left to get wrong. */
+  if (!m.seam) ok(`${at}: no role lens on this board — the head is its two rows`);
+  else if (!m.seam.nested) {
+    bad(`${at}: the role lens is a SIBLING of the tier band, not a row inside it — two struck cards a few px apart is exactly what "combine the top 2 cards into 1" was about`);
+  } else if (m.seam.toRowAbove === null || Math.abs(m.seam.toRowAbove) > 1) {
+    bad(`${at}: the lens sits ${m.seam.toRowAbove}px from the row above it inside the band — a seam is 0`);
+  } else if (Math.abs(m.seam.insetL) > 1 || Math.abs(m.seam.insetR) > 1) {
+    bad(`${at}: the lens is inset ${m.seam.insetL}/${m.seam.insetR}px from the band's inner edges — a row that does not reach both sides leaves a notch in the card`);
+  } else if (m.seam.radius > 0.5) {
+    bad(`${at}: the lens still rounds its corners (${m.seam.radius}px) — a rounded box inside a rounded card reads as a chip lying on it, not as one of its rows`);
+  } else if (m.seam.lip) {
+    bad(`${at}: the lens still carries a hard lip of its own — that is this page's "I end here" mark, painted across the middle of a card where nothing ends`);
+  } else ok(`${at}: the head is one card — the lens is flush (${m.seam.toRowAbove}px below the row above, ±${m.seam.insetL}/${m.seam.insetR}px to the band's edges) with no edge of its own`);
+
+  /* AND THE TWO GAPS THAT REMAIN ARE VISIBLE ONES (2026-08-05, "cards and elements still
      crammed together in the laptop version — space out the silver league card, the
      all/OA/OT/PSA card, the podium card and the 4th-place card with each other").
-     ⚠ MEASURED OPTICALLY, and that is the entire point. The order check above passed on a
-     column whose band and filter were TOUCHING: 6px of layout gap under a lip that paints 9px
-     below the border box is −3px of visible space. Every number this file had about the rhythm
-     agreed the column was correctly grouped while two of the four cards overlapped on screen —
-     the same "precise measurement of the wrong thing" its own history warns about, this time
-     about the wrong QUANTITY rather than the wrong device.
-     A floor rather than a pin: the three values still move freely per tier (4/12/9 · 5/13/11 ·
-     7/17/15) and only the smallest is bounded. Desktop only — on a 390px phone every one of
-     those pixels is a pixel of ladder, and the report was about a laptop. */
-  } else if (vp.width >= 1024 && m.rhythm.stacked && Math.min(...m.rhythm.optical) < 3) {
-    bad(`${at}: the column's tightest VISIBLE gap is ${Math.min(...m.rhythm.optical)}px (optical ${m.rhythm.optical.join("/")} from layout ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}, floor 3px on desktop) — a lip that paints below its own border box is the card's edge, not the gap`);
-  } else ok(`${at}: the column is grouped ${m.rhythm.bandToFilter}/${m.rhythm.filterToStage}/${m.rhythm.stageToBoard}px layout — ${m.rhythm.optical.join("/")}px visible once each lip is subtracted`);
+     ⚠ MEASURED OPTICALLY, and that is the entire point. The ordering check this replaced
+     passed on a column whose band and filter were TOUCHING: 6px of layout gap under a lip that
+     paints 9px below the border box is −3px of visible space. Every number this file had about
+     the rhythm agreed the column was correctly grouped while two of the four cards overlapped
+     on screen — the same "precise measurement of the wrong thing" its own history warns about,
+     this time about the wrong QUANTITY rather than the wrong device.
+     A floor rather than a pin: the values still move freely per tier (13/9 · 15/11 · 19/15) and
+     only the smallest is bounded. Desktop only — on a 390px phone every one of those pixels is
+     a pixel of ladder, and the report was about a laptop.
+     ⚠ ABOVE > BELOW, on every stacked tier. The stage's own CSS has claimed since 2026-08-04
+     that "above > below is what makes it read as a stage rather than as the next card down" —
+     the top three and rank 4 are one ranking, so the ceremony belongs to the board under it.
+     Nothing checked it, and the three desktop tiers had all drifted the other way (17 above,
+     18 below). A comment is not a constraint; this is. */
+  /* ⚠ The two-column tier is reported SEPARATELY rather than through the line below it. There
+     the ladder starts level with the head, so `stageToBoard` is a −390px non-quantity — and a
+     green line reading "the column runs 11/−387.4px" is how a reader learns to stop reading
+     the green lines. */
+  if (!m.rhythm) bad(`${at}: could not measure the column's vertical rhythm`);
+  else if (!m.rhythm.stacked) ok(`${at}: two columns — the stage sits beside the ladder, so only the ${m.rhythm.headToStage}px under the head is a gap`);
+  else if (!(m.rhythm.headToStage > m.rhythm.stageToBoard)) {
+    bad(`${at}: the stage has ${m.rhythm.headToStage}px above it and ${m.rhythm.stageToBoard}px below — a ceremony belongs to the ranking beneath it, so the air above must be the larger of the two`);
+  } else if (vp.width >= 1024 && Math.min(...m.rhythm.optical) < 3) {
+    bad(`${at}: the column's tightest VISIBLE gap is ${Math.min(...m.rhythm.optical)}px (optical ${m.rhythm.optical.join("/")} from layout ${m.rhythm.headToStage}/${m.rhythm.stageToBoard}, floor 3px on desktop) — a lip that paints below its own border box is the card's edge, not the gap`);
+  } else ok(`${at}: the column runs ${m.rhythm.headToStage}/${m.rhythm.stageToBoard}px layout — ${m.rhythm.optical.join("/")}px visible once each lip is subtracted`);
 
   /* THE OUTLINE, on every object claiming a rung of the lip ladder. Rule 1 of the file's
      own recipe is a dark defining edge in --mat-ink — "never grey, because grey on a

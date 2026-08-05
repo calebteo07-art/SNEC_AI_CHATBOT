@@ -1332,7 +1332,7 @@ whole page is buttons". A fifth object gets a lip only if another gives one up:
 | tier | lip / outline | objects |
 |---|---|---|
 | structural | 5px / 2.5px | `.lg-list` `.tb` `.pod-block` |
-| medallion | 3px / 2px | `.pod-face` `.lg-face` `.lb-filter` `.sheet-face` |
+| medallion | 3px / 2px | `.pod-face` `.lg-face` `.sheet-face` (`.lb-filter` left 2026-08-05) |
 | pill | 2px / 1.5px | `.lg-rk` `.lg-score` `.lg-mv[up\|down]` `.tb-help` `.lg-you` `.tb-pip` |
 | flat | none | `.lg-row` `.lg-item` `.lg-cut` `.lg-zone` |
 
@@ -1946,6 +1946,92 @@ a mutation as could be asked for). A road wider than its band fires the escape b
 second one hours earlier, for the stage rather than for the band), which is the only reason this
 could be measured before and after rather than argued about. **Everything ≥1400 renders
 pixel-identically**, because the rule it used to own now reaches it by inheritance.
+
+#### THREE CARDS 2026-08-05 — the head is one object, and the column is re-cut around it
+
+User, on the shipped board: *"combine top 2 cards silver league and role filter into 1 and make it
+seamless, and restructure the positioning of cards and elements in the page accordingly"*. A
+refinement *within* the lock, changing **two** of its criteria by name:
+
+- **Changed**: the lip ladder's **medallion** rung loses `.lb-filter`. It is `.pod-face`
+  `.lg-face` `.sheet-face` now. A rung **giving an object up** is always safe — the ladder's rule
+  bounds additions — and nothing was promoted into the space.
+- **Changed**: the rhythm criterion. *"The band and its filter sit closer together than the filter
+  sits to the stage"* is retired, because the pair it compares no longer exists. It is replaced by
+  **the seam** (below), which asserts the same grouping structurally instead of inferring it from
+  a ratio between two gaps — and the old form had already passed on a build where those two cards
+  **overlapped**.
+
+**The strip renders inside `.tb`, under `.tb-readout`, as a third full-bleed row.** `TierBand`
+takes it as `children`; the state stays in `Leaderboard.tsx`, because `role` is the query key
+`useLeaderboard` runs on and threading five values through the band to render markup it does not
+own is a worse coupling than a slot.
+
+**⚠ EVERY BOUNDARY THE STRIP USED TO DRAW IS DELETED, not restyled to look joined.** That is what
+makes "seamless" structural rather than a set of numbers to keep in sync: no radius (the card's
+`overflow: hidden` + 16px clip supplies the corners), no side or bottom border, and **no lip**. A
+hard lip is how every object on this page says *"I end here"*; a strip that merely sits flush but
+keeps its 3px one paints that mark across the middle of a card, in the one place nothing ends.
+What is left is the same `border-top: var(--mat-out)` `.tb-readout` already used, so the head is
+**three panels behind one keyline** — metal identity, white instrument, grey control tray. The
+tray keeps `--chip-mid #EDF1F8` rather than deepening to `--chip-lo`: every contrast value on it
+was certified against that surface, and `#DCE3EE` puts the unselected chip at 4.67:1 against a
+4.5:1 gate.
+
+**The column is three objects now, so its spacing was re-cut rather than inherited.** The merge
+returned a whole gap plus the strip's own two borders; all of it went into the two gaps that are
+left instead of into having more of them. **Optical** (layout minus the lip that paints below it):
+
+| tier | before (band/filter/stage) | after (head/stage) |
+|---|---|---|
+| ≥1024 ≥620 (1366×768) | 4 / 12 / 9 | **10 / 8** |
+| ≥1024 ≥830 (1489×838) | 5 / 13 / 11 | **13 / 11** |
+| ≥1024 ≥900 (1440×900) | 7 / 17 / 15 | **17 / 13** |
+
+The tightest **visible** gap on the laptop goes **4px → 8px**, and the two cards that were 4px
+apart are one card. Slack over the 8-rank floor is **13.7 / 25.2 / 37.6 / 161.6 / 217.6px** across
+the desktop matrix — the laptop *gains* a pixel over what it shipped with, which is why 17px is
+what that tier uses where the taller steps use 20 and 22.
+
+- ⚠ **ABOVE > BELOW, and it is bounded now.** `.pod-deck`'s own CSS has claimed since 2026-08-04
+  that *"above > below is what makes it read as a stage rather than as the next card down"* — the
+  top three and rank 4 are one ranking, so the ceremony belongs to the board beneath it. **Nothing
+  checked it, and all three desktop tiers had drifted the other way** (17 above, 18 below). A
+  comment is not a constraint.
+- ⚠ **`.lb-filter` left the one-edge bound**, and that is not a weakening. Its edges are the
+  band's *padding* box now — inset by exactly one border-width, which that bound reads as a
+  disagreement. What it is inset from is checked far more tightly by the seam.
+- The landscape-phone tier's `grid-column` list drops it too: it is a row inside `.tb`, not a grid
+  item of the column.
+
+**⚠ THE FOURTH DEAD MIDDLE WAS INSIDE THE STRIP, AND ITS OWN GATE READ 1%.** A merge makes two
+objects agree that never had to before: the lens row sits directly under `.tb-readout`, which is
+the *identical* shape — a left object, a right readout, slack between — and which has tied its
+two ends together with a 2px groove since 2026-08-04. The lens row left ~400px open. Worse, the
+`lensFill` bound said the strip was **1% empty**: `.lb-chips` is `flex: 1 1 auto`, so the GROUP's
+right edge sits 10px from the readout while its last **chip**, clamped by `--chip-cap`, is 400px
+away. **Fifth instance of measuring the box instead of the ink** on this page (`.lg-nm`,
+`.tb-name` and the two flanks are the others).
+- `.lb-filter:has(.lb-count) .lb-chips::after` — same material as `.tb-chase::after`, no new hue
+  and no new element. It takes exactly the leftover because flexbox freezes a `max-width`-clamped
+  item and redistributes to the rest, and `:has()` keeps it from drawing a rule to nowhere when
+  there is no readout to reach.
+- The bound now measures **from the last chip** and against **what the connector does not span**:
+  `empty = gap − ::after width`, on the same 34% budget. Shipped **~1%** of `gap ≈ 400px`;
+  mutation-verified by removing the connector, which fires at **36%**.
+
+**Gate**: `league_assert.mjs` — **433 assertions**, up from 424. **THE SEAM** is measured four
+ways, because "seamless" is four things that can break independently: the strip is **nested** in
+the band (not a sibling styled to look adjacent); it starts **0px** below the row above it; it
+reaches **both** inner edges (±0px); and it draws **no radius and no outer zero-blur shadow** of
+its own. The non-stacked tier now reports the rhythm separately, because a green line reading
+*"the column runs 11/−387.4px"* is how a reader learns to stop reading the green lines.
+
+**Mutation-verified in three builds**, one per failure class: the lens as a **sibling** (fires on
+all 9 viewports), the lens with a **6px margin and a 999px radius** (`toRowAbove` 6, `insetL/R`
++12/−12, `radius` 999 — every input observably off its passing 0), and the lens keeping its **3px
+lip** (fires the deepest branch on all 5 desktop viewports). The rhythm order fired at **19 above
+/ 23 below**. On the shipped build: nested, 0px, ±0/0px, no radius, no lip.
 
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is

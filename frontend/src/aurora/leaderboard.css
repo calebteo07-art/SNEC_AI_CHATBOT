@@ -308,16 +308,18 @@
   font-family: var(--font-body);
   display: flex;
   flex-direction: column;
-  /* THE RHYTHM IS GROUPED, not flat ("space out more aesthetically", 2026-08-04). One
-     identical gap between the band, the filter, the stage and the board gave four blocks
-     equal weight, so the head stopped reading as a head. The base gap is now the TIGHT
-     one — band and filter are one unit — and the stage buys its own air back through its
-     own margins, which is the only way to vary a flex column's spacing without wrapping
-     things in extra boxes.
-     ⚠ Every pixel here is a pixel of ladder. The gaps grew by 5 and the top padding gave
-     2 of them back; the rest is funded per tier below, because 1366x768 sits on the
-     8-rank floor with zero slack and cannot pay for anything. */
-  gap: 6px;
+  /* THE RHYTHM IS GROUPED, not flat ("space out more aesthetically", 2026-08-04) — and since
+     2026-08-05 the grouping is STRUCTURAL rather than a ratio between gaps. There were four
+     blocks on one identical gap, so the head did not read as a head; the answer was a tight
+     gap between the band and its filter and a wider one below. The filter is now the band's
+     third row (see .lb-filter), so that pair has NO gap at all — they are one card — and this
+     column holds three objects and exactly two gaps.
+     ⚠ Every pixel here is a pixel of ladder, which is why the merge is what funds this: one
+     whole gap and the strip's own two borders came back, and they are spent on making the two
+     that remain visible rather than on more of them. The stage keeps a small top margin so it
+     has more air above than below — a ceremony belongs to the ranking under it, not to the
+     head above it. */
+  gap: 7px;
 }
 /* Numbers never jitter as they count or re-rank. */
 .lb-climb .chase-n, .lb-climb .lg-rk, .lb-climb .lg-score, .lb-climb .pod-num,
@@ -548,10 +550,15 @@
    ladder, like .lg-list and .tb — it is the object the ceremony stands on. */
 .pod-deck {
   position: relative; box-sizing: border-box;
-  /* The deck now owns the stage's rhythm: a flex column has one gap, so the ceremony still
-     has to buy its own air, and above > below is what makes it read as a stage rather than
-     as the next card down. */
-  margin: 8px 0 6px;
+  /* The deck owns the stage's rhythm: a flex column has one gap, so the ceremony buys its own
+     air, and ABOVE > BELOW is what makes it read as a stage rather than as the next card down
+     — the top three and rank 4 are one ranking, so the stage belongs to the board beneath it.
+     Bounded in league_assert since 2026-08-05; before that the desktop tiers had quietly
+     drifted the other way (17 above, 18 below) while this comment claimed otherwise.
+     ⚠ The BOTTOM margin is not decoration at this tier: the flex gap is 7px and this deck's
+     lip paints 7.5px below its own border box, so without it the ceremony's edge would sit
+     UNDER the board's. The desktop tiers drop it because their gap alone clears the lip. */
+  margin: 9px 0 5px;
   /* PHONE FIRST: one column, the two facts as a caption row beneath the stage. Three-across
      needs a viewport that can hold a 520px stage AND two flanks; forcing it earlier squeezes
      the blocks, which is the one thing that may not pay.
@@ -809,25 +816,33 @@
   animation: pod-shine 2.4s cubic-bezier(.4, 0, .2, 1) .8s;
 }
 
-/* ── role filter ──────────────────────────────────────────────────────────────
+/* ── role filter — THE BAND'S THIRD ROW ───────────────────────────────────────
    One segmented switch, not three floating chips. The class names are load-bearing: the gate
    clicks `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. */
-/* THE STRIP. It was a ~470px pill floating on the centre line of an 1148px board — one of the
-   four widths on four centres the deck note describes, and the easiest of them to fix. It now
-   shares the board's edge like everything else.
-   ⚠ The CONTROL is still control-sized. The lock's reasoning against stretching a three-chip
-   switch across 860px stands: what changed is that the strip around it is a container with
-   content at both ends rather than a bar of empty pill.
+/* THE STRIP, and its third home. It was a ~470px pill floating on the centre line of an 1148px
+   board; 2026-08-04 gave it the board's edge; 2026-08-05 gives it the band ("combine the top 2
+   cards, silver league and role filter, into 1 and make it seamless"). It renders INSIDE `.tb`
+   now, under `.tb-readout`, as a third full-bleed row of the same card.
+   ⚠ EVERY BOUNDARY THIS ELEMENT USED TO DRAW IS DELETED, not restyled to look joined — that is
+   what makes the seam structural. No radius (the card's clip supplies the corners), no side or
+   bottom border (the card's own --mat-out edge is already there, one border-width away), and no
+   lip: a hard lip is how this file says "an object ends here", and this row does not end — the
+   card does, and it already says so with the same lip everything structural wears. What is
+   left is the SAME border-top .tb-readout uses, which is the seam between rows 1 and 2 — so
+   the head is three panels behind one keyline rather than two cards that nearly touch.
+   ⚠ It therefore GIVES UP the medallion rung of the lip ladder, which is a reduction and
+   always safe (the ladder's rule bounds additions). Nothing was promoted in its place.
    ⚠ .lb-filter and .lb-chip are LOAD-BEARING NAMES — league_assert clicks
-   `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. Restyled in place. */
+   `.lb-filter .lb-chip:has-text(...)` and a rename crashes the run. Restyled in place, twice. */
 .lb-filter {
   box-sizing: border-box; width: 100%;
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 3px 3px 3px 12px; border-radius: 999px;
+  padding: 4px 8px 4px 11px;
   background-color: var(--chip-mid);
-  border: 2px solid var(--mat-ink);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7),
-              0 3px 0 0 var(--chip-lip), 0 3px 0 2px var(--mat-ink);
+  border-top: var(--mat-out) solid var(--mat-ink);
+  /* The lit return that every inset row on this page carries, and the only shadow left here:
+     it reads as the tray being recessed into the faceplate rather than as an edge. */
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .7);
 }
 /* The cohort size, which was nowhere on the board — "who am I actually racing" is the first
    question a ladder invites, and it was only answerable by counting rows. */
@@ -1454,9 +1469,10 @@
     bottom: calc(var(--bar-h, env(safe-area-inset-bottom)) + 10px);
   }
   .youbar:active { transform: translateY(3px); }
-  .tb, .lb-filter, .pod-deck { grid-column: 1; }
-  /* span 3 stays correct when .lb-filter does not render (a single-role cohort): the podium
-     lands in row 2 and row 3 collapses to zero. */
+  /* .lb-filter is NOT in this list since 2026-08-05 — it is a row inside .tb now, not a grid
+     item of the column. Two items land in column 1, the head and the stage. */
+  .tb, .pod-deck { grid-column: 1; }
+  /* span 3 stays correct at two items: the stage lands in row 2 and row 3 collapses to zero. */
   .lg-list, .lb-empty { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
   /* align-self:start is REQUIRED, not cosmetic. .pod auto-places into the `1fr` row, and a grid
      item defaults to stretch — so with min-height (rather than a fixed height) the stage grows
@@ -1527,29 +1543,37 @@
        costs ranks; this one is still free. */
     max-width: 980px;
     padding: 6px 16px 36px;
-    /* ⚠ 13, from 6, AND THE UNIT IS NOT WHAT IT LOOKS LIKE ("cards and elements still crammed
+    /* ⚠ 17, from 13, AND THE UNIT IS NOT WHAT IT LOOKS LIKE ("cards and elements still crammed
        together... space out the silver league card, the all/OA/OT/PSA card, the podium card
        and the 4th-place card with each other"). Every struck object's hard lip is PAINT below
        its border box — `.tb` ends in `0 6px 0 3px var(--mat-ink)`, so 9px of outlined lip
-       hangs under a box that getBoundingClientRect reports as ending at its border. The old
-       6px gap was therefore MINUS 3px of visible space: the band's lip and the filter's top
-       edge overlapped, which is exactly what "crammed" looks like, and every number this file
-       had collected about the rhythm said 6/15/13 and read as fine.
-       Optical, per tier: 4 / 12 / 9 here, 5 / 13 / 11 at ≥830, 7 / 17 / 15 at ≥900.
-       ⚠ This is why 1366x768 gives the champion's badge back (see the stage below): the gap is
-       charged THREE times down the column and this tier has ~13px of slack in total. Between
-       the two things asked for, the separation is the one that was named first and the one
-       that costs a third as much. */
-    gap: 13px;
+       hangs under a box that getBoundingClientRect reports as ending at its border. A 6px gap
+       was therefore MINUS 3px of visible space: the band's lip and the filter's top edge
+       overlapped, which is exactly what "crammed" looks like, and every number this file had
+       collected about the rhythm said 6/15/13 and read as fine.
+       ⚠ THE TIGHTEST OF THOSE GAPS NO LONGER EXISTS (2026-08-05). The filter is the band's
+       third row, so band→filter is a SEAM and this column has two gaps instead of three.
+       Optical, per tier: 10 / 8 here, 13 / 11 at ≥830, 17 / 13 at ≥900 — the merge returned a
+       whole gap and the strip's own two borders, and every one of them is spent on the two
+       gaps that are left rather than on having more of them. The tightest VISIBLE gap on the
+       laptop goes 4 → 8, and the two cards that were 4px apart are one card.
+       ⚠ 17 is what this tier can afford, not what it would like. 1366x768 clears the 8-rank
+       floor by ~10px at this figure; at the 18/22 the taller steps use it clears by ~5. The
+       champion's badge is still not grown here either, and that is still the trade rather than
+       an oversight: what the merge bought back went to the separation that was reported twice,
+       not to the one pixel that costs a rank each time (see the stage below). */
+    gap: 17px;
   }
-  /* The stage buys its own air; the top padding funds it. Layout 13/17/18 down the column,
-     which is optical 4/12/9 once each lip is subtracted. */
-  .pod-deck { margin: 4px 0 5px; }
+  /* The stage buys its own air ABOVE and none below: at 17px the flex gap already clears the
+     deck's 9px lip, so the ceremony reads as belonging to the ranking under it. Layout 19/17
+     down the column, which is optical 10/8 once each lip is subtracted. */
+  .pod-deck { margin: 2px 0 0; }
   /* ⚠ The centring that used to live here is GONE (2026-08-04). "A control should be the
      size of its controls" was right about the CHIPS and wrong about the strip: a pill
      floating on the centre line was one of the four widths on four centres that made the
-     page read as unspaced. The chips are still control-sized inside a full-width strip. */
-  .lb-filter { padding-left: 14px; }
+     page read as unspaced. The chips are still control-sized inside a full-width strip.
+     The left inset matches `.tb-head`'s, so all three of the card's rows start on one line. */
+  .lb-filter { padding: 5px 10px 5px 14px; }
   /* THE SWITCH FILLS THE STRIP (2026-08-04, "still crammed... not maximising the screen").
      Control-sized chips at one end of a full-width bar and a 12px count at the other measured
      527px of empty strip at a 860px board and 843px at 1180px — the emptiest object on the
@@ -1557,6 +1581,27 @@
      switch spanning most of its bar is a game control; one spanning all of it is a navbar. */
   .lb-chips { flex: 1 1 auto; gap: 4px; }
   .lb-chip { flex: 1 1 0; max-width: var(--chip-cap, 132px); }
+  /* THE SAME CONNECTOR THE ROW ABOVE IT WEARS (2026-08-05). The strip is row 3 of the band
+     now, sitting directly under a row of the identical shape — a left object, a right readout,
+     slack between — and that row has tied its two ends together with a 2px groove since
+     2026-08-04. Left open, the lens row read as the one part of the card that had not been
+     laid out, which is what a merge makes visible: two objects only have to agree once they
+     are on the same surface.
+     ⚠ AND IT IS WHAT THE CAP COSTS. `.lb-chip` is capped per tier so a segmented switch does
+     not become a navbar, so at every desktop width the chips freeze ~400px short of the
+     readout while their GROUP still reaches it. The pseudo takes exactly that leftover — a
+     `flex: 1 1 auto` sibling of items that are already clamped by `max-width` gets all of it,
+     because flexbox freezes a clamped item and redistributes to the rest.
+     ⚠ Only when there IS a readout to reach: without `.lb-count` this would be a rule running
+     to the strip's own edge. Same material as .tb-chase::after — no new hue, no new element.
+     ⚠ A PSEUDO, and it has to stay one. `.lb-chips` is the `role="tablist"`, whose children
+     must all be tabs; an empty-content pseudo generates no accessible object, a real <div>
+     would. Do not "fix" this into an element. */
+  .lb-filter:has(.lb-count) .lb-chips::after {
+    content: ""; flex: 1 1 auto; min-width: 12px; align-self: center; margin: 0 4px 0 10px;
+    border-top: 2px solid rgba(42, 31, 61, .16);
+    box-shadow: 0 2px 0 rgba(255, 255, 255, .95);
+  }
   .lb-chip-n { display: inline-block; }
   .lb-count-sm { display: none; }
   .lb-count-lg { display: inline; }
@@ -1740,12 +1785,13 @@
    actually pay it rather than at the height of the one machine the matrix happened to hold.
    Third time this file has learned the same lesson; the first two were about width. */
 @media (min-width: 1024px) and (min-height: 830px) {
-  /* 14, from 7 — this tier has the budget the one below does not. Layout 14/18/20 down the
-     column, which is 5/13/11 once each lip is subtracted, against −3/10/4 on the build that
-     was called crammed: the band and the filter were overlapping there. */
-  .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 14px; }
+  /* 20, from 14 — this tier has the budget the one below does not. Layout 22/20 down the
+     column, which is 13/11 once each lip is subtracted, against −3/10/4 on the build that was
+     called crammed twice: there the band and the filter were overlapping, and they are now
+     one card with no gap to get wrong. */
+  .lb-climb { max-width: 1060px; padding: 6px 16px 40px; gap: 20px; }
   .lb-chip { --chip-cap: 150px; }
-  .pod-deck { margin: 4px 0 6px; padding: 11px 16px 0; }
+  .pod-deck { padding: 11px 16px 0; }
   .pod-banner, .pod-clock { min-height: 160px; padding: 17px 18px; border-radius: 19px; }
   .pod-banner-do, .pod-clock-l { font-size: 11px; }
   .pod-banner-to, .pod-clock-v { font-size: 25px; }
@@ -1784,8 +1830,10 @@
    above is the row height as much as the stage: a 56px rung is what buys an 838px window the
    full-size ceremony, and a 900px one does not have to make that trade. */
 @media (min-width: 1024px) and (min-height: 900px) {
-  .lb-climb { gap: 16px; }
-  .pod-deck { margin: 6px 0 8px; padding: 13px 16px 0; }
+  /* 22/26 rather than 20/22 — the ladder of optical gaps up the tiers is 10/8 → 13/11 → 17/13,
+     which keeps the column reading the same at every height instead of jumping. */
+  .lb-climb { gap: 22px; }
+  .pod-deck { margin: 4px 0 0; padding: 13px 16px 0; }
   .pod-banner, .pod-clock { min-height: 184px; padding: 20px; border-radius: 21px; }
   .pod-banner-do, .pod-clock-l { font-size: 11.5px; }
   .pod-banner-to, .pod-clock-v { font-size: 28px; }
