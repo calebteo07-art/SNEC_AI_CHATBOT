@@ -31,6 +31,22 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session_worktree.py"],
+            "timeout": 10,
+            "statusMessage": "Checking session worktree isolation"
+          }
+        ]
+      }
     ]
+  },
+  "worktree": {
+    "baseRef": "fresh"
   }
 }
