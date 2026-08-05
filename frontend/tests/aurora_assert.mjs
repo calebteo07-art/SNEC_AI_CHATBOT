@@ -199,13 +199,21 @@ if (fr.label !== "2 / 4") { console.error(`FAIL: pager readout = ${fr.label}, ex
 // like movement — stillness right after it reads the shelf at its OLD page. Anchoring on
 // the destination is immune to both: a stalled poll simply checks again and still has to
 // find the shelf where the pager promised to put it.
+//
+// ⚠ THE STRIDE IS MEASURED SUB-PIXEL, and the 1px budget below is only meaningful because
+// it is. The slot is `(100% - 4*gap)/5`, so the badge pitch is fractional at any frame
+// width that is not a whole number, and offsetLeft ROUNDS — a per-page error that
+// ACCUMULATES. Measured on a 720.39px frame (the vault beside the streak tile): true stride
+// 734.375, offsetLeft 734, so page 4 sits 1.125px from where an offsetLeft model says it
+// should be. That is a rounding artefact of the RULER, not slack in the shelf, and reading
+// it with offsetLeft spends the whole error budget before the shelf has moved.
 const atRest = async (expected) => {
   try {
     await np.waitForFunction((k) => {
       const el = document.querySelector('[data-testid="lumen-ladder"] .hm-badges');
       if (!el) return false;
       const kids = el.children;
-      const stride = kids[5].offsetLeft - kids[0].offsetLeft;
+      const stride = kids[5].getBoundingClientRect().left - kids[0].getBoundingClientRect().left;
       return Math.abs(el.scrollLeft - k * stride) <= 1;
     }, expected, { timeout: 5000, polling: 50 });
     return true;

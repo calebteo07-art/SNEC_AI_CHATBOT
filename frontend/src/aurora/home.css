@@ -106,39 +106,62 @@
 .hm-eyeconmenu-item.is-danger:hover { background:#FDECEF; }
 html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 
-/* ── bento hero ── */
-/* D5: greeting + streak are shorter (tighter vertical rhythm) but wider (they inherit
-   the D4 wide canvas), reading as one wide banner rather than a tall block. */
-.hm-hero { display:grid; grid-template-columns:1.9fr 1fr; gap:16px; }
-.hm-greet { position:relative; overflow:hidden; border-radius:var(--hr); padding:34px 44px 30px; box-shadow:var(--sh-lg);
+/* ══ ZONE 2 — THE DECK (.hm-deck) — what is live RIGHT NOW ══
+   One struck plate carrying the status bar, the greeting host + today's quest board, and
+   the daily chest + the League standing. STRUCTURAL rung: it is the only object on Home
+   that HOLDS other struck objects, which is why it takes the deepest lip on the ladder.
+
+   It ends in a SOLID background-color for the same reason every struck object does — a
+   gradient-only box has no computed background-color, so a contrast probe walks past it to
+   the page and measures the wrong surface — and that solid is the DARKER band of its own
+   hard-stop fill, so the probe reads the worst case. The plate sits a shade under the
+   status bar's cream and the board's white so the objects read as sitting ON it.
+
+   ⚠ NOTHING IN HERE MAY ROTATE ITS OWN BOX — no <Lumen>, no SVG carrying
+   transform="rotate(…)". getComputedStyle reports a rotation matrix; a rotated square
+   reports a bounding rect up to 1.41x its width and escapes an overflow sweep even under
+   overflow:hidden, because clipping stops the PAINT and not getBoundingClientRect. That is
+   why the greeting's XP readout (and its <Lumen> coin) left GreetingHero when the card
+   moved onto this plate — the status bar renders those same four numbers. Gated in
+   home_hud_assert.mjs. */
+.hm-deck {
+  --lip-c:#D6C39B;
+  display:flex; flex-direction:column; gap:14px;
+  padding:14px; border-radius:26px;
+  background-color:#F1E3C7;
+  background-image:linear-gradient(180deg,#F9F0DF 0%,#F9F0DF 34%,#F1E3C7 34%);
+}
+/* The greeting is the object that looks better wider, so IT owns the larger track. Never
+   the board: its rows are three bands of text beside a 44px control, and a text box handed
+   the flexible track is how a 334px row becomes a 107px meter. minmax(0,…) on both, because
+   a grid item defaults to min-width:auto and would push the plate past a 390px viewport. */
+.hm-deck-mid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; }
+.hm-deck-foot { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:14px; }
+
+/* ── the greeting host ──
+   ⚠ THE 62px HEADLINE IS GONE (superseded design-lock criterion (c)). It was the least
+   game-like object on Home and it owned the fold the quest board and the chest now have to
+   fit inside; 36px keeps the greeting a greeting without spending the budget. The greeting
+   ENGINE is untouched — pickGreeting, the day-of-year rotation and the <em> accent word all
+   read exactly as before, and greeting_assert.mjs asserts the text, never the size. */
+.hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px; box-shadow:var(--sh-lg);
   background:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFC6DC 46%, #E4D3FF 100%); }
 .hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
-.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:62px; line-height:1.02; letter-spacing:-.03em; max-width:540px; margin:0; color:var(--hink); }
+.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
 /* text columns are held to the calm left of the card so no word runs under the
    full-bleed mascot on the right (she's nudged further right below). */
-.hm-sub { position:relative; margin-top:15px; font-size:23px; font-weight:500; color:#5A4B64; max-width:440px; line-height:1.45; }
-.hm-lvl { position:relative; margin-top:24px; max-width:380px; }
-.hm-lvl .hm-lr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
-.hm-lvl .hm-lr b { font-weight:700; font-size:17px; } .hm-lvl .hm-lr b span { color:var(--violet-d); }
-.hm-lvl .hm-lr .hm-z { font-size:14px; font-weight:600; color:#9b8fa8; }
-.hm-z svg { display: inline-block; vertical-align: middle; }
-.hm-lvbar { height:16px; border-radius:999px; background:rgba(255,255,255,.6); overflow:hidden; box-shadow:inset 0 2px 4px rgba(120,80,40,.15), inset 0 0 0 1px rgba(255,255,255,.5); }
-.hm-lvbar > span { position:relative; display:block; height:100%; border-radius:999px; overflow:hidden;
-  background:linear-gradient(90deg,#8B5CF6,#EC4899 55%,#FB923C); box-shadow:0 0 12px -1px rgba(236,72,153,.6); }
-/* glossy vinyl top-highlight + a travelling shine sweep — the "juicy" XP meter */
-.hm-lvbar > span::before { content:""; position:absolute; inset:0 0 46% 0; border-radius:inherit; background:linear-gradient(180deg,rgba(255,255,255,.6),transparent); }
-.hm-lvbar > span::after { content:""; position:absolute; top:0; bottom:0; left:0; width:38%; mix-blend-mode:screen; pointer-events:none;
-  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.8) 50%,transparent 70%); animation:hm-xp-shine 2.6s linear infinite; }
-@keyframes hm-xp-shine { 0% { transform:translateX(-130%); } 100% { transform:translateX(360%); } }
+.hm-sub { position:relative; margin-top:10px; font-size:17px; font-weight:500; color:#5A4B64; max-width:380px; line-height:1.42; }
 /* The leaderboard control (.hm-lb) used to live here, as a candy CTA under the XP bar. It
    is now the deck's RANK STRIP and its rules moved with it — see "THE RANK STRIP" near the
    bottom of this file. Nothing on the greeting card styles it any more. */
 /* the default mascot sits BEHIND the full-bleed Veo loop (z-index:0) — it's the
    reduced-motion / no-video fallback that shows through when the clip is absent. */
-.hm-iriswrap { position:absolute; right:-34px; bottom:0; width:236px; height:210px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
-.hm-irisfloor { position:absolute; left:50%; bottom:16px; width:156px; height:24px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
-.hm-iris { position:relative; z-index:1; width:216px; height:216px; margin-bottom:6px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
+/* Sized against the SHORTER host card (the 62px headline and the XP bar both left it): at
+   216px she stood taller than the card and `overflow:hidden` took the top of her head. */
+.hm-iriswrap { position:absolute; right:-24px; bottom:0; width:180px; height:156px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+.hm-irisfloor { position:absolute; left:50%; bottom:12px; width:118px; height:18px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
+.hm-iris { position:relative; z-index:1; width:160px; height:160px; margin-bottom:4px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
 /* single transform track (no stacked conflicting animations): the bob carries a
    gentle breathe (scaleY) + a quick eye-close squash near the end of the cycle. */
 @keyframes hm-iris-bob {
@@ -149,7 +172,7 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   100% { transform:translateY(0) rotate(-1deg) scaleY(1); }
 }
 /* breathing warm halo behind the mascot */
-.hm-iriswrap::before { content:""; position:absolute; left:50%; bottom:24px; width:150px; height:150px; transform:translateX(-50%);
+.hm-iriswrap::before { content:""; position:absolute; left:50%; bottom:18px; width:114px; height:114px; transform:translateX(-50%);
   border-radius:50%; z-index:0; background:radial-gradient(circle, rgba(255,220,180,.55), transparent 66%);
   filter:blur(10px); animation:hm-halo-breathe 4.8s ease-in-out infinite; }
 
@@ -296,9 +319,12 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-carbtn { pointer-events:auto; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--hink); font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--sh); cursor:pointer; padding-bottom:3px; transition:transform .15s, background .15s; }
 .hm-carbtn:hover { background:#fff; transform:scale(1.06); }
 
-/* ── lower bento — ONE full-width vault (the daily-streak vault was retired 2026-07-29;
-   the Lumens vault is the app's only badge collection). ── */
-.hm-lower { display:grid; grid-template-columns:1fr; gap:16px; }
+/* ══ ZONE 3 — THE RECORD (.hm-record) — what you have BUILT ══
+   The streak calendar and the Lumens vault: the two surfaces that move over weeks rather
+   than over a session, which is why they sit BELOW the deck and the carousel instead of
+   competing with them for the fold. The vault is the object that looks better wider (five
+   medallions across a frame), so it takes the larger track. */
+.hm-record { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:16px; align-items:start; }
 /* min-width:0 is load-bearing, not tidiness: a grid item defaults to min-width:auto, so
    the panel would GROW to the ~2350px of the 20-medallion shelf instead of letting the
    shelf scroll inside it. */
@@ -465,11 +491,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 /* ── responsive ── */
 @media (max-width:900px) {
   .aurora-home { padding:16px 16px 28px; }
-  .hm-hero { grid-template-columns:1fr; }
-  .hm-greet h1 { font-size:46px; max-width:none; }
-  .hm-sub { font-size:20px; }
-  .hm-iriswrap { width:170px; height:150px; right:-8px; }
-  .hm-iris { width:158px; height:158px; }
+  /* One column for both halves of the deck and for the record. The phone-LANDSCAPE tier
+     below restores two columns: 844px matches this block, and a wide+short screen is the
+     one place side-by-side is what keeps the page short. */
+  .hm-deck-mid, .hm-record { grid-template-columns:1fr; }
+  .hm-greet h1 { font-size:30px; max-width:none; }
+  .hm-sub { font-size:16px; }
+  .hm-iriswrap { width:164px; height:144px; right:-8px; }
+  .hm-iris { width:150px; height:150px; }
   .hm-eyecon { width:158px; height:158px; }
   /* stacked (single-column) card is portrait-ish → bias the cover crop to the
      mascot side so she stays in frame. */
@@ -477,8 +506,8 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-carousel { height:340px; }
 }
 @media (max-width:560px) {
-  .hm-greet h1 { font-size:37px; max-width:76%; }
-  .hm-sub { font-size:18px; max-width:63%; }
+  .hm-greet h1 { font-size:27px; max-width:76%; }
+  .hm-sub { font-size:15px; max-width:63%; }
   .hm-iriswrap { display:none; }
   /* shrink the split-hero feature card so the front card fits the narrow viewport */
   .aurora-home { --fcw:min(88vw,392px); --fch:272px; }
@@ -495,8 +524,6 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      legibility veil carries a stronger cream wash across the left ~66% (she stays visible
      on the right) — keeps the headline/sub WCAG-legible where they meet her. */
   .hm-greet-veil { background:linear-gradient(96deg, rgba(255,246,236,.92) 0%, rgba(255,246,236,.82) 44%, rgba(255,246,236,.42) 64%, rgba(255,246,236,0) 84%); }
-  .hm-lvl { max-width:62%; margin-top:20px; }
-  .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
   /* five-across on a phone leaves a ~58px slot, so the gap and the label ramp come down
      with it — the frame keeps showing five, which is the point of the pager */
   .hm-badges { --bgap:8px; }
@@ -525,6 +552,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    readable over the cropped video), so it goes. The Veo clip itself is untouched. */
 @media (max-width:640px) and (pointer:coarse) {
   .aurora-home { padding:14px 16px 26px; gap:14px; --fcw:min(88vw,392px); --fch:272px; }
+
+  /* THE DECK IS ONE COLUMN — status bar, greeting, board — and then the chest and the rank
+     strip share the last row: two ~48-60px objects abreast cost one row of the 844px fold
+     instead of two. Every pixel of padding and gap here comes out of the same budget the
+     status bar (134px), the three quest rows (198px) and the chest (60px) already spent. */
+  .hm-deck { gap:10px; padding:10px; border-radius:22px; }
+  .hm-deck-mid { grid-template-columns:1fr; gap:10px; }
+  .hm-deck-foot { grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:10px; }
 
   /* top bar: the level pill overlapped the wordmark because its text wrapped inside a
      999px pill (measured 64px tall — two 25px lines). Rank titles run to "Senior
@@ -562,14 +597,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      The Veo asset itself is untouched — desktop still plays it. */
   .hm-eyeconloop { display:none; }
   .hm-greet-veil { display:none; }
-  .hm-greet-body { padding:18px 18px 22px; }
-  .hm-greet h1 { font-size:clamp(27px,7.4vw,33px); max-width:none; }
-  .hm-sub { font-size:16.5px; margin-top:11px; max-width:none; line-height:1.4; }
-  .hm-lvl { margin-top:18px; max-width:none; }
-  .hm-lvl .hm-lr { flex-direction:row; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:9px; }
-  .hm-lvl .hm-lr b { font-size:15.5px; }
-  .hm-lvl .hm-lr .hm-z { font-size:13px; }
-  .hm-lvbar { height:13px; }
+  .hm-greet-body { padding:14px 15px 15px; }
+  .hm-greet h1 { font-size:clamp(21px,5.6vw,25px); max-width:none; }
+  .hm-sub { font-size:14.5px; margin-top:8px; max-width:none; line-height:1.38; }
 
   /* streak tile + vaults: trim the padding that made every card read oversized */
   .hm-streak { padding:18px 20px; }
@@ -591,8 +621,12 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    stack — side-by-side is what keeps a 430px-tall page short. */
 @media (max-height:480px) and (pointer:coarse) {
   .aurora-home { padding:12px 16px 20px; gap:12px; --fcw:min(46vw,340px); --fch:219px; }
-  .hm-hero { grid-template-columns:1.7fr 1fr; gap:12px; }
-  .hm-lower { gap:12px; }
+  /* Two columns restored over the 900px stack — a 844-932px landscape phone matches that
+     block, and side-by-side is exactly what keeps a 390-430px-tall page short. */
+  .hm-deck { gap:10px; padding:10px; border-radius:22px; }
+  .hm-deck-mid { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:10px; }
+  .hm-deck-foot { grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:10px; }
+  .hm-record { grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:12px; }
 
   .hm-top { flex-wrap:wrap; gap:8px 10px; }
   .hm-topr { min-width:0; gap:10px; }
@@ -604,13 +638,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-medal { width:26px; height:26px; } .hm-medal .ico { width:16px; height:16px; }
   .hm-pool-seg button { padding:5px 10px; font-size:12px; }
 
-  .hm-greet { padding:16px 20px 14px; }
-  .hm-greet h1 { font-size:clamp(22px,2.9vw,27px); max-width:62%; }
-  .hm-sub { font-size:14.5px; margin-top:7px; max-width:56%; line-height:1.35; }
-  .hm-lvl { margin-top:11px; max-width:min(62%,330px); }
-  .hm-lvl .hm-lr { flex-direction:row; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:7px; }
-  .hm-lvl .hm-lr b { font-size:14px; } .hm-lvl .hm-lr .hm-z { font-size:12px; }
-  .hm-lvbar { height:11px; }
+  .hm-greet { padding:13px 16px; border-radius:16px; }
+  .hm-greet h1 { font-size:clamp(18px,2.3vw,21px); max-width:none; }
+  .hm-sub { font-size:13px; margin-top:6px; max-width:none; line-height:1.35; }
   /* phone landscape: same as portrait — no living mascot on the greeting card. This tier
      keeps the desktop-style card, so hide BOTH the full-bleed Veo loop and the fallback
      logo that would otherwise show bottom-right (user directive 2026-07-20). */
@@ -659,7 +689,7 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
 @media (prefers-reduced-motion: reduce) {
   .aurora-home .hm-iris, .aurora-home .hm-eyecon, .aurora-home .hm-eyecon-img, .aurora-home .hm-eyecon-halo,
   .aurora-home .hm-iriswrap::before, .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
-  .aurora-home .hm-lvbar > span::after, .aurora-home .hm-big::before,
+  .aurora-home .hm-big::before,
   .aurora-home .hm-panel--lumen,
   .aurora-home .hm-caldot, .aurora-home .hm-calday[data-state="today"] .hm-caldot { animation:none !important; }
 }
@@ -671,7 +701,6 @@ html[data-motion="reduce"] .aurora-home .hm-iriswrap::before,
 html[data-motion="reduce"] .aurora-home .hm-flame,
 html[data-motion="reduce"] .hm-flame .core,
 html[data-motion="reduce"] .hm-streak::before,
-html[data-motion="reduce"] .aurora-home .hm-lvbar > span::after,
 html[data-motion="reduce"] .aurora-home .hm-big::before,
 html[data-motion="reduce"] .aurora-home .hm-panel--lumen,
 html[data-motion="reduce"] .aurora-home .hm-caldot,
@@ -816,7 +845,7 @@ html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldo
 }
 
 /* ⚠ DECORATION ONLY. The countdowns are NOT here and must never be: see the header of this
-   block, and the assertion in _home_hud_assert.mjs that waits 1.4s under reduce and
+   block, and the assertion in home_hud_assert.mjs that waits 1.4s under reduce and
    requires [data-testid="boost-timer"] to have CHANGED. */
 @media (prefers-reduced-motion: reduce) {
   .aurora-home .hm-boost::after { animation:none !important; }

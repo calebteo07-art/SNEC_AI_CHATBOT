@@ -1,8 +1,3 @@
-/* ⚠ NAMED WITH A LEADING UNDERSCORE ON PURPOSE, AND ONLY TEMPORARILY.
-   start-harness.sh skips `_`-prefixed files, so this harness is NOT gated yet — it is
-   RED by design until Task 9 wires the deck into Dashboard.tsx. Task 9 renames it to
-   `home_hud_assert.mjs`, which arms it. Run it directly by path in the meantime. */
-
 /* The Home HUD gate (plan 2026-08-05 §Task 4). Written BEFORE the deck exists, so it fails
    for the right reason and Tasks 5-10 have a target rather than an argument.
 
@@ -46,8 +41,8 @@
    or the box is broken (ERR_NETWORK_IO_SUSPENDED, boot stalls). The guards at the bottom
    turn a throw or an unhandled rejection into a legible FAIL line for exactly that reason.
 
-   Run:  node frontend/tests/_home_hud_assert.mjs [base]
-         (HARNESS_PORT=3999 node frontend/tests/_home_hud_assert.mjs  — concurrent sessions)
+   Run:  node frontend/tests/home_hud_assert.mjs [base]
+         (HARNESS_PORT=3999 node frontend/tests/home_hud_assert.mjs  — concurrent sessions)
 */
 import { chromium } from "playwright";
 import { student, seededContext, J } from "./_mocks.mjs";

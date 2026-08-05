@@ -1050,7 +1050,11 @@ html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; 
    their own `p` / `button` descendants at (0,2,0) and are declared LATER in this file, so a
    tie would hand this component's colours to whichever screen it happens to be on. */
 .aurora-api-error p.aurora-api-error-msg { margin: 0; color: var(--on-rose); font-size: 14.6px; font-weight: 500; }
-.aurora-api-error button.aurora-api-error-btn { flex: none; padding: 9px 17px; border-radius: 999px; border: none; background: var(--on-rose-2); color: #FFF; font-family: inherit; font-size: 14.6px; font-weight: 700; line-height: 1.2; cursor: pointer; }
+/* min-height is the 44px TOUCH FLOOR, not styling: 9px of padding around a 17.5px line is a
+   36px control, and this is the one control a student has left when a read has failed. It
+   went unmeasured for as long as no touch route rendered the notice in its default state —
+   the Home deck's quest board is the first, so mobile_audit sees it now. */
+.aurora-api-error button.aurora-api-error-btn { flex: none; min-height: 44px; padding: 9px 17px; border-radius: 999px; border: none; background: var(--on-rose-2); color: #FFF; font-family: inherit; font-size: 14.6px; font-weight: 700; line-height: 1.2; cursor: pointer; }
 .aurora-api-error button.aurora-api-error-btn:hover { background: var(--on-rose); }
 /* Centred in an otherwise empty feature (Home, the League, the topic picker). */
 .aurora-api-error--page { max-width: 520px; margin: clamp(24px, 8vh, 72px) auto; }
