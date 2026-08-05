@@ -141,3 +141,34 @@ def test_a_claim_never_trusts_the_body_for_identity():
          patch("tools.api.routers.home.app_today", return_value=TODAY):
         client.post("/api/home/chest/claim", json={"student_id": "victim"}, cookies=_cookies("ann"))
     assert gp.call_args.args[0] == "ann"
+
+
+# ── the adaptive quest stays inside the student's own discipline ──────────────────────
+# The unit rules live in tests/gamification/test_quests.py. What is only testable here is
+# that the ROLE actually reaches them: the router reads student_profiles.role (the
+# discipline — OA/PSA/OT — not the account role), and a router that forgot to pass it
+# would leave every unit test green while shipping the original defect.
+
+def _titles(profile: dict) -> list[str]:
+    with patch("tools.api.routers.home.get_profile", AsyncMock(return_value=profile)), \
+         patch("tools.api.routers.home.app_today", return_value=TODAY):
+        r = client.get("/api/home", cookies=_cookies())
+    return [q["title"] for q in r.json()["quests"]]
+
+
+def test_an_oa_is_never_handed_an_ot_topic_through_the_endpoint():
+    # Exactly what shipped: an OA/PSA whose retention_scores picked up OT/OSCE entries.
+    titles = _titles(_profile(role="OA", weak_topics=["oct_macula", "Cirrus_Oct_Macular_Scan"]))
+    assert not any("OCT" in t or "Cirrus" in t for t in titles), titles
+
+
+def test_an_ot_is_handed_an_ot_topic_through_the_endpoint():
+    titles = _titles(_profile(role="OT", weak_topics=["oct_macula"]))
+    assert any("Macular OCT" in t for t in titles), titles
+
+
+def test_a_quest_title_is_never_a_raw_slug():
+    # "Clear 2 decks in Cirrus_Oct_Macular_Scan" — the underscore is the tell that a raw
+    # key reached the student instead of its display label.
+    for title in _titles(_profile(role="OA", weak_topics=["distance_va__hard"])):
+        assert "_" not in title, title

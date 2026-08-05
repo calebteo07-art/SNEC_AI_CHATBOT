@@ -5,14 +5,25 @@ weak_topics), and its progress is a pure function of the daily activity tally. T
 deliberate. A stored quest with a stored progress counter is two things that can
 disagree, and the one that disagrees is always the one the student is looking at.
 
-No `role` argument, deliberately: weak_topics already comes from the student's own
-retention scores, so it is role-correct by construction. Threading a role through to
-pick nothing would be a parameter every caller must supply and no line of code reads.
+⚠ `role` IS REQUIRED, and the comment that used to sit here claiming otherwise ("weak_topics
+already comes from the student's own retention scores, so it is role-correct by
+construction") was WRONG — it shipped an OA/PSA the quest "Clear 2 decks in
+Cirrus_Oct_Macular_Scan". retention_scores mixes TWO namespaces: the closed flashcard one
+(role-pooled, client-validated by is_known_tag) and RAW OSCE CASE TOPICS, written
+server-side by cases.py and never pooled at all. weak_topics is every retention key under
+WEAK_THRESHOLD, so it inherits both.
+
+That made the adaptive quest wrong twice over, and the second one is worse than the first:
+an OSCE-sourced topic is not merely off-syllabus, it is UNWINNABLE. The daily tally's
+`topics` map is keyed by the same string update_profile wrote the retention entry under,
+and only a completed flashcard deck ever writes one — so the bar reads 0/N forever.
 
 Exactly one quest of each kind per day, so the board never shows three of the same shape.
 """
 import hashlib
 from dataclasses import dataclass
+
+from tools.flashcards.flashcard_sets import DIFFICULTIES, label_for, topics_for
 
 QUEST_KINDS = ("adaptive", "breadth", "stretch")
 
@@ -33,7 +44,7 @@ _REWARD = {"adaptive": 40, "breadth": 30, "stretch": 50}
 @dataclass(frozen=True)
 class Quest:
     kind: str      # one of QUEST_KINDS
-    title: str     # student-facing, e.g. "Clear 2 decks in Gonioscopy"
+    title: str     # student-facing, e.g. "Clear 2 decks in Distance Visual Acuity"
     metric: str    # "flashcards" | "osce" | "tutor" | "xp" | "topic:<key>"
     target: int
     reward_xp: int
@@ -49,18 +60,51 @@ def _seed(student_id: str, day) -> int:
     return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
 
 
-def daily_quests(student_id: str, day, weak_topics: list[str],
+def _bare_key(stored: str) -> str:
+    """The flashcard topic a retention entry refers to, with any difficulty suffix removed.
+
+    Both forms reach retention_scores — a plain topic key and a "<topic>__<difficulty>" set
+    key (flashcard_sets.make_set_key) — so both have to normalise to the same thing before
+    they can be matched against a role's pools. Only a KNOWN difficulty is stripped: a bare
+    `rpartition("__")` would blank every unsuffixed tag. Same rule as
+    topic_crosswalk._strip_difficulty, which exists for the same reason.
+    """
+    key = (stored or "").strip().lower()
+    head, sep, tail = key.rpartition("__")
+    return head if (sep and head and tail in DIFFICULTIES) else key
+
+
+def _in_scope(weak_topics: list[str], role: str) -> list[str]:
+    """The weak topics this role actually studies, in the order given.
+
+    Returns the STORED keys, not normalised ones — see the metric note in daily_quests.
+    """
+    allowed = {key for key, _ in topics_for(role)}
+    return [t for t in weak_topics if _bare_key(t) in allowed]
+
+
+def daily_quests(student_id: str, day, weak_topics: list[str], role: str,
                  daily_goal: int = 100) -> list[Quest]:
     """Today's three quests — one adaptive, one breadth, one stretch."""
     seed = _seed(student_id, day)
 
-    # Adaptive: the student's weakest topic. A brand-new student has no retention scores
-    # yet, so it degrades to a plain flashcard quest rather than vanishing — the set is
-    # always three.
-    if weak_topics:
-        topic = weak_topics[seed % len(weak_topics)]
+    # Adaptive: the student's weakest topic THAT THIS ROLE STUDIES. Both the empty case (a
+    # brand-new student with no retention scores) and the all-out-of-scope case (a student
+    # whose only weak entries came from OSCE stations) degrade to a plain flashcard quest
+    # rather than vanishing — the set is always three.
+    #
+    # ⚠ THE METRIC CARRIES THE STORED KEY VERBATIM, never _bare_key(). update_profile writes
+    # the retention entry and the daily tally from the SAME `topic` argument in the same
+    # call, so the stored key IS the tally key by construction. Normalising here would
+    # silently break that identity and reintroduce the unwinnable quest this scope check
+    # exists to remove. Only the LABEL is normalised, because a difficulty suffix is display
+    # noise and not part of the topic's name.
+    in_scope = _in_scope(weak_topics, role)
+    if in_scope:
+        topic = in_scope[seed % len(in_scope)]
         n = _ADAPTIVE_TARGETS[(seed >> 8) % len(_ADAPTIVE_TARGETS)]
-        adaptive = Quest("adaptive", f"Clear {n} deck{'' if n == 1 else 's'} in {topic.title()}",
+        adaptive = Quest("adaptive",
+                         f"Clear {n} deck{'' if n == 1 else 's'} in {label_for(role, _bare_key(topic))}",
                          f"topic:{topic}", n, _REWARD["adaptive"])
     else:
         n = _ADAPTIVE_TARGETS[(seed >> 8) % len(_ADAPTIVE_TARGETS)]
