@@ -1018,3 +1018,237 @@ html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !
   .aurora-home .hm-qbar > span { transition:none !important; }
 }
 html[data-motion="reduce"] .aurora-home .hm-qbar > span { transition:none !important; }
+
+/* ══════════════════ THE DAILY CHEST (.hm-chest — ChestTile.tsx) ══════════════════
+   The deck's payoff, on the MEDALLION rung — one rung above the pills it sits among and one
+   below the plates it hangs under, which is the whole reason the ladder has four depths.
+
+   COLOUR — the deck's existing meanings, no fifth system:
+   · GOLD MEANS LUMENS, so a sealed chest wears the HUD boost chip's gold VERBATIM
+     (#DFA828 under a hard stop, ink #3A2600) — one gold, one certified ink, three objects.
+   · SPENT IS STONE. Once opened it keeps the same material and loses the metal: a
+     desaturated lilac-grey, with the drop it paid where "tap to open" used to be. Dimmed by
+     INK, never by opacity — a spent tile still has to be readable.
+   Measured against the DARKER band of each hard-stop fill (a gradient-only box has no
+   computed background-color, so a contrast probe would walk past it to the page):
+     #3A2600 on gold #DFA828 = 6.70:1        --hink #2B2431 on stone #E6E1EA = 11.7:1
+     #5A5265 on stone #E6E1EA = 5.8:1        #7A1128 on the error #FBE3E7 = 8.9:1
+
+   ⚠ THE SHAKE RIDES THE ART, NEVER THE TILE, for two independent reasons. A running
+   animation on `transform` outranks a normal declaration, so a shake on the tile would eat
+   .struck-medallion's :active press-depth — the one feedback that the object was hit. And a
+   whole tile shaking under a thumb is a vestibular cost the glyph pays for free.
+   ⚠ THE SHAKE IS translateX ONLY — no rotate, no skew. Both put a non-zero b/c term in the
+   computed matrix, which is what the deck's geometry bound fails: a rotated box reports a
+   bounding rect up to 1.41x its width and escapes an overflow sweep even under
+   overflow:hidden, because clipping stops the paint and not getBoundingClientRect. */
+.hm-chestslot { display:flex; flex-direction:column; gap:8px; min-width:0; }
+
+.hm-chest {
+  --lip-c:#9A6A08;
+  display:flex; align-items:center; gap:12px; text-align:left;
+  width:100%; min-height:70px; padding:10px 14px; border-radius:18px;
+  font:inherit; color:#3A2600;
+  background-color:#DFA828;
+  background-image:linear-gradient(180deg,#F5C63F 0%,#F5C63F 46%,#DFA828 46%);
+}
+.hm-chest[data-state="sealed"] { cursor:pointer; }
+/* In flight. A second POST is never what the student meant, and the button is disabled for
+   the whole mutation — a double-tap cannot fire two claims. */
+.hm-chest:disabled { opacity:.55; cursor:progress; }
+.hm-chest:focus-visible { outline:3px solid var(--violet-d); outline-offset:3px; }
+/* The spent/unknown tile is focusable only so the ceremony can hand focus back to it; it
+   must never show a ring for a click it cannot answer. */
+.hm-chest[data-state="spent"]:focus:not(:focus-visible),
+.hm-chest[data-state="unknown"]:focus:not(:focus-visible) { outline:none; }
+
+/* the glyph — three boxes, painted in DOM order, rotating nothing */
+.hm-chest-art { position:relative; flex:none; width:40px; height:36px; }
+.hm-chest-body, .hm-chest-lid, .hm-chest-lock { position:absolute; border:2px solid var(--mat-ink); }
+.hm-chest-body { left:0; bottom:0; width:100%; height:25px; border-radius:2px 2px 7px 7px;
+  background-color:#E8A81E; }
+.hm-chest-lid { left:0; top:0; width:100%; height:14px; border-radius:7px 7px 2px 2px;
+  background-color:#FFE9A8; }
+.hm-chest-lock { left:50%; margin-left:-4px; top:10px; width:9px; height:12px; border-radius:2px;
+  background-color:#FFE9A8; }
+
+.hm-chest-copy { display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+.hm-chest-e { font-family:var(--font-home); font-weight:800; font-size:10.5px;
+  letter-spacing:.08em; text-transform:uppercase; }
+.hm-chest-m { font-family:var(--font-home); font-weight:800; font-size:15px; line-height:1.2;
+  letter-spacing:-.01em; }
+
+/* SPENT + UNKNOWN share the stone. Unknown is the failed READ (chest === null): the tile
+   still exists, it just cannot say what is in it — and it is never a chest you can open
+   that has nothing to pay. It names the read and instructs the reload (apiError.ts owns
+   that sentence); the actionable button is deliberately not duplicated here, because a
+   /api/home failure already renders one on the quest board beside it. */
+.hm-chest[data-state="spent"], .hm-chest[data-state="unknown"] {
+  --lip-c:#B9B2C2; color:var(--hink);
+  background-color:#E6E1EA;
+  background-image:linear-gradient(180deg,#F2EEF5 0%,#F2EEF5 46%,#E6E1EA 46%);
+}
+.hm-chest[data-state="spent"] .hm-chest-e,
+.hm-chest[data-state="unknown"] .hm-chest-e { color:#5A5265; }
+.hm-chest[data-state="spent"] .hm-chest-lid, .hm-chest[data-state="spent"] .hm-chest-lock,
+.hm-chest[data-state="unknown"] .hm-chest-lid, .hm-chest[data-state="unknown"] .hm-chest-lock {
+  background-color:#F2EEF5; }
+.hm-chest[data-state="spent"] .hm-chest-body,
+.hm-chest[data-state="unknown"] .hm-chest-body { background-color:#C9C2D2; }
+.hm-chest[data-state="unknown"] .hm-chest-m { font-family:var(--font-sans); font-weight:600;
+  font-size:12.5px; line-height:1.35; }
+
+/* the sealed chest rattles — a long rest, then a short wobble, and translateX only */
+.hm-chest[data-state="sealed"] .hm-chest-art { animation:hm-chest-shake 3.4s ease-in-out infinite; }
+@keyframes hm-chest-shake {
+  0%,74%,100% { transform:translateX(0); }
+  78% { transform:translateX(-2.5px); }
+  82% { transform:translateX(2.5px); }
+  86% { transform:translateX(-2px); }
+  90% { transform:translateX(1.5px); }
+  95% { transform:translateX(-1px); }
+}
+
+/* The claim failed. The tile stays SEALED — the server granted nothing, so nothing is
+   revealed — and this says so out loud (role="alert" in the component). Its own opaque
+   surface, because it renders on whatever the deck is painted. */
+.hm-chest-err { margin:0; padding:7px 11px; border-radius:12px;
+  background-color:#FBE3E7; color:#7A1128;
+  font-family:var(--font-sans); font-weight:600; font-size:12.5px; line-height:1.4; }
+
+/* phone portrait: every pixel here comes out of the same 844px the status bar and the three
+   quest rows already spent. 60px is the floor, not a preference — the whole tile is the
+   claim control, so it is the 44px touch target. */
+@media (max-width:640px) and (pointer:coarse) {
+  .hm-chest { min-height:60px; padding:9px 12px; gap:11px; border-radius:16px; }
+  .hm-chest-art { width:36px; height:33px; }
+  .hm-chest-body { height:23px; } .hm-chest-lid { height:13px; }
+  .hm-chest-lock { top:9px; width:8px; height:11px; margin-left:-4px; }
+  .hm-chest-m { font-size:14px; }
+}
+/* phone landscape is WIDE + SHORT — trim height, keep the 44px floor */
+@media (max-height:480px) and (pointer:coarse) {
+  .hm-chest { min-height:52px; padding:7px 12px; gap:10px; }
+  .hm-chest-art { width:32px; height:29px; }
+  .hm-chest-body { height:20px; } .hm-chest-lid { height:11px; }
+  .hm-chest-lock { top:8px; width:7px; height:10px; margin-left:-3.5px; }
+  .hm-chest-e { font-size:10px; } .hm-chest-m { font-size:13.5px; }
+}
+
+/* ⚠ EVERYTHING INSIDE THE TILE, both signals. Deliberately a sweep rather than a list: the
+   gate reads animation-name off the tile AND every descendant, and a decoration added here
+   later must not be able to escape the freeze by being new. Nothing on this tile is
+   information — the countdowns live on the status bar and are never gated. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-home .hm-chest, .aurora-home .hm-chest * { animation:none !important; }
+}
+html[data-motion="reduce"] .aurora-home .hm-chest,
+html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important; }
+
+/* ══════════════════ THE CEREMONY (.hm-cer — ChestCeremony.tsx) ══════════════════
+   PORTALED TO <body>, so `.aurora-home`'s custom properties DO NOT REACH IT. Every value
+   below is literal and the font stack is pinned — an undefined font var resolves to Times,
+   and a struck object that cannot see --mat-ink loses its outline. This is the same
+   self-contained construction ApiErrorNotice and the League's `.lr` use.
+
+   THE SEQUENCE: the chest lands (0.18s) → the lid bursts off (0.56s) → the drop rises
+   (0.78s) → confetti (0.90s, fired from the component).
+
+   ⚠ EVERY BASE RULE IS THE FINAL STATE, and every keyframe starts from the hidden one with
+   `backwards` fill. That is what makes reduced motion an INSTANT REVEAL instead of a broken
+   one: kill the animations and the lid is already off (its base transform), the drop is
+   already up, and the burst — whose base is opacity:0 — simply never happens.
+   ⚠ NOTHING ROTATES OR SKEWS: translate, scale and opacity only, so this ceremony stays
+   legal under the deck's geometry bound wherever it is mounted. */
+.hm-cer {
+  position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:20px;
+  font-family:var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), system-ui, sans-serif;
+}
+.hm-cer-scrim { position:absolute; inset:0; background:rgba(20,13,32,.62);
+  animation:hm-cer-fade .28s ease-out backwards; }
+/* the struck plate, hand-built: a hard lip (zero blur) plus a second shadow carrying the
+   outline as SPREAD, then one blurred shadow for the ground — .struck-structural's recipe */
+.hm-cer-card {
+  position:relative; width:min(360px,100%); display:flex; flex-direction:column;
+  align-items:center; gap:16px; padding:24px 22px 20px; border-radius:24px; text-align:center;
+  border:2.5px solid #2A1F3D; background-color:#FFFAF0;
+  box-shadow:0 5px 0 0 #D9CDB6, 0 5px 0 2.5px #2A1F3D, 0 22px 44px -12px rgba(20,13,32,.55);
+  animation:hm-cer-pop .3s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+.hm-cer-card:focus { outline:none; }
+
+.hm-cer-chest { position:relative; flex:none; width:104px; height:92px;
+  animation:hm-cer-land .38s cubic-bezier(.34,1.56,.64,1) .18s backwards; }
+.hm-cer-body, .hm-cer-lid, .hm-cer-lock { position:absolute; border:2.5px solid #2A1F3D; }
+.hm-cer-body { left:0; bottom:0; width:100%; height:58px; border-radius:4px 4px 16px 16px;
+  background-color:#DFA828; box-shadow:0 4px 0 0 #9A6A08, 0 4px 0 2.5px #2A1F3D; }
+/* base = OPEN (the lid has already been thrown). The burst animates INTO this. */
+.hm-cer-lid { left:0; top:6px; width:100%; height:32px; border-radius:16px 16px 4px 4px;
+  background-color:#F5C63F; transform:translateY(-16px);
+  animation:hm-cer-lidburst .34s cubic-bezier(.34,1.56,.64,1) .56s backwards; }
+.hm-cer-lock { left:50%; margin-left:-9px; top:42px; width:18px; height:22px; border-radius:4px;
+  background-color:#F5C63F; }
+/* base = invisible, so reduced motion simply never sees a flash */
+.hm-cer-burst { position:absolute; left:50%; top:34px; width:150px; height:150px;
+  margin:-75px 0 0 -75px; border-radius:50%; opacity:0; pointer-events:none;
+  background:radial-gradient(closest-side, rgba(255,233,168,.95), rgba(245,198,63,0));
+  animation:hm-cer-flash .5s ease-out .58s backwards; }
+
+.hm-cer-drop { display:flex; flex-direction:column; gap:5px;
+  animation:hm-cer-rise .38s cubic-bezier(.34,1.56,.64,1) .78s backwards; }
+.hm-cer-eyebrow { margin:0; font-size:11px; font-weight:800; letter-spacing:.16em;
+  text-transform:uppercase; color:#6D6474; }
+.hm-cer-h { margin:0; font-size:26px; font-weight:800; line-height:1.14; letter-spacing:-.02em;
+  color:#2B2431; }
+.hm-cer-note { margin:0; font-family:var(--font-sans), system-ui, sans-serif; font-size:13.5px;
+  line-height:1.45; font-weight:500; color:#5A5265; }
+
+/* the pill rung, hand-built, in the board's claim green — GREEN IS COMPLETE, and this is
+   the last beat of a completed claim. Deliberately NOT animated in: an invisible control
+   that is still focusable is a real defect, and this is the dialog's only way out. */
+.hm-cer-go { min-height:44px; min-width:128px; padding:0 20px; border-radius:14px;
+  border:2px solid #2A1F3D; font-family:inherit; font-weight:800; font-size:15px;
+  letter-spacing:-.01em; color:#08331A; cursor:pointer;
+  background-color:#3FD177;
+  background-image:linear-gradient(180deg,#6BE49A 0%,#6BE49A 46%,#3FD177 46%);
+  box-shadow:0 2px 0 0 #1E8F4E, 0 2px 0 2px #2A1F3D; }
+.hm-cer-go:active { transform:translateY(2px); box-shadow:0 0 0 0 #1E8F4E, 0 0 0 2px #2A1F3D; }
+.hm-cer-go:focus-visible { outline:3px solid #6D28D9; outline-offset:3px; }
+
+@keyframes hm-cer-fade { from { opacity:0; } }
+@keyframes hm-cer-pop { from { opacity:0; transform:scale(.94) translateY(10px); } }
+@keyframes hm-cer-rise { from { opacity:0; transform:translateY(16px); } }
+@keyframes hm-cer-land {
+  0% { opacity:0; transform:translateY(-44px) scale(.9); }
+  64% { opacity:1; transform:translateY(3px) scale(1.05,.93); }
+  100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes hm-cer-lidburst {
+  0%,26% { transform:translateY(0); }
+  62% { transform:translateY(-32px) scale(1.06); }
+  100% { transform:translateY(-16px) scale(1); }
+}
+@keyframes hm-cer-flash {
+  0% { opacity:0; transform:scale(.4); }
+  35% { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.55); }
+}
+
+/* short viewports (landscape phones): the card must never need scrolling to reach its
+   own dismiss button */
+@media (max-height:480px) {
+  .hm-cer { padding:12px; }
+  .hm-cer-card { gap:11px; padding:16px 18px 14px; }
+  .hm-cer-chest { width:74px; height:66px; }
+  .hm-cer-body { height:42px; } .hm-cer-lid { height:23px; top:4px; transform:translateY(-11px); }
+  .hm-cer-lock { top:30px; width:14px; height:16px; margin-left:-7px; }
+  .hm-cer-h { font-size:21px; }
+  .hm-cer-note { font-size:12.5px; }
+}
+
+/* ⚠ UNSCOPED ON PURPOSE — this subtree lives on <body>, not under .aurora-home. Both
+   signals, and a sweep rather than a list so nothing added later escapes it. */
+@media (prefers-reduced-motion: reduce) {
+  .hm-cer, .hm-cer * { animation:none !important; }
+}
+html[data-motion="reduce"] .hm-cer, html[data-motion="reduce"] .hm-cer * { animation:none !important; }
