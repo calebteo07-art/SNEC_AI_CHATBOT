@@ -566,6 +566,57 @@ const measure = (p) => p.evaluate(() => {
         gap: +Math.max(0, count.getBoundingClientRect().left - chips.getBoundingClientRect().right).toFixed(1),
       };
     })(),
+    /* ── THE HEAD'S DEAD MIDDLE, and its ESCAPES ────────────────────────────────────────
+       The third object to be caught giving its elastic track to a left-aligned text box, and
+       the one the 2026-08-04 pass fixed at ≥1400 only: below that key `.tb-name` sat in the
+       `1fr` track, so on a 1366x768 laptop 365px — 40% — of a 914px head was nothing at all,
+       between the name and the first plate. Same defect, same band, one breakpoint down.
+
+       Measured with a text RANGE for the same reason `rowFill` is: `.tb-name` IS the elastic
+       track in the layout this catches, so its element rect fills the void it is supposed to
+       reveal and an element-rect version of this check reads ~0px of gap on the exact head
+       that produced the complaint.
+
+       ESCAPES is the other half and it is not optional. `.tb` sets `overflow: hidden`, so a
+       head whose objects overflow looks perfectly fine — the pips are simply cut off at the
+       band's edge — while getBoundingClientRect sees them leave. The viewport sweep cannot
+       help: an object escaping the band is still inside the window. This is the bound that
+       makes `minmax(0, max-content)` on the name track safe to key at 1024 rather than 1400,
+       because it is what fails if a division name ever outgrows its track. */
+    headFill: (() => {
+      const head = document.querySelector(".tb-head");
+      const name = document.querySelector(".tb-name");
+      if (!head || !name) return null;
+      const cs = getComputedStyle(head);
+      const h = head.getBoundingClientRect();
+      const L = h.left + parseFloat(cs.borderLeftWidth || "0") + parseFloat(cs.paddingLeft || "0");
+      const R = h.right - parseFloat(cs.borderRightWidth || "0") - parseFloat(cs.paddingRight || "0");
+      const rg = document.createRange();
+      rg.selectNodeContents(name);
+      const boxes = [
+        head.querySelector(".tb-crest")?.getBoundingClientRect(),
+        rg.getBoundingClientRect(),
+        ...[...head.querySelectorAll(".tb-pip")].map((e) => e.getBoundingClientRect()),
+        head.querySelector(".tb-mult")?.getBoundingClientRect(),
+        head.querySelector(".tb-help")?.getBoundingClientRect(),
+      ].filter((r) => r && r.width > 0).sort((a, b) => a.left - b.left);
+      // The name's RANGE is the unclipped text, which on an ellipsed name runs past the band.
+      // Escapes are therefore measured on the ELEMENTS, which is what actually draws.
+      const els = [...head.children, ...head.querySelectorAll(".tb-pip")];
+      let gap = 0, cursor = L;
+      for (const r of boxes) {
+        gap = Math.max(gap, Math.min(r.left, R) - cursor);
+        cursor = Math.max(cursor, Math.min(r.right, R));
+      }
+      return {
+        w: +(R - L).toFixed(1),
+        gap: +Math.max(0, Math.max(gap, R - cursor)).toFixed(1),
+        escapes: +Math.max(0, ...els.map((e) => {
+          const r = e.getBoundingClientRect();
+          return r.width > 0 ? Math.max(L - r.left, r.right - R) : 0;
+        })).toFixed(1),
+      };
+    })(),
     /* THE MODULE, as rendered AREA rather than as "the element exists". The chip it replaced
        was 44x22 in a band over 1000px wide, which is the size you give an accounting detail
        — and "make the lumens multiplier more obvious" was the report. */
@@ -854,6 +905,26 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     if (share > 0.34) {
       bad(`${at}: ${m.lensFill.gap}px of the ${m.lensFill.w}px lens strip is empty between the chips and the readout (${(share * 100).toFixed(0)}%, budget 34%)`);
     } else ok(`${at}: the lens strip's dead middle is ${m.lensFill.gap}px of ${m.lensFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
+  }
+
+  /* THE BAND IS NOT AN EMPTY BAR EITHER — the same budget again, on the head. It is the third
+     object to fail this way and the first two are already bounded above, which is precisely
+     why it is worth spending a third check on: "the elastic track is the left-aligned text
+     box" is not an incident, it is the mistake this layout keeps making. Flat 34% across the
+     whole matrix rather than banded — a phone head has five children in a 342px row and no
+     slack to strand, so it passes on geometry rather than on an exemption. */
+  if (!m.headFill) bad(`${at}: could not measure the tier band's head`);
+  else {
+    const share = m.headFill.gap / m.headFill.w;
+    if (share > 0.34) {
+      bad(`${at}: ${m.headFill.gap}px of the ${m.headFill.w}px tier band is empty (${(share * 100).toFixed(0)}%, budget 34%) — the head gave its elastic track to a text box again`);
+    } else ok(`${at}: the band's dead middle is ${m.headFill.gap}px of ${m.headFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
+    /* `.tb` clips, so this failure is INVISIBLE on screen: the road is simply cut off at the
+       band's edge and the viewport sweep sees nothing, because the band is inside the window.
+       The 0.5px tolerance is subpixel rounding, not slack. */
+    if (m.headFill.escapes > 0.5) {
+      bad(`${at}: the head's contents escape the band by ${m.headFill.escapes}px — .tb clips it, so this ships as a silently cut-off trophy road`);
+    } else ok(`${at}: nothing escapes the tier band (${m.headFill.escapes}px)`);
   }
 
   if (m.mainW !== null && m.root && m.mainW >= 1360 && m.mainW <= 2000) {

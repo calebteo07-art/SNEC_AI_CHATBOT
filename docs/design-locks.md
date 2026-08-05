@@ -1879,6 +1879,74 @@ the matrix. All three bounds **mutation-verified** by reintroducing the defects 
 fill fires at **49–82%** against the 85% floor, the badges at **95/105/105**, and the rhythm at
 **6/15/13 layout / −3px optical**.
 
+#### THE FOURTH DEAD MIDDLE 2026-08-05 — the fix was right and was keyed one tier too high
+
+A refinement *within* the lock above, and it changes exactly one of its criteria: **which object
+owns the head's elastic track**, at **≥1024** instead of only at **≥1400**.
+
+The pass above found the band stranding the same way the rung did and fixed it — but only inside
+`@media (min-width: 1400px)`. Below that key `.tb-name` still sat in the `1fr` track, so on a
+**1366×768 laptop — the most common desktop viewport there is — 365px of a 914px head was
+nothing at all**, between the division name and the first plate of the trophy road. **40% of the
+band.** The pips huddled against the multiplier chip at the far right. Fourth time for this one
+mistake, and the first three are all recorded above: *the elastic track was a left-aligned text
+box, not the object that looks better wider.*
+
+`grid-template-columns: auto minmax(0, max-content) minmax(min-content, 1fr) auto auto` plus the
+spread road and its filled rail now start at **≥1024**; the ≥1400 tier inherits them and renders
+**pixel-identically to before** (125.8px, 11% — verified, not assumed).
+
+**⚠ THE OLD RULE'S SAFETY ARGUMENT WAS WRONG, and moving it down is what exposed that.** It read
+*"`max-content` on the name is safe only here: this tier starts at 1400px"*, and *"this way the
+NAME ellipses first, which is the correct thing to lose"*. **Measured, it does not.** A
+`max-content` track is maximised **before** an `fr` track expands, so a 36-character name took
+515 of 914px and squeezed the road to **183px — under the five plates' own 252px minimum**, which
+drew them **straight through the multiplier chip**. Not an overflow (they never reach the band's
+edge, so an escape check cannot see it), and not visible either, because every object in the head
+is opaque. **The floor belongs on the ROAD, not on the name**: `minmax(min-content, 1fr)` inverts
+it, because the name track's base size is 0. Same pathological name now ellipses and the road
+holds at **256.9px**. Width was never the safety; the *give-way order* is.
+- ⚠ **The margin is real but it is not the guarantee.** `division_name` is a clamped index into
+  five server constants (`league.py`), so the worst case that can actually arrive is
+  **"Platinum" at 191px against ~560px of track**. That is why this is safe at 1024. The floor is
+  why it stays safe if that ever stops being true.
+- ⚠ **The landscape-phone tier is NOT a candidate and was not touched.** Its ~356px left column
+  cannot afford five labels — the lock above records two failed attempts at widening it, and the
+  `min-height: 620px` key keeps it out by construction.
+
+**Measured**: head dead middle **365.6px → 86.9px of a 914px head (40% → 10%)** at 1366×768 and at
+1024×700, **401.3px → 95.8px of 990px (41% → 10%)** at 1280×1024; with the longest name the server
+can actually send, **36% → 8/9%**. Unchanged above: **11%** at 1440×900 and 1489×838, **13%** at
+1920×1080. Phones untouched — 9% at 360, 16% at 390, 12% in landscape — so the budget below passes
+them on **geometry, not on an exemption**. The road under pressure holds at exactly its own
+minimum (**256 / 275.6px** against 252 / 272) with the name ellipsed, and **0px of collision and
+0px of escape on every cell measured**.
+
+**Gate**: `league_assert.mjs` — **424 assertions**, up from 407, and the two new ones run on every
+viewport in the matrix:
+- **the band's dead middle**, on the rung's own 34% budget — the third object to carry it, which
+  is the point: this mistake is not an incident, it is the one this layout keeps making;
+- **nothing escapes the band**, at 0.5px. `.tb` sets `overflow: hidden`, so this failure is
+  **invisible on screen** — the road is simply cut off at the band's edge — while
+  getBoundingClientRect sees it leave. The viewport sweep cannot help: an object escaping the
+  band is still inside the window. Same blind spot as the flank drawn under a plinth.
+
+Both **mutation-verified**, and the dead-middle one twice over: it fires at **40% / 41%** both
+against a re-injected pre-2026-08-05 head *and* against a real bundle of the old CSS (a stale
+server answered one run — the numbers it produced are exactly the baseline's, which is as honest
+a mutation as could be asked for). A road wider than its band fires the escape bound at
+**501.5px / 433.3px**. On the shipped build: **10% / 0.0px**.
+- ⚠ **That stale server is also the warning.** Running `league_assert` by hand against a `serve`
+  session skips the script's own `require_alive` guard, and a dying server reports a **false RED**
+  the same way a stranger's build reports a false green. Check the server before *and* after a
+  hand-run, or run it through `start-harness.sh`.
+
+**⚠ The two viewports this change is visible on are `laptop` 1366×768 and `five-four` 1280×1024**
+— the 914px head and the 990px one. Both were already in the matrix (the entry above added the
+second one hours earlier, for the stage rather than for the band), which is the only reason this
+could be measured before and after rather than argued about. **Everything ≥1400 renders
+pixel-identically**, because the rule it used to own now reaches it by inheritance.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.

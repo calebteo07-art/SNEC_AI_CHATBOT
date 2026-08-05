@@ -1561,7 +1561,30 @@
   .lb-count-sm { display: none; }
   .lb-count-lg { display: inline; }
   .lb-count { font-size: 12.5px; }
-  .tb-head { padding: 11px 14px; }
+  /* THE ROAD OWNS THE ELASTIC TRACK, and from HERE rather than from 1400 (2026-08-05).
+     The band stranded the same way the rung did, and the fix was keyed one tier too high:
+     `.tb-name` sat in the `1fr` track at every width below 1400, so a 914px head spent
+     **365px — 40% of itself — on nothing** between the name and the first plate, measured
+     at 1366x768 and at 1024. That is the lock's own "the elastic track is a left-aligned
+     text box, not the object that looks better wider", surviving one tier below the pass
+     that named it. Giving the track to the PIPS spreads the road across the void with an
+     object that already exists: no new element, no new hue, no new fact.
+     ⚠ THE FLOOR IS ON THE PIPS, not on the name — `minmax(min-content, 1fr)`, and this is the
+     correction that made the tier safe to key at 1024 at all. The ≥1400 version said a
+     `minmax(0, max-content)` name would "ellipse first, which is the correct thing to lose",
+     and MEASURED IT DOES NOT: a max-content track is maximised BEFORE an `fr` track expands,
+     so a 36-character name took 515 of 914px and squeezed the road to 183px — under the five
+     plates' own 252px minimum, which drew them straight through the multiplier chip. Not an
+     overflow (they never reach the band's edge, so an escape check cannot see it) and not
+     visible either, because everything in the head is opaque. A min-content FLOOR on the road
+     inverts it: the name track's base size is 0, so when the head runs out of room the NAME
+     gives way and ellipses — which is what the old comment claimed and what this now does.
+     The margin is not the safety here, but it is real: the name is one of five server
+     constants (league.py DIVISION_NAMES) and the longest, "Platinum", takes 191px of ~560. */
+  .tb-head {
+    grid-template-columns: auto minmax(0, max-content) minmax(min-content, 1fr) auto auto;
+    gap: 18px; padding: 11px 14px;
+  }
   .tb-name { font-size: 26px; }
   .tb-mult { padding: 6px 12px; }
   .tb-mult-n { font-size: 22px; }
@@ -1583,7 +1606,29 @@
      contrast probe can measure — so the ink goes dark and the plate keeps the fade. */
   .tb-pip[data-state="next"] { opacity: .58; }
   .tb-pip[data-state="next"] .tb-px { color: var(--ink); }
-  .tb-pips { gap: 6px; }
+  /* SPREAD, on a filled rail. Centred in an elastic track the five plates are a huddle in
+     the middle of a void; spread across it with the rail behind them they are a route with
+     your position on it. The filled length is the distance climbed: `--road` is
+     (division-1)/(TOP-1), set in TierBand from the same payload that draws the plates, so
+     the rail cannot disagree with what it runs under. 9px is the floor, not the spacing —
+     `space-between` only falls back to it when the track is tight. */
+  .tb-pips { justify-content: space-between; gap: 9px; }
+  .tb-pips::before, .tb-pips::after {
+    content: ""; position: absolute; top: 50%; height: 5px; border-radius: 999px;
+    transform: translateY(-50%); z-index: 0; pointer-events: none;
+  }
+  .tb-pips::before {
+    left: 10px; right: 10px;
+    background-color: rgba(42, 31, 61, .17);
+    box-shadow: inset 0 2px 0 rgba(42, 31, 61, .16), 0 1px 0 rgba(255, 255, 255, .55);
+  }
+  .tb-pips::after {
+    left: 10px; width: calc(var(--road, 0%) - 10px); min-width: 0;
+    background-color: var(--gold-lo);
+    background-image: linear-gradient(180deg, var(--gold-mid) 0%, var(--gold-mid) 45%,
+                                              var(--gold-lo) 45.01%, var(--gold-lo) 100%);
+    box-shadow: inset 0 -1px 0 rgba(122, 82, 6, .5);
+  }
   .lg-nm { font-size: 15.5px; }
   .lg-sub { font-size: 12px; }
   .lg-score { font-size: 15.5px; }
@@ -1779,44 +1824,14 @@
 @media (min-width: 1400px) and (min-height: 620px) {
   .lb-climb { max-width: 1180px; }
   .lb-chip { --chip-cap: 176px; }
-  /* THE BAND STRANDS THE SAME WAY THE RUNG DID. `.tb-name` sits in the `1fr` track, so at
-     1180 it absorbs ~700px of slack and the head becomes a title at the far left and three
-     controls at the far right with a void between. Giving the elastic track to the PIPS
-     instead centres the trophy road in it — the void is filled by an object that already
-     exists, with no new element, no new hue and no new fact on the page.
-     `max-content` on the name is safe only here: this tier starts at 1400px. */
-  /* `minmax(0, max-content)`, not bare `max-content`: the division name is server data, and a
-     bare max-content track refuses to shrink — a long one would crush the pips' `1fr` cell to
-     zero and push them outside the band. `.tb` clips, but getBoundingClientRect does not, so
-     that lands as an overflow failure rather than as a visible bug. This way the NAME ellipses
-     first, which is the correct thing to lose. */
-  /* 18, not 10: with the road SPREAD the first plate lands hard against the division name,
-     and the gap is what keeps the name a name rather than the road's first label. */
-  .tb-head { grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr) auto auto; gap: 18px; }
-  /* THE ROAD IS ACTUALLY A ROAD, and only here — this is the only tier where the pips own an
-     elastic track. Centred in ~700px of it they were five plates huddled in the middle of a
-     void with ~280px of band either side; spread across it with a rail behind them they are a
-     route with your position on it, and the void is gone because the object that already
-     belonged there now occupies it. The filled length is the distance climbed: `--road` is
-     (division-1)/(TOP-1), set in TierBand from the same payload that draws the rungs, so the
-     rail cannot disagree with the plates it runs under. */
-  .tb-pips { justify-content: space-between; gap: 9px; }
-  .tb-pips::before, .tb-pips::after {
-    content: ""; position: absolute; top: 50%; height: 5px; border-radius: 999px;
-    transform: translateY(-50%); z-index: 0; pointer-events: none;
-  }
-  .tb-pips::before {
-    left: 10px; right: 10px;
-    background-color: rgba(42, 31, 61, .17);
-    box-shadow: inset 0 2px 0 rgba(42, 31, 61, .16), 0 1px 0 rgba(255, 255, 255, .55);
-  }
-  .tb-pips::after {
-    left: 10px; width: calc(var(--road, 0%) - 10px); min-width: 0;
-    background-color: var(--gold-lo);
-    background-image: linear-gradient(180deg, var(--gold-mid) 0%, var(--gold-mid) 45%,
-                                              var(--gold-lo) 45.01%, var(--gold-lo) 100%);
-    box-shadow: inset 0 -1px 0 rgba(122, 82, 6, .5);
-  }
+  /* ⚠ THE HEAD'S ELASTIC TRACK IS NOT SET HERE ANY MORE (2026-08-05). It was — "the band
+     strands the same way the rung did" was found on this tier and fixed on this tier, under
+     a note saying `max-content` on the name was "safe only here: this tier starts at 1400px".
+     Width was the wrong safety argument. The name is a five-value server enum, not free text,
+     so what makes the track safe is the enum plus a measured bound — and keying it at 1400
+     left the SAME 40% void on the 1366x768 laptop, which is the most common desktop viewport
+     there is. The rule now lives in the ≥1024 tier and this one inherits it. The stage below
+     is what still belongs here. */
   /* The stage does NOT scale with the board. Past ~700 the champion's block goes back to
      being a 2:1 slab — the bar-chart shape the STRUCK pass exists to prevent — and the
      mass bound in league_assert is one-sided about width for exactly this reason. */
