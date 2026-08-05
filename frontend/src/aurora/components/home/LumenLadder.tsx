@@ -25,13 +25,21 @@ export function LumenLadder({ current = 0 }: { current?: number }) {
 
   /* One page's scroll distance, measured off the DOM rather than computed from
      clientWidth: five slots plus the five gaps between them. Deriving it from the box
-     width instead drifts by one gap per page and the frame ends up half a badge off. */
+     width instead drifts by one gap per page and the frame ends up half a badge off.
+     ⚠ MEASURED SUB-PIXEL, via getBoundingClientRect and never offsetLeft. The slot is
+     `(100% - 4*gap)/5`, so the badge pitch is fractional at any frame width that is not
+     itself a whole number — and offsetLeft ROUNDS. That rounding is a per-page error that
+     ACCUMULATES: on a 720.39px frame the true stride is 734.375 and offsetLeft reports
+     734, so page 4 is asked for 1.125px short of its own scroll-snap point and only
+     `scroll-snap-type: proximity` drags it home. Pages get further from their snap point
+     the longer the shelf gets, and a pager that relies on snapping to correct its own
+     arithmetic is one badge away from stopping between two pages. */
   const stride = useCallback(() => {
     const el = shelfRef.current;
     if (!el) return 0;
     const kids = el.children;
     return kids.length > PER_FRAME
-      ? (kids[PER_FRAME] as HTMLElement).offsetLeft - (kids[0] as HTMLElement).offsetLeft
+      ? kids[PER_FRAME].getBoundingClientRect().left - kids[0].getBoundingClientRect().left
       : el.clientWidth;
   }, []);
 

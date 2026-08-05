@@ -1,40 +1,33 @@
-/* GreetingHero — the warm greeting tile. The card's BASE LAYER is the ALWAYS-DEFAULT
-   living Eyecon Veo loop, full-bleed behind a soft legibility veil; a big rotating
-   teasing headline (accent word emphasised), the teasing sub, and the level-up XP bar
-   layer on top (no eyebrow / CTA row — stripped 2026-07-10 for a cleaner, bigger card).
+/* GreetingHero — the deck's HOST PANEL. The card's BASE LAYER is the ALWAYS-DEFAULT
+   living Eyecon Veo loop, full-bleed behind a soft legibility veil; a rotating teasing
+   headline (accent word emphasised) and the teasing sub layer on top.
    Never a student's custom render — that lives in Studio + the leaderboard
    (Custom-Eyecon lock amended 2026-07-10). The default <EyeconLogo> stays mounted
    beneath as the reduced-motion / no-video fallback. Presentational; the Dashboard
-   owns the greeting seed. */
+   owns the greeting seed.
+
+   ⚠ THE LEVEL / XP READOUT LEFT THIS CARD when the card moved onto the deck: the status
+   bar above it renders the SAME four numbers (level, rank, XP into level, XP to next),
+   and two readouts of one number are two chances to disagree. It took the <Lumen> coin
+   with it — the coin's specular ellipse carries an SVG `transform="rotate(-32 …)"`, which
+   getComputedStyle reports as a rotation matrix, and the deck's geometry bound fails
+   anything inside `.hm-deck` that rotates its own box (a rotated square reports a bounding
+   rect up to 1.41x its width and escapes an overflow sweep even under overflow:hidden).
+   That is why StatusBar / QuestBoard / ChestTile / RankStrip all carry the same warning. */
 import type { Greeting } from "@/aurora/lib/greeting";
 import { EyeconLogo } from "@/aurora/components/EyeconLogo";
 import { EyeconGreetingLoop } from "./EyeconGreetingLoop";
-import { Lumen } from "@/aurora/components/Lumen";
-import { XP_PER_LEVEL } from "@/lib/legacy/gamification";
 
 /* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
    The opaque baked-bg tile overlays the CSS-alive EyeconLogo, which stays beneath
    as the always-present fallback (null under reduced-motion / save-data / error). */
 const GREETING_LOOP = true;
 
-export function GreetingHero({
-  greeting,
-  level,
-  rank,
-  xpInLevel,
-  xpToNext,
-}: {
-  greeting: Greeting;
-  level: number;
-  rank: string;
-  xpInLevel: number;
-  xpToNext: number;
-}) {
+export function GreetingHero({ greeting }: { greeting: Greeting }) {
   // Split the title at the first occurrence of the accent word so it can be emphasised.
   const i = greeting.title.indexOf(greeting.emphasis);
   const pre = i >= 0 ? greeting.title.slice(0, i) : greeting.title;
   const post = i >= 0 ? greeting.title.slice(i + greeting.emphasis.length) : "";
-  const pct = Math.max(0, Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100)));
 
   return (
     <section className="hm-greet">
@@ -53,14 +46,6 @@ export function GreetingHero({
           {pre}{i >= 0 && <em>{greeting.emphasis}</em>}{post}
         </h1>
         <p className="hm-sub">{greeting.sub}</p>
-
-        <div className="hm-lvl">
-          <div className="hm-lr">
-            <b>{rank} <span>· Level {level}</span></b>
-            <span className="hm-z"><Lumen size={14} decorative /> {xpInLevel} / {XP_PER_LEVEL} Lumens · {xpToNext} to go</span>
-          </div>
-          <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
-        </div>
       </div>
     </section>
   );

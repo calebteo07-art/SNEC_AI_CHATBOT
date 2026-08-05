@@ -1,12 +1,21 @@
 "use client";
-/* AURORA Home — the warm-premium student dashboard. A bento of: the greeting hero
-   (ever-changing teasing line + level-up XP bar + Iris mascot), the daily-streak tile
-   with its month calendar, a 3D coverflow of the three entry points, and the Lumens
-   vault. All numbers read from one synced source (useProgress). */
+/* AURORA Home — the student's game HUD, in THREE ZONES:
+
+     .hm-top     the brand, the level chip and the Eyecon menu (unchanged)
+     .hm-deck    what is live RIGHT NOW — the status bar, the greeting host + today's
+                 quest board, the daily chest and the League standing. One struck plate.
+     .hm-record  what you have BUILT — the streak calendar and the Lumens vault.
+
+   The coverflow of the three entry points sits between them, outside both guards.
+
+   TWO READS, TWO UNKNOWNS, and neither one is ever painted as a zero: useProgress owns
+   who you are (level, XP, streak) and useHome owns what is live today (quests, chest,
+   boost, League). */
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
+import { useHome } from "@/hooks/useHome";
 import { rankForLevel } from "@/lib/rank";
 import { DAILY_XP_GOAL, XP_PER_LEVEL } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
@@ -14,6 +23,10 @@ import { pickGreeting, type GreetingCtx, type Track } from "@/aurora/lib/greetin
 import { HomeIconSprite, Icon } from "@/aurora/components/home/HomeIcons";
 import { Logo } from "@/aurora/Logo";
 import { GreetingHero } from "@/aurora/components/home/GreetingHero";
+import { StatusBar } from "@/aurora/components/home/StatusBar";
+import { QuestBoard } from "@/aurora/components/home/QuestBoard";
+import { ChestTile } from "@/aurora/components/home/ChestTile";
+import { RankStrip } from "@/aurora/components/home/RankStrip";
 import { StreakTile } from "@/aurora/components/home/StreakTile";
 import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
@@ -36,6 +49,17 @@ export function Dashboard() {
      REFETCH case honest the other way: real-if-stale numbers stay on screen (placeholderData
      holds them) rather than being replaced by an alarm. */
   const progressUnknown = progressFailed && !progress;
+
+  const { data: home, isError: homeFailed } = useHome();
+  /* The same idiom, for the deck's own read. `!home` keeps the REFETCH case honest the
+     same way: real-if-stale quests and chest stay on screen (placeholderData holds them)
+     rather than being replaced by an alarm.
+     It is NOT a guard AROUND the deck. GET /api/home degrades per-section by design, so an
+     unknown read hands every section null and each one renders its own "couldn't load" —
+     the board keeps its plate, the chest keeps its tile, and The League stays one tap away
+     rather than the whole deck vanishing over one failed fetch. */
+  const homeUnknown = homeFailed && !home;
+  const hud = homeUnknown ? null : home;
 
   /* Post-session debrief, inlined here (the Summary page is gone): a finished
      flashcard run lands on the Home with a one-shot flag → celebratory toast +
@@ -109,15 +133,26 @@ export function Dashboard() {
       {progressUnknown ? (
         <ApiErrorNotice cause="Couldn’t load your progress" className="aurora-api-error--page" />
       ) : (
-        <div className="hm-hero">
-          <GreetingHero
-            greeting={greeting}
+        /* THE DECK — what is live right now, on one struck plate. The status bar is the
+           only place the live clocks appear, and the streak numeral stays on the record's
+           tile below: one number, one owner, so two readouts can never disagree. */
+        <div className="hm-deck struck-structural">
+          <StatusBar
             level={level}
             rank={rank}
             xpInLevel={xpInLevel}
             xpToNext={xpToNext}
+            doneToday={detail?.done_today}
+            boost={hud?.boost ?? null}
           />
-          <StreakTile detail={detail} />
+          <div className="hm-deck-mid">
+            <GreetingHero greeting={greeting} />
+            <QuestBoard quests={hud?.quests ?? null} />
+          </div>
+          <div className="hm-deck-foot">
+            <ChestTile chest={hud?.chest ?? null} />
+            <RankStrip league={hud?.league ?? null} />
+          </div>
         </div>
       )}
 
@@ -126,7 +161,9 @@ export function Dashboard() {
       <FeatureCarousel />
 
       {!progressUnknown && (
-        <div className="hm-lower">
+        /* THE RECORD — what you have built. Slower than the deck, and below it. */
+        <div className="hm-record">
+          <StreakTile detail={detail} />
           <LumenLadder current={coinsEarned} />
         </div>
       )}

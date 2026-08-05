@@ -142,6 +142,25 @@ export async function mockApis(ctx, user) {
     ? r.fulfill(J({ config: avatarConfig }))
     : r.fulfill(J({ config: avatarConfig, axes: {}, customized: true })));
   await ctx.route("**/api/progress", (r) => r.fulfill(J(progress)));
+  /* Home's OTHER read. The deck (status bar, quest board, chest, rank strip) hangs off this
+     one, and without it every harness that merely PASSES THROUGH Home renders a deck with a
+     failure panel in the middle of it — the same trap the /api/leaderboard note below
+     describes, and it is worse here because GET /api/home degrades PER SECTION, so the page
+     still looks mostly right while asserting against a screen no student would see.
+     The three quests are deliberately one per state (claimable / claimed / in progress) so a
+     pass-through harness renders every row the board can draw; the standing matches
+     LEAGUE_ROWS, where Test Student is rank 5 of 10 and 430 XP behind rank 4. Harnesses that
+     need a different payload re-register this route AFTER seededContext and win. */
+  await ctx.route("**/api/home", (r) => r.fulfill(J({
+    quests: [
+      { kind: "adaptive", title: "Clear 2 decks in Glaucoma", target: 2, reward_xp: 40, progress: 2, complete: true, claimed: false },
+      { kind: "checkin", title: "Check in today", target: 1, reward_xp: 20, progress: 1, complete: true, claimed: true },
+      { kind: "station", title: "Finish an OSCE station", target: 1, reward_xp: 60, progress: 0, complete: false, claimed: false },
+    ],
+    chest: { claimed: false, key: "xp2x", label: "Double Lumens for an hour" },
+    boost: { multiplier: 1, until: null },
+    league: { rank: 5, pool_size: 10, promote_count: 3, division_name: "Silver", xp_to_promotion: 430 },
+  })));
   await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
   await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));
   await ctx.route("**/api/checkin/answer", (r) => r.fulfill(J({ correct: true, feedback: "The epithelium regenerates rapidly within 24-48 hours.", streak: 7 })));
