@@ -244,8 +244,11 @@ Because nothing is deleted, their selectors survive; each must be **re-run and r
 not assumed. A zero exit only means nothing that ran failed — the harness count is the
 gate.
 
-New: **`home_hud_assert.mjs`**, added to the CI gate list (the only ungated harness is
-`visual_sweep`; that list does not grow).
+New: **`home_hud_assert.mjs`**. It needs no registration — `scripts/start-harness.sh`
+*discovers* browser harnesses (any `frontend/tests/*.mjs` that is not `_`-prefixed and
+contains `from "playwright"`), and exclusion is opt-**out** via a `NOT_GATED` list
+holding only `visual_sweep.mjs`. So the harness is gated the moment it lands, and the
+`MIN_HARNESSES=15` floor guards against a collapsed discovery reading as green.
 
 It pins:
 
