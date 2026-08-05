@@ -87,7 +87,7 @@ const homePayload = () => ({
   ],
   chest: { claimed: false, key: "xp2x", label: SECRET },
   boost: { multiplier: 2, until: new Date(Date.now() + 25 * 60_000).toISOString() },
-  league: { rank: 7, pool_size: 24, promote_count: 3, division_name: "Silver", xp_to_promotion: 120 },
+  league: { rank: 7, pool_size: 24, promote_count: 3, division_name: "Volt", xp_to_promotion: 120 },
 });
 
 /* One authenticated phone boot. `hasTouch`/`isMobile` are not decoration: the phone tiers

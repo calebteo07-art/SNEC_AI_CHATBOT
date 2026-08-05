@@ -33,7 +33,7 @@
    A podium you cannot interact with is a picture of a leaderboard. */
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Lumen } from "@/aurora/components/Lumen";
-import { Crown, PLACE_METALS } from "./Metals";
+import { Crown, PLACE_TIERS } from "./Tiers";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
 export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef }: {
@@ -105,7 +105,7 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
             className="pod-slot"
             data-testid="podium-slot"
             data-place={place}
-            data-metal={PLACE_METALS[place]}
+            data-tier={PLACE_TIERS[place]}
             data-you={e.is_you || undefined}
             /* The stage sits INSIDE the promotion zone whenever the cut reaches it, and it has
                to say so. Three students standing above a gold region that starts at rank 4,

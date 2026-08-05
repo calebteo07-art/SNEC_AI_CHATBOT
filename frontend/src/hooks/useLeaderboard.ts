@@ -45,7 +45,7 @@ export interface LeaderboardData {
    *  a mirrored copy would drift the first time it is retuned, silently, because a wrong
    *  multiplier still renders. Defaults to 1 if an older server omits it. */
   division_multiplier: number;
-  /** The whole ladder, Bronze-first, for the trophy road in the rules sheet. Same source as
+  /** The whole ladder, Ember-first, for the trophy road in the rules sheet. Same source as
    *  the scalar above, in the same response, so the two cannot disagree. */
   division_multipliers: number[];
   pool_size: number;
@@ -58,7 +58,7 @@ export interface LeaderboardData {
  *  THROWS on a non-OK response. It used to degrade to a hardcoded empty board so the page
  *  could render before migration 008 landed — that migration has been applied since
  *  2026-07-30, and what the fallback left behind was worse than the gap it covered: a
- *  broken read painted a real-looking Bronze division with nobody in it, which a student
+ *  broken read painted a real-looking Ember division with nobody in it, which a student
  *  reads as "my cohort has no scores", not as "this failed". `isError` is what the screen
  *  needs to tell them to reload (see ApiErrorNotice). */
 export function useLeaderboard(role?: string | null) {

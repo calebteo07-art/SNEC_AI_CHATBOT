@@ -45,7 +45,7 @@ import {
   nextDivisionName, TOP_DIVISION,
 } from "@/aurora/leaderboard/league";
 import { TierBand } from "@/aurora/components/leaderboard/TierBand";
-import { METALS } from "@/aurora/components/leaderboard/Metals";
+import { TIERS } from "@/aurora/components/leaderboard/Tiers";
 import { Podium } from "@/aurora/components/leaderboard/Podium";
 import { LeagueRow, PromotionLine, PromotionZone } from "@/aurora/components/leaderboard/LeagueRow";
 import { RowSheet } from "@/aurora/components/leaderboard/RowSheet";
@@ -70,7 +70,7 @@ export function Leaderboard() {
   const entries = data?.entries ?? [];
   const roles = data?.roles ?? [];
   const division = data?.division ?? 1;
-  const metalIdx = Math.max(0, Math.min(TOP_DIVISION - 1, division - 1));
+  const tierIdx = Math.max(0, Math.min(TOP_DIVISION - 1, division - 1));
   const promoteCount = data?.promote_count ?? 0;
   const you = entries.find((e) => e.is_you);
   /* The scale every rung's gauge is drawn against: the top entry of whatever the server
@@ -197,7 +197,7 @@ export function Leaderboard() {
   }, []);
 
   /* After every hook, never before. A failed read has no division and no ranks, and the
-     defaults above would otherwise draw a complete-looking Bronze board captioned "No one's
+     defaults above would otherwise draw a complete-looking Ember board captioned "No one’s
      on the board yet" — a statement about the cohort, made from a network failure. */
   if (isError && !data) {
     return (
@@ -208,14 +208,14 @@ export function Leaderboard() {
   }
 
   return (
-    // data-metal drives the CANVAS as well as the band: the page field is tinted and striped
-    // in your own division's metal, so climbing re-skins the whole screen rather than one
+    // data-tier drives the CANVAS as well as the band: the page field is tinted and striped
+    // in your own division's colour, so climbing re-skins the whole screen rather than one
     // card. Same "hue is identity" rule the lock already carries, spent on the largest
     // surface available instead of the smallest.
-    <div className="lb-climb" data-testid="leaderboard-root" data-metal={METALS[metalIdx]}>
+    <div className="lb-climb" data-testid="leaderboard-root" data-tier={TIERS[tierIdx]}>
       <TierBand
         division={division}
-        divisionName={data?.division_name ?? "Bronze"}
+        divisionName={data?.division_name ?? "Ember"}
         multiplier={data?.division_multiplier ?? 1}
         multipliers={data?.division_multipliers ?? []}
         chase={chase}

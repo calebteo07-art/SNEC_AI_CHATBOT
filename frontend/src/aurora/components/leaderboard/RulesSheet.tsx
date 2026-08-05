@@ -59,8 +59,10 @@ export function RulesSheet({
             even on a quiet week.
           </li>
           <li>
-            <strong>Five divisions:</strong> Bronze → Silver → Gold → Platinum → Diamond.
-            You&rsquo;re only ever ranked against people in your own division.
+            {/* The ladder is named for light, and so is the currency — worth saying once, here,
+                where a student comes to find out what the words mean. */}
+            <strong>Five divisions:</strong> Ember → Volt → Solar → Nova → Prism. Each one is
+            brighter than the last, and you&rsquo;re only ever ranked against people in your own.
           </li>
           <li>
             <strong>Every division pays more.</strong> Your division multiplies the Lumens you

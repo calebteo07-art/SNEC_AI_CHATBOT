@@ -856,7 +856,7 @@ await navCtx.route("**/api/leaderboard**", (r) => {
   const entries = rows.map((e, i) => ({ ...e, rank: i + 1, division: 2, rank_delta: i % 3 === 0 ? null : 1 }));
   return r.fulfill(JSON_OK({
     entries, you_hidden: false, display_name: null, roles: ["OA", "OT"],
-    division: 2, division_name: "Silver", pool_size: 7, promote_count: 3,
+    division: 2, division_name: "Volt", pool_size: 7, promote_count: 3,
     division_multiplier: 1.1, division_multipliers: [1, 1.1, 1.25, 1.5, 2],
   }));
 });

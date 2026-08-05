@@ -9,18 +9,20 @@ from tools.gamification.league import (
 )
 
 
-def test_five_divisions_bronze_to_diamond():
+def test_five_divisions_ember_to_prism():
+    # The ladder of light, renamed 2026-08-06 from the five metals. Pinned here as the ORDER
+    # as well as the set: the multiplier list and every board tint index off the same position.
     assert [name for _, name in DIVISIONS] == [
-        "Bronze", "Silver", "Gold", "Platinum", "Diamond"]
+        "Ember", "Volt", "Solar", "Nova", "Prism"]
     assert TOP_DIVISION == 5
 
 
 def test_division_name_clamps_out_of_range():
-    assert division_name(1) == "Bronze"
-    assert division_name(5) == "Diamond"
-    assert division_name(0) == "Bronze"     # never crash on bad data
-    assert division_name(99) == "Diamond"
-    assert division_name(None) == "Bronze"  # pre-migration: column absent
+    assert division_name(1) == "Ember"
+    assert division_name(5) == "Prism"
+    assert division_name(0) == "Ember"     # never crash on bad data
+    assert division_name(99) == "Prism"
+    assert division_name(None) == "Ember"  # pre-migration: column absent
 
 
 @pytest.mark.parametrize("pool,expected", [
@@ -66,7 +68,7 @@ def test_close_week_top_division_places_instead_of_promoting():
     rows = close_week(_standings(("a", 900), ("b", 800), ("c", 700), ("d", 600)),
                       division=5)
     assert [r["outcome"] for r in rows] == ["placed", "placed", "placed", "held"]
-    assert all(r["next_division"] == 5 for r in rows)  # nobody leaves Diamond
+    assert all(r["next_division"] == 5 for r in rows)  # nobody leaves Prism
 
 
 def test_close_week_empty_pool_is_no_rows_not_a_crash():

@@ -37,7 +37,7 @@
      either one alone would silently drop three students.
    · the tier band is made of the division's METAL, and the ink on it is readable. Five
      distinct metals sampled as PAINT, not as data attributes — the old check read
-     `data-metal` off the DOM, which would have passed on five identical grey pips.
+     `data-tier` off the DOM, which would have passed on five identical grey pips.
    · ZERO baked raster on the board. The four deleted webps are why the old podium drifted;
      this fails the moment someone reintroduces one.
    · the rules still exist and still state the rules — they moved behind the (?), and a
@@ -101,12 +101,12 @@ const ENTRIES = NAMES.map((name, i) => ({
   rank_delta: i === 0 || i === 4 ? null : i % 4 === 1 ? 3 : i % 4 === 2 ? -2 : 0,
 }));
 
-/* The real ladder, so the board under test pays what the server pays. Silver is 1.1x — a
+/* The real ladder, so the board under test pays what the server pays. Volt is 1.1x — a
    round 2x here would make the chip and the road agree with each other and with nothing else. */
 const LADDER = [1, 1.1, 1.25, 1.5, 2];
 const BOARD = {
   entries: ENTRIES, you_hidden: false, display_name: null, roles: ["OA", "OT"],
-  division: 2, division_name: "Silver", pool_size: 30, promote_count: 3,
+  division: 2, division_name: "Volt", pool_size: 30, promote_count: 3,
   division_multiplier: LADDER[1], division_multipliers: LADDER,
 };
 const PROMOTE = BOARD.promote_count;
@@ -529,10 +529,54 @@ const measure = (p) => p.evaluate(() => {
       return next ? Number(next.textContent) : null;
     })(),
 
-    /* The tier band. Sampled as PAINT: the previous harness read `data-metal` off five list
+    /* The tier band. Sampled as PAINT: the previous harness read `data-tier` off five list
        items, which would pass just as happily on five identical grey dots. */
-    bandMetal: document.querySelector(".tb")?.dataset.metal ?? null,
+    bandTier: document.querySelector(".tb")?.dataset.tier ?? null,
     bandBg: (() => { const el = document.querySelector(".tb-head"); return el ? getComputedStyle(el).backgroundColor : null; })(),
+    /* THE CONSOLE (2026-08-06). The readout row was white for four passes and the head read as
+       a letterbox of two pale strips above a cream deck and a white ladder — "too bad and
+       ugly". Dark is what gives the card a base, and it is the one property here that a later
+       pass can revert by accident: three of the four inks on this row are cut FOR the dark fill
+       (--con-ink is 8.9:1 here and 1.9:1 on white), so a white strip does not just look like
+       the old card, it silently ships three sub-AA labels. The ink probe catches the second
+       half; this catches the first. */
+    readoutBg: (() => { const el = document.querySelector(".tb-readout"); return el ? getComputedStyle(el).backgroundColor : null; })(),
+    /* LAYER BOOKKEEPING. The canvas's own comment has warned since the ARCADE pass that
+       `background-repeat` carries one value per image layer and that "miscounting here
+       silently tiles a bloom across the page" — a warning is not a check, and the 08-06 pass
+       re-cut the stack from eight blooms to five.
+       ⚠ COMPARING THE TWO LENGTHS IS VACUOUS, which is how the first version of this was
+       written. Chrome CYCLES a short background-repeat list up to the layer count before
+       reporting it, so the computed lengths always agree no matter what was authored — and the
+       shorthand's final colour-only layer counts as an image layer of `none`, so "six
+       gradients" computes as seven. What a cycled list actually does is slide `repeat` onto the
+       WRONG LAYER, so that is what this reads: the one repeating value must land on the one
+       repeating gradient. Adding a bloom without adding a `no-repeat` moves the stripe and
+       leaves `repeat` behind, and this fires.
+       Split on top-level commas, counting parens — a lookahead cannot do it, because every
+       layer contains rgba() and nested brackets of its own. */
+    bgLayers: (() => {
+      const el = document.querySelector(".aurora-main");
+      if (!el) return null;
+      const cs = getComputedStyle(el);
+      const split = (s) => {
+        const out = []; let depth = 0, cur = "";
+        for (const ch of s || "") {
+          if (ch === "(") depth++;
+          else if (ch === ")") depth--;
+          if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; } else cur += ch;
+        }
+        if (cur.trim()) out.push(cur.trim());
+        return out;
+      };
+      const img = split(cs.backgroundImage);
+      const rep = split(cs.backgroundRepeat);
+      return {
+        n: img.length,
+        tiling: img.map((v, i) => (/^repeating-/.test(v) ? i : -1)).filter((i) => i >= 0),
+        repeated: rep.map((v, i) => (v === "repeat" ? i : -1)).filter((i) => i >= 0),
+      };
+    })(),
     pips: [...document.querySelectorAll(".tb-pip")].map((el) => {
       const cs = getComputedStyle(el);
       const r = el.getBoundingClientRect();
@@ -882,7 +926,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
 
     // Three distinct metals, sampled as PAINT. `data-place` would pass on three grey blocks.
     const metals = new Set(m.podiumBlocks.map((s) => s.bg));
-    if (metals.size !== 3) bad(`${at}: the three places paint ${metals.size} distinct colour(s) — gold, silver and bronze must be materials, not labels`);
+    if (metals.size !== 3) bad(`${at}: the three places paint ${metals.size} distinct colour(s) — first, second and third must be materials, not labels`);
     else ok(`${at}: the three places wear three distinct metals`);
 
     /* THE CHAMPION WEARS THE BIGGEST BADGE (2026-08-05). Not decoration — it guards the stage's
@@ -1150,7 +1194,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   if (!m.deck) bad(`${at}: there is no deck under the stage`);
   else if (!m.deck.text) bad(`${at}: the stage says nothing — three students on a podium with no marking do not read as the ones who advance`);
   else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.deck.text)) bad(`${at}: the banner does not name the promotion count (top ${PROMOTE}): "${m.deck.text}"`);
-  else if (!/Gold/.test(m.deck.text)) bad(`${at}: the banner does not name the division being climbed into: "${m.deck.text}"`);
+  else if (!/Solar/.test(m.deck.text)) bad(`${at}: the banner does not name the division being climbed into: "${m.deck.text}"`);
   else ok(`${at}: the banner names both the cut and the destination`);
 
   /* THE DECK IS STRUCK — the same check that would have failed all four rejected passes,
@@ -1223,7 +1267,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
 
   /* ── the tier band ──────────────────────────────────────────────────────────────────
      The head of the board is made of the division's metal, so climbing re-skins the page. */
-  if (m.bandMetal !== "silver") bad(`${at}: the tier band reads metal "${m.bandMetal}", expected "silver" for division 2`);
+  if (m.bandTier !== "volt") bad(`${at}: the tier band reads tier "${m.bandTier}", expected "volt" for division 2`);
   else {
     const band = rgb(m.bandBg);
     if (!band || band[3] === 0) bad(`${at}: the tier band has no resolvable colour (${JSON.stringify(m.bandBg)}) — declare a solid under the sweep or the band is unmeasurable`);
@@ -1231,8 +1275,28 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     else ok(`${at}: the tier band is cast in the division's metal (luminance ${lum(band).toFixed(3)})`);
   }
 
+  /* AND THE ROW UNDER IT IS THE CONSOLE. A ceiling rather than a specific colour, so the
+     faceplate can be re-cut without re-cutting this — what may not come back is a PALE readout,
+     which is both the letterbox the report named and the surface on which this row's three
+     inks measure 1.6-2.9:1. */
+  {
+    const con = rgb(m.readoutBg);
+    if (!con || con[3] === 0) bad(`${at}: the band's readout has no resolvable colour (${JSON.stringify(m.readoutBg)}) — an undeclared fill makes every label on it unmeasurable`);
+    else if (lum(con) > 0.2) bad(`${at}: the readout's luminance is ${lum(con).toFixed(3)} — the row under the faceplate is a dark console (ceiling 0.20); its inks are cut for that fill and read 1.6-2.9:1 on a pale one`);
+    else ok(`${at}: the readout is a dark console (luminance ${lum(con).toFixed(3)})`);
+  }
+
+  /* THE CANVAS'S LAYER BOOKKEEPING — `repeat` must land on the tiling gradient and on nothing
+     else. See the note where this is measured for why comparing list LENGTHS proves nothing. */
+  if (!m.bgLayers) bad(`${at}: could not read the canvas's background layers`);
+  else if (m.bgLayers.tiling.length !== 1) {
+    bad(`${at}: the canvas has ${m.bgLayers.tiling.length} repeating gradient(s) in ${m.bgLayers.n} layers — the stripe is the only one that tiles, and this check keys off that`);
+  } else if (m.bgLayers.repeated.join() !== m.bgLayers.tiling.join()) {
+    bad(`${at}: background-repeat puts \`repeat\` on layer(s) [${m.bgLayers.repeated}] but the tiling gradient is layer ${m.bgLayers.tiling[0]} of ${m.bgLayers.n} — the list has CYCLED, so a bloom is tiling and the stripe is not`);
+  } else ok(`${at}: \`repeat\` sits on the stripe and on nothing else (layer ${m.bgLayers.tiling[0]} of ${m.bgLayers.n})`);
+
   /* Five DISTINCT metals on the trophy road, sampled as painted colour. The rule this
-     overturned was "division by luminance, never hue", which painted the Silver rung gold;
+     overturned was "division by luminance, never hue", which painted every rung gold;
      collapsing them back to one material is the regression, and it is invisible in a
      screenshot diff if only the CSS changes. */
   if (m.pips.length !== 5) bad(`${at}: the trophy road has ${m.pips.length} pips, expected 5`);
@@ -1391,7 +1455,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
         [/this week/i, "that ranking is weekly, not all-time"],
         [/Monday/i, "when the week closes"],
         [/never|nobody is ever demoted/i, "that nobody is demoted"],
-        [/Bronze.*Diamond/i, "the five divisions in order"],
+        [/Ember.*Prism/i, "the five divisions in order"],
       ];
       const gaps = want.filter(([re]) => !re.test(txt)).map(([, why]) => why);
       if (gaps.length) bad(`the league rules never explain: ${gaps.join("; ")}`);
@@ -1411,7 +1475,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
       // ...and it says which rung is YOURS. A road that does not locate you is a price list.
       const mine = p.locator('[data-testid="multiplier-road"] .rules-rung[data-state="now"]');
       if (await mine.count() !== 1) bad("the multiplier road does not mark the viewer's own division");
-      else if (!/Silver/i.test((await mine.textContent()) ?? "")) bad("the multiplier road marks the wrong division as the viewer's");
+      else if (!/Volt/i.test((await mine.textContent()) ?? "")) bad("the multiplier road marks the wrong division as the viewer's");
       else ok("the multiplier road marks the viewer's own rung");
 
       // The forfeit carve-out, stated where a student will ask about it.
@@ -1496,22 +1560,24 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   await ctx.close();
 }
 
-/* ── 5c) EVERY DIVISION'S BAND, not just the one the fixture mounts ────────────────────
-   ⚠ This file pins `division: 2`, so for its whole life the contrast sweep has probed the
-   SILVER band and nothing else — four of the five metals were paint that no check had ever
-   read. It shipped a real defect: `.tb-league` at #2E3440 on the old bronze band (#CE8746)
-   measured 4.27:1, under the same 4.5 floor enforced everywhere else on the page, under a
-   comment added specifically to fix that label's contrast.
+/* ── 5c) EVERY DIVISION'S BAND AND FIELD, not just the one the fixture mounts ──────────
+   ⚠ This file pins `division: 2`, so for its whole life the contrast sweep probed ONE band and
+   nothing else — four of the five were paint that no check had ever read. It shipped a real
+   defect: `.tb-league` at #2E3440 on the old bronze band (#CE8746) measured 4.27:1, under the
+   same 4.5 floor enforced everywhere else on the page, under a comment added specifically to
+   fix that label's contrast.
 
    A gate pinned to one fixture only tests that fixture. The band, the trophy road, the plinths
-   and the canvas wash are all per-division; this mounts all five and re-runs the two claims
-   that are actually per-metal — the head's ink is readable, and the band is still material
-   rather than white. Cheap, because it needs no geometry and no viewport matrix. */
+   and the whole canvas are per-division; this mounts all five and re-runs the claims that are
+   actually per-tier — the head's ink is readable, the band is still material rather than white,
+   and (2026-08-06) the FIELD is genuinely the division's own rather than one shared surface
+   with a tinted bloom on it. Cheap, because it needs no geometry and no viewport matrix. */
 {
-  const METALS = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
+  const NAMES = ["Ember", "Volt", "Solar", "Nova", "Prism"];
+  const fields = [];
   for (let d = 1; d <= 5; d++) {
     const ctx = await boardCtx(b, DESKTOP, {
-      board: { ...BOARD, division: d, division_name: METALS[d - 1], division_multiplier: LADDER[d - 1] },
+      board: { ...BOARD, division: d, division_name: NAMES[d - 1], division_multiplier: LADDER[d - 1] },
     });
     const p = await openBoard(ctx);
     const seen = await p.evaluate(() => {
@@ -1528,25 +1594,45 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
         const el = document.querySelector(sel);
         if (!el) return { sel, color: null, on: null };
         return { sel, color: getComputedStyle(el).color, on: backdropOf(el) };
-      }).concat([{ sel: "__band", color: null, on: getComputedStyle(document.querySelector(".tb")).backgroundColor }]);
+      }).concat([
+        { sel: "__band", color: null, on: getComputedStyle(document.querySelector(".tb")).backgroundColor },
+        { sel: "__field", color: null, on: getComputedStyle(document.querySelector(".aurora-main")).backgroundColor },
+      ]);
     });
+    fields.push(seen.find((t) => t.sel === "__field").on);
     const band = rgb(seen.find((t) => t.sel === "__band").on);
-    if (!band || band[3] === 0) bad(`${METALS[d - 1]}: the tier band has no resolvable colour`);
-    else if (lum(band) > 0.86) bad(`${METALS[d - 1]}: the band's luminance is ${lum(band).toFixed(3)} — that is white, not a division`);
-    else ok(`${METALS[d - 1]}: the band is cast in its division (luminance ${lum(band).toFixed(3)})`);
+    if (!band || band[3] === 0) bad(`${NAMES[d - 1]}: the tier band has no resolvable colour`);
+    else if (lum(band) > 0.86) bad(`${NAMES[d - 1]}: the band's luminance is ${lum(band).toFixed(3)} — that is white, not a division`);
+    else ok(`${NAMES[d - 1]}: the band is cast in its division (luminance ${lum(band).toFixed(3)})`);
 
-    const probes = seen.filter((t) => t.sel !== "__band");
+    const probes = seen.filter((t) => !t.sel.startsWith("__"));
     const blind = probes.filter((t) => !t.color || !t.on).map((t) => t.sel);
-    if (blind.length) bad(`${METALS[d - 1]}: could not resolve ${blind.join(", ")} — this check is testing nothing`);
+    if (blind.length) bad(`${NAMES[d - 1]}: could not resolve ${blind.join(", ")} — this check is testing nothing`);
     else {
       const dim = probes.map((t) => ({ ...t, r: contrast(rgb(t.color), rgb(t.on)) })).filter((t) => t.r < 4.5);
       if (dim.length) {
-        bad(`${METALS[d - 1]}: ${dim.length} style(s) below 4.5:1 on this division's own metal: ` +
+        bad(`${NAMES[d - 1]}: ${dim.length} style(s) below 4.5:1 on this division's own metal: ` +
           dim.map((t) => `${t.sel} ${t.color} on ${t.on} ${t.r.toFixed(2)}:1`).join(" · "));
-      } else ok(`${METALS[d - 1]}: the head and the plinth numeral clear 4.5:1 on this division's metal`);
+      } else ok(`${NAMES[d - 1]}: the head and the plinth numeral clear 4.5:1 on this division's metal`);
     }
+
+    const field = rgb(seen.find((t) => t.sel === "__field").on);
+    if (!field || field[3] === 0) bad(`${NAMES[d - 1]}: the canvas has no resolvable base colour — the stack must end in an opaque light solid or every glyph on it measures against nothing`);
+    else if (lum(field) < 0.7) bad(`${NAMES[d - 1]}: the canvas's base luminance is ${lum(field).toFixed(3)} — this is the LIGHT Aurora canvas (floor 0.7), and the dark stage has been rejected twice`);
+    else ok(`${NAMES[d - 1]}: the field is a light solid (luminance ${lum(field).toFixed(3)})`);
+
     await ctx.close();
   }
+
+  /* THE FIELD IS THE DIVISION'S, and this is the claim the 08-06 pass actually makes. Before
+     it, one base (#FFFBF4) served all five and only a bloom moved — so "climbing re-skins the
+     screen" was true of a wash and false of the page. Five distinct bases is the cheapest
+     honest test of it, and it is the one a later pass simplifying the tokens back to one
+     shared value would trip immediately. */
+  if (fields.some((f) => !f)) bad("could not sample every division's field — this check is testing nothing");
+  else if (new Set(fields).size !== 5) {
+    bad(`the five divisions paint ${new Set(fields).size} distinct canvas base(s) — the field is meant to BE the division, not one surface with a tint over it`);
+  } else ok(`five divisions paint five distinct fields (${fields.join(" · ")})`);
 }
 
 /* ── 6) the promotion zone is NOT drawn on a role-filtered view ──────────────────────── */
@@ -1585,7 +1671,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
 /* ── 7) the ceremony: it fires, and it does NOT come back ────────────────────────────── */
 {
   const RESULT = { week_start: "2026-07-27", outcome: "promoted", rank_final: 4, xp_final: 6120,
-                   from_division_name: "Silver", to_division_name: "Gold" };
+                   from_division_name: "Volt", to_division_name: "Solar" };
   const ctx = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
   await ctx.route("**/api/leaderboard**", (r) => r.fulfill(J(BOARD)));
 

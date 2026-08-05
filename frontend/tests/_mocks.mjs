@@ -159,7 +159,7 @@ export async function mockApis(ctx, user) {
     ],
     chest: { claimed: false, key: "xp2x", label: "Double Lumens for an hour" },
     boost: { multiplier: 1, until: null },
-    league: { rank: 5, pool_size: 10, promote_count: 3, division_name: "Silver", xp_to_promotion: 430 },
+    league: { rank: 5, pool_size: 10, promote_count: 3, division_name: "Volt", xp_to_promotion: 430 },
   })));
   await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
   await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));
@@ -216,8 +216,8 @@ export async function mockApis(ctx, user) {
     ? r.fulfill(J({ ok: true }))
     : r.fulfill(J({
       entries: LEAGUE_ROWS, you_hidden: false, display_name: null, you_would_be_rank: null,
-      roles: ["OA", "OT"], division: 2, division_name: "Silver",
-      // The real Silver rung, not a round number: a mock that pays 2x where the server pays
+      roles: ["OA", "OT"], division: 2, division_name: "Volt",
+      // The real Volt rung, not a round number: a mock that pays 2x where the server pays
       // 1.1x is a screenshot of an economy that does not exist.
       division_multiplier: 1.1, division_multipliers: [1, 1.1, 1.25, 1.5, 2],
       pool_size: 10, promote_count: 3,

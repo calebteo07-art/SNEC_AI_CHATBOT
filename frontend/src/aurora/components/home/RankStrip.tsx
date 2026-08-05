@@ -58,7 +58,7 @@ export function RankStrip({ league }: { league: LeagueStanding | null }) {
         {league ? (
           <>
             {/* The separator is decoration; the screen reader gets the word instead, so the
-                link announces "Silver, rank 7 of 24" rather than a middle dot. */}
+                link announces "Volt, rank 7 of 24" rather than a middle dot. */}
             <b className="hm-lb-s">
               {league.division_name}
               <span className="hm-lb-dot" aria-hidden>·</span>

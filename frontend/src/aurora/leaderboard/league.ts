@@ -27,8 +27,13 @@ export interface Arrow {
 
 /** Mirrors DIVISIONS in tools/gamification/league.py. The board reads `division_name` off
  *  the payload for the CURRENT division; this list exists so the promotion line can name the
- *  one above it ("advance to Silver") without a second round-trip. */
-export const DIVISION_NAMES = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"] as const;
+ *  one above it ("advance to Volt") without a second round-trip.
+ *
+ *  ⚠ A LADDER OF LIGHT since 2026-08-06 — each name IS its colour (Ember vermilion, Volt
+ *  azure, Solar gold, Nova violet, Prism aqua), and the order is the ladder. Every tint on
+ *  the board indexes off the same position, so this list and TIERS in
+ *  components/leaderboard/Tiers.tsx are two views of one thing and move together. */
+export const DIVISION_NAMES = ["Ember", "Volt", "Solar", "Nova", "Prism"] as const;
 export const TOP_DIVISION = DIVISION_NAMES.length;
 
 /** The division a promotion moves you into, or null at the summit. Clamps rather than
@@ -170,7 +175,7 @@ export function computeChase(
   const ahead = entries[i - 1];
 
   if (atTopDivision) {
-    if (!ahead) return { kind: "summit", value: null, label: "Diamond champion — hold the summit" };
+    if (!ahead) return { kind: "summit", value: null, label: "Prism champion — hold the summit" };
     return { kind: "summit", value: Math.max(0, ahead.xp - you.xp), label: `Lumens to overtake #${ahead.rank}` };
   }
 

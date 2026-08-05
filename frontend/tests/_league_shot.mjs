@@ -14,7 +14,7 @@ const out = process.argv[3] ?? ".tmp/league-shots";
 mkdirSync(out, { recursive: true });
 
 const LADDER = [1, 1.1, 1.25, 1.5, 2];
-const NAMES = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
+const NAMES = ["Ember", "Volt", "Solar", "Nova", "Prism"];
 const ROLES = ["OA", "OT", "PSA"];
 const NICK = ["Aria", "Bek", "Chen", "Dara", "Evan", "Faye", "Gil", "Hana", "Ivo", "Jae",
   "Kit", "Lena", "Mira", "Noor", "Omar", "Pia", "Quin", "Rio", "Suri", "Tam",

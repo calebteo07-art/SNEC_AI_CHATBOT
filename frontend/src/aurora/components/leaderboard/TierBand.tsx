@@ -11,8 +11,8 @@
    is an EMBLEM, a TIER NAME, a progress track and a clock, on a band that is made of the tier's
    own material. Not prose. Two rows, ~100px:
 
-     [crest]  SILVER League   ×1 ×1.1 ×1.25 ×1.5 ×2      [×1.1 LUMENS]  (?)
-     1,550 Lumens to the promotion zone            Promote → Gold pays ×1.25
+     [crest]  VOLT League   ×1 ×1.1 ×1.25 ×1.5 ×2      [×1.1 LUMENS]  (?)
+     1,550 Lumens to the promotion zone            Promote → Solar pays ×1.25
 
    The band wears the division's metal, so climbing visibly re-skins the top of the page. That
    is the reward the old white card could not pay: every division looked identical.
@@ -46,7 +46,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { nextRungPayoff, DIVISION_NAMES, TOP_DIVISION } from "@/aurora/leaderboard/league";
 import type { Chase } from "@/aurora/leaderboard/league";
 import { useCountUp } from "@/hooks/useCountUp";
-import { Crest, METALS } from "./Metals";
+import { Crest, TIERS } from "./Tiers";
 
 /** Trailing zeros make a game number look like a currency: ×1.5, never ×1.50. The rules
  *  sheet formats the same way — one rule, stated in both places it is read. */
@@ -77,13 +77,13 @@ export function TierBand({
   const { ref, display } = useCountUp<HTMLSpanElement>(chase.value ?? 0);
   const idx = Math.max(0, Math.min(TOP_DIVISION - 1, division - 1));
   // null at the summit and on an older server that sends no road — the hook falls back to
-  // stating the ceiling rather than inventing a rung above Diamond.
+  // stating the ceiling rather than inventing a rung above Prism.
   const payoff = nextRungPayoff(division, multipliers);
 
   return (
-    <section className="tb" data-metal={METALS[idx]} data-testid="tier-band" aria-label="Your division">
+    <section className="tb" data-tier={TIERS[idx]} data-testid="tier-band" aria-label="Your division">
       <div className="tb-head">
-        <span className="tb-crest"><Crest metal={METALS[idx]} size={38} /></span>
+        <span className="tb-crest"><Crest tier={TIERS[idx]} size={38} /></span>
         <h1 className="tb-name">{divisionName} <span className="tb-league">League</span></h1>
 
         {/* The track. Locked divisions still show their own metal, at low opacity — a trophy
@@ -110,7 +110,7 @@ export function TierBand({
             const pay = multipliers[i];
             return (
               <li
-                key={name} className="tb-pip" data-metal={METALS[i]} data-state={state}
+                key={name} className="tb-pip" data-tier={TIERS[i]} data-state={state}
                 aria-current={state === "now" ? "true" : undefined}
               >
                 <span className="tb-sr">
