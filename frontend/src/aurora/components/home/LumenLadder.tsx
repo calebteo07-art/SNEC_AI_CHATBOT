@@ -72,7 +72,7 @@ export function LumenLadder({ current = 0 }: { current?: number }) {
   };
 
   return (
-    <section className="hm-panel hm-panel--lumen" data-testid="lumen-ladder" aria-label="Lumens vault">
+    <section className="hm-panel hm-panel--lumen struck-structural" data-testid="lumen-ladder" aria-label="Lumens vault">
       <p className="hm-ph disp">
         Lumens vault
         <span className="hm-c">{collected} of {LUMEN_BADGES.length} collected</span>
