@@ -488,13 +488,14 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
    only feedback that the object was hit. Home's other two press transforms
    (.hm-pool-seg button, .hm-eyeconmenu-btn) and the League's .tb-help:active are
    un-gated for the same reason — those lists freeze `transition`, never the press.
-   ⚠ :active matches ANY element under the pointer, including a plain div. Every other
-   object on the pill rung (.hm-claim .hm-boost .hm-lb) is a button, but .hm-chip is a
-   readout, so it currently depresses on press with nothing behind it. Left as-is rather
-   than narrowing a shared mixin from inside one object's task — if a third non-
-   interactive object joins the rung, scope this to :where(button,a,[role="button"]). */
-.aurora-home .struck-pill:active,
-.aurora-home .struck-medallion:active {
+   ⚠ THE RUNG IS SCOPED TO CONTROLS. A press transform is an affordance claim, and the
+   pill rung carries both controls (.hm-claim, .hm-lb) and READOUTS (.hm-chip's level,
+   .hm-boost's timer). :active matches any element under the pointer, including a plain
+   div, so unscoped this sank the readouts under the finger with nothing behind them.
+   :where() contributes ZERO specificity, so these selectors stay (0,3,0) — exactly what
+   the bare `:active` was — and still beat the base mixin's (0,2,0). */
+.aurora-home .struck-pill:where(button, a, [role="button"]):active,
+.aurora-home .struck-medallion:where(button, a, [role="button"]):active {
   transform:translateY(2px);
   box-shadow: 0 0 0 0 var(--lip-c, #D9CDB6), 0 0 0 2px var(--mat-ink);
 }
