@@ -42,7 +42,12 @@ def _activity_for_quests(state: dict, profile: dict, today) -> dict:
 def _quest_payload(profile: dict, student_id: str, today) -> tuple[list[dict], dict]:
     state = read_daily_state(profile, today)
     activity = _activity_for_quests(state, profile, today)
-    quests = daily_quests(student_id, today, list(profile.get("weak_topics") or []),
+    # The DISCIPLINE (OA/PSA/OT), which is what student_profiles.role holds — the account
+    # role lives elsewhere. Resolved exactly as checkin.py does, so the two features that
+    # pick a topic for a student can never pick from different pools. An absent role falls
+    # through to the shared clinical pool inside topics_for, the same as everywhere else.
+    role = str(profile.get("role") or "OA").upper()
+    quests = daily_quests(student_id, today, list(profile.get("weak_topics") or []), role,
                           DAILY_XP_GOAL)
     rows = [{
         "kind": q.kind, "title": q.title, "target": q.target, "reward_xp": q.reward_xp,
