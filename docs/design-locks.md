@@ -1796,6 +1796,89 @@ now** (the composites the alphas produced, frozen), which is this file's existin
 one `.pod-clock` already carries. `.pod-banner-sub` went **3.8:1 → 6.7:1** for the same reason.
 The sweep now covers **20 text styles**, up from 17.
 
+#### THE BUDGET, SPENT 2026-08-05 — the gap was never the gap, and two axes are free
+
+User, on the DEAD MIDDLES build: *"cards and elements still crammed together in laptop version
+(space out silver league card, all/oa/ot/psa card, podium card, 4th place card, with each other),
+and enlarge the eyecon badges on podium. and make the elements in podium card bigger to prevent
+white space."*
+
+**1. THE GAP WAS MEASURED, GROUPED, ASSERTED — AND NEGATIVE.** Every struck object on this board
+ends in a zero-blur offset shadow *with a spread*: `.tb` carries `0 6px 0 3px var(--mat-ink)`, so
+**9px of outlined lip is painted below a border box that `getBoundingClientRect` reports as ending
+at its border**. The column's rhythm was `6 / 15 / 13` of layout, which is **−3 / 10 / 4 of
+visible space** — the band's lip and the filter's top edge were *overlapping*, and the harness's
+own rhythm check called the column correctly grouped because it was subtracting the wrong two
+numbers. Same failure this lock has recorded twice about the wrong *device*; this one is the wrong
+**quantity**.
+- The gate now computes an **optical** gap — next card's border box minus the previous card's
+  painted bottom, counting only **zero-blur** layers (a soft cast shadow is depth, not an edge) —
+  and floors the tightest at **3px** on desktop. Shipped: **4/12/9 · 5/13/11 · 7/17/15** by tier.
+- ⚠ **A lip is part of the object, not part of the gap.** Anywhere in this app that spaces struck
+  cards, the layout gap must be read as `gap − (offset + spread)`.
+
+**2. A THIRD HEIGHT STEP, because the budget is the design.** On this page every vertical pixel is
+a rank: `league_assert` fails under **8 ranks visible**, so the stage may only grow into slack that
+actually exists. Measured before touching anything — the 8th rank ended at y=737 and the scroller
+ends at (viewport height − 8):
+
+| viewport | slack, before | tier it was on |
+|---|---|---|
+| 1366×768 | **22.7px** | compact |
+| 1280×800 | 54.7px | compact |
+| **1489×838** — the reported window | **92.7px** | compact |
+| 1536×864 | 49.5px | compact |
+| 1440×900 | 85.5px | full |
+
+**Both of the viewports a 1080p panel at 125% scaling produces** — the commonest desktop setup
+there is, in either width — were on the *small* stage holding 50–93px of unspent budget, because
+the full-stage step was keyed at `min-height: 860px`: drawn just under the one tall machine the
+matrix happened to contain, not at the height that can pay for it. Re-keyed to **≥830**, plus a
+new **≥900** step for windows that can afford more still.
+
+| | ≥620 (768, 800) | ≥830 (838, 864) | ≥900 (900, 1024, 1080) |
+|---|---|---|---|
+| optical gaps | 4 / 12 / 9 | 5 / 13 / 11 | 7 / 17 / 15 |
+| badge rings 1/2/3 | 71 / 69 / 69 | **95 / 85 / 85** | **109 / 97 / 97** |
+| plinths | 108 / 92 / 78 | 124 / 100 / 84 | 136 / 112 / 94 |
+| flank module | 181×118 | 189×160 | 189–259×184 |
+| slack left | 12.7px | 26.2px | 34.6px |
+
+**3. THE STAGE'S HEIGHT IS THE CHAMPION'S COLUMN — so 2nd and 3rd are free and he is not.** +1 of
+`--face` on place 1 is −1 from the ladder, and the mass floor (`block ≥ 0.78 × its own figure`)
+drags the plinth up behind it. The same pixel on 2nd or 3rd costs **nothing** until their column
+reaches his — 234px under a 277px champion at ≥830 — which is where their badge and plinth growth
+comes from at zero cost.
+- ⚠ That asymmetry is a standing invitation to spend "make the badges bigger" on the two cheap
+  ones and end up with **the crowned portrait as the smallest of the three**. New bound: the
+  badges must step down `1 > 2 ≥ 3`, ordered rather than pinned.
+- ⚠ **1366×768 gives the champion's badge back** and takes the separation instead. It clears the
+  floor by ~13px, the gap is charged three times down the column, and between the two things
+  asked for the separation was named first and costs a third as much. Stated rather than hidden.
+
+**4. THE FLANKS WERE MADE UN-CLIPPABLE AND THEN LEFT CONTENT-SIZED.** The pass before this one
+fixed the overflow and stopped: each module was a **142×74 pill adrift in a ~197px track beside a
+283px stage** — 28% of its width and 74% of its height empty deck, which is the white space that
+got reported. **Both of its axes are free**: the track is `1fr`, and the deck's row is sized by the
+stage, so a flank grows in either direction for nothing. Now `width: 100%` under a 264px cap with
+a per-tier `min-height`, `column-gap` 8→16, and type at 21/25/28px. New bound: **≥85% of its own
+track and ≥40% of the stage's height**.
+
+**Measured after**: ranks **8 · 8 · 8 · 8 · 8 · 11** across the desktop matrix, every tier still
+clearing the floor · optical gaps **−3/10/4 → 5/13/11** at the reported window · champion badge
+**71 → 95px** there, 2nd/3rd **67 → 85** · plinths **108/82/66 → 124/100/84** · flanks **82%/27%
+→ 100%/58%** of track and stage · board share unchanged at **72 · 79 · 82 · 69 %**.
+
+**Gate**: `league_assert.mjs` — **407 assertions**, plus a **`five-four` 1280×1024** viewport and
+three new bounds. 1280×1024 is here for a **code path, not a device**: every wide entry in the
+matrix is ≥1400, so `--stage-w: 620px` inside a 1060px board — what *every* 1024–1399px window
+≥830 tall renders, with the tightest flank tracks on any desktop tier — was reachable by nobody.
+⚠ It is **not** the ranks-budget case: slack rises with height *inside* a step, so a height step's
+binding member is its **shortest** window (1489×838 for ≥830, 1440×900 for ≥900), both already in
+the matrix. All three bounds **mutation-verified** by reintroducing the defects together: flank
+fill fires at **49–82%** against the 85% floor, the badges at **95/105/105**, and the rhythm at
+**6/15/13 layout / −3px optical**.
+
 ## Leaderboard "vibrant & seamless" — SUPERSEDED 2026-08-02 by "The League" (above)
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
