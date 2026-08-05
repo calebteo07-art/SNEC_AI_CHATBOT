@@ -31,7 +31,9 @@ export function chestReveal(
   return open ? { sealed: false, label: chest.label } : { sealed: true, label: null };
 }
 
-/** Milliseconds until the next SGT midnight. */
+/** Milliseconds until the next SGT midnight — half-open on (0, 86_400_000]: at the
+ *  instant of SGT midnight itself this returns a full day, not 0, so a countdown
+ *  resets rather than flashing an expired deadline. */
 export function sgtMsToMidnight(nowMs: number): number {
   const sinceSgtDayStart = (nowMs + SGT_OFFSET_MS) % 86_400_000;
   return 86_400_000 - sinceSgtDayStart;
@@ -57,7 +59,7 @@ export function boostRemaining(until: string | null | undefined, nowMs: number):
   return Math.max(0, end - nowMs);
 }
 
-/** "1h 04m" over an hour, "MM:SS" under it. Never negative. */
+/** "1h 04m" over an hour, "M:SS" under it. Never negative. */
 export function formatCountdown(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
   const h = Math.floor(s / 3600);
