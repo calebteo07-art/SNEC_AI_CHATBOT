@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-from tools.supervisor.topic_map import norm_key
+from tools.supervisor.osce_analysis import (
+    critical_offenders, mark_loss, repeat_offenders, trajectory,
+)
+from tools.supervisor.topic_map import build_topic_map, cohort_topic_means, contrast_for, norm_key
 
 # chat.py's default topic. Every tutor row written before the client started sending a real
 # label carries it, so it means exactly one thing: no label was recorded.
@@ -76,3 +79,65 @@ def consultations(sessions: list[dict], *, vocabulary: list[str]) -> list[Consul
 def _negate_date(iso_day: str) -> str:
     """Sort ISO days newest-first inside a tuple that is otherwise ascending."""
     return "".join(chr(ord("9") - int(ch)) if ch.isdigit() else ch for ch in iso_day)
+
+
+# Flashcard trajectory needs more points than OSCE: one card is a much smaller event than one
+# station, so a handful of them says nothing about direction.
+MIN_CARDS_FOR_TRAJECTORY = 20
+
+# The timestamp column differs by table, which is exactly why `trajectory` refuses to sort for
+# itself. `flashcard_attempts` stamps `ts` (migration 010) and `case_progress` `completed_at`;
+# both readers return their rows in an order this function must not inherit.
+_CARD_TS = "ts"
+_CASE_TS = "completed_at"
+
+
+def build_student_insight(*, profile: dict, sessions: list[dict], case_rows: list[dict],
+                          card_rows: list[dict], case_topics: dict[str, str],
+                          cohort_card_rows: list[dict], cohort_case_rows: list[dict],
+                          student_id: str) -> dict:
+    """Everything the three renderers read, as one JSON-ready dict.
+
+    Every key is always present. A renderer must never have to tell "this student has no
+    data" apart from "this payload predates the field".
+    """
+    topic_map = build_topic_map(card_rows=card_rows, case_rows=case_rows,
+                                retention_scores=profile.get("retention_scores"),
+                                case_topics=case_topics)
+
+    means = cohort_topic_means(card_rows=cohort_card_rows, case_rows=cohort_case_rows,
+                               case_topics=case_topics, exclude_student_id=student_id)
+    contrasts = [c for c in (contrast_for(r, means) for r in topic_map.rows) if c]
+
+    # Chronological, because `trajectory` trusts its input order by contract: `get_case_results`
+    # does not order at all and `get_flashcard_attempts` orders NEWEST FIRST, which would invert
+    # every verdict it produced.
+    osce_scores = [float(r["score_100"]) for r in
+                   sorted(case_rows, key=lambda r: str(r.get(_CASE_TS) or ""))
+                   if r.get("score_100") is not None]
+    card_scores = [100.0 if r.get("correct") else 0.0 for r in
+                   sorted(card_rows, key=lambda r: str(r.get(_CARD_TS) or ""))]
+
+    vocabulary = ([str(t) for t in (profile.get("retention_scores") or {})]
+                  + [str(t) for t in case_topics.values()]
+                  + [str(r.get("topic_tag") or "") for r in card_rows])
+
+    return {
+        "topics": [
+            {"topic": r.topic, "flag": r.flag,
+             "flashcards": asdict(r.flashcards), "station": asdict(r.station),
+             "retention": asdict(r.retention)}
+            for r in topic_map.rows
+        ],
+        "contrasts": [asdict(c) for c in contrasts],
+        "mark_loss": asdict(mark_loss(case_rows)),
+        "offenders": [asdict(o) for o in repeat_offenders(case_rows)],
+        "critical_offenders": [asdict(o) for o in critical_offenders(case_rows)],
+        "osce_trajectory": asdict(trajectory(osce_scores)),
+        "flashcard_trajectory": asdict(
+            trajectory(card_scores, minimum=MIN_CARDS_FOR_TRAJECTORY)),
+        "consultations": [asdict(c) for c in consultations(sessions, vocabulary=vocabulary)],
+        # Named exclusions, so a renderer can say WHICH attempts are missing from the map
+        # rather than printing a total that quietly disagrees with the stations table.
+        "excluded": topic_map.excluded,
+    }
