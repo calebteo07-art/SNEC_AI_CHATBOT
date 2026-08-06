@@ -75,12 +75,46 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
           on the phone's inline caption row and collapses at the head of its own line once
           each span becomes a flex item on the deck. A whitespace text node between them
           would have grown an anonymous third line box instead. */}
-      {promoteCount > 0 && (
+      {/* THE SUMMIT HAS ITS OWN COPY (2026-08-06). Everything above is written for a division
+          with one above it, and Prism has neither a destination to name nor a promotion to
+          offer — `promoteTo` is null there and the server sends `promote_count: 0`
+          (student.py). Both defaults failed it in a different way: the middle line dropped out
+          and the card centred a hole where its one piece of display type belongs, and at the
+          real count of 0 the module did not render at all, leaving the deck's whole left flank
+          empty beside a 336px stage. The summit is a STATE, not the absence of one, so it says
+          what standing here means in the same three lines every other rung gets.
+          ⚠ `promoteTo === null` IS the summit and nothing else — it comes from
+          `nextDivisionName`, which clamps a null or out-of-range division to Ember and returns
+          null only at the top. `promoteCount === 0` cannot be used for this: a cohort of one
+          promotes nobody either, and that board is not at the summit.
+          ⚠ THE COPY IS BUDGETED, not chosen. On the phone these two spans are one nowrap row
+          sharing the caption line with the clock, and 360px is where that row is spent — the
+          same cell a 2026-08-04 pass already watched a nowrap pill overflow. The summit pill
+          measures 166.4px against the promotion pill's 167.2px there, so it costs the caption
+          row NOTHING and keeps the ~29px it has before the clock. A first pass at this copy
+          ("Top division / Hold the summit") measured 187.8px and left 8px. Anything longer than
+          what is here has to be measured at 360 before it ships. */}
+      {(promoteCount > 0 || promoteTo === null) && (
         <p className="pod-banner" data-testid="podium-promo">
-          <span className="pod-banner-do">
-            <span className="pod-banner-ico" aria-hidden>▲</span>Top {promoteCount} promote
-          </span>
-          {promoteTo && <span className="pod-banner-to"> to {promoteTo}</span>}
+          {promoteTo === null ? (
+            <>
+              <span className="pod-banner-do">
+                <span className="pod-banner-ico" aria-hidden>★</span>Summit
+              </span>
+              {/* What replaces the destination, because there isn't one — stated as the fact it
+                  is rather than as an instruction. Paired with "Nobody drops" below it, the two
+                  lines are the whole mechanic at the top of the ladder: the climb ends here and
+                  you cannot fall off it. */}
+              <span className="pod-banner-to">Nothing above</span>
+            </>
+          ) : (
+            <>
+              <span className="pod-banner-do">
+                <span className="pod-banner-ico" aria-hidden>▲</span>Top {promoteCount} promote
+              </span>
+              <span className="pod-banner-to"> to {promoteTo}</span>
+            </>
+          )}
           {/* The half of the mechanic nothing outside the (?) sheet stated: this ladder only
               goes UP. A weekly cut with no stated floor reads as a relegation risk, which is
               the opposite of what it is — and on the deck it also gives the flank the third

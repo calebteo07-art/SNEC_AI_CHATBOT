@@ -1680,7 +1680,13 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   const fields = [];
   for (let d = 1; d <= 5; d++) {
     const ctx = await boardCtx(b, DESKTOP, {
-      board: { ...BOARD, division: d, division_name: NAMES[d - 1], division_multiplier: LADDER[d - 1] },
+      /* ⚠ promote_count IS 0 AT THE SUMMIT, and spreading BOARD's 3 across all five was the
+         fixture lying about the one division it exists to cover. Both `/api/leaderboard` and
+         `/api/home` send `0 if division >= TOP_DIVISION` (student.py, home.py) — Prism
+         promotes nobody — so a sweep that hands the summit a 3 renders a board the server
+         cannot produce and never sees what a real Prism student sees. */
+      board: { ...BOARD, division: d, division_name: NAMES[d - 1], division_multiplier: LADDER[d - 1],
+               promote_count: d >= NAMES.length ? 0 : BOARD.promote_count },
     });
     const p = await openBoard(ctx);
     const seen = await p.evaluate(() => {
@@ -1810,6 +1816,40 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
       bad(`${NAMES[d - 1]}: the field is loud again — wash ${arena.wash} (ceiling 0.18), stripe ${arena.stripe} (ceiling 0.06)` +
         (arena.glow !== null ? `, and --arena-glow is back at ${arena.glow} (it must be unset; the partner bloom was one of the two hue families this pass removed)` : ""));
     } else ok(`${NAMES[d - 1]}: the field is quiet — one hue, wash ${arena.wash} / stripe ${arena.stripe}, no partner bloom`);
+
+    /* THE DECK'S PROMOTION MODULE, ON EVERY RUNG (2026-08-06). The module is authored for a
+       division with one above it — eyebrow, the destination in display type, and the
+       no-relegation line — and the summit has neither a destination to name nor a promotion
+       to offer. Both halves of that went unseen because §5c is the only place all five mount:
+       at Prism `nextDivisionName` returns null, so the middle line vanished and the card
+       centred a hole; and with the server's real `promote_count: 0` the module did not render
+       AT ALL, leaving the 264px flank beside a 336px stage empty.
+
+       Three claims, and each is a way the card can be wrong rather than merely different:
+         · it EXISTS — an empty flank is the summit-only state the fixture used to hide;
+         · no line renders EMPTY — the reported gap, measured on text rather than on a
+           screenshot, so it fails whether the span is absent or present-and-blank;
+         · it does not offer a promotion the summit cannot pay. Asserted on CONTENT for the
+           same reason the division-2 banner check is: a generic module still renders. */
+    const promo = await p.evaluate(() => {
+      const el = document.querySelector('[data-testid="podium-promo"]');
+      // The line spans are the module's direct children (the ▲ lives INSIDE the eyebrow), so
+      // this is the card's lines and nothing else.
+      return el ? [...el.children].map((c) => ({
+        cls: `${c.className}`, text: `${c.textContent ?? ""}`.replace(/\s+/g, " ").trim(),
+      })) : null;
+    });
+    const full = promo?.map((l) => l.text).join(" ") ?? "";
+    if (!promo) {
+      bad(`${NAMES[d - 1]}: the deck states no promotion mechanic — the flank beside the stage renders empty`);
+    } else if (promo.some((l) => !l.text)) {
+      bad(`${NAMES[d - 1]}: the deck's module renders ${promo.filter((l) => !l.text).length} EMPTY line(s) ` +
+        `(${promo.map((l) => `${l.cls}="${l.text}"`).join(" · ")}) — a blank row in a centred card is a hole in it`);
+    } else if (d >= NAMES.length && /top \d+ promote/i.test(full)) {
+      bad(`${NAMES[d - 1]}: the summit's module still offers a promotion ("${full}") — nothing is above Prism and promote_count is 0`);
+    } else if (d < NAMES.length && !new RegExp(NAMES[d]).test(full)) {
+      bad(`${NAMES[d - 1]}: the module does not name ${NAMES[d]}, the division being climbed into: "${full}"`);
+    } else ok(`${NAMES[d - 1]}: the deck's module states ${promo.length} full lines ("${full}")`);
 
     await ctx.close();
   }
