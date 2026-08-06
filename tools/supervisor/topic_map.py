@@ -11,6 +11,7 @@ Pure: no I/O, no clock, no AI.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 # The two weak lines DIFFER on purpose. 65 is the flashcard weak line used everywhere else in
 # the app (admin.py's weak filter, the console bar hues); 60 is the OSCE pass mark
@@ -42,3 +43,97 @@ def topic_union(*, flashcards: dict, stations: dict, retention: dict) -> list[st
             if key:
                 keys.add(key)
     return sorted(keys)
+
+
+@dataclass(frozen=True)
+class Cell:
+    """One measurement of one topic on one axis. `n` travels with `value` everywhere: a
+    percentage without its denominator is not a finding."""
+    value: float | None = None
+    n: int = 0
+    band: str = "absent"     # strong | developing | weak | thin | absent
+
+
+def band_for(value: float | None, *, n: int, minimum: int, weak_line: float) -> str:
+    if value is None or n <= 0:
+        return "absent"
+    if n < minimum:
+        return "thin"
+    if value >= STRONG:
+        return "strong"
+    if value < weak_line:
+        return "weak"
+    return "developing"
+
+
+def flashcard_cells(card_rows: list[dict]) -> dict[str, Cell]:
+    """Per-topic flashcard grade = correct / total (spec §5).
+
+    `score` is deliberately ignored: it is an XP value -- base points times a combo
+    multiplier, clamped at student.py:528 -- so averaging it grades a student's answer streak
+    rather than their correctness.
+    """
+    agg: dict[str, list[int]] = {}
+    for row in card_rows:
+        key = norm_key(row.get("topic_tag") or "general")
+        if not key:
+            continue
+        bucket = agg.setdefault(key, [0, 0])
+        bucket[1] += 1
+        if row.get("correct"):
+            bucket[0] += 1
+    cells: dict[str, Cell] = {}
+    for key, (correct, total) in agg.items():
+        pct = round(100 * correct / total, 1)
+        cells[key] = Cell(value=pct, n=total,
+                          band=band_for(pct, n=total, minimum=MIN_CARDS, weak_line=KNOWLEDGE_WEAK))
+    return cells
+
+
+def station_cells(case_rows: list[dict],
+                  case_topics: dict[str, str]) -> tuple[dict[str, Cell], dict[str, int]]:
+    """Per-topic station performance, plus what was left out and why.
+
+    Two exclusions, both COUNTED rather than dropped: an attempt whose case is missing from
+    the index has no topic to sit under (bucketing it anywhere would invent a placement), and
+    a pre-migration-011 row has no /100 score to place on this axis at all.
+    """
+    agg: dict[str, list[float]] = {}
+    excluded = {"unmapped_case": 0, "unscored": 0}
+    for row in case_rows:
+        score = row.get("score_100")
+        if score is None:
+            excluded["unscored"] += 1
+            continue
+        key = norm_key(case_topics.get(str(row.get("case_id") or "").strip()))
+        if not key:
+            excluded["unmapped_case"] += 1
+            continue
+        bucket = agg.setdefault(key, [0.0, 0])
+        bucket[0] += float(score)
+        bucket[1] += 1
+    cells: dict[str, Cell] = {}
+    for key, (total, n) in agg.items():
+        mean = round(total / n, 1)
+        cells[key] = Cell(value=mean, n=int(n),
+                          band=band_for(mean, n=int(n), minimum=MIN_ATTEMPTS,
+                                        weak_line=PERFORMANCE_WEAK))
+    return cells, excluded
+
+
+def retention_cells(retention_scores: dict | None) -> dict[str, Cell]:
+    """`retention_scores` is a 0-1 dict with no attempt count behind it, so n is 1 by
+    construction. Banded on the knowledge line: it measures durability of recall, and the
+    console has always coloured it against 0.65."""
+    cells: dict[str, Cell] = {}
+    for raw, score in (retention_scores or {}).items():
+        key = norm_key(raw)
+        if not key:
+            continue
+        try:
+            pct = round(float(score) * 100, 1)
+        except (TypeError, ValueError):
+            continue
+        cells[key] = Cell(value=pct, n=1,
+                          band=band_for(pct, n=1, minimum=1, weak_line=KNOWLEDGE_WEAK))
+    return cells
