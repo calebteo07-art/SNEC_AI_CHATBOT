@@ -214,10 +214,13 @@ def test_contrast_both_when_the_student_trails_a_weak_cohort():
 
 
 def test_contrast_refuses_a_baseline_below_the_peer_minimum():
-    """Two peers is not a cohort. The row reports the shortfall instead of a number."""
+    """Two peers is not a cohort. The row reports the shortfall instead of a number -- and
+    reports it as None, not 0.0, so a renderer cannot print "cohort average 0" for a topic
+    nobody has data on."""
     row = TopicRow(topic="t", flashcards=_fc(30.0), station=Cell(), retention=Cell())
     c = contrast_for(row, {"t": {"flashcards": (90.0, MIN_PEERS - 1)}})
     assert c is not None and c.label == "no_baseline" and c.peers == MIN_PEERS - 1
+    assert c.cohort_mean is None
 
 
 def test_contrast_is_none_when_the_student_is_not_weak_there():

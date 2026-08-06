@@ -275,7 +275,10 @@ class Contrast:
     topic: str
     axis: str            # flashcards | station
     student: float
-    cohort_mean: float
+    # None when there is no baseline. NOT 0.0 -- a renderer that reads this without checking
+    # `label` must be unable to print "cohort average 0" for a topic nobody has data on.
+    # mastery.py's cohort_avg takes the same position on the same question.
+    cohort_mean: float | None
     peers: int
     label: str           # individual_gap | cohort_gap | individual_gap_in_cohort_gap | no_baseline
 
@@ -292,7 +295,7 @@ def contrast_for(row: TopicRow, means: dict[str, dict]) -> Contrast | None:
         mean, peers = (means.get(row.topic, {}) or {}).get(axis, (None, 0))
         if mean is None or peers < MIN_PEERS:
             return Contrast(topic=row.topic, axis=axis, student=cell.value,
-                            cohort_mean=0.0, peers=int(peers), label="no_baseline")
+                            cohort_mean=None, peers=int(peers), label="no_baseline")
         cohort_weak = mean < weak_line
         trails = cell.value <= mean - INDIVIDUAL_GAP
         if cohort_weak and trails:
