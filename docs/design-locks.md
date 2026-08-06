@@ -2443,9 +2443,11 @@ shared `--arena-base` fires *"the five divisions paint 1 distinct canvas base"*.
 (see criterion 3 — its removal is a layout regression, not a simplification); the multiplier
 module, which is loud on a standing request; the deck's gold base (it is the *promotion* object);
 the board interior staying `#FFFFFF`; the ceremony's from→to pills; the promotion mechanic and the
-economy. `tools/leaderboard/crest_art.py` and `generate_board_art.py` still describe literal
-metals — they are **dead raster generators** for art the board deleted (every crest is an inline
-path), left alone rather than renamed.
+economy. `tools/leaderboard/` was **deleted** on 2026-08-06: `crest_art.py`, `generate_crests.py`
+and `generate_board_art.py` were dead raster generators for art the board no longer paints (every
+crest is an inline path, and `league_assert.mjs` fails on any board `url()`), and their prompts
+still described the divisions as literal metals — the wrong model of the ladder. The orphaned
+`public/brand/tiers/*.webp` remain flagged, not deleted.
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
