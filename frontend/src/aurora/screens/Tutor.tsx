@@ -83,33 +83,52 @@ export function Tutor() {
   // fires update_profile(source="tutor"), so a tutor consult now actually feeds streaks/XP
   // and gives staff reports a label. `messagesRef` (not `messages` state directly) so the
   // unmount effect below — armed once with `[]` deps — reads the latest thread instead of
-  // whatever was live on first render; `endSentRef` is the fire-once guard.
+  // whatever was live on first render. `endSentRef` is the fire-once guard; `resumeBaselineRef`
+  // is the resumed-thread starting length (0 for a conversation that was never resumed) —
+  // see endSessionPayload's baselineCount for why both live in the pure function, not just here.
   const messagesRef = useRef<Message[]>(messages);
   const endSentRef = useRef(false);
+  const resumeBaselineRef = useRef(0);
   useEffect(() => { messagesRef.current = messages; });
 
-  // Logs the outgoing conversation when it ends: on unmount (below) or from resumeSession
+  // Logs the outgoing conversation when it ends: on unmount (below) or from switchConversation
   // when a different conversation starts mid-thread. Best-effort — a failed or skipped call
   // must never block navigation or surface an error to the student, so failures are swallowed.
+  // `keepalive` lets the browser finish sending the request even if the page is already
+  // unloading, shrinking (not closing — see the effect comment below) the tab-close loss window.
   const endTutorSession = () => {
     const stored: StoredMessage[] = messagesRef.current.map((m) =>
       m.type === "ai" ? { type: "ai", id: m.id, text: m.content } : { type: "user", id: m.id, text: m.text });
-    const payload = endSessionPayload(stored, endSentRef.current);
+    const payload = endSessionPayload(stored, endSentRef.current, resumeBaselineRef.current);
     if (!payload) return;
     endSentRef.current = true;
     fetch("/api/end-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      keepalive: true,
       body: JSON.stringify(payload),
     }).catch(() => { /* best-effort — see comment above */ });
   };
 
-  // Fires on unmount: leaving /chat, whether by route change or closing the tab while still
-  // mounted. `[]` deps means this cleanup is set up once and reads messagesRef at the moment
-  // it actually runs, so it survives a React strict-mode double invoke (the synthetic
-  // mount→cleanup→mount happens before the student has typed anything, so messagesRef is
-  // still empty and endSessionPayload is a no-op) and fires for real exactly once.
+  // Ends whatever conversation was live, then arms the guards fresh for the one replacing it —
+  // folded into one helper (rather than two-or-three manual lines at each call site) so a
+  // future second "start something new" trigger (a "New chat" button, say) cannot forget a
+  // reset line and silently mis-log the next conversation.
+  const switchConversation = (nextBaselineCount: number) => {
+    endTutorSession();
+    endSentRef.current = false;
+    resumeBaselineRef.current = nextBaselineCount;
+  };
+
+  // Fires on unmount — reliably on an in-app route change (the SPA stays alive, so the fetch
+  // above completes even after the component is gone). An abrupt tab close can still kill the
+  // page before this cleanup ever runs at all — the accepted limitation in the design doc;
+  // `keepalive` only shrinks that window, it doesn't close it. `[]` deps means this cleanup is
+  // set up once and reads messagesRef at the moment it actually runs, so it survives a React
+  // strict-mode double invoke (the synthetic mount→cleanup→mount happens before the student has
+  // typed anything, so messagesRef is still empty and endSessionPayload is a no-op) and fires
+  // for real exactly once.
   useEffect(() => {
     return () => endTutorSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,10 +158,11 @@ export function Tutor() {
   const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
   const resumeSession = (s: StoredSession) => {
     // Starting a different conversation counts as ending whatever was live (design doc
-    // §6.2a) — log it before it's overwritten, then reset the guard so the resumed thread
-    // is free to be logged again whenever IT ends.
-    endTutorSession();
-    endSentRef.current = false;
+    // §6.2a) — log it before it's overwritten. The baseline is this resumed thread's OWN
+    // length, so resuming-then-immediately-leaving without adding anything logs nothing —
+    // a resumed thread already satisfies the completed-exchange check by construction, so
+    // without a baseline every re-read would write a duplicate row.
+    switchConversation(s.messages.length);
     const restored: Message[] = s.messages.map((m) =>
       m.type === "ai" ? { type: "ai", id: m.id, content: m.text } : { type: "user", id: m.id, text: m.text });
     setMessages(restored);
