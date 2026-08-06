@@ -737,6 +737,33 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `_home_shot.mjs` reports `MASCOT whole=true cutTop=0 cutBottom=0` and 0 page overflow at
     1512/1280/390/844; the 390×844 fold budget still holds (chest bottom 713).
 
+  ### Amendment 2026-08-06 (third pass) — THE STREAK IS ITS OWN CARD (user directive:
+  "separate the streak card from the rest of the top card")
+
+  One criterion moves; nothing else in the second pass changes.
+
+  - **Criterion changed (i) — the streak is NOT the deck's floor.** "`.hm-streak` becomes the
+    deck's full-width floor" is **superseded**. `<StreakTile>` leaves `.hm-deck` and becomes a
+    top-level child of `.aurora-home`, rendered **immediately after** the deck — so Home is
+    four zones (`.hm-top` · `.hm-deck` · `.hm-streak` · `.hm-record`) and the console holds
+    only what is live *right now*. It does **not** return to `.hm-record`: the merge put it
+    up here on purpose and the complaint was that it read as part of the console, not that it
+    was in the wrong part of the page.
+  - **Radius is the whole visual change.** `border-radius` goes back to the page's `--hr`
+    (24px) from the deck's inner 18px. **Radius is what says which plate an object belongs
+    to** — at 18px the card read as one of the console's inserts even with 14px of plate
+    showing all round it. The gap needs no rule: `.aurora-home` is a flex column with a 16px
+    gap, so leaving the plate *is* the separation.
+  - **What does NOT change, and why.** The band stays HORIZONTAL — its shape is set by its own
+    width (~1272px off the plate vs ~1244px on it), not by its parent, and a column would
+    still lay 34px calendar cells out in 178px tracks. The fills, the two AA re-derivations
+    and the flat calendar rung are untouched. Criterion (l) stays declared as written for
+    everything still on the deck; the streak **keeps** its rotation-free flicker even though
+    the bound no longer reaches it, because translate + independent scaleX/scaleY read the
+    same and re-earning a geometry risk buys nothing.
+  - **Acceptance**: `.hm-streak` is not a descendant of `.hm-deck`; computed radius = 24px;
+    0 page overflow and `MASCOT whole=true` still hold at 1512/1280/390/844.
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar

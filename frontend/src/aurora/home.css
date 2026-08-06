@@ -334,8 +334,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    (16.5px), "DAY STREAK" (14px) and half the month grid actually landed. For LIGHT-on-dark
    the worst case is the LIGHTER plane, and only the darker one was ever checked. Both planes
    are re-derived here: #D14708 = 4.55:1 and #BE3C08 = 5.47:1, so every label on this card
-   clears AA on the plane it is really on. The card is one notch deeper for it; on a dark
-   console it reads hotter than the old ramp did on cream.
+   clears AA on the plane it is really on. The card is one notch deeper for it, and on the
+   cool periwinkle stage that reads HOTTER, not duller: a deeper orange gains separation from
+   a light-cool page rather than losing heat to it.
    ⚠ THE CARD-LEVEL RADIAL IS GONE, and that is a contrast fix as much as a material one. It
    was a 72%x64% ellipse of `rgba(255,201,74,.62)` — a wash across most of the card, which is
    the exact construction leaderboard.css:15-19 names as the house style, and which put small
@@ -344,18 +345,28 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    source: a tight blurred ellipse behind the FLAME, where no small text lands.
    The calendar CELLS keep their alpha ladder: there it ENCODES STATE
    (done/today/missed/rest/upcoming), and they are the ~35 repeated elements that stay flat. */
-/* ⚠ IT LIVES ON THE DECK NOW (2026-08-06, "can you make the streak card merge into the top
-   card?") — the deck's floor, full width, under the greeting + rail row. Two consequences:
-   · IT GOES HORIZONTAL. A full-width band is ~1270px; the month grid is `repeat(7,1fr)`
-     with a 34px cap on the cell, so across that width it would have laid 34px dots out in
-     178px columns — a calendar with the days scattered. The numeral holds the left, the
-     month holds the right at its own natural 262px, and the band is ~2/3 the height the
-     vertical tile was. The flex column is restored on narrow tiers by flipping `display`
-     alone: every grid-column/grid-row below is inert under flex, so there is one switch and
-     no second layout to keep in sync.
-   · IT TAKES THE DECK'S INNER RADIUS (18px), not the page's --hr (24px). Radius is what
-     says which plate an object belongs to. */
-.hm-streak { position:relative; overflow:hidden; border-radius:18px; color:#fff;
+/* ⚠ IT IS ITS OWN CARD AGAIN (2026-08-06, "separate the streak card from the rest of the
+   top card") — a top-level child of .aurora-home, directly under the console. It went ONTO
+   the deck one pass earlier; it keeps everything that move bought it, and gives back only
+   the one thing that made it read as part of the console:
+   · IT TAKES THE PAGE RADIUS (--hr) BACK. Radius is what says which plate an object belongs
+     to, so at the deck's inner 18px it read as one of the console's inserts even with 14px
+     of plate showing all round it — which is precisely the complaint. The separation itself
+     needs no new rule: .aurora-home is a flex column with a 16px gap, so leaving the plate
+     IS the gap, and there is no second spacing to keep in sync with it.
+   · IT STAYS HORIZONTAL, because the band's shape is set by its own WIDTH and not by its
+     parent — off the plate it is ~1272px rather than ~1244px. The month grid is
+     `repeat(7,1fr)` with a 34px cap on the cell, so down a column that width would lay 34px
+     dots out in 178px columns — a calendar with the days scattered. The numeral holds the
+     left, the month holds the right at its own natural 262px, and the band is ~2/3 the
+     height the vertical tile was. The flex column is restored on narrow tiers by flipping
+     `display` alone: every grid-column/grid-row below is inert under flex, so there is one
+     switch and no second layout to keep in sync.
+   · IT KEEPS THE ROTATION BAN it paid for on the deck (see hm-flame-flicker). That bound is
+     .hm-deck's and no longer reaches this card, but translate + independent scaleX/scaleY
+     read the same as the old rotate+skew — re-earning a geometry risk for a motion nobody
+     can tell apart is not a trade. */
+.hm-streak { position:relative; overflow:hidden; border-radius:var(--hr); color:#fff;
   --lip-c:#7E2704;
   background-color:#BE3C08;
   background-image:linear-gradient(96deg, #D14708 0%, #D14708 52%, #BE3C08 52%);
@@ -390,14 +401,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   transform-origin:50% 92%; animation:hm-flame-flicker 2.3s ease-in-out infinite;
   filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
 .hm-flame .core { color:#fff; animation:hm-flame-core 1.5s ease-in-out infinite; }
-/* ⚠ NO rotate AND NO skewX — this animation moved onto the deck with the streak card, and
-   the deck's geometry bound fails ANY element whose computed matrix carries a non-zero b/c
-   term (a rotated or skewed box reports an axis-aligned bounding rect up to 1.41x its own
-   width and escapes an overflow sweep even under overflow:hidden, because clipping stops the
-   PAINT and not getBoundingClientRect). The lick reads from an off-axis translate plus
-   independent scaleX/scaleY instead, which are pure a/d terms; nothing about the timing, the
-   drop-shadow ramp or the character of the flicker changed. Same reason `hm-dot-pop` below
-   lost its rotate. */
+/* ⚠ NO rotate AND NO skewX — earned in the pass where this card sat ON the deck, whose
+   geometry bound fails ANY element whose computed matrix carries a non-zero b/c term (a
+   rotated or skewed box reports an axis-aligned bounding rect up to 1.41x its own width and
+   escapes an overflow sweep even under overflow:hidden, because clipping stops the PAINT and
+   not getBoundingClientRect). The card has since moved off the plate, so that bound no longer
+   reaches it — this stays anyway: the lick reads from an off-axis translate plus independent
+   scaleX/scaleY, which are pure a/d terms, and nothing about the timing, the drop-shadow ramp
+   or the character of the flicker changed when the rotation went. Same for `hm-dot-pop`. */
 @keyframes hm-flame-flicker {
   0%,100% { transform:translateX(0) scale(1); filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
   25% { transform:translateX(-1.6px) scale(1.05,1.09); filter:drop-shadow(0 9px 18px rgba(120,40,0,.5)); }
