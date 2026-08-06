@@ -2,21 +2,26 @@
 /* AURORA Home — the student's game HUD, in FOUR ZONES:
 
      .hm-top     the brand, the level chip and the Eyecon menu (unchanged)
+     .hm-console the top ROW: the deck and the streak card ABREAST on a wide screen,
+                 stacked on everything narrower. Layout only — it paints nothing.
      .hm-deck    the CONSOLE — the status rail, and the greeting host beside ONE right-hand
                  rail (quest board → chest → League strip). One dark struck plate carrying
                  every object that is live RIGHT NOW.
-     .hm-streak  the streak band — its own card, directly under the console.
+     .hm-streak  the streak card — its own card, beside the console.
      .hm-record  what you have BUILT — the Lumens vault.
 
-   The coverflow of the three entry points sits between the streak and the record, outside
-   both guards.
+   The coverflow of the three entry points sits between the console row and the record,
+   outside both guards.
 
    ⚠ THE STREAK IS OFF THE PLATE (2026-08-06, "separate the streak card from the rest of the
-   top card"). It went ONTO the deck one pass earlier and it keeps everything that move
-   bought it — the horizontal band, its place in the reading order directly under the
-   console, the AA-corrected planes — but it is no longer one of the console's inserts. It
-   is the page's own card now, so it takes the page radius back, and .aurora-home's 16px
-   column gap is the whole separation.
+   top card") AND BESIDE IT (same day, fourth pass, "streak card and top card in the same
+   row"). It went ONTO the deck two passes earlier and it keeps everything that move bought
+   it — its place in the reading order beside the console, the AA-corrected planes — but it
+   is no longer one of the console's inserts. It is the page's own card, so it takes the page
+   radius back, and the row gap is the whole separation.
+   ⚠ `.hm-console` IS A WRAPPER, NOT A ZONE. Wrapping two cards in a row must not merge them
+   back into one object: it has no fill, no radius and no material of its own, so the only
+   thing it changes is where the streak sits.
    It needs no guard of its own and must not be given one: StreakTile renders null without a
    streak_detail, which is exactly what a failed /api/progress leaves behind — so the same
    read that puts the notice above also silences this card, with no second condition to
@@ -144,41 +149,45 @@ export function Dashboard() {
         </div>
       </div>
 
-      {progressUnknown ? (
-        <ApiErrorNotice cause="Couldn’t load your progress" className="aurora-api-error--page" />
-      ) : (
-        /* THE DECK — what is live right now, on one struck plate. The status bar is the
-           only place the live CLOCKS appear, and the streak NUMERAL has exactly one owner
-           (the band below), so two readouts can never disagree. */
-        <div className="hm-deck struck-structural">
-          <StatusBar
-            level={level}
-            rank={rank}
-            xpInLevel={xpInLevel}
-            xpToNext={xpToNext}
-            doneToday={detail?.done_today}
-            boost={hud?.boost ?? null}
-          />
-          <div className="hm-deck-mid">
-            <GreetingHero greeting={greeting} />
-            {/* ONE COLUMN, in the order a student works it: what to do → what it pays →
-                where it puts you ("chest, volt, quest all in 1 column", 2026-08-06). The
-                chest and the strip keep their own wrapper because the PHONE puts those two
-                abreast — a single 60px row instead of two, out of the same 844px fold the
-                status bar and three quest rows have already spent. */}
-            <div className="hm-rail">
-              <QuestBoard quests={hud?.quests ?? null} />
-              <div className="hm-deck-foot">
-                <ChestTile chest={hud?.chest ?? null} />
-                <RankStrip league={hud?.league ?? null} />
+      <div className="hm-console">
+        {progressUnknown ? (
+          <ApiErrorNotice cause="Couldn’t load your progress" className="aurora-api-error--page" />
+        ) : (
+          /* THE DECK — what is live right now, on one struck plate. The status bar is the
+             only place the live CLOCKS appear, and the streak NUMERAL has exactly one owner
+             (the card beside it), so two readouts can never disagree. */
+          <div className="hm-deck struck-structural">
+            <StatusBar
+              level={level}
+              rank={rank}
+              xpInLevel={xpInLevel}
+              xpToNext={xpToNext}
+              doneToday={detail?.done_today}
+              boost={hud?.boost ?? null}
+            />
+            <div className="hm-deck-mid">
+              <GreetingHero greeting={greeting} />
+              {/* ONE COLUMN, in the order a student works it: what to do → what it pays →
+                  where it puts you ("chest, volt, quest all in 1 column", 2026-08-06). The
+                  chest and the strip keep their own wrapper because the PHONE puts those two
+                  abreast — a single 60px row instead of two, out of the same 844px fold the
+                  status bar and three quest rows have already spent. */}
+              <div className="hm-rail">
+                <QuestBoard quests={hud?.quests ?? null} />
+                <div className="hm-deck-foot">
+                  <ChestTile chest={hud?.chest ?? null} />
+                  <RankStrip league={hud?.league ?? null} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Off the plate, under it. See the zone map above. */}
-      <StreakTile detail={detail} />
+        {/* Off the plate, beside it. See the zone map above — and note it stays OUTSIDE the
+            guard: StreakTile renders null without a streak_detail, which is exactly what a
+            failed /api/progress leaves behind, so there is no second condition to drift. */}
+        <StreakTile detail={detail} />
+      </div>
 
       {/* Outside the guard on purpose: the carousel reads no progress, so a failed read
           must still leave the three features reachable. */}
