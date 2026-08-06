@@ -14,8 +14,13 @@ from tools.supervisor.osce_analysis import (
 )
 from tools.supervisor.topic_map import build_topic_map, cohort_topic_means, contrast_for, norm_key
 
-# chat.py's default topic. Every tutor row written before the client started sending a real
-# label carries it, so it means exactly one thing: no label was recorded.
+# The tutor's default topic, defined HERE and imported by chat.py rather than the reverse: a
+# pure analysis module must not drag a FastAPI router (and Supabase, and the Gemini client)
+# into its import graph. Two copies would be a live hazard, not just duplication -- change the
+# one in chat.py alone and this module stops recognising the legacy rows, then prints
+# "Ophthalmology" as a genuine subject, which is the exact defect consultations() exists to
+# remove. Every tutor row written before the client started sending a real label carries it,
+# so it means exactly one thing: no label was recorded.
 TOPIC_SENTINEL = "Ophthalmology"
 _STATION_PREFIX = "case:"
 
