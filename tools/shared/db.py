@@ -242,6 +242,7 @@ async def insert_case_result(
     coaching: dict | None = None,
     checklist_coverage: int | None = None,
     grade_scale: int | None = None,
+    checklist_detail: list | None = None,
 ) -> None:
     """Append a case completion record. The rich OSCE-grade columns are additive and
     nullable (migrations 011 and 017); when any are supplied we try the full insert first
@@ -251,7 +252,11 @@ async def insert_case_result(
     `grade_scale` records which maxima the sub-scores use, so the /50 era and the current
     /30 one stay legible side by side; NULL means the row predates the stamp. Both it and
     `checklist_coverage` are written on `is not None`, never on truthiness — coverage 0 is
-    a real score, and degrading it to NULL would relabel a current row as legacy."""
+    a real score, and degrading it to NULL would relabel a current row as legacy.
+
+    `checklist_detail` is the per-step ledger (migration 019): which steps were performed,
+    which were skipped, in the station's own phase grouping. NULL means the row predates the
+    column, never that nothing was performed."""
     client = await _get_client()
     base: dict = {
         "student_id": student_id,
@@ -276,6 +281,10 @@ async def insert_case_result(
         rich["checklist_coverage"] = checklist_coverage
     if grade_scale is not None:
         rich["grade_scale"] = grade_scale
+    # Migration 019. `is not None`, so an empty ledger (a case that resolved zero steps) is
+    # still written as [] and stays distinguishable from a pre-019 row, which is NULL.
+    if checklist_detail is not None:
+        rich["checklist_detail"] = checklist_detail
     try:
         await client.table("case_progress").insert(rich).execute()
     except Exception:
