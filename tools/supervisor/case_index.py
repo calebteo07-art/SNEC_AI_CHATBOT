@@ -79,6 +79,10 @@ def classify_case(case: dict) -> dict | None:
         "set_key": set_key,
         "label": label_for(role, set_key),
         "difficulty": str(case.get("difficulty") or "beginner"),
+        # The case's OWN topic, not the topic-SET label above. The knowledge x performance
+        # map joins stations against flashcard topic_tags ("tonometry", "visual fields"),
+        # and the set label ("Diagnostics & imaging") never matches one.
+        "topic": str(case.get("topic") or ""),
     }
 
 
