@@ -139,6 +139,13 @@ export interface StudentDetail {
   // the page still renders either way. Optional so a persisted pre-P2b payload does not
   // break the type. REPLACES `cohort_retention`, a per-topic field no backend ever sent.
   mastery?: Mastery | null;
+  // P2 ranked-insight payload (tools/supervisor/student_insight.py). Left as the snake_case
+  // the API sends; AdminStudentDetail maps it to the camelCase StudentInsight the two report
+  // builders read. Null when the assembler threw — /detail fail-softs so the rest of the page
+  // still renders, and no document may be built from it. Optional because a payload persisted
+  // before P1 (admin queries live in IndexedDB for 24h) simply has no such key, which has to
+  // read as "absent", not as an empty insight.
+  insight?: Record<string, unknown> | null;
   // Cross-feature findings (tutor + flashcards + virtual patients); narrative filled on demand.
   insights?: { findings: { feature: string; text: string }[]; narrative: string };
 }

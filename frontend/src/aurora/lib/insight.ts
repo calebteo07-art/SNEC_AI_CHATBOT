@@ -9,11 +9,18 @@
    thresholds the DOCUMENT has to explain to a trainer ("4 needed", "3 peers"), so the prose
    and the arithmetic must not drift. If you change one side, change both. */
 
-export type Band = "thin" | "weak" | "developing" | "strong";
+/** All FIVE values `topic_map.py::band_for` can return — "absent" included. It is the
+    `Cell()` default, handed to any topic missing from one axis (topic_map.py:212), and
+    omitting it from this union would promise a `switch` an exhaustiveness it does not have. */
+export type Band = "thin" | "weak" | "developing" | "strong" | "absent";
 export type Flag = "" | "knows_cant_do" | "rote" | "consistent_gap";
 export type TrajectoryBand = "insufficient" | "declining" | "steady" | "improving";
 export type Axis = "flashcards" | "station";
 
+/** `band === "absent"` iff `n === 0` — the three real construction sites (topic_map.py:91,
+    121, 146) all pass a real value AND a real n, so the only way to get "absent" is the
+    default `Cell()`, which carries n=0. Every renderer guards on `n` before reading `value`,
+    which is why `value` is typed non-null here: it is unreadable when it would be null. */
 export interface Cell { value: number; n: number; band: Band }
 
 export interface TopicRow {

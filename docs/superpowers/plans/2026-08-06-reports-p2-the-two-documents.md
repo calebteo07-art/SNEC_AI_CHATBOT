@@ -41,10 +41,12 @@ Checked against the running code on 2026-08-06, not assumed. Trust these over th
 
 | Field | Values |
 |---|---|
-| `Cell.band` | `thin` · `weak` · `developing` · `strong` |
+| `Cell.band` | `thin` · `weak` · `developing` · `strong` · **`absent`** |
 | `TopicRow.flag` | `""` · `knows_cant_do` · `rote` · `consistent_gap` |
 | `Trajectory.band` | `insufficient` · `declining` · `steady` · `improving` |
 | `Contrast.axis` | `flashcards` · `station` |
+
+`absent` is the `Cell()` default, handed to any topic missing from one axis (`topic_map.py:212`). It holds **iff `n === 0`** — the three real construction sites (`topic_map.py:91`, `121`, `146`) all pass a real value and a real `n` — so every renderer's `n` guard catches it before anything reads `value`. It was missing from the first version of this table: the probe that "verified" this row passed only non-null values with `n >= 1`, so it could never produce `absent`, and the result was then written down by hand. **Derive an enum from the function that emits it, across inputs that can reach every branch — a hand-copied list is not a verified one.**
 
 **Constants** (import, never hardcode): `MIN_TRAJECTORY_N=4`, `TRAJECTORY_DEAD_BAND=5.0`, `MIN_PEERS=3`, `MIN_CARDS=5`, `INDIVIDUAL_GAP=15.0`.
 
