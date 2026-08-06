@@ -85,7 +85,7 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` | student |
 | GET/POST | `/api/checkin/*` · `/api/flashcards/*` · `/api/gamification/sync` | student |
 | GET  | `/api/progress` · `/api/leaderboard` · `/api/study-suggestion` | student |
-| GET | `/api/admin/*` reads (roster, students, activity, student detail, token-summary) | **staff** |
+| GET | `/api/admin/*` reads (roster, students, activity, student detail, attempts, token-summary) | **staff** |
 | POST/DELETE | `/api/admin/approved` · `/upload-csv` · `/promote` (add/remove/provision) | **admin** |
 | GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **staff** |
 | PATCH | `/api/profile/role` (content-pool toggle) | **staff** |
