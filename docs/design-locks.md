@@ -654,6 +654,89 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     is a number. Every bound in the acceptance list above still passes unchanged, including
     the 390×844 fold budget — the height lock does not reach the phone.
 
+  ### Amendment 2026-08-06 (second pass) — THE CONSOLE (user directive: "chest, volt, quest
+  all in 1 column and have more game-like loud addicting colors. levels strip color choice
+  not matching well with rest of page. can you make the streak card merge into the top
+  card?") — **THIS IS THE LIVE LOCK for the deck's layout and colour.**
+
+  The STRUCK material is *still* unchanged — the lip ladder, the 2.5px ink outline, the
+  hard-stop fills, the flat rung and every acceptance bound hold as written. What changes is
+  the deck's **shape** and its **ground**.
+
+  - **Criterion changed (i) — the deck is a two-column console with a floor.** `.hm-deck-foot`
+    stops being a second full-width row. The right-hand `.hm-rail` is ONE column in the order
+    a student works it — **quest board → chest → League strip** (what to do → what it pays →
+    where it puts you) — beside the greeting host; `.hm-streak` moves out of `.hm-record` and
+    becomes the deck's full-width floor. ⚠ `.hm-deck-foot` survives *only* as the chest+strip
+    wrapper, because the PHONE puts those two abreast in one ~60px row instead of two; on
+    every other tier it is a single column and passes through. ⚠ `.hm-record` drops to one
+    column — a lone child of its old `1fr 1.5fr` grid would have put the vault, the object
+    that looks better wider, in the NARROWER track with the wider one empty.
+  - **Criterion changed (j) — the plate is DARK, and that is what makes the rail belong.**
+    "The rail is the one dark object on the deck" (amendment 1, criterion f) is **superseded**:
+    indigo was right about the *object* and wrong about the *room*. On a cream plate the rail
+    read as an alien rather than as the head of the machine. The plate is now the console body
+    — `#1C1236` under `#2A1B4E` — and the rail is a *raised* violet bar on it (`#3B2A6B` under
+    `#4E3A87`, a 1.67:1 step). **Loud is a figure/ground problem before it is a saturation
+    problem**: the five cards did not change hue, they changed background.
+    | object | fill | why that hue |
+    |---|---|---|
+    | `.hm-deck` plate | `#1C1236` / `#2A1B4E` | the console body — the thing every live object is mounted in |
+    | `.hm-hud` status rail | `#3B2A6B` / `#4E3A87` | the machine, raised off the body; the XP groove `#170F2B` is the recess cut into it, and the certified gold lands on it as light |
+    | `.hm-greet` | `#FFE0B7` → `#F7DAE9` | you — and the outer plane is now the Veo clip's **own sampled field** (see (k)) |
+    | `.hm-board` | plate `#F1E9FF`, head `#6D28D9` / `#8241E0` | **violet is the quest**; the one object carrying dense text, so it stays the bright light-on-dark-ink panel |
+    | `.hm-chest` | gold `#DFA828` (unchanged) | **gold is Lumens** |
+    | `.hm-lb` rank strip | `#1B5FC0` / `#2569CE`, white ink | The League — the only route off the deck |
+    | `.hm-streak` | `#BE3C08` / `#D14708` | the flame — the deck's floor |
+    ⚠ **The strip's "stay light" ceiling is superseded, not broken.** Amendment 1 capped it at
+    `#BEDCFF` because *green has to read on it* and mint-on-mid-blue is the muddiest pair on
+    the deck. Going the other way removes the ceiling instead of pushing against it: on a deep
+    azure the ink is white (5.26:1) and promotion is a **bright** mint `#C9FCE1` (4.63:1) —
+    both louder and further from muddy than any dark-inked azure could reach. The division
+    still does **not** paint it.
+    ⚠ **The stage is unchanged and still light.** `leaderboard.css`'s >0.7 doctrine is about
+    the PAGE; `#DED8F5` (0.712) is untouched. The deck is a *component*, like the `#140B26`
+    vault. Plate-vs-stage is now 12.8:1 — the "same colour to within one digit" problem
+    amendment 1 fixed by hue is now also fixed by value.
+  - **Criterion changed (k) — the mascot's window is the ART BAND, not the card.** Criterion
+    (h)'s float lock is **demoted to a minimum height**; it is no longer what decides the
+    crop. `inset:0` made the visible window the card, so the crop was a function of how tall
+    the card happened to be — and the moment the greeting shares a grid row with a taller
+    neighbour (which is exactly what the one-column rail made it), the card stretches past
+    `0.5625 × width`, `cover` flips to HEIGHT-driven and the frame crops **sideways** instead.
+    She is on the right of the frame, so she goes first. Measured: at a 1000px viewport the
+    rail is ~382px against a 539px-wide greeting, whose flip threshold is 303px.
+    `.hm-eyeconloop` is now `left:0; right:0; bottom:0; aspect-ratio:1280/510`, so the window
+    is always 39.84% of the card's WIDTH and `cover` is always width-driven whatever the card
+    does; `padding-top` rises to 40% purely to guarantee the card is never shorter than the
+    band. `object-position` is `50% 68%`.
+    ⚠ **A band has a top edge, and a top edge is a seam.** Two things kill it, and both are
+    needed: the card's outer plane is the clip's own field **sampled off the render** at the
+    join (`#F7DAE9`, replacing a lavender `#E4D3FF` that ran into a pink clip), and a
+    `mask-image` fade over the band's top 6% — well under the 14.2% of air above her head.
+  - **Two inherited AA failures fixed in the rules that name the fills.** Both were
+    *light-on-dark, where the worst case is the LIGHTER band* — the inverse of every
+    dark-on-light object in `home.css`, and both passes before this one measured only the
+    darker one. (1) `.hm-qhead`: white on `#8B5CF6` was **4.23:1**; the lighter plane drops to
+    `#8241E0` (5.55:1) and the tally to a solid `#EFE6FF` (4.61:1). (2) `.hm-streak`: the
+    previous pass certified white at 4.92:1 on `#C9420A` and wrote "every text colour on this
+    card is ≥ 4.92:1", but the card's top half was `#F1600C`, where white is **3.27:1**, and
+    that is where "Daily streak" (16.5px), "DAY STREAK" (14px) and half the month grid landed.
+    Both planes are re-derived: `#D14708` 4.55:1 / `#BE3C08` 5.47:1. Also on that card: the
+    DONE chip's numeral `#E4530B`→`#BE3C08` (3.80→5.47) and the next-tier tag from 20%-white
+    over the plane (~3.4:1, carrying a **1px white hairline**) to a solid `#8E2A03` (8.46:1).
+    ⚠ **The card-level radial is gone** — a 72%×64% ellipse is a wash, which is the exact
+    construction `leaderboard.css:15-19` names as the house style, and in a 1272px band it
+    stopped being a glow and became a second background. `.hm-big::before` is the heat source.
+  - **Criterion added (l) — NOTHING ON THE DECK ROTATES ITS OWN BOX, and the streak had to
+    pay for it.** `hm-flame-flicker` carried `rotate()` + `skewX()` and `hm-dot-pop` carried
+    `rotate(-12deg)`; both moved onto the deck with the streak card, where the geometry bound
+    fails any non-zero b/c matrix term. The lick is now an off-axis translate plus independent
+    scaleX/scaleY, and the pop is the scale — pure a/d terms, same timing, same character.
+  - **Acceptance**: all 41 colour pairs certified programmatically before a line was changed;
+    `_home_shot.mjs` reports `MASCOT whole=true cutTop=0 cutBottom=0` and 0 page overflow at
+    1512/1280/390/844; the 390×844 fold budget still holds (chest bottom 713).
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar
