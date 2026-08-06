@@ -83,3 +83,63 @@ def test_retention_cells_scale_the_zero_to_one_dict():
     cells = retention_cells({"Visual_Fields": 0.42})
     assert cells["visual fields"].value == 42.0
     assert cells["visual fields"].band == "weak"
+
+
+from tools.supervisor.topic_map import flag_for, build_topic_map
+
+
+def _cell(value, n, minimum, weak_line):
+    return Cell(value=value, n=n, band=band_for(value, n=n, minimum=minimum, weak_line=weak_line))
+
+
+def _fc(value, n=20):
+    return _cell(value, n, 5, 65.0)
+
+
+def _st(value, n=3):
+    return _cell(value, n, 1, 60.0)
+
+
+def test_flag_knows_it_cant_do_it():
+    assert flag_for(_fc(88.0), _st(41.0)) == "knows_cant_do"
+
+
+def test_flag_rote():
+    assert flag_for(_fc(50.0), _st(82.0)) == "rote"
+
+
+def test_flag_consistent_gap():
+    assert flag_for(_fc(48.0), _st(52.0)) == "consistent_gap"
+
+
+def test_no_flag_when_the_two_agree():
+    assert flag_for(_fc(80.0), _st(78.0)) == ""
+
+
+def test_a_flag_never_fires_off_a_thin_cell():
+    """4 cards is not evidence of knowledge, so 'knows it, can't do it' is not a claim we can
+    make -- however tempting the shape of the numbers."""
+    assert flag_for(_fc(100.0, n=4), _st(30.0)) == ""
+
+
+def test_a_flag_never_fires_off_an_absent_cell():
+    assert flag_for(Cell(), _st(30.0)) == ""
+    assert flag_for(_fc(90.0), Cell()) == ""
+
+
+def test_build_topic_map_leads_with_the_flagged_rows():
+    """A trainer reads the map top-down for what to do next, so the actionable rows are
+    first and the order is deterministic."""
+    result = build_topic_map(
+        card_rows=([{"topic_tag": "tonometry", "correct": True}] * 18
+                   + [{"topic_tag": "gonioscopy", "correct": True}] * 18),
+        case_rows=[{"case_id": "c1", "score_100": 30}, {"case_id": "c2", "score_100": 95}],
+        retention_scores={"perimetry": 0.9},
+        case_topics={"c1": "Tonometry", "c2": "Gonioscopy"},
+    )
+    assert [r.topic for r in result.rows][0] == "tonometry"
+    assert result.rows[0].flag == "knows_cant_do"
+    # The retention-only topic still gets a row, with two absent cells.
+    perimetry = next(r for r in result.rows if r.topic == "perimetry")
+    assert perimetry.flashcards.band == "absent" and perimetry.station.band == "absent"
+    assert perimetry.retention.value == 90.0
