@@ -39,6 +39,14 @@ function firstUserMessageTopic(messages: StoredMessage[]): string {
  * pure and never remembers state itself, so a strict-mode double-invoke or an extra render
  * can't make it forget.
  *
+ * `baselineCount` guards a second, distinct way to double-log: resumeSession loads an
+ * already-persisted conversation, whose messages already satisfy the completed-exchange check
+ * below by construction — so leaving immediately without adding anything would otherwise write
+ * a full duplicate row for content nothing new happened to, inflating the consultation-label
+ * counts staff read as distinct genuine asks. The caller passes the resumed thread's starting
+ * length; a thread that hasn't grown past it has nothing new to log. Defaults to 0, which never
+ * blocks a conversation that was never resumed.
+ *
  * A thread is loggable once it has a completed exchange: a non-empty user message AND a
  * non-empty assistant one. The empty-string check is load-bearing, not belt-and-braces —
  * Tutor.tsx's sendMessage pushes the assistant bubble with `content: ""` the instant streaming
@@ -52,8 +60,10 @@ function firstUserMessageTopic(messages: StoredMessage[]): string {
 export function endSessionPayload(
   messages: StoredMessage[],
   alreadySent: boolean,
+  baselineCount = 0,
 ): EndSessionPayload | null {
   if (alreadySent) return null;
+  if (messages.length <= baselineCount) return null;
 
   const hasUserReply = messages.some((m) => m.type === "user" && m.text.trim().length > 0);
   const hasAssistantReply = messages.some((m) => m.type === "ai" && m.text.trim().length > 0);
