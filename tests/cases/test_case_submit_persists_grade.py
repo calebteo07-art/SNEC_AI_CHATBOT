@@ -61,6 +61,12 @@ _SCORE = {
     },
 }
 _COACH_JSON = '{"highlights":["calm rapport"],"did_wrong":[],"missed":["IOP"],"focus":"escalate sooner"}'
+# Real steps (not []) so the checklist_detail assertions below actually exercise the
+# performed/skipped wiring at the case_submit call site, not just an empty passthrough.
+_STEPS = [
+    {"step_number": 1, "action": "Confirm patient identity", "critical": False},
+    {"step_number": 2, "action": "Measure IOP with tonometer", "critical": True},
+]
 
 
 def test_submit_persists_rich_grade_to_case_progress():
@@ -76,7 +82,7 @@ def test_submit_persists_rich_grade_to_case_progress():
          patch("tools.api.routers.cases.load_case", return_value=_CASE), \
          patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
          patch("tools.api.routers.cases._station_checklist",
-               return_value={"procedure_name": "NCT", "steps": [], "source": "checklist"}), \
+               return_value={"procedure_name": "NCT", "steps": _STEPS, "source": "checklist"}), \
          patch("tools.api.routers.cases.evaluate_case", return_value=_DOMAINS), \
          patch("tools.api.routers.cases.compute_station_score", return_value=_SCORE), \
          patch("tools.api.routers.cases.log_session", new=AsyncMock(return_value=None)), \
@@ -89,7 +95,11 @@ def test_submit_persists_rich_grade_to_case_progress():
                 "messages": [{"role": "user", "content": "Good morning, can I confirm your name?"}],
                 "findings": "IOP within range on repeat readings.",
                 "recommendation": "Document and hand over to the doctor.",
-                "performed_steps": [],
+                # Step 2 is sent as BOTH performed and skipped — the client-defence case the
+                # endpoint must resolve server-side: given up on wins, so it must land in the
+                # ledger as performed=False, skipped=True, never as credited.
+                "performed_steps": [1, 2],
+                "skipped_steps": [2],
             },
             cookies={"eyebot_token": create_access_token("stu_grade", "student", "OA")},
         )
@@ -106,3 +116,12 @@ def test_submit_persists_rich_grade_to_case_progress():
     # see the largest bucket at all; `grade_scale` stamps which maxima these sub-scores use.
     assert kw["checklist_coverage"] == 32
     assert kw["grade_scale"] == 2
+    # The per-step ledger (migration 019) must reach log_case_completion built from the
+    # SAME performed/skipped sets as the rest of this response — not swapped, not stale.
+    detail = kw["checklist_detail"]
+    by_step = {d["step_number"]: d for d in detail}
+    assert by_step[1]["performed"] is True and by_step[1]["skipped"] is False
+    # The skipped step: given up on, so NOT performed, and flagged skipped — even though the
+    # request body also listed it in performed_steps.
+    assert by_step[2]["performed"] is False and by_step[2]["skipped"] is True
+    assert by_step[2]["critical"] is True
