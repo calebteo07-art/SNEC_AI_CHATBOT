@@ -1,11 +1,13 @@
 /* Screenshots + geometry of the Home deck, on the same mocked payload home_hud_assert uses.
-   Not a gate — this is the "does it READ as a game" half the numbers alone cannot answer,
-   plus the measurements the greeting card's mascot crop has to be tuned against.
+   Not a gate — this is the "does it READ as a game" half the numbers alone cannot answer.
 
-   The mascot report is the point: the Veo loop is a 1280x720 clip on a card that is far
-   wider than 16:9, so `object-fit:cover` scales it by WIDTH and throws away most of its
-   height. It prints the source band actually on screen against the mascot's own bounds in
-   the source frame, so "she is cut off" becomes a number instead of an opinion.
+   ⚠ THE MASCOT REPORT CHANGED WITH THE 5TH PASS. It used to resolve the Veo clip's
+   `object-fit:cover` crop, because the loop was a 1280x720 opaque band on a card far wider
+   than 16:9 and "she is cut off" needed to be a number. The clip is retired; she is an
+   alpha-cut raster in her own flex track now, so `contain` on a fixed box cannot crop her.
+   What CAN go wrong instead is the thing the opaque clip used to mask: cream text running
+   over her pale skin at ~1.3:1. So the report is now the INTERSECTION between the copy and
+   the mascot, which must be 0 at every viewport, plus whether the card clips her at all.
 
    Run:  node frontend/tests/_home_shot.mjs [base] [outDir]
 */
@@ -17,10 +19,9 @@ const base = process.argv[2] ?? "http://127.0.0.1:3997";
 const out = process.argv[3] ?? ".tmp/home-shots";
 mkdirSync(out, { recursive: true });
 
-/* Measured off frame 20 of greeting-selena.mp4 (1280x720): the mascot including her feet,
-   excluding the cast shadow below her. Everything the crop report says is relative to it. */
-const SRC = { w: 1280, h: 720 };
-const MASCOT = { top: 215, bottom: 600, left: 720, right: 1170 };
+/* The greeting card's certified fill (design-lock Home, 5th pass): #5A2462, the DARKER band
+   of its hard-stop plane — the one a contrast probe reads. */
+const GREET_BG = "rgb(90, 36, 98)";
 
 const homePayload = () => ({
   quests: [
@@ -33,8 +34,10 @@ const homePayload = () => ({
   league: { rank: 1, pool_size: 6, promote_count: 3, division_name: "Silver", xp_to_promotion: 0 },
 });
 
-/* The four the crop was tuned against. `HOME_SHOT_VP="1200x800,1100x800"` swaps in your own
-   when you are hunting a breakpoint — the console row's threshold was picked this way. */
+/* `HOME_SHOT_VP="1200x800,1100x800"` swaps in your own when you are hunting a breakpoint —
+   the console row's threshold was picked this way. 900 is added to the default set because
+   it is the tier where the mascot is still drawn beside a FULL-WIDTH card, i.e. the one
+   place the copy has the most room to run into her. */
 const VIEWPORTS = process.env.HOME_SHOT_VP
   ? process.env.HOME_SHOT_VP.split(",").map((s) => {
       const [w, h] = s.trim().split("x").map(Number);
@@ -43,10 +46,12 @@ const VIEWPORTS = process.env.HOME_SHOT_VP
   : [
     { w: 1512, h: 860, tag: "laptop" },
     { w: 1280, h: 800, tag: "small-desktop" },
+    { w: 900, h: 900, tag: "single-column" },
     { w: 390, h: 844, tag: "phone", touch: true },
     { w: 844, h: 390, tag: "phone-landscape", touch: true },
   ];
 
+let bad = 0;
 const b = await chromium.launch();
 for (const vp of VIEWPORTS) {
   const ctx = await seededContext(b, base, student, { width: vp.w, height: vp.h },
@@ -58,64 +63,60 @@ for (const vp of VIEWPORTS) {
   await p.waitForSelector('[data-testid="hud-status"]', { timeout: 15000 }).catch(() => {});
   await p.waitForTimeout(1200);
 
-  const report = await p.evaluate((k) => {
+  const report = await p.evaluate(() => {
     const r = (e) => { if (!e) return null; const b = e.getBoundingClientRect();
       return { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) }; };
+    /* Intersection AREA, not "do the boxes touch" — a zero-width sliver is not an overlap. */
+    const overlap = (a, c) => {
+      if (!a || !c) return 0;
+      const A = a.getBoundingClientRect(), C = c.getBoundingClientRect();
+      const w = Math.min(A.right, C.right) - Math.max(A.left, C.left);
+      const h = Math.min(A.bottom, C.bottom) - Math.max(A.top, C.top);
+      return w > 0 && h > 0 ? Math.round(w * h) : 0;
+    };
     const card = document.querySelector(".hm-greet");
-    const box = document.querySelector(".hm-eyeconloop");
-    const vid = document.querySelector(".hm-eyeconloop-v");
-    let crop = null;
-    if (box && vid) {
-      const bb = box.getBoundingClientRect();
-      const cs = getComputedStyle(vid);
-      const fit = cs.objectFit;
-      // The used object-position, resolved to a 0-1 fraction of the OVERFLOW on each axis.
-      const [px, py] = cs.objectPosition.split(" ");
-      const frac = (v, ax) => v.endsWith("%") ? parseFloat(v) / 100
-        : parseFloat(v) / Math.max(1, ax === "x" ? bb.width : bb.height);
-      const s = fit === "contain" ? Math.min(bb.width / k.w, bb.height / k.h)
-                                  : Math.max(bb.width / k.w, bb.height / k.h);
-      const drawn = { w: k.w * s, h: k.h * s };
-      // Source pixels actually visible, per axis.
-      const band = (drawnPx, boxPx, srcPx, f) => {
-        if (drawnPx <= boxPx) return { from: 0, to: srcPx, whole: true };
-        const overflow = drawnPx - boxPx;
-        const from = (overflow * f) / s;
-        return { from, to: from + boxPx / s, whole: false };
+    const wrap = document.querySelector(".hm-iriswrap");
+    const h1 = document.querySelector(".hm-greet h1");
+    const sub = document.querySelector(".hm-sub");
+    let mascot = null;
+    if (card && wrap && getComputedStyle(wrap).display !== "none") {
+      const wb = wrap.getBoundingClientRect(), cb = card.getBoundingClientRect();
+      mascot = {
+        box: r(wrap),
+        rest: document.querySelector(".hm-iris .eyecon-logo-rest")?.getAttribute("src") ?? null,
+        /* how many px of her escape the card's own overflow:hidden, summed over all edges */
+        clipped: Math.round(Math.max(0, cb.left - wb.left) + Math.max(0, wb.right - cb.right)
+          + Math.max(0, cb.top - wb.top) + Math.max(0, wb.bottom - cb.bottom)),
+        overlapH1: overlap(h1, wrap),
+        overlapSub: overlap(sub, wrap),
       };
-      crop = {
-        fit, scale: +s.toFixed(3), box: r(box),
-        drawn: { w: Math.round(drawn.w), h: Math.round(drawn.h) },
-        x: band(drawn.w, bb.width, k.w, frac(px, "x")),
-        y: band(drawn.h, bb.height, k.h, frac(py, "y")),
-      };
-      crop.mascotFullyVisible = crop.y.from <= k.m.top && crop.y.to >= k.m.bottom
-        && crop.x.from <= k.m.left && crop.x.to >= k.m.right;
-      crop.cutTopPx = Math.max(0, Math.round((crop.y.from - k.m.top) * s));
-      crop.cutBottomPx = Math.max(0, Math.round((k.m.bottom - crop.y.to) * s));
-      crop.mascotDrawnH = Math.round((k.m.bottom - k.m.top) * s);
     }
     return {
       deck: r(document.querySelector(".hm-deck")), greet: r(card),
       hud: r(document.querySelector(".hm-hud")), board: r(document.querySelector(".hm-board")),
       chest: r(document.querySelector(".hm-chest")), lb: r(document.querySelector(".hm-lb")),
+      greetBg: card ? getComputedStyle(card).backgroundColor : null,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      crop,
+      mascot,
     };
-  }, { ...SRC, m: MASCOT });
+  });
 
   console.log(`\n══ ${vp.tag} ${vp.w}x${vp.h} ══`);
   console.log("  greet", JSON.stringify(report.greet), " deck", JSON.stringify(report.deck));
   console.log("  hud", JSON.stringify(report.hud), " board", JSON.stringify(report.board));
   console.log("  chest", JSON.stringify(report.chest), " lb", JSON.stringify(report.lb));
+  console.log(`  greet background-color ${report.greetBg}` +
+    (report.greetBg === GREET_BG ? "" : `  ← EXPECTED ${GREET_BG}`));
   console.log("  page overflow", report.overflow);
-  if (report.crop) {
-    const c = report.crop;
-    console.log(`  loop fit=${c.fit} scale=${c.scale} box=${JSON.stringify(c.box)} drawn=${c.drawn.w}x${c.drawn.h}`);
-    console.log(`  visible source y ${c.y.from.toFixed(0)}..${c.y.to.toFixed(0)} of ${SRC.h}` +
-      `  x ${c.x.from.toFixed(0)}..${c.x.to.toFixed(0)} of ${SRC.w}`);
-    console.log(`  MASCOT whole=${c.mascotFullyVisible} cutTop=${c.cutTopPx}px cutBottom=${c.cutBottomPx}px drawnHeight=${c.mascotDrawnH}px`);
-  } else console.log("  loop: not rendered");
+  if (report.mascot) {
+    const m = report.mascot;
+    const clean = m.overlapH1 === 0 && m.overlapSub === 0 && m.clipped === 0;
+    console.log(`  mascot box=${JSON.stringify(m.box)} rest=${m.rest}`);
+    console.log(`  MASCOT clipped=${m.clipped}px overlapH1=${m.overlapH1}px² overlapSub=${m.overlapSub}px² → ${clean ? "clean" : "BAD"}`);
+    if (!clean) bad++;
+  } else console.log("  mascot: not rendered (expected on both phone tiers)");
+  if (report.greetBg !== GREET_BG) bad++;
+  if (report.overflow > 0) bad++;
 
   const f = `${out}/${vp.tag}.png`;
   await p.screenshot({ path: f, fullPage: vp.tag === "laptop" });
@@ -123,3 +124,6 @@ for (const vp of VIEWPORTS) {
   await ctx.close();
 }
 await b.close();
+console.log(bad === 0 ? "\nOK — no overlap, no clipping, no overflow, fill certified"
+                      : `\nFAIL: ${bad} problem(s) above`);
+process.exit(bad === 0 ? 0 : 1);

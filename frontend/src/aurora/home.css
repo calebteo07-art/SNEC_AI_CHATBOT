@@ -198,68 +198,82 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    fit inside; 36px keeps the greeting a greeting without spending the budget. The greeting
    ENGINE is untouched — pickGreeting, the day-of-year rotation and the <em> accent word all
    read exactly as before, and greeting_assert.mjs asserts the text, never the size. */
-/* STRUCTURAL rung. It kept its old material — a three-stop pastel wash under a blurred
-   --sh-lg — while sitting INSIDE the struck deck, which is the one place a flat object
-   reads as an accident rather than as a choice. The radial is unchanged in origin, size
-   and hue; it just STEPS at 42% instead of easing across the whole card, which is move 3:
-   a gradient easing across a box is a wash, one that holds a colour and then steps is a
-   moulded surface. The lip is a darker lavender because the OUTER plane is the lavender —
-   a lip is a darker sibling of the fill it sits under, not of the fill's brightest patch.
-   ⚠ `inset:0` on the Veo loop, the veil and the ::after bloom resolves against the PADDING
-   box, so all three land inside the new outline and the card frames them. */
-/* ⚠ THE OUTER PLANE IS THE CLIP'S OWN FIELD, SAMPLED (2026-08-06). The art is a
-   bottom-anchored band now (see `.hm-eyeconloop`), so wherever the card is taller than the
-   band, this fill is what meets the clip's top edge — and a hard cut between two DIFFERENT
-   colours is a seam. Sampled off the rendered clip at the join: #FFE0B8 at the left,
-   #FAD9DC..#F8DCEE across the right. The peach plane was already exact; the outer plane was
-   a LAVENDER #E4D3FF running into a pink clip, which is what made the card read as two
-   pieces. #F7DAE9 is the clip's own right-hand field, so the card and the art are now one
-   continuous surface and the join is invisible at every card height.
-   Measured on the pink plane: --hink 11.6:1, .hm-sub's #5A4B64 6.2:1, the <em> accent
-   --violet-d 5.5:1. */
+/* STRUCTURAL rung, and the console's SCREEN (5th pass 2026-08-06, "the waving eyecon card
+   does not match with rest of the page").
+   ⚠ THE CARD WAS NOT WARM BY CHOICE — IT WAS WARM BECAUSE THE VIDEO SAID SO. The previous
+   fill was `#FFE0B7 → #F7DAE9`, and the outer plane was documented as "the clip's own field,
+   SAMPLED off the render", because the Veo loop was opaque (Veo can't emit alpha) and
+   full-bleed: any fill that was not the clip's own backdrop re-opened the seam the sampling
+   existed to close. So the one object on a deep-violet console that still read as candy was
+   locked there by an asset, on a plate that had gone dark around it. The clip is retired
+   (see `.hm-iriswrap` below) and the fill is free.
+   ⚠ VALUE SAYS "LIT", HUE SAYS "NOT THE RAIL". Measured lighter-band vs lighter-band, the
+   way every light-on-dark object in this file is quoted:
+     vs the console body #2A1B4E = 1.82  (the rail is 1.67 — a screen is MORE raised than a
+                                          bar, because a screen is the thing that glows)
+     vs the rail #4E3A87        = 1.09  — carried entirely by +36° of HUE (plum H=292 vs the
+                                          rail's blue-violet H=256), which is criterion (g)'s
+                                          stage-vs-plate doctrine applied one level in. It is
+                                          cheap here: 14px of plate, a 2.5px --mat-ink outline
+                                          and a 5px lip already sit between the two objects.
+   ⚠ THE RADIAL IS GONE, AND IT IS THE SAME DELETION THE STREAK CARD MADE. A 135%x158%
+   ellipse is a WASH — the exact construction leaderboard.css:15-19 names as the generated-
+   dashboard house style. This is the rail's own 42% hard-stop profile, so the console's two
+   biggest panels are now one moulding. The corner specular survives on ::after, contained.
+   Ink measured on the LIGHTER band (worst case), darker band quoted second:
+     h1 #FFF6EC 7.90 / 10.54 (the rail's own cream — one furniture ink for the console)
+     <em> #FFC08A 5.29 / 7.06   .hm-sub #E3CFE9 5.78 / 7.71
+   The lip #2A0D31 is 1.55 under its own fill AND darker than the plate it lands on. */
+/* ⚠ FLEX ROW, NOT A CANVAS WITH THINGS ON IT — see GreetingHero.tsx. The mascot was
+   `position:absolute` UNDER the copy, which only worked because the opaque clip and its veil
+   sat between them; on a transparent mascot, cream text over her pale skin is ~1.3:1. Two
+   tracks make the overlap impossible at every width and height. `align-items:stretch` keeps
+   the copy top-aligned; the mascot takes flex-end for itself. */
 .hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px;
-  --lip-c:#DBA2BE;
-  background-color:#F7DAE9;
-  background-image:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFE0B7 42%, #F7DAE9 42%); }
-/* ⚠ THE CARD'S MINIMUM HEIGHT IS TIED TO ITS OWN WIDTH, and it is only a MINIMUM — see the
-   note on `.hm-eyeconloop` below for why the mascot no longer depends on the card's actual
-   height at all ("the waving eyecon is cut off", 2026-08-06).
-
-   The clip is 1280x720 and the mascot spans y 215..600 of it — 385 source pixels, 53% of
-   the frame's height. `object-fit:cover` on a box far wider than 16:9 is scaled by WIDTH, so
-   she is drawn at 385 x (boxW / 1280) REGARDLESS of how tall the box is, while the box only
-   shows boxH of her. Measured at 1512px: she rendered 225px tall inside a 206px card and
-   lost 46px off the bottom — her feet. object-position cannot fix that; moving the window
-   only chooses WHICH end is amputated.
-
-   The card's width is a different fraction of the viewport in each of the three tiers where
-   the loop renders (two-column >= 900px, single-column 561-900px, narrow <= 560px), so a
-   min-height in px would have to be re-tuned per tier and would still be wrong between them.
-   A zero-width float's padding-top is a percentage OF THE CONTAINING BLOCK'S WIDTH, so this
-   is one declaration that holds at every width with no breakpoint tuning. `overflow:hidden`
-   above already makes this card a BFC, which is what contains the float so it can set the
-   height. 40% is what guarantees the card is never SHORTER than the art band below it at any
-   width: the band is 510/1280 = 39.84% of the card's width, the float reserves
-   40% x (cardW - 52px of padding) + 44px, and 40% x cardW + 23.2 >= 39.84% x cardW for every
-   positive width.
-   ⚠ It is switched OFF wherever `.hm-eyeconloop` is display:none (both phone tiers) — there
-   is no mascot to fit there, and the height would come straight out of the fold budget. */
-.hm-greet::before { content:""; float:left; width:0; padding-top:40%; }
-.hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
-.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
-.hm-greet h1 em { font-style:normal; color:var(--violet-d); }
-/* text columns are held to the calm left of the card so no word runs under the
-   full-bleed mascot on the right (she's nudged further right below). */
-.hm-sub { position:relative; margin-top:10px; font-size:17px; font-weight:500; color:#5A4B64; max-width:380px; line-height:1.42; }
+  display:flex; align-items:stretch; gap:18px; min-height:196px;
+  --lip-c:#2A0D31;
+  background-color:#5A2462;
+  background-image:linear-gradient(180deg,#75307F 0%,#75307F 42%,#5A2462 42%); }
+/* ⚠ THE WIDTH-PROPORTIONAL FLOAT IS GONE, AND ITS JOB WENT WITH THE VIDEO. It was
+   `::before { float:left; width:0; padding-top:40% }` — a percentage of the card's WIDTH
+   because the art band's height was a percentage of the card's width too (510/1280), so one
+   declaration held at every tier with no breakpoint tuning. With a fixed-size mascot that is
+   no longer a lock, it is a tax: at the <=900px single-column tier it reserved ~326px of card
+   for 144px of art. A real min-height is now both simpler and smaller, and it is released to
+   0 in exactly the three tiers the float was switched off in (<=560, <=640 coarse, <=480h
+   coarse), so no fold budget moves. */
+/* The corner specular, re-tinted from a 52% WHITE bloom to the screen's own light — white at
+   that alpha on a plum plane is a blown highlight, not a moulding. Contained by
+   `overflow:hidden` and out of flow (position:absolute), so it is never a flex item. */
+.hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(214,140,255,.20),transparent 62%); }
+.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:#FFF6EC; }
+/* The retired fill's own warm, PROMOTED to the accent — so the greeting still reads warm
+   exactly where it means "you", and the accent ties to the mascot's skin instead of to a
+   backdrop. Deliberately NOT the deck's certified gold #DFA828 (H=42): gold is Lumens, and
+   one meaning per hue is the deck's rule. */
+.hm-greet h1 em { font-style:normal; color:#FFC08A; }
+/* The measure is the headline's own (4th pass): 430px at 36px. The mascot has her own track
+   now, so this cap is about line length and nothing else — it is no longer what keeps words
+   out from under her. */
+.hm-sub { position:relative; margin-top:10px; font-size:17px; font-weight:500; color:#E3CFE9; max-width:380px; line-height:1.42; }
 /* The leaderboard control (.hm-lb) used to live here, as a candy CTA under the XP bar. It
    is now the deck's RANK STRIP and its rules moved with it — see "THE RANK STRIP" near the
    bottom of this file. Nothing on the greeting card styles it any more. */
-/* the default mascot sits BEHIND the full-bleed Veo loop (z-index:0) — it's the
-   reduced-motion / no-video fallback that shows through when the clip is absent. */
-/* Sized against the SHORTER host card (the 62px headline and the XP bar both left it): at
-   216px she stood taller than the card and `overflow:hidden` took the top of her head. */
-.hm-iriswrap { position:absolute; right:-24px; bottom:0; width:180px; height:156px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
-.hm-irisfloor { position:absolute; left:50%; bottom:12px; width:118px; height:18px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
+/* ⚠ THE MASCOT IS THE CARD'S ONLY ART NOW, AND SHE IS A FLEX TRACK, NOT AN OVERLAY. She was
+   `position:absolute; right:-24px; bottom:0` at z-index 0, UNDER the copy — safe only while
+   an opaque clip and its veil sat between them. Alpha-cut on a plum plane, cream text
+   crossing her skin is ~1.3:1, so the overlap has to be impossible rather than unlikely.
+   `margin-bottom:-22px` cancels the card's own bottom padding, which is what re-grounds her
+   on the card's bottom edge exactly where `bottom:0` had her (that resolved against the
+   PADDING box).
+   ⚠ 160px IS INHERITED, NOT RE-LITIGATED. The 4th pass ("significantly smaller waving eyecon
+   card") took her drawn height to 155px at 1512; .hm-iris was already 160px as the fallback,
+   so promoting the fallback keeps that pass's answer instead of re-opening it. */
+.hm-iriswrap { position:relative; flex:0 0 168px; align-self:flex-end; height:160px; margin-bottom:-22px;
+  z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+/* the contact shadow that grounds her — a WARM BROWN vanishes on plum, so it is the card's
+   own darkest note instead */
+.hm-irisfloor { position:absolute; left:50%; bottom:12px; width:118px; height:18px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(12,4,20,.5),transparent 70%); filter:blur(2px); }
 .hm-iris { position:relative; z-index:1; width:160px; height:160px; margin-bottom:4px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
 /* single transform track (no stacked conflicting animations): the bob carries a
    gentle breathe (scaleY) + a quick eye-close squash near the end of the cycle. */
@@ -270,9 +284,11 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   95% { transform:translateY(0) rotate(-.6deg) scaleY(.9); }
   100% { transform:translateY(0) rotate(-1deg) scaleY(1); }
 }
-/* breathing warm halo behind the mascot */
-.hm-iriswrap::before { content:""; position:absolute; left:50%; bottom:18px; width:114px; height:114px; transform:translateX(-50%);
-  border-radius:50%; z-index:0; background:radial-gradient(circle, rgba(255,220,180,.55), transparent 66%);
+/* Breathing warm halo behind the mascot. It STAYS WARM on the cool screen on purpose: it was
+   a tint on the old peach card, and on plum it is what it always wanted to be — the light
+   source she is standing in, and the one thing tying her warm skin to the card. */
+.hm-iriswrap::before { content:""; position:absolute; left:50%; bottom:18px; width:132px; height:132px; transform:translateX(-50%);
+  border-radius:50%; z-index:0; background:radial-gradient(circle, rgba(255,206,150,.42), transparent 66%);
   filter:blur(10px); animation:hm-halo-breathe 4.8s ease-in-out infinite; }
 
 /* ── the student's OWN Eyecon on the greeting card (seamless-custom spec) ──
@@ -288,52 +304,19 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 @keyframes hm-eyecon-enter { from { opacity:0; transform: translateY(18px) scale(0.94); } to { opacity:1; transform: translateY(0) scale(1); } }
 @keyframes hm-halo-breathe { 0%,100% { opacity:0.42; } 50% { opacity:0.68; } }
 
-/* ── baked Veo greeting loop (when installed) — the card's FULL-BLEED base layer.
-   The landscape clip carries a baked warm gradient matching the card and the mascot
-   on the right, with calm space on the left for the copy. It's opaque (Veo can't emit
-   alpha) so it fully covers the fallback EyeconLogo beneath. A soft veil over it keeps
-   the headline/CTAs legible; the greeting body layers on top. ── */
-/* ⚠ THE ART IS A BOTTOM-ANCHORED BAND WHOSE HEIGHT FOLLOWS THE CARD'S WIDTH — it is NOT
-   inset:0 any more, and that is what makes the mascot independent of the card's height.
-
-   `inset:0` made the VISIBLE WINDOW the card, so the crop was a function of how tall the
-   card happened to be — and the moment the greeting shares a grid row with a taller
-   neighbour (which is exactly what the one-column rail made it), the card stretches, the
-   window goes past 0.5625 x its width, `cover` flips to HEIGHT-driven and the frame is
-   suddenly cropped SIDEWAYS instead: she is on the right of the frame, so she is the first
-   thing to go. Measured: at a 1000px viewport the rail is ~382px tall against a 539px-wide
-   greeting, whose flip threshold is 303px.
-
-   `aspect-ratio` on a left:0/right:0/bottom:0 box resolves the width from the offsets and
-   the height from the ratio, so the band is ALWAYS 510/1280 of the card's width and `cover`
-   is ALWAYS width-driven, whatever the card does. 510 is the WINDOW, not the mascot — it
-   does not change how big she is drawn (that is width-driven too), only how much of the
-   clip's baked backdrop shows around her, which is what keeps the card reading as one
-   picture rather than as a strip of art pasted onto a panel. At `68%` of the remaining
-   210px of overflow the visible source band is y 143..653, holding her 215..600 with ~72
-   source px of air above and ~53 below. That air is what the top fade is spent out of.
-   The old `translateX(2.5%)` is gone with the horizontal crop it used to spend: with the
-   frame drawn edge to edge it would push 2.5% of the video off the right and expose a bare
-   strip of card on the left. */
-.hm-eyeconloop { position:absolute; left:0; right:0; bottom:0; top:auto;
-  aspect-ratio:1280 / 510; z-index:1; pointer-events:none; overflow:hidden;
-  /* The card's fill is the clip's own field (see .hm-greet), so the join is already a
-     colour match; this dissolves the last hard pixel of it. 6% is well under the 14.2% of
-     air above her head, so the fade is spent entirely on backdrop and never touches her. */
-  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 6%);
-  mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 6%); }
-.hm-eyeconloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:50% 68%; }
-/* ⚠ THE VEIL NOW PAINTS THE CARD'S OWN COLOUR INSTEAD OF BLEACHING IT. Its job is
-   unchanged — keep the headline legible where it crosses the clip — but it was a CREAM
-   wash (#FFF6EC), and the clip is opaque and full-bleed, so `.hm-greet`'s designed
-   peach->lavender fill never renders at all: the veil WAS the card's visible colour, and
-   it was washing the one object on the deck that carries the art into the palest thing on
-   a plate of four saturated ones. Same geometry, same alphas, same legibility (the
-   headline clears 11:1 on every stop); the stops are the card's own #FFE0B7 -> #F7DAE9,
-   so the greeting reads warm on purpose rather than faded by accident. */
-.hm-greet-veil { position:absolute; inset:0; z-index:2; pointer-events:none;
-  background:linear-gradient(96deg, rgba(255,224,183,.72) 0%, rgba(255,226,190,.44) 30%, rgba(247,218,233,.2) 56%, rgba(247,218,233,0) 74%); }
-.hm-greet-body { position:relative; z-index:3; }
+/* ── the baked Veo greeting loop is RETIRED (5th pass 2026-08-06) ──
+   `.hm-eyeconloop`, `.hm-eyeconloop-v`, `.hm-greet-veil` and `EyeconGreetingLoop.tsx` are
+   gone. The clip was opaque and full-bleed, so the card's fill had to be SAMPLED off the
+   clip's own baked peach->pink backdrop to hide the join — which is what made the greeting
+   un-recolourable while every other object on the deck went violet. The mascot is the
+   alpha-cut <EyeconLogo> above; the veil went with the thing it was veiling.
+   ⚠ Everything those rules defended is MOOT, not deleted-and-at-risk: `aspect-ratio
+   1280/510`, `object-position:50% 68%` and the 6% mask-fade all existed to stop
+   `object-fit:cover` amputating her ("the waving eyecon is cut off", 2026-08-06).
+   `object-fit:contain` on a fixed box cannot crop, so the class of bug is gone.
+   ⚠ The `greeting-selena.{mp4,jpg}` binaries and `tools/media/generate_greeting_loop.py`
+   are KEPT — reviewed media, and a violet-baked reshoot is the obvious way back. */
+.hm-greet-body { position:relative; z-index:3; flex:1 1 auto; min-width:0; }
 
 /* ── streak tile ── */
 /* daily-streak card — a BOLD orange→deep-orange fill with a yellow heat-glow behind the
@@ -841,21 +824,19 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-deck-mid { grid-template-columns:1fr; }
   .hm-greet h1 { font-size:30px; max-width:none; }
   .hm-sub { font-size:16px; }
-  .hm-iriswrap { width:164px; height:144px; right:-8px; }
-  .hm-iris { width:150px; height:150px; }
+  /* she keeps her own track here — flex-basis, not a `right` offset, since the 5th pass */
+  .hm-greet { min-height:182px; }
+  .hm-iriswrap { flex-basis:152px; height:146px; }
+  .hm-iris { width:146px; height:146px; }
   .hm-eyecon { width:158px; height:158px; }
-  /* The per-tier `object-position` that used to sit here is DELETED, not retuned. It biased
-     the cover crop horizontally on the theory that the card was portrait-ish; the height
-     lock on .hm-greet means cover is always width-driven, so the horizontal position has
-     nothing to choose between and the vertical one has a single correct value (66%, the
-     mascot's own centre) at every width. Re-declaring 45% here is what would put her feet
-     back under the card's bottom edge. */
   .hm-carousel { height:340px; }
 }
 @media (max-width:560px) {
   .hm-greet h1 { font-size:27px; max-width:76%; }
   .hm-sub { font-size:15px; max-width:63%; }
   .hm-iriswrap { display:none; }
+  /* the mascot's floor goes with the mascot — same release the float lock used to get */
+  .hm-greet { min-height:0; }
   /* THE STREAK GOES BACK TO A COLUMN. The horizontal band needs ~532px of card (a 200px
      numeral column + 26px + the month's own 262px + 44px of padding) and this tier has at
      most 500. ONE property does it: every grid-column/grid-row on the children is inert
@@ -878,12 +859,11 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-fcard p { font-size:15.5px; }
   /* .hm-fcard-art is inset:0 cover — responsive with no per-breakpoint sizing needed */
   .hm-carousel { height:300px; }
-  /* The narrow-card `object-position` override is deleted for the same reason as the one in
-     the 900px block above — see the note there. */
-  /* on the narrow card the mascot's big eye is unavoidably behind the left copy, so the
-     legibility veil carries a stronger cream wash across the left ~66% (she stays visible
-     on the right) — keeps the headline/sub WCAG-legible where they meet her. */
-  .hm-greet-veil { background:linear-gradient(96deg, rgba(255,246,236,.92) 0%, rgba(255,246,236,.82) 44%, rgba(255,246,236,.42) 64%, rgba(255,246,236,0) 84%); }
+  /* The stronger cream veil that used to sit here is GONE with the veil itself. It existed
+     because "on the narrow card the mascot's big eye is unavoidably behind the left copy" —
+     which was only ever true while she was an absolutely-positioned layer UNDER the text.
+     She is hidden outright in this tier (above), and she has her own track everywhere she
+     is not, so there is no longer anything to keep the copy legible over. */
   /* five-across on a phone leaves a ~58px slot, so the gap, the plate's own padding and
      the label ramp all come down with it — the frame keeps showing five, which is the
      point of the pager */
@@ -954,27 +934,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-pool-seg button { padding:6px 11px; font-size:12.5px; }
   .hm-pool-tip { width:min(240px,72vw); }
 
-  /* the greeting card becomes a column: contained art band, then copy in clear space */
-  .hm-greet { padding:0; display:flex; flex-direction:column; }
-  /* The mascot height lock comes OFF with the mascot. `.hm-eyeconloop` is display:none in
-     this tier, so the float would reserve ~30% of the card's width in height for art that
-     is not there — straight out of the 844px fold budget the status bar, three quest rows
-     and the chest already have to fit inside. */
-  .hm-greet::before { content:none; }
-  /* The no-video fallback mascot is absolutely positioned bottom-right, i.e. over the
-     copy once the card is a column. The ≤560px block already hides it, but this tier
-     reaches 640px — without this, a 561-640px coarse device would overlap the two.
-     (Under reduced motion EyeconGreetingLoop renders null, so the card is simply copy on
-     the gradient — same as the ≤560px behaviour today.) */
+  /* phone: NO mascot on the greeting card at all (user directive 2026-07-20, "remove the
+     waving eyecon on phone"), so the card is copy on the plum plane. The mascot height
+     floor comes off with her — it would come straight out of the 844px fold budget the
+     status bar, three quest rows and the chest already have to fit inside. */
+  .hm-greet { padding:0; flex-direction:column; min-height:0; }
+  /* The ≤560px block already hides her, but this tier reaches 640px — without this, a
+     561-640px coarse device would still render her beside the copy. */
   .hm-iriswrap { display:none; }
-  /* phone: NO living mascot on the greeting card — the Veo greeting loop is dropped
-     entirely (it used to sit as a contained band above the copy), leaving the card as
-     headline + sub + XP + leaderboard CTA on the warm gradient (user directive
-     2026-07-20, "remove the waving eyecon on phone"). The fallback logo is already hidden
-     above; the veil goes too — with no art there is nothing to keep text legible over.
-     The Veo asset itself is untouched — desktop still plays it. */
-  .hm-eyeconloop { display:none; }
-  .hm-greet-veil { display:none; }
   .hm-greet-body { padding:14px 15px 15px; }
   .hm-greet h1 { font-size:clamp(21px,5.6vw,25px); max-width:none; }
   .hm-sub { font-size:14.5px; margin-top:8px; max-width:none; line-height:1.38; }
@@ -1017,15 +984,13 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-medal { width:26px; height:26px; } .hm-medal .ico { width:16px; height:16px; }
   .hm-pool-seg button { padding:5px 10px; font-size:12px; }
 
-  .hm-greet { padding:13px 16px; border-radius:16px; }
-  /* the height lock comes off with the mascot — see the portrait tier's note */
-  .hm-greet::before { content:none; }
+  /* the mascot's height floor comes off with the mascot — see the portrait tier's note */
+  .hm-greet { padding:13px 16px; border-radius:16px; min-height:0; }
   .hm-greet h1 { font-size:clamp(18px,2.3vw,21px); max-width:none; }
   .hm-sub { font-size:13px; margin-top:6px; max-width:none; line-height:1.35; }
-  /* phone landscape: same as portrait — no living mascot on the greeting card. This tier
-     keeps the desktop-style card, so hide BOTH the full-bleed Veo loop and the fallback
-     logo that would otherwise show bottom-right (user directive 2026-07-20). */
-  .hm-eyeconloop, .hm-iriswrap { display:none; }
+  /* phone landscape: same as portrait — no mascot on the greeting card (2026-07-20). This
+     tier keeps the desktop-style card, so she has to be hidden explicitly. */
+  .hm-iriswrap { display:none; }
 
   .hm-streak { padding:14px 16px; }
   .hm-snum { font-size:44px; }
