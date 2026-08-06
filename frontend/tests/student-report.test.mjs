@@ -1,110 +1,131 @@
-/* Pure unit test for the per-student report export. Run with Node's type
-   stripping (studentReportExport.ts is dependency-free, mirrors session_export_logic.mjs):
-     node --experimental-strip-types frontend/tests/student-report.test.mjs
-
-   buildStudentReportHtml turns already-loaded per-student data into ONE
-   self-contained, print-friendly, fully HTML-escaped document. */
+/**
+ * The rebuilt student report (P2 §7.1). Run with Node's type stripping:
+ *   node --experimental-strip-types frontend/tests/student-report.test.mjs
+ *
+ * Asserts the document makes CLAIMS and states honest absences as words. Every check here
+ * is about meaning, not markup — a test that pins class names would break on any restyle
+ * and catch none of the defects that matter.
+ */
 import assert from "node:assert";
 import { buildStudentReportHtml } from "../src/aurora/lib/studentReportExport.ts";
 
-const data = {
-  meta: {
-    studentId: "abcd1234ef567890", fullName: "Test Student", email: "test@snec.edu",
-    role: "OA", dateStr: "2026-07-13 14:30",
-  },
-  vitals: {
-    sessions: 42, streak: 5, lastActive: "2026-07-12", velocity: "steady",
-    cases: 3, tokens: "12.4k",
-  },
-  topics: [
-    { topic: "glaucoma", retentionPct: 82, flashcardPct: 74 },
-    { topic: "refraction", retentionPct: 55, flashcardPct: null },
-  ],
-  // Per-SCALE (masteryView.masteryRows), not per-topic. The per-topic "cohort avg" column
-  // this replaces was fed by `cohort_retention`, a field no backend ever sent.
-  mastery: [
-    { label: "OSCE attainment", valueLabel: "78", deltaLabel: "+17", cohortLabel: "Cohort 61 (7 peers)" },
-    { label: "Flashcard recall", valueLabel: "—", deltaLabel: "—", cohortLabel: "Cohort 72 (3 peers)" },
-    { label: "Topic retention", valueLabel: "64", deltaLabel: "—", cohortLabel: "No cohort to compare yet" },
-  ],
-  osce: [
-    { caseId: "C001", totalScore: 32, scoreMax: 40, passed: true, score100: 80, safe: true, missedCritical: [], dateStr: "2026-07-10" },
-    { caseId: "C002", totalScore: 18, scoreMax: 40, passed: false, score100: 45, safe: false, missedCritical: ["Did not check IOP"], dateStr: "2026-07-11" },
-  ],
-  weakTopics: ["refraction"],
-  missedFindings: ["Allergy status not confirmed"],
-  note: "Good progress overall.",
-  activity: [{ dateStr: "2026-07-12", topic: "Glaucoma" }],
-  findings: [
-    { feature: "AI Tutor", text: "5 tutor conversation(s); recent focus: glaucoma." },
-    { feature: "Flashcards", text: "74% accuracy over 40 card(s); weakest: refraction." },
-    { feature: "Virtual Patients", text: "2 station(s), 1 passed, avg 62/100; 1 unsafe run(s)." },
-  ],
-  narrative: "Reinforce refraction fundamentals and safety-critical IOP checks.",
+const cell = (value, n, band) => ({ value, n, band });
+const EMPTY_INSIGHT = {
+  topics: [], contrasts: [],
+  markLoss: { lost: { checklist: 0, consult: 0, judgement: 0 }, totalLost: 0,
+              shares: { checklist: 0, consult: 0, judgement: 0 }, attempts: 0, excludedLegacy: 0 },
+  offenders: [], criticalOffenders: [],
+  osceTrajectory: { band: "insufficient", delta: null, n: 0, needed: 4, firstMean: null, secondMean: null },
+  flashcardTrajectory: { band: "insufficient", delta: null, n: 0, needed: 20, firstMean: null, secondMean: null },
+  consultations: [], excluded: { unmappedCase: 0, unscored: 0 },
 };
 
-const html = buildStudentReportHtml(data);
+const base = (over = {}) => ({
+  meta: { studentId: "stu_x", fullName: "Alice Tan", email: "a@t.com", role: "OA", dateStr: "2026-08-06" },
+  insight: EMPTY_INSIGHT,
+  attempts: [],
+  note: "",
+  ...over,
+});
 
-// 1) A complete, standalone HTML document.
-assert.ok(typeof html === "string", "must return a string");
-assert.ok(html.trim().toLowerCase().startsWith("<!doctype html>"), "must start with <!doctype html>");
-assert.ok(/<\/html>\s*$/i.test(html.trim()), "must close the html document");
-
-// 2) Fully self-contained — no external resources of any kind.
-assert.ok(!/\b(src|href)\s*=\s*["']https?:/i.test(html), "must not reference external http(s) src/href");
-assert.ok(!/<link\b/i.test(html), "must not use <link> to external stylesheets");
-assert.ok(!/<script\b[^>]*\bsrc\b/i.test(html), "must not load external scripts");
-
-// 3) Title + identity + vitals + topics + OSCE render.
-assert.ok(html.includes("EyeBot — Student Report — Test Student"), "missing report <title>");
-for (const bit of ["Test Student", "test@snec.edu", "glaucoma", "refraction", "82%", "C001", "Did not check IOP", "Good progress overall."]) {
-  assert.ok(html.includes(bit), `content missing: ${bit}`);
+// 1 — identity and escaping
+{
+  const html = buildStudentReportHtml(base({ meta: { studentId: "s", fullName: "<script>x</script>", email: "e", role: "OA", dateStr: "d" } }));
+  assert.ok(!/<script>x<\/script>/.test(html), "free text must be escaped");
+  assert.ok(/&lt;script&gt;/.test(html), "and escaped visibly");
 }
 
-// 4) The @media print rules are present (print → Save as PDF).
-assert.ok(/@media\s+print/i.test(html), "missing @media print block");
-assert.ok(html.includes("break-inside"), "missing break-inside print rule");
-
-// 4b) Cross-feature findings + AI narrative + the OSCE→Virtual-patient rename all render.
-for (const bit of ["Findings &amp; insights", "AI Tutor", "Flashcards", "Virtual Patients",
-                   "Reinforce refraction fundamentals", "Virtual-patient results"]) {
-  assert.ok(html.includes(bit), `insights content missing: ${bit}`);
+// 2 — a brand-new student gets words, never zeros
+{
+  const html = buildStudentReportHtml(base());
+  assert.ok(/No stations attempted/i.test(html), "must say so in words");
+  assert.ok(!/>0%</.test(html), `a bare 0% must never appear for missing data: ${html.match(/.{0,60}>0%<.{0,60}/) ?? ""}`);
 }
-assert.ok(!html.includes("OSCE results"), "must rename OSCE → Virtual-patient results");
 
-// 4c) Mastery vs cohort renders per SCALE, and the retired per-TOPIC cohort column is gone.
-// That column was fed by `cohort_retention` — never emitted by any backend — so it printed
-// a row of dashes; a per-scale average repeated down a per-topic table would be worse.
-for (const bit of ["Mastery vs cohort", "OSCE attainment", "+17", "Cohort 61 (7 peers)",
-                   "No cohort to compare yet"]) {
-  assert.ok(html.includes(bit), `mastery content missing: ${bit}`);
+// 3 — the trajectory states its own threshold rather than going quiet
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, osceTrajectory: { band: "insufficient", delta: null, n: 2, needed: 4, firstMean: null, secondMean: null } },
+  }));
+  assert.ok(/2 so far/.test(html) && /4 needed/.test(html),
+    "an insufficient trajectory must state both counts");
 }
-assert.ok(!html.includes("Cohort avg"), "the per-topic cohort column must be gone, not rendered empty");
-// Header-string checks cannot see a skewed table: drop the <th> and keep the <td> and every
-// assertion above still passes while every topic row is shifted one column left. Count them.
-for (const [name, table] of Object.entries({
-  topics: html.split("<h2>Per-topic retention &amp; flashcard accuracy</h2>")[1]?.split("</table>")[0] ?? "",
-  mastery: html.split("<h2>Mastery vs cohort</h2>")[1]?.split("</table>")[0] ?? "",
-})) {
-  const heads = (table.match(/<th[ >]/g) || []).length;
-  assert.ok(heads > 0, `${name} table has no headers — the split anchor is stale`);
-  // Per ROW, not a total modulo: 2 headers and 2 rows of 3 cells divides evenly and would
-  // sail through while every row is shifted a column.
-  const rows = table.split(/<tr[ >]/).slice(1).filter((r) => r.includes("<td"));
-  assert.ok(rows.length > 0, `${name} table has no data rows — the fixture is empty`);
-  for (const [i, row] of rows.entries()) {
-    assert.strictEqual((row.match(/<td[ >]/g) || []).length, heads,
-      `${name} table row ${i} has the wrong cell count for ${heads} columns`);
-  }
+
+// 4 — the map renders a flagged cell with a word, not just colour
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, topics: [{ topic: "tonometry", flag: "knows_cant_do",
+      flashcards: cell(92, 20, "strong"), station: cell(41, 5, "weak"), retention: cell(88, 1, "strong") }] },
+  }));
+  assert.ok(/tonometry/i.test(html));
+  assert.ok(/known but not performable/i.test(html), "the flag must be explained in prose");
 }
-// Absent, not an empty table: an empty grid under a heading reads as three zeros.
-assert.ok(!buildStudentReportHtml({ ...data, mastery: [] }).includes("Mastery vs cohort"),
-  "a student with no mastery block must not get an empty mastery table");
 
-// 5) HTML-escaping: injected markup in the free-text note must be neutralised.
-const hostile = buildStudentReportHtml({ ...data, note: "<script>alert(1)</script> & <b>x</b>" });
-assert.ok(hostile.includes("&lt;script&gt;"), "must escape angle brackets in the note");
-assert.ok(hostile.includes("&amp;"), "must escape ampersands in the note");
-assert.ok(!hostile.includes("<script>alert(1)</script>"), "must not emit a raw script tag");
+// 5 — a thin cell shows its n and is not banded as if it were solid
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, topics: [{ topic: "gonioscopy", flag: "",
+      flashcards: cell(100, 2, "thin"), station: cell(0, 0, "thin"), retention: cell(0, 0, "thin") }] },
+  }));
+  assert.ok(/n\s*=\s*2/.test(html), "a thin cell must carry its count");
+}
 
-console.log("student-report.test: all assertions passed");
+// 6 — a null cohort baseline says so; it never prints 0
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, contrasts: [{ topic: "gonioscopy", axis: "station", student: 40, cohortMean: null, peers: 1, label: "" }] },
+  }));
+  assert.ok(/No cohort baseline/i.test(html), "must name the absence");
+  assert.ok(/1 peer/.test(html), "and say how many peers it had");
+}
+
+// 7 — an unrecorded consultation label is words, not blank
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, consultations: [{ label: "", count: 4, lastSeen: "2026-08-01", derived: false }] },
+  }));
+  assert.ok(/Topic not recorded/i.test(html));
+  assert.ok(/4/.test(html), "the count is still real and still shown");
+}
+
+// 8 — a derived label is marked as inferred, so a trainer knows not to fully trust it
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, consultations: [{ label: "gonioscopy", count: 2, lastSeen: "2026-08-01", derived: true }] },
+  }));
+  assert.ok(/inferred/i.test(html), "a derived label must be flagged as inferred");
+}
+
+// 9 — all-legacy attempts are called out, not silently blended
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, markLoss: { lost: { checklist: 0, consult: 0, judgement: 0 }, totalLost: 0,
+      shares: { checklist: 0, consult: 0, judgement: 0 }, attempts: 0, excludedLegacy: 6 } },
+  }));
+  assert.ok(/retired/i.test(html) && /6/.test(html),
+    "6 legacy attempts must be named as not comparable");
+}
+
+// 10 — findings lead the document
+{
+  const html = buildStudentReportHtml(base({
+    insight: { ...EMPTY_INSIGHT, criticalOffenders: [{ action: "Perform hand hygiene.", missed: 3, critical: true, appeared: null }] },
+  }));
+  const findingsAt = html.indexOf("Perform hand hygiene.");
+  const mapAt = html.search(/Knowledge\s*(&amp;|×|x)\s*performance/i);
+  assert.ok(findingsAt > 0 && (mapAt < 0 || findingsAt < mapAt),
+    "the ranked findings must appear before the tables");
+}
+
+// 11 — an empty `attempts` array is not proof the student attempted nothing. The console
+//      fetches it separately and falls back to [] when that fails, so the document must
+//      distinguish "none" from "not loaded" — mark_loss counted them either way.
+{
+  const counted = { ...EMPTY_INSIGHT, markLoss: { ...EMPTY_INSIGHT.markLoss, attempts: 4, excludedLegacy: 2 } };
+  const html = buildStudentReportHtml(base({ insight: counted, attempts: [] }));
+  assert.ok(!/No stations attempted\./.test(html),
+    "6 counted attempts must never be reported as none attempted");
+  assert.ok(/could not be loaded/i.test(html), "…and the document must say why they are not listed");
+}
+
+console.log("PASS student-report");

@@ -1,225 +1,208 @@
-// frontend/src/aurora/lib/studentReportExport.ts
-/* Pure builder for the per-student report (the Admin drill-down's
-   "Download report" action). Clones sessionExport.ts: turns already-loaded per-student
-   data into ONE self-contained, print-friendly (→ "Save as PDF"), fully HTML-escaped
-   document — vitals, mastery vs cohort, per-topic retention + flashcard accuracy,
-   virtual-patient results, weak topics, missed findings, the lecturer note, and a
-   recent-activity summary. The per-topic table carries NO cohort column: the only
-   cohort comparison the API makes is per-scale, and repeating a per-scale average
-   down a per-topic table would invent a comparison that was never computed.
-   Dependency-free so it runs under Node's type-stripping in the test harness and never
-   touches React/DOM. The caller (AdminStudentDetail) maps its live data into this plain
-   model; this module only renders it. */
+/* The per-student report (P2 §7.1) — the document a trainer downloads from the console.
+
+   Rebuilt onto the P1 insight payload. The old version listed what the console already
+   showed; this one leads with ranked CLAIMS (reportFindings.ts) and backs each with the
+   evidence it rests on. Tables come after the argument, not instead of it.
+
+   Every section states an honest absence in words rather than rendering a zero or a blank
+   (spec §8) — "No cohort baseline for this topic (1 peer with data)" is information; an
+   empty cell is a bug a trainer cannot distinguish from a real zero.
+
+   Two facts the previous version recorded and this one still obeys:
+   - `session_count` over-counts (spec §8.4). The old document labelled its tile "Activity
+     events" to stay honest about it; the rebuild drops the vitals row entirely, because a
+     number nobody can interpret is the "telling me what I already know" this replaces.
+   - A per-scale cohort average must never be repeated down a per-topic table. The map below
+     therefore carries NO cohort column; the only cohort comparison is `contrastBlock`, and
+     it renders the per-topic baseline P1 actually computed — or says there isn't one.
+
+   Dependency-free so it runs under Node's type-stripping in the harness. The ".ts" suffix on
+   the value imports is required for that: type-stripping resolves specifiers at runtime and
+   cannot guess the extension. */
+import { MIN_CARDS, type Attempt, type Cell, type StudentInsight, type TopicRow } from "./insight.ts";
+import { rankFindings } from "./reportFindings.ts";
+import { absent, esc, findingsHtml, page, section } from "./reportChrome.ts";
 
 export interface StudentReportData {
-  meta: {
-    studentId: string; fullName: string; email: string; role: string; dateStr: string;
-  };
-  vitals: {
-    sessions: number; streak: number; lastActive: string; velocity: string;
-    cases: number; tokens: string;
-  };
-  topics: {
-    topic: string; retentionPct: number; flashcardPct: number | null;
-  }[];
-  /** Per-SCALE comparison (masteryView.masteryRows), the only cohort comparison the API
-      makes. There was a per-TOPIC "cohort avg" column here fed by `cohort_retention`, a
-      field no backend version ever sent (`git log -S` over `*.py` returns nothing), so
-      it printed a column of dashes from 2026-07-14 until it was removed on 2026-07-31.
-      A per-scale average must never be repeated down a per-topic table to fill it. */
-  mastery: { label: string; valueLabel: string; deltaLabel: string; cohortLabel: string }[];
-  osce: {
-    caseId: string; totalScore: number; scoreMax: number; passed: boolean;
-    score100: number | null; safe: boolean | null; missedCritical: string[]; dateStr: string;
-  }[];
-  weakTopics: string[];
-  missedFindings: string[];
+  meta: { studentId: string; fullName: string; email: string; role: string; dateStr: string };
+  insight: StudentInsight;
+  /** Present when the trainer had the attempts loaded; the stations section says so rather
+      than claiming none were attempted when the on-demand fetch came back empty. */
+  attempts: Attempt[];
   note: string;
-  activity: { dateStr: string; topic: string }[];
-  // Cross-feature findings (tutor + flashcards + virtual patients) + optional AI narrative.
-  findings: { feature: string; text: string }[];
-  narrative: string;
 }
 
-/** Escape the five HTML-significant characters so any free text (lecturer note, missed
-    findings, topic names) renders as literal text — never interpreted as markup. */
-function esc(value: unknown): string {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+const pct = (v: number) => `${Math.round(v)}%`;
+const nice = (t: string) => esc(t.replace(/_/g, " "));
+
+const FLAG_PROSE: Record<string, string> = {
+  knows_cant_do: "known but not performable",
+  rote: "performed without the recall to explain it",
+  consistent_gap: "weak on both knowledge and performance",
+};
+
+/** A cell as text. A `thin` cell carries its n and is never dressed as a solid figure —
+    100% off two cards is not 100%. */
+function cellText(c: Cell): string {
+  if (!c || !c.n) return `<span class="absent">—</span>`;
+  if (c.band === "thin") return `${pct(c.value)} <span class="ph">(n=${c.n}, thin)</span>`;
+  const weak = c.band === "weak" ? ' class="weak"' : "";
+  return `<span${weak}>${pct(c.value)}</span> <span class="ph">(n=${c.n})</span>`;
 }
 
-function bulletList(items: string[]): string {
-  if (!items.length) return '<p class="muted">— none —</p>';
-  return `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
-}
-
-function topicRows(topics: StudentReportData["topics"]): string {
-  if (!topics.length) return '<tr><td class="muted">— no topic data —</td></tr>';
-  return topics
-    .map((t) => {
-      const fc = t.flashcardPct == null ? "—" : `${esc(t.flashcardPct)}%`;
-      return `<tr>
-        <td>${esc(t.topic.replace(/_/g, " "))}</td>
-        <td class="num ${t.retentionPct < 65 ? "weak" : ""}">${esc(t.retentionPct)}%</td>
-        <td class="num">${fc}</td>
-      </tr>`;
-    })
-    .join("");
-}
-
-/** The three named scales vs a leave-one-out cohort. Absent (not an empty table) when the
-    student is outside the cohort population or the reads failed — the same treatment the
-    on-screen panel gives it, because an empty grid under a heading reads as three zeros. */
-function masteryBlock(mastery: StudentReportData["mastery"]): string {
-  const rows = mastery ?? [];
+function mapTable(rows: TopicRow[]): string {
   if (!rows.length) return "";
-  return `<h2>Mastery vs cohort</h2>
-  <p class="muted">Three separate scales, never blended. The cohort average excludes this student,
-  so a delta of 0 means level with peers — not that there are no peers.</p>
-  <table>
-    <tr><th>Scale</th><th class="num">Student</th><th class="num">vs cohort</th><th>Cohort</th></tr>
-    ${rows.map((m) => `<tr>
-      <td>${esc(m.label)}</td>
-      <td class="num">${esc(m.valueLabel)}</td>
-      <td class="num">${esc(m.deltaLabel)}</td>
-      <td class="ph">${esc(m.cohortLabel)}</td>
-    </tr>`).join("")}
-  </table>`;
+  const body = rows.map((r) => `<tr>
+      <td class="${r.flag ? "flagged" : ""}">${nice(r.topic)}</td>
+      <td class="num">${cellText(r.flashcards)}</td>
+      <td class="num">${cellText(r.station)}</td>
+      <td class="num">${cellText(r.retention)}</td>
+      <td>${r.flag ? esc(FLAG_PROSE[r.flag] ?? r.flag) : ""}</td>
+    </tr>`).join("");
+  return `<p class="lede">Recall against performance, per topic. A topic is only flagged when both
+    sides carry enough data to compare — ${MIN_CARDS}+ cards and at least one scored station.</p>
+    <table>
+      <tr><th>Topic</th><th class="num">Flashcards</th><th class="num">Stations</th>
+          <th class="num">Retention</th><th>Reading</th></tr>
+      ${body}
+    </table>`;
 }
 
-function osceRows(osce: StudentReportData["osce"]): string {
-  if (!osce.length) return '<tr><td class="muted">— no case attempts —</td></tr>';
-  return osce
-    .map((c) => {
-      const score = c.score100 == null ? `${esc(c.totalScore)} / ${esc(c.scoreMax)}` : `${esc(c.score100)} / 100`;
-      const safety = c.safe == null ? "—" : c.safe ? "🛡 safe" : "⚠ unsafe";
-      const missed = c.missedCritical.length ? esc(c.missedCritical.join("; ")) : "—";
-      return `<tr>
-        <td>${esc(c.caseId)}</td>
-        <td class="num">${score}</td>
-        <td><span class="pill ${c.passed ? "ok" : "no"}">${c.passed ? "Pass" : "Fail"}</span></td>
-        <td class="${c.safe === false ? "weak" : ""}">${safety}</td>
-        <td>${missed}</td>
-        <td class="ph">${esc(c.dateStr)}</td>
-      </tr>`;
-    })
-    .join("");
-}
-
-function activityRows(activity: StudentReportData["activity"]): string {
-  if (!activity.length) return '<p class="muted">— no recent activity —</p>';
-  return `<table>${activity
-    .map((a) => `<tr><td class="ph">${esc(a.dateStr)}</td><td>${esc(a.topic || "—")}</td></tr>`)
-    .join("")}</table>`;
-}
-
-function findingsBlock(findings: StudentReportData["findings"], narrative: string): string {
-  findings = findings ?? [];
-  narrative = narrative ?? "";
-  if (!findings.length && !narrative) return '<p class="muted">— no findings yet —</p>';
-  const rows = findings
-    .map((f) => `<div class="finding"><span class="feat">${esc(f.feature)}</span><span>${esc(f.text)}</span></div>`)
-    .join("");
-  const narr = narrative
-    ? `<p class="narrative"><b>AI teaching insight:</b> ${esc(narrative)}</p>`
+function markLossBlock(insight: StudentInsight): string {
+  const m = insight.markLoss;
+  if (!m.attempts) {
+    return m.excludedLegacy
+      ? absent(`${m.excludedLegacy} attempts, all on the retired ×50 scale — not comparable to current marks.`)
+      : absent("No stations attempted on the current marking scale.");
+  }
+  if (!m.totalLost) return absent(`No marks lost across ${m.attempts} attempts.`);
+  const labels: Record<string, string> = {
+    checklist: "Checklist coverage", consult: "Consultation technique", judgement: "Clinical judgement & safety",
+  };
+  const rows = (["checklist", "consult", "judgement"] as const).map((k) => `<tr>
+      <td>${esc(labels[k])}</td>
+      <td class="num">${m.lost[k]}</td>
+      <td class="num">${pct(m.shares[k])}</td>
+    </tr>`).join("");
+  const legacy = m.excludedLegacy
+    ? `<p class="lede">${m.excludedLegacy} further attempts sit on the retired ×50 scale and are excluded — blending them would invent a trend.</p>`
     : "";
-  return rows + narr;
+  return `<p class="lede">Where ${m.totalLost} lost marks went, across ${m.attempts} attempts on the current scale.
+    Shares are rounded independently and may not total exactly 100%.</p>
+    <table><tr><th>Bucket</th><th class="num">Marks lost</th><th class="num">Share</th></tr>${rows}</table>${legacy}`;
+}
+
+function trajectoryBlock(insight: StudentInsight): string {
+  const t = insight.osceTrajectory;
+  if (t.band === "insufficient") {
+    return absent(`Not enough attempts to call a trend (${t.n} so far, ${t.needed} needed).`);
+  }
+  const word = t.band === "improving" ? "improving" : t.band === "declining" ? "going backwards" : "steady";
+  const delta = t.delta == null ? "" :
+    ` Mean moved ${t.delta > 0 ? "+" : ""}${Math.round(t.delta)} points (${Math.round(t.firstMean ?? 0)} → ${Math.round(t.secondMean ?? 0)}).`;
+  return `<p>Station performance is <b>${esc(word)}</b> across ${t.n} attempts.${esc(delta)}</p>
+    <p class="lede">Movement smaller than 5 points is treated as noise, not a trend.</p>`;
+}
+
+function contrastBlock(insight: StudentInsight): string {
+  if (!insight.contrasts.length) return "";
+  const rows = insight.contrasts.map((c) => {
+    const cohort = c.cohortMean == null
+      ? `<span class="absent">No cohort baseline for this topic (${c.peers} peer${c.peers === 1 ? "" : "s"} with data)</span>`
+      : `${pct(c.cohortMean)} <span class="ph">(${c.peers} peers)</span>`;
+    return `<tr><td>${nice(c.topic)}</td>
+      <td>${esc(c.axis === "station" ? "Stations" : "Flashcards")}</td>
+      <td class="num">${pct(c.student)}</td><td>${cohort}</td></tr>`;
+  }).join("");
+  return `<p class="lede">The cohort mean excludes this student. A topic with fewer than three peers
+    carries no baseline — that is stated, never filled with a zero.</p>
+    <table><tr><th>Topic</th><th>Axis</th><th class="num">Student</th><th>Cohort</th></tr>${rows}</table>`;
+}
+
+function flashcardsByTopic(rows: TopicRow[]): string {
+  const scored = rows.filter((r) => r.flashcards.n > 0)
+    .sort((a, b) => a.flashcards.value - b.flashcards.value);   // worst first
+  if (!scored.length) return "";
+  const body = scored.map((r) => `<tr><td>${nice(r.topic)}</td>
+      <td class="num">${cellText(r.flashcards)}</td></tr>`).join("");
+  return `<p class="lede">Average grade per topic, weakest first.</p>
+    <table><tr><th>Topic</th><th class="num">Average grade</th></tr>${body}</table>`;
+}
+
+/* An empty `attempts` array is ambiguous: the student may have attempted nothing, or the
+   on-demand fetch may have failed and fallen back to []. mark_loss counts attempts
+   independently, so the two are distinguishable — and printing "No stations attempted" for a
+   student with six of them is exactly the false assertion this rebuild exists to end. */
+function stationsBlock(attempts: Attempt[], insight: StudentInsight): string {
+  if (!attempts.length) {
+    const known = insight.markLoss.attempts + insight.markLoss.excludedLegacy;
+    return known
+      ? absent(`${known} station attempts are counted in the sections above, but their per-attempt detail could not be loaded into this document.`)
+      : "";
+  }
+  const rows = attempts.map((a) => {
+    const score = a.score100 == null
+      ? `${a.totalScore} <span class="ph">(legacy scale)</span>`
+      : `${a.score100} / 100`;
+    const safety = a.safe == null ? "—" : a.safe ? "safe" : "! unsafe";
+    // null = predates migration 019, and never the same claim as "0 of 18 steps performed".
+    const ledger = a.checklistDetail == null
+      ? `<span class="absent">not recorded</span>`
+      : `${a.checklistDetail.filter((s) => s.performed).length} / ${a.checklistDetail.length} steps`;
+    return `<tr><td>${esc(a.caseId)}</td><td class="num">${score}</td>
+      <td><span class="pill ${a.passed ? "ok" : "no"}">${a.passed ? "Pass" : "Fail"}</span></td>
+      <td class="${a.safe === false ? "weak" : ""}">${esc(safety)}</td>
+      <td>${ledger}</td><td class="ph">${esc(a.completedAt.slice(0, 10))}</td></tr>`;
+  }).join("");
+  return `<table><tr><th>Case</th><th class="num">Score</th><th>Result</th><th>Safety</th>
+      <th>Steps performed</th><th>Date</th></tr>${rows}</table>`;
+}
+
+function consultationsBlock(insight: StudentInsight): string {
+  if (!insight.consultations.length) return "";
+  const rows = insight.consultations.map((c) => `<tr>
+      <td>${c.label ? nice(c.label) : '<span class="absent">Topic not recorded</span>'}
+          ${c.derived ? '<span class="ph">(inferred from the reply)</span>' : ""}</td>
+      <td class="num">${c.count}</td><td class="ph">${esc(c.lastSeen || "—")}</td></tr>`).join("");
+  return `<p class="lede">What this student brought to the tutor. Labels only — transcripts are not retained.</p>
+    <table><tr><th>Subject</th><th class="num">Times</th><th>Last</th></tr>${rows}</table>`;
 }
 
 export function buildStudentReportHtml(data: StudentReportData): string {
-  const { meta, vitals, topics, osce, weakTopics, missedFindings, note, activity, findings, narrative, mastery } = data;
+  const { meta, insight, attempts, note } = data;
+  const findings = rankFindings(insight);
 
-  // session_count over-counts (spec §8.4) — label it "activity events", not "sessions".
-  const vitalTiles = [
-    { label: "Activity events", val: vitals.sessions },
-    { label: "Streak", val: `${vitals.streak}d` },
-    { label: "Cases", val: vitals.cases },
-    { label: "Tokens", val: vitals.tokens },
-    { label: "Velocity", val: vitals.velocity },
-    { label: "Last active", val: vitals.lastActive || "—" },
-  ]
-    .map((t) => `<div class="tile"><div class="tv">${esc(t.val)}</div><div class="tl">${esc(t.label)}</div></div>`)
-    .join("");
+  // Only the halves that actually happened are named: "0 attempts could not be mapped" is
+  // noise, and a count earns its place by being non-zero, not by filling a slot.
+  const excludedBits = [
+    insight.excluded.unmappedCase ? `${insight.excluded.unmappedCase} attempts could not be mapped to a topic` : "",
+    insight.excluded.unscored ? `${insight.excluded.unscored} attempts carried no score` : "",
+  ].filter(Boolean);
+  const excluded = excludedBits.length
+    ? `<p class="lede">${excludedBits.join(" and ")} — excluded from the map above, and still listed under Stations.</p>`
+    : "";
 
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EyeBot — Student Report — ${esc(meta.fullName)}</title>
-<style>
-  :root { color-scheme: light; --ink: #1a1a2e; --line: #e7e4f0; --accent: #6d3bd6; }
-  * { box-sizing: border-box; }
-  body { font: 14px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background: #fff; margin: 0; padding: 0 32px 40px; max-width: 920px; }
-  .band { margin: 0 -32px 4px; padding: 26px 32px 20px; background: linear-gradient(120deg, #f3efff, #eaf1ff); border-bottom: 3px solid var(--accent); }
-  h1 { font-size: 23px; margin: 0 0 4px; letter-spacing: -.01em; }
-  h1 small { font-weight: 600; color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 4px; }
-  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); padding-bottom: 6px; margin: 30px 0 12px; border-bottom: 1px solid var(--line); }
-  .meta { color: #5a5a72; font-size: 13px; }
-  .tiles { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 0; }
-  .tile { border: 1px solid var(--line); border-radius: 10px; padding: 9px 15px; min-width: 108px; background: #faf9fe; }
-  .tv { font-size: 21px; font-weight: 800; }
-  .tl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: #8a86a0; margin-top: 1px; }
-  table { border-collapse: collapse; width: 100%; }
-  th, td { border-bottom: 1px solid #efedf6; padding: 6px 9px; vertical-align: top; text-align: left; }
-  th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: #8a86a0; }
-  tr:nth-child(even) td { background: #fbfaff; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .weak { color: #c0392b; font-weight: 700; }
-  .ph { color: #8a86a0; font-size: 12px; white-space: nowrap; }
-  .pill { padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-  .pill.ok { background: #e9f7ef; color: #1a8f4c; } .pill.no { background: #fdecec; color: #c0392b; }
-  ul { margin: 4px 0 4px 18px; padding: 0; } li { margin: 2px 0; }
-  .muted { color: #999; font-style: italic; }
-  .note { background: #f4f0ff; padding: 10px 13px; border-radius: 8px; white-space: pre-wrap; }
-  .finding { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #f3f1fa; }
-  .finding .feat { flex: none; min-width: 118px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); }
-  .narrative { background: #f4f0ff; padding: 11px 13px; border-radius: 8px; margin: 10px 0 0; line-height: 1.55; }
-  @media print { body { padding: 0 20px 20px; } .band { margin: 0 -20px 4px; } h2 { break-after: avoid; } tr, .tile, .finding { break-inside: avoid; } }
-</style>
-</head>
-<body>
-  <div class="band">
-    <h1><small>EyeBot · Student report</small>${esc(meta.fullName)}</h1>
-    <div class="meta">${esc(meta.email)} · ${esc(meta.role)} · Student ${esc(meta.studentId)}</div>
-    <div class="meta">Generated ${esc(meta.dateStr)}</div>
-  </div>
+  const body = [
+    section("Findings", findingsHtml(findings),
+      "No findings — there is not yet enough evidence to say anything a trainer could act on."),
+    section("Knowledge & performance map", mapTable(insight.topics) + excluded,
+      "No topic has both recall and station data yet."),
+    section("Where the marks go", markLossBlock(insight)),
+    section("Trajectory", trajectoryBlock(insight)),
+    section("Against the cohort", contrastBlock(insight),
+      "No topic has enough peers for a cohort comparison."),
+    section("Flashcards by topic", flashcardsByTopic(insight.topics),
+      "No flashcard attempts recorded."),
+    section("Stations", stationsBlock(attempts, insight), "No stations attempted."),
+    section("Consultations", consultationsBlock(insight), "No tutor sessions recorded."),
+    section("Lecturer note", note.trim() ? `<div class="note">${esc(note)}</div>` : "", "None."),
+  ].join("\n");
 
-  <h2>Vitals</h2>
-  <div class="tiles">${vitalTiles}</div>
-
-  <h2>Findings &amp; insights · all features</h2>
-  ${findingsBlock(findings, narrative)}
-
-  ${masteryBlock(mastery)}
-
-  <h2>Per-topic retention &amp; flashcard accuracy</h2>
-  <table>
-    <tr><th>Topic</th><th class="num">Retention</th><th class="num">Flashcards</th></tr>
-    ${topicRows(topics)}
-  </table>
-
-  <h2>Virtual-patient results</h2>
-  <table>
-    <tr><th>Case</th><th class="num">Score</th><th>Result</th><th>Safety</th><th>Missed critical</th><th>Date</th></tr>
-    ${osceRows(osce)}
-  </table>
-
-  <h2>Weak topics</h2>
-  ${bulletList(weakTopics)}
-
-  <h2>Consistently missed findings</h2>
-  ${bulletList(missedFindings)}
-
-  <h2>Lecturer note</h2>
-  ${note.trim() ? `<div class="note">${esc(note)}</div>` : '<p class="muted">— none —</p>'}
-
-  <h2>Recent activity</h2>
-  ${activityRows(activity)}
-</body>
-</html>`;
+  return page({
+    title: `EyeBot — Student report — ${meta.fullName}`,
+    kicker: "EyeBot · Student report",
+    heading: meta.fullName,
+    meta: [`${meta.email} · ${meta.role} · Student ${meta.studentId}`, `Generated ${meta.dateStr}`],
+    body,
+  });
 }
