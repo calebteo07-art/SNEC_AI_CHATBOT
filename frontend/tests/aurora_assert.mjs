@@ -1115,7 +1115,24 @@ if (!/gradient/.test(accent.bg)) { console.error(`FAIL: gemini accent has no gra
 if (accent.anim !== "aurora-gemini-slide") { console.error(`FAIL: gemini accent not animated (${accent.anim})`); process.exit(1); }
 console.log("PASS: animated Gemini accent primitive renders + animates");
 
+// Emulate the media query rather than only poking the attribute. useReducedMotion (AURORA
+// owns html[data-motion]) RE-DERIVES the attribute from `matchMedia` on mount and on every
+// `change`, writing "" when the query does not match — so setting it by hand races the app's
+// own controller, and a late apply() wipes it between the write and the read. That is a
+// flake, not a rule: it failed once in CI on an unrelated commit while passing locally.
+// Emulating makes the controller AGREE with the test, so whichever runs last says "reduce".
+// The sibling mascot assertion above has always done it this way, which is why it never flaked.
+await np.emulateMedia({ reducedMotion: "reduce" });
 await np.evaluate(() => document.documentElement.setAttribute("data-motion", "reduce"));
+// Read only once the attribute has SETTLED on "reduce" — this is the state under test, so
+// asserting it separately keeps a controller race reporting as itself and not as a dead rule.
+await np.waitForFunction(
+  () => document.documentElement.getAttribute("data-motion") === "reduce",
+  null, { timeout: 4000 },
+).catch(async () => {
+  const got = await np.evaluate(() => document.documentElement.getAttribute("data-motion"));
+  console.error(`FAIL: html[data-motion] never settled on "reduce" (got "${got}")`); process.exit(1);
+});
 const frozen = await np.evaluate(() => {
   const el = document.createElement("div");
   el.className = "aurora-gemini-accent";
@@ -1127,5 +1144,6 @@ const frozen = await np.evaluate(() => {
 if (frozen !== "none") { console.error(`FAIL: gemini accent not frozen under reduced motion (${frozen})`); process.exit(1); }
 console.log("PASS: Gemini accent freezes under reduced motion");
 await np.evaluate(() => document.documentElement.removeAttribute("data-motion"));
+await np.emulateMedia({ reducedMotion: "no-preference" });
 
 await b.close();
