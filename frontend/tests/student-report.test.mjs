@@ -113,7 +113,11 @@ const base = (over = {}) => ({
   }));
   const findingsAt = html.indexOf("Perform hand hygiene.");
   const mapAt = html.search(/Knowledge\s*(&amp;|×|x)\s*performance/i);
-  assert.ok(findingsAt > 0 && (mapAt < 0 || findingsAt < mapAt),
+  // Both anchors must EXIST before their order means anything. An earlier version tolerated
+  // `mapAt < 0`, so a renamed heading silently disabled the check instead of failing it —
+  // the assertion passed while comparing nothing.
+  assert.ok(mapAt > 0, "the map heading must be found, or this test proves nothing");
+  assert.ok(findingsAt > 0 && findingsAt < mapAt,
     "the ranked findings must appear before the tables");
 }
 
