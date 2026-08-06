@@ -73,6 +73,24 @@ const contrast = (a, b) => {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
   return (x + 0.05) / (y + 0.05);
 };
+/* HSL hue in degrees, so the palette's own rule can be measured rather than eyeballed. Null for
+   a neutral, which has no position on the wheel — a grey rung is a different failure, and the
+   distinctness and luminance checks already own it. */
+const hue = (c) => {
+  const [r, g, b] = c.slice(0, 3).map((v) => v / 255);
+  const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+  if (d === 0) return null;
+  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+};
+/* ⚠ 150-300 DEGREES IS CLOSED TO THE TIER PALETTE (2026-08-06, "i dont want anything with a blue
+   hint for tiers"). Volt was repainted THREE times in two days — cyan, then electric blue, then
+   acid lime — and each pass left its palette rule in a comment for the next one to rediscover.
+   This is that rule as a number. It is deliberately about the DIVISIONS only: --role-oa violet,
+   --role-ot teal and --you-blue are a different axis and keep their blue on purpose, which is
+   what now makes blue on this board mean "not a tier". */
+const ARC = [150, 300];
+const inArc = (h) => h !== null && h >= ARC[0] && h <= ARC[1];
 
 /* A 30-person division with the top THREE promoting — the shape the backend produces since
    2026-08-04, when promote_count became min(n-1, 3) and the podium became the cut. It was 7
@@ -1305,6 +1323,14 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     if (hues.size !== 5) bad(`${at}: the five divisions paint ${hues.size} distinct colour(s) — divisions are identified by material, not by luminance`);
     else ok(`${at}: five divisions paint five distinct metals`);
 
+    // The whole ladder in one place: the road paints all five bases side by side.
+    m.pips.forEach((q, i) => {
+      const c = rgb(q.bg), h = c && c[3] !== 0 ? hue(c) : undefined;
+      if (h === undefined) bad(`${at}: rung ${i + 1} has no resolvable colour — the arc rule is testing nothing here`);
+      else if (inArc(h)) bad(`${at}: rung ${i + 1} sits at ${h.toFixed(0)}° (${q.bg}) — ${ARC[0]}-${ARC[1]}° is CLOSED to the tier palette; a division may not carry a blue hint`);
+      else ok(`${at}: rung ${i + 1} is outside the closed arc (${h === null ? "neutral" : h.toFixed(0) + "°"})`);
+    });
+
     // Earned / current / locked must all read, and not by hue alone.
     const now = m.pips.find((q) => q.state === "now");
     const past = m.pips.find((q) => q.state === "past");
@@ -1639,6 +1665,16 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     if (!band || band[3] === 0) bad(`${NAMES[d - 1]}: the tier band has no resolvable colour`);
     else if (lum(band) > 0.86) bad(`${NAMES[d - 1]}: the band's luminance is ${lum(band).toFixed(3)} — that is white, not a division`);
     else ok(`${NAMES[d - 1]}: the band is cast in its division (luminance ${lum(band).toFixed(3)})`);
+
+    /* The band is the largest statement of the division on the page, and it is authored from
+       --f-lo rather than from --pm — a separate site from the road above, so a drift can hit
+       one and not the other. Both are gated for the same reason the crest is called out in
+       Tiers.tsx: this colour has eight authors. */
+    if (band && band[3] !== 0) {
+      const h = hue(band);
+      if (inArc(h)) bad(`${NAMES[d - 1]}: the band sits at ${h.toFixed(0)}° — ${ARC[0]}-${ARC[1]}° is CLOSED to the tier palette ("i dont want anything with a blue hint for tiers")`);
+      else ok(`${NAMES[d - 1]}: the band is outside the closed arc (${h === null ? "neutral" : h.toFixed(0) + "°"})`);
+    }
 
     const probes = seen.filter((t) => !t.sel.startsWith("__"));
     const blind = probes.filter((t) => !t.color || !t.on).map((t) => t.sel);

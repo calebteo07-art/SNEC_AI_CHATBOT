@@ -201,9 +201,9 @@
    two colours rather than as one tint at two strengths, and every base clears the 0.7
    luminance floor by a wide margin (0.93-0.97) — this is still the light Aurora canvas. */
 .aurora-main:has(.lb-climb[data-tier="volt"]) {
-  --arena-base: #F2F7FF; --arena-wash: rgba(69, 147, 255, .44);
-  --arena-glow: rgba(150, 110, 255, .32); --arena-stripe: rgba(69, 147, 255, .10);
-  --arena-deep: #C8DCFB;
+  --arena-base: #FBFFEE; --arena-wash: rgba(165, 240, 0, .40);
+  --arena-glow: rgba(255, 71, 174, .30); --arena-stripe: rgba(150, 216, 0, .10);
+  --arena-deep: #DDF3AA;
 }
 .aurora-main:has(.lb-climb[data-tier="solar"]) {
   --arena-base: #FFFBF0; --arena-wash: rgba(255, 184, 0, .44);
@@ -211,14 +211,14 @@
   --arena-deep: #FBE3AE;
 }
 .aurora-main:has(.lb-climb[data-tier="nova"]) {
-  --arena-base: #FAF5FF; --arena-wash: rgba(180, 120, 250, .44);
-  --arena-glow: rgba(255, 92, 200, .32); --arena-stripe: rgba(160, 90, 250, .10);
-  --arena-deep: #DFC9F8;
+  --arena-base: #FFF4FA; --arena-wash: rgba(255, 71, 174, .42);
+  --arena-glow: rgba(255, 184, 0, .30); --arena-stripe: rgba(255, 71, 174, .10);
+  --arena-deep: #F9D0E6;
 }
 .aurora-main:has(.lb-climb[data-tier="prism"]) {
-  --arena-base: #F1FDFB; --arena-wash: rgba(45, 225, 208, .46);
-  --arena-glow: rgba(90, 150, 255, .32); --arena-stripe: rgba(45, 205, 190, .10);
-  --arena-deep: #BEF0E8;
+  --arena-base: #F1FFF5; --arena-wash: rgba(40, 224, 99, .44);
+  --arena-glow: rgba(214, 255, 90, .34); --arena-stripe: rgba(35, 200, 90, .10);
+  --arena-deep: #C3EFCF;
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
@@ -404,11 +404,12 @@
 /* ── the tier band ────────────────────────────────────────────────────────────
    The head, cast in the division's own colour, so climbing visibly re-skins the top of the
    page — the reward five identical white cards could never pay. --f-lo is the declared solid
-   the contrast probe resolves against; every one of the five clears 5.5:1 for --ink.
+   the contrast probe resolves against; every one of the five clears 5.3:1 for --ink (Nova is
+   the tightest at 5.31, Volt the widest at 11.8).
 
    ⚠ A RARITY LADDER, NOT FIVE METALS (2026-08-05, on request: the tiers read "too basic and not
-   vibrant and wild enough"). The rung that was Silver is painted AZURE — the colour marks the
-   rung, it no longer illustrates a noun. (The nouns caught up on 2026-08-06: the divisions are
+   vibrant and wild enough"). The rung that was Silver is painted ACID LIME — the colour marks
+   the rung, it no longer illustrates a noun. (The nouns caught up on 2026-08-06: the divisions are
    Ember · Volt · Solar · Nova · Prism, named for these five colours, so nothing here contradicts
    the word beside it any more.) Literal metal was the direct cause: silver IS grey and platinum
    IS a pale periwinkle, so the two divisions most of the cohort sits in desaturated the object that
@@ -418,25 +419,37 @@
    ⚠ VIVIDNESS WAS NEVER THE CONSTRAINT — that is why this is a token swap and not a redesign.
    Measured before choosing: these saturated bases clear the 4.5 floor by MORE than the washes
    they replace (gold 7.7→9.5, diamond 8.0→10.0). The old palette was desaturated by choice.
-   The one real limit is that ultraviolet is dark: the requested #A855F7 lands at 4.2:1, under
-   AA, so platinum is #B478FA — hue is what reads as ultraviolet, not darkness.
 
-   ⚠ VOLT IS BLUE, NOT CYAN (2026-08-06, "volt color does not look good"). #22B8F0 was chosen
-   as "azure" while the rung was still called Silver, and it survived the rename by inertia —
-   which left the ladder with its two coolest rungs 22° apart on the wheel (cyan 196° against
-   Prism's turquoise 174°), the pale one in the middle of the climb and the vivid one at the
-   top. #4593FF is 215°: a saturated electric blue, 40° clear of Prism, and the only hue on the
-   ladder that a name meaning VOLTAGE can wear without borrowing Solar's gold. Still fully
-   saturated (HSL S=100%) and still 5.3:1 for --ink, so nothing about the floor moved.
+   ⚠ NO RUNG MAY CARRY A BLUE HINT (2026-08-06, "i dont want anything with a blue hint for
+   tiers, it makes the leaderboard page looks ugly"). THREE of the five were blue and only one
+   of them was obvious: Volt at 215° was blue outright, Nova at 271° was blue-violet, Prism at
+   175° was blue-green. The ladder now lives entirely in 17°–148° and at 331° — vermilion, acid
+   lime, gold, hot magenta, emerald — and 150°–300° is CLOSED to this palette. Anything added
+   here later (a sixth division, a new place tier) picks from the open arc or it reopens the
+   report.
+
+   The cost of closing half a wheel is named rather than hidden, because the next author will
+   otherwise "fix" it:
+   · TWO rungs are greens (Volt 79°, Prism 139°). Unavoidable at five hues on half a wheel.
+     They are rungs 2 and 5 — never adjacent on the road — and 0.703 against 0.547 of luminance
+     holds them apart where 60° of hue alone would be thin.
+   · Volt is #A5F000: S=100% and a blue channel of literally ZERO, which is the one rung where
+     that was reachable. Magenta needs blue to be magenta and emerald needs a little to be a
+     jewel rather than grass, so the rule is what the eye reads, not what the byte says.
+   · PRISM IS THE ONE NAME THIS COSTS SOMETHING. "Light split into all of it" has no blue-free
+     single hue, so the summit earns its name from its GRADIENT instead: acid yellow → lime →
+     spring → emerald is a spectrum slice, and Prism is the only band whose four stops are four
+     hues rather than one hue at four strengths. If that ever reads as a stretch, rename the
+     rung — do not reach back into the closed arc for it.
 
    --f-flash is a SECOND HUE, a thin rim at the top of the head's hard-stop stack. One extra
    stop in a gradient that already existed, and it is the whole of "wild" that a single base
    colour cannot buy: the band reads as two-tone enamel instead of as one tint. */
 .tb[data-tier="ember"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
-.tb[data-tier="volt"] { --f-flash: #B9A0FF; --f-hi: #A9CDFF; --f-mid: #6FAAFF; --f-lo: #4593FF; --f-lip: #12509E; }
+.tb[data-tier="volt"] { --f-flash: #FF6FD0; --f-hi: #E4FF8F; --f-mid: #C6F84A; --f-lo: #A5F000; --f-lip: #4A7000; }
 .tb[data-tier="solar"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; }
-.tb[data-tier="nova"] { --f-flash: #FF9BE0; --f-hi: #DCC2FF; --f-mid: #C79BFF; --f-lo: #B478FA; --f-lip: #5B21B6; }
-.tb[data-tier="prism"] { --f-flash: #F2A8FF; --f-hi: #A8F5EC; --f-mid: #5BEEE0; --f-lo: #2DE1D0; --f-lip: #0A7A75; }
+.tb[data-tier="nova"] { --f-flash: #FFD24A; --f-hi: #FFB0DC; --f-mid: #FF7BC4; --f-lo: #FF47AE; --f-lip: #9B0D5C; }
+.tb[data-tier="prism"] { --f-flash: #F5FF6B; --f-hi: #B7F77E; --f-mid: #5CEC8C; --f-lo: #28E063; --f-lip: #0A5F2C; }
 
 /* THE RECIPE, structural tier. The second lip shadow carries the outline as SPREAD rather than
    as a second Y offset, so the keyline wraps the lip's side crescents too. */
@@ -517,10 +530,10 @@
    nothing left to say, at the size where a wash reads as grey.
    --pm-dim is the SAME hue, unlit: what a rung you have not reached is made of. */
 .tb-pip[data-tier="ember"] { --pm: #FF6320; --pm-dim: #9A3D12; }
-.tb-pip[data-tier="volt"] { --pm: #4593FF; --pm-dim: #1E56A8; }
+.tb-pip[data-tier="volt"] { --pm: #A5F000; --pm-dim: #4A6B0C; }
 .tb-pip[data-tier="solar"] { --pm: #FFB800; --pm-dim: #8A6206; }
-.tb-pip[data-tier="nova"] { --pm: #B478FA; --pm-dim: #6A3CC4; }
-.tb-pip[data-tier="prism"] { --pm: #2DE1D0; --pm-dim: #0E6E66; }
+.tb-pip[data-tier="nova"] { --pm: #FF47AE; --pm-dim: #A81862; }
+.tb-pip[data-tier="prism"] { --pm: #28E063; --pm-dim: #0C6E33; }
 /* ⚠ LOCKED IS A COLOUR, NOT AN OPACITY (2026-08-06, "the texts in the tier color card do not
    have good contrast and are somewhat camouflaged and not readable"). This was `opacity: .3`
    here and `.74` at the plate tiers, and a faded element composites BOTH its fill and its
@@ -834,14 +847,15 @@
 .pod-slot[data-place="3"] { order: 3; --pl-h: 82px; --face: 66px; --num-sz: 34px; animation-delay: .24s; }
 
 /* The three places follow the rarity ladder's own Solar / Volt / Ember, so the stage and the
-   road are one colour system — a grey 2nd plinth beside an electric-blue Volt rung would read
-   as two different boards. --num-ink is per place because a numeral lands ON the metal: 8.3 /
-   5.3 / 5.9:1 against each block's declared --f-lo.
+   road are one colour system — a grey 2nd plinth beside an acid-lime Volt rung would read as
+   two different boards. --num-ink is per place because a numeral lands ON the metal: 8.3 /
+   11.8 / 5.9:1 against each block's declared --f-lo.
    ⚠ These five ARE .tb[data-tier="volt"]'s five, and second place is the only object on the
    page that copies a division's palette instead of reading it — so it is the one that silently
-   falls out of step. It did exactly that until 2026-08-06, when Volt went from cyan to blue. */
+   falls out of step. It did exactly that until 2026-08-06, and Volt has been repainted TWICE
+   since: cyan → blue in the morning, blue → acid lime when blue itself was rejected. */
 .pod-slot[data-place="1"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; --num-ink: #3A2600; }
-.pod-slot[data-place="2"] { --f-flash: #B9A0FF; --f-hi: #A9CDFF; --f-mid: #6FAAFF; --f-lo: #4593FF; --f-lip: #12509E; --num-ink: #1F1F1F; }
+.pod-slot[data-place="2"] { --f-flash: #FF6FD0; --f-hi: #E4FF8F; --f-mid: #C6F84A; --f-lo: #A5F000; --f-lip: #4A7000; --num-ink: #1F1F1F; }
 .pod-slot[data-place="3"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; --num-ink: #2A1405; }
 
 /* The figure: crown, portrait in a struck ring, name, score. A button, like a row, so all three
@@ -1187,10 +1201,10 @@
    chroma — under the gate's own 32 floor, so "no division" would have shipped the grey plate
    this pass exists to remove, on the one board nobody tests. */
 .lb-climb, .lb-climb[data-tier="ember"] { --rk-hi: #FFF6EE; --rk-mid: #FFE7D5; --rk-lo: #FBD9C0; --rk-lip: #DCA57F; }
-.lb-climb[data-tier="volt"] { --rk-hi: #F6F9FF; --rk-mid: #E4EDFF; --rk-lo: #CFE0FF; --rk-lip: #92B4EE; }
+.lb-climb[data-tier="volt"] { --rk-hi: #FCFFF0; --rk-mid: #F0FBD2; --rk-lo: #E3F5B4; --rk-lip: #A8C766; }
 .lb-climb[data-tier="solar"] { --rk-hi: #FFFBEE; --rk-mid: #FFF0C9; --rk-lo: #FCE4A8; --rk-lip: #D9B85F; }
-.lb-climb[data-tier="nova"] { --rk-hi: #FBF6FF; --rk-mid: #EFE3FE; --rk-lo: #E2D0FB; --rk-lip: #B79BE0; }
-.lb-climb[data-tier="prism"] { --rk-hi: #F1FEFC; --rk-mid: #D8F8F3; --rk-lo: #BFF1E9; --rk-lip: #77CCC1; }
+.lb-climb[data-tier="nova"] { --rk-hi: #FFF7FB; --rk-mid: #FEE5F2; --rk-lo: #FBD3E7; --rk-lip: #E098C0; }
+.lb-climb[data-tier="prism"] { --rk-hi: #F3FFF7; --rk-mid: #DDF9E6; --rk-lo: #C3F2D3; --rk-lip: #79CB95; }
 .lg-rk {
   box-sizing: border-box; display: grid; place-items: center; width: 32px; height: 26px;
   border: 2px solid var(--mat-ink); border-radius: 7px;
