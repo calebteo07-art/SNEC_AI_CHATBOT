@@ -22,6 +22,7 @@ import pytest
 from tools.cases.load_case import list_available_cases, load_case
 from tools.cases.topic_sets import case_pool, case_visible, label_for, resolve_set
 from tools.supervisor import case_index
+from tools.supervisor.case_index import classify_case
 
 
 @pytest.fixture(autouse=True)
@@ -177,6 +178,7 @@ async def test_unclassifiable_case_excluded():
     assert index["case_oa_ok"] == {
         "pool": "CLINICAL", "set_key": "tonometry_iop",
         "label": "Intraocular Pressure", "difficulty": "intermediate",
+        "topic": "tonometry_goldmann",
     }
     # Fail closed. `resolve_set` never says "no match" — it would file this unrelated case
     # into History Taking and move that group's cohort score.
@@ -292,3 +294,31 @@ def test_classify_case_rejects_missing_or_blank_case_id():
     assert case_index.classify_case({
         "case_id": "   ", "role": "OA", "topic": "tonometry",
     }) is None
+
+
+def test_classify_case_carries_the_raw_topic():
+    """The station axis of the knowledge x performance map joins on the case's own topic
+    string, not on the coarse topic-SET label -- flashcard topic_tags look like "tonometry",
+    not like "history_taking"."""
+    entry = classify_case({
+        "case_id": "case_oa_001_poag",
+        "role": "OA",
+        "topic": "Tonometry",
+        "topic_set": "tonometry_iop",
+        "difficulty": "beginner",
+    })
+    assert entry is not None
+    assert entry["topic"] == "Tonometry"
+
+
+def test_classify_case_topic_defaults_to_empty_not_missing():
+    """An entry always HAS the key, so a consumer never has to distinguish 'no topic' from
+    'old index shape'."""
+    entry = classify_case({
+        "case_id": "case_oa_002",
+        "role": "OA",
+        "topic_set": "tonometry_iop",
+        "difficulty": "beginner",
+    })
+    assert entry is not None
+    assert entry["topic"] == ""
