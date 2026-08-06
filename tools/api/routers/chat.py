@@ -53,9 +53,27 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     content: str
 
+# chat.py has always defaulted `topic` to this, so every tutor row written before the client
+# started sending a real label carries it. It stays the default AND the empty-label fallback,
+# so "Ophthalmology" means exactly one thing to a reader: no label was recorded.
+TOPIC_SENTINEL = "Ophthalmology"
+
+
+def sanitize_topic(raw: str) -> str:
+    """Normalise a client-supplied consultation label.
+
+    Strips a leading "Case:" — `_build_student_findings` separates tutor sessions from station
+    sessions on that prefix, and a discriminator a student can type is not a discriminator.
+    """
+    text = " ".join(str(raw or "").split())
+    if text.lower().startswith("case:"):
+        text = text[len("case:"):].strip()
+    return text[:100] if text else TOPIC_SENTINEL
+
+
 class EndSessionRequest(BaseModel):
     messages: list[ChatMessage] = Field(max_length=100)
-    topic: str = "Ophthalmology"
+    topic: str = TOPIC_SENTINEL
     token_count: int = 0
 
 class Flashcard(BaseModel):
@@ -232,7 +250,7 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
 
     session_id = await log_session(
         student_id=student_id,
-        topic=body.topic,
+        topic=sanitize_topic(body.topic),
         messages=messages,
         token_count=body.token_count,
         model=model_name,

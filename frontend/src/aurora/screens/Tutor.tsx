@@ -156,11 +156,19 @@ export function Tutor() {
     const aiMsgId = `ai-${Date.now() + 1}`;
     let aiContent = "";
     try {
+      // The consultation label staff see (spec §4.6). Same rule as the recent-sessions list:
+      // the conversation's first user message, so every turn of one chat groups under one
+      // heading. Reuses deriveTopic rather than restating the rule.
+      const consultTopic = deriveTopic(
+        messages.concat(userMsg).map((m) =>
+          m.type === "ai" ? { type: "ai" as const, id: m.id, text: m.content }
+                          : { type: "user" as const, id: m.id, text: m.text }),
+      );
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ messages: apiMessages, topic: consultTopic }),
       });
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
