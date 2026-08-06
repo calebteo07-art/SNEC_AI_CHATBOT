@@ -1,25 +1,30 @@
-/* GreetingHero — the deck's SCREEN (design-lock Home, 5th pass 2026-08-06). A rotating
-   teasing headline (accent word emphasised) and the teasing sub in the flexible track, the
-   living default Eyecon standing in a fixed one. Never a student's custom render — that
-   lives in Studio + the leaderboard (Custom-Eyecon lock amended 2026-07-10). Presentational;
-   the Dashboard owns the greeting seed.
+/* GreetingHero — the deck's SCREEN (design-lock Home, 7th pass 2026-08-06). A rotating
+   teasing headline (accent word emphasised) and the teasing sub, laid over a generated shot
+   of four Eyecon friends at a picnic. Never a student's custom render — that lives in Studio
+   + the leaderboard (Custom-Eyecon lock amended 2026-07-10). Presentational; the Dashboard
+   owns the greeting seed.
 
-   ⚠ THE BAKED VEO LOOP IS RETIRED, AND THE MASCOT IS THE ALPHA-CUT <EyeconLogo>. The clip
-   was opaque (Veo can't emit alpha) with a baked peach→pink field, and the card's fill was
-   SAMPLED off that field to hide the join — which meant the card could not be recoloured at
-   all while the clip stayed. Same character, same wave: `motion="hello"` cross-fades
-   iris.png → wave.webp on a ~9s beat, and both rasters carry real alpha, so the card's own
-   fill shows through around her.
+   ⚠ THE WHOLE CARD IS THE CLIP NOW, AND THE SINGLE <EyeconLogo> IS GONE. Passes 4→5→6 went
+   baked-loop → alpha-cut mascot on a peach fill → alpha-cut mascot on periwinkle; the ask
+   here was a moving GROUP ("a group of friends of eyecons moving … the whole card to be
+   generated on veo"), and four mascots at picnic scale cannot be four alpha-cut rasters
+   composited over a fill — they are one shot. `greeting-crew.mp4` is that shot: the outfits
+   (striped scarf, orange beanie, brown hoodie, round specs) are baked, and identity comes
+   from generating the conditioning still with the real iris.png as a reference part before
+   Veo ever saw it (tools/media/greeting_loop.py).
 
-   ⚠ THE CARD IS TWO FLEX TRACKS, AND THAT IS LOAD-BEARING, NOT LAYOUT TASTE. She used to be
-   `position:absolute` UNDERNEATH the copy (z-index 0 vs 3) — survivable only because the
-   opaque clip and its veil sat between them. Against a transparent mascot, text crossing her
-   pale skin is ~1.3:1. Two tracks make text-over-mascot impossible by construction at every
-   width and height, instead of relying on the card being tall enough. The 6th pass turned
-   the row into a COLUMN on the wide tiers (the card is near-square there, and stacking is
-   what let the mascot fill it) — the guarantee is unchanged either way, because two tracks
-   on either axis still cannot cross.
-   ⚠ THE BODY MUST STAY THE FIRST CHILD — the track order IS the reading order.
+   ⚠ THE COPY IS NO LONGER PROTECTED BY STRUCTURE, SO DO NOT WIDEN IT. The 5th pass made the
+   card two flex tracks precisely so that no word could reach the mascot at any width — a
+   guarantee a full-bleed backdrop cannot offer. What replaces it is measurement: the shot is
+   composed with its top half empty, `.hm-greet::before` lifts the one strip where the copy
+   leaves the sky, and the h1/sub max-widths keep both lines inside the x-range those ratios
+   were sampled over. All three are load-bearing together; changing one alone re-opens
+   dark-text-on-pale-skin at ~1.3:1.
+
+   ⚠ THE VIDEO MUST STAY THE FIRST CHILD AND aria-hidden. It is decorative and out of the tab
+   order, so the reading order is still headline → sub, exactly as when the copy was first.
+   `muted` + `playsInline` are what let it autoplay at all (iOS refuses inline playback
+   without the latter); the installed clip carries no audio track to mute.
 
    ⚠ THE LEVEL / XP READOUT LEFT THIS CARD when the card moved onto the deck: the status
    bar above it renders the SAME four numbers (level, rank, XP into level, XP to next),
@@ -30,7 +35,9 @@
    rect up to 1.41x its width and escapes an overflow sweep even under overflow:hidden).
    That is why StatusBar / QuestBoard / ChestTile / RankStrip all carry the same warning. */
 import type { Greeting } from "@/aurora/lib/greeting";
-import { EyeconLogo } from "@/aurora/components/EyeconLogo";
+
+const LOOP_SRC = "/media/loops/greeting-crew.mp4";
+const LOOP_POSTER = "/media/loops/greeting-crew.jpg";
 
 export function GreetingHero({ greeting }: { greeting: Greeting }) {
   // Split the title at the first occurrence of the accent word so it can be emphasised.
@@ -40,17 +47,26 @@ export function GreetingHero({ greeting }: { greeting: Greeting }) {
 
   return (
     <section className="hm-greet struck-structural">
+      {/* the card's own surface: the crew loop, full-bleed under the scrim and the copy */}
+      <video
+        className="hm-greetvid"
+        data-testid="greet-loop"
+        src={LOOP_SRC}
+        poster={LOOP_POSTER}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        tabIndex={-1}
+        aria-hidden
+      />
+
       <div className="hm-greet-body">
         <h1 data-testid="greeting">
           {pre}{i >= 0 && <em>{greeting.emphasis}</em>}{post}
         </h1>
         <p className="hm-sub">{greeting.sub}</p>
-      </div>
-
-      {/* the living default mascot — her own track, so no word can ever run under her */}
-      <div className="hm-iriswrap" aria-hidden>
-        <span className="hm-irisfloor" />
-        <EyeconLogo motion="hello" className="hm-iris" />
       </div>
     </section>
   );
