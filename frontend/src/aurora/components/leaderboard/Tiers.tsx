@@ -29,7 +29,7 @@ export type Tier = (typeof TIERS)[number];
  *  place is gold whether the division is Ember or Prism. Keeping them in one lookup would make
  *  "solar" ambiguous at exactly the moment a Solar-division board renders a gold band above a
  *  gold plinth and the reader has to work out which gold means what.
- *  Gold / azure / vermilion, which is the ladder's own top three read as 1-2-3 — the podium
+ *  Gold / acid lime / vermilion, which is the ladder's own top three read as 1-2-3 — the podium
  *  and the ladder are made of one set of colours rather than two. */
 export const PLACE_TIERS: Record<number, Tier> = { 1: "solar", 2: "volt", 3: "ember" };
 
@@ -41,21 +41,22 @@ export const PLACE_TIERS: Record<number, Tier> = { 1: "solar", 2: "volt", 3: "em
  *  MID — the stop that carries the identity — is saturated enough to hold its own against the
  *  canvas.
  *
- *  Five hues, checked as hues rather than luminances: vermilion → azure → gold → violet →
- *  aqua, spread right around the wheel so no two rungs can collapse the way the old
- *  silver/platinum pair did.
+ *  Five hues, checked as hues rather than luminances: vermilion → acid lime → gold → hot
+ *  magenta → emerald, spread as far as they can go now that half the wheel is closed, so no
+ *  two rungs can collapse the way the old silver/platinum pair did.
  *
- *  ⚠ RE-CUT 2026-08-05 to the RARITY LADDER in leaderboard.css. The crest is the one place the
- *  division's colour is authored in TSX rather than in CSS, so it is the one that silently
- *  falls out of step: a grey shield on an azure band is the same contradiction this file's
- *  header opens with, arriving from the other direction. Each MID is the band's own
+ *  ⚠ RE-CUT 2026-08-05 to the RARITY LADDER in leaderboard.css, and again 2026-08-06 when blue
+ *  left the palette entirely ("i dont want anything with a blue hint for tiers"). The crest is
+ *  the one place the division's colour is authored in TSX rather than in CSS, so it is the one
+ *  that silently falls out of step: a grey shield on a lime band is the same contradiction this
+ *  file's header opens with, arriving from the other direction. Each MID is the band's own
  *  --f-lo, exactly — if those five change, these five change with them. */
 const STOPS: Record<Tier, readonly [string, string, string]> = {
   ember: ["#FFC79A", "#FF6320", "#8A2A05"],
-  volt: ["#B2D4FF", "#4593FF", "#0E3F7E"],
+  volt: ["#DDFF8A", "#A5F000", "#3F6300"],
   solar: ["#FFE894", "#FFB800", "#7A5206"],
-  nova: ["#E0CBFF", "#B478FA", "#46177F"],
-  prism: ["#B9FBF2", "#2DE1D0", "#0A5F5B"],
+  nova: ["#FFB3DD", "#FF47AE", "#7A0341"],
+  prism: ["#A9F7C0", "#28E063", "#07521F"],
 };
 
 /** A shield crest. `dim` fades a division you haven't reached.

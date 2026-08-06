@@ -28,7 +28,7 @@ export function LeagueResult({ enabled }: { enabled: boolean }) {
     // The rarity ladder's own hues, not four shades of gold: this fires on a PROMOTION, so the
     // colours the divisions are made of say more than the one that means "reward" said alone.
     confetti({ particleCount: 130, spread: 82, origin: { y: 0.34 },
-               colors: ["#FFB800", "#FF6320", "#4593FF", "#B478FA", "#2DE1D0", "#FFFFFF"] });
+               colors: ["#FFB800", "#FF6320", "#A5F000", "#FF47AE", "#28E063", "#FFFFFF"] });
   }, [result]);
 
   if (!result) return null;

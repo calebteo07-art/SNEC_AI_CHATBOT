@@ -2722,6 +2722,70 @@ itself, quantified.
 the mechanic's colour and it carries its own outline and lip); `.tb-name`/`.tb-league`, which
 measure 6.9–8.8:1 on every band and were never the unreadable text; the other four divisions'
 hues, which are correctly spaced; the phone road (see above).
+
+#### THE ARC CLOSES 2026-08-06 — no rung may carry a blue hint
+
+User: *"i dont want anything with a blue hint for tiers, it makes the leaderboard page looks
+ugly."*
+
+One criterion changes, and it is a PALETTE RULE rather than a colour. Everything the two locks
+above pin — the console, the trough, the names, the geometry, the ranks budget, the lip ladder,
+the eight authoring sites — is untouched and still gated.
+
+**1. ⚠ 150°–300° IS CLOSED TO THIS PALETTE.** Three of the five rungs were blue and only one of
+them was obvious: **Volt 215°** blue outright, **Nova 271°** blue-violet, **Prism 175°**
+blue-green. Scope was confirmed with the user before any code moved, because "Volt only" and
+"all three" are different jobs on a locked ladder — the answer was all three.
+
+| rung | was | is | hue | band luminance |
+|---|---|---|---|---|
+| Ember | `#FF6320` vermilion | *unchanged* | 17° | 0.303 |
+| Volt | `#4593FF` electric blue | **`#A5F000` acid lime** | 79° | 0.703 |
+| Solar | `#FFB800` gold | *unchanged* | 43° | 0.555 |
+| Nova | `#B478FA` violet | **`#FF47AE` hot magenta** | 331° | 0.288 |
+| Prism | `#2DE1D0` aqua | **`#28E063` emerald** | 139° | 0.547 |
+
+**The cost of closing half a wheel is NAMED, so the next author does not "fix" it:**
+- **Two rungs are greens** (Volt 79°, Prism 139°) — unavoidable at five hues on half a wheel.
+  They are rungs 2 and 5, never adjacent on the road, and **0.703 against 0.547** of luminance
+  holds them apart where 60° of hue alone would be thin.
+- **Volt's blue channel is literally 0** (`#A5F000`, HSL S=100%) — the one rung where that was
+  reachable. Magenta needs blue to be magenta and emerald needs a little to be a jewel rather
+  than grass, so the rule is what the eye reads, not what the byte says.
+- ⚠ **PRISM IS THE ONE NAME THIS COSTS SOMETHING.** "Light split into all of it" has no
+  blue-free single hue. The summit earns its name from its GRADIENT instead — acid yellow →
+  lime → spring → emerald is a spectrum slice, and Prism is the only band whose four stops are
+  four hues rather than one hue at four strengths. If that ever reads as a stretch, **rename the
+  rung**; do not reach back into the closed arc for it.
+- The three **partners** (`--arena-glow`) leave the arc with their leads: Volt's violet → hot
+  pink, Nova's pink → gold, Prism's blue → acid lime. A partner chosen against a blue lead is
+  the token that quietly re-admits blue one pass later.
+
+**2. THE RULE IS A GATE, NOT A COMMENT.** Volt was repainted THREE times inside two days (cyan →
+electric blue → acid lime) and each pass left its palette rule in prose, where the next pass had
+to rediscover it. `league_assert` now computes the HUE of all five rungs on the road and of every
+division's band, and fails on anything landing in 150°–300°. The 08-05 pass learned that a rule
+which only exists in a comment is one refactor from being reopened; this is that lesson applied
+to the palette itself.
+
+**Measured after**: `league_assert` **545 assertions, 0 failures** (495 + the 50 arc checks) · five
+bands 0.303 / 0.703 / 0.555 / 0.288 / 0.547, every one under the 0.86 ceiling · the current rung
+reads **5.18 / 11.06 /
+8.89 / 4.97 / 8.76:1** against the trough · every head style ≥4.5:1 on all five divisions · five
+distinct light fields (0.941 / 0.982 / 0.965 / 0.929 / 0.968, floor 0.70) · ranks visible ≥8 on
+every viewport · all 22 gated harnesses green · pytest **1740 passed** · typecheck clean.
+
+**Mutation-verified** — painting Volt back to `#4593FF` fires the new gate **10 times, exit 1**:
+`rung 2 sits at 215°` on all nine viewports, plus `Volt: the band sits at 215°` from the
+per-division sweep. Both authoring sites are covered independently, which is the point — this
+colour has eight authors and the road and the band are two of them.
+
+**Out of scope, deliberately**: everything the two locks above pin. And ⚠ **the ROLE palette is a
+different axis and KEEPS its blue** — `--role-oa #5B3BC4` violet and `--role-ot #0E6C80` teal
+paint the 27 gauges, the medallion lips and the discipline labels. They say *which discipline you
+are*, never *which division*, and this pass is what stops the two systems colliding: after it,
+blue on the board means "not a tier". `--you-blue #1A56C4` (your own row) is the same argument at
+one instance. Both were surfaced to the user rather than changed.
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
