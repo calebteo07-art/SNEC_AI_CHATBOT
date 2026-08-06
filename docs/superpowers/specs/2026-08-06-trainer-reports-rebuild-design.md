@@ -19,7 +19,7 @@ Reading the code, the complaint is not only presentational. Five defects, each v
 
 | # | Defect | Evidence |
 |---|--------|----------|
-| D1 | Every AI-tutor session is logged with the topic **"Ophthalmology"** — a constant | `tools/api/routers/chat.py:58` defaults `topic`; the chat frontend never sends one. The sessions table and the report's "Recent activity" therefore print the same word on every row. |
+| D1 | **No AI-tutor session is logged at all.** `/api/end-session` (`chat.py:244`) is the only path that calls `log_session` for tutor chats — and nothing in `frontend/` calls it. `/api/chat` uses `ChatRequest`, which has no `topic` field and never logs. The `"Ophthalmology"` rows in the table are historical, from before the call was dropped when tutor history moved to localStorage. Corrected 2026-08-06: this entry previously read "every session is logged with the constant `Ophthalmology`", which was the visible symptom, not the cause. **Also in that dead handler:** `update_profile(source="tutor")`, so tutor use has not been feeding streaks or XP either. |
 | D2 | Nothing records what the student **asked** | `tools/chatbot/log_session.py:29` stores only `summary` = the last *assistant* message, cut at 200 chars. |
 | D3 | The report's topic table silently drops flashcard topics | `AdminStudentDetail.tsx:103` iterates `retention_scores` and looks up flashcards **by that key**. The two are different namespaces, so the Flashcards column prints "—" on a mismatch and flashcard-only topics never appear at all. |
 | D4 | A trainer cannot reconstruct an OSCE attempt | `cases.py:1005` persists score, sub-scores, `safe`, `missed_critical` and the coaching block — but **not** `checklist_comparison`. Only the aggregate `checklist_coverage` (0–40) survives, so the most teachable artefact (which steps happened) is destroyed at the end of every station. |
@@ -263,9 +263,24 @@ empty until it does, so the migration is coordinated with the deploy.
 
 ### 6.2 Tutor consultation label capture (fixes D1/D2)
 
-The chat client sends the student's **first user message**, trimmed to 100 characters, as
-`topic`. No AI, no new table, no transcript retention. Going forward, "what the student
-consulted" is literally what they typed.
+Two halves, because the label is worthless if nothing writes a row to put it on.
+
+**(a) Restore the session write.** `/api/end-session` already does the right thing —
+`log_session` plus `update_profile(source="tutor")` — and has no caller. The tutor screen
+calls it when a conversation ends: leaving `/chat`, or starting a new conversation, with at
+least one completed exchange. One row per conversation, which is the granularity the
+consultation labels assume.
+
+Accepted limitation, stated rather than engineered around: an unmount-time call can be missed
+on an abrupt tab close, so an occasional conversation goes unlogged. The alternative — writing
+the row on a conversation's first turn — never misses, but stores a summary and token count
+that describe only turn one. A missing row is a smaller lie than a wrong one.
+
+**(b) Send a real label.** The client sends the student's **first user message**, trimmed to
+100 characters, as `topic`, reusing `tutorSessions.deriveTopic` — the same rule that already
+titles the recent-conversations list, so the label a student sees on their own history is the
+label staff see. No AI, no new table, no transcript retention. Going forward, "what the
+student consulted" is literally what they typed.
 
 Two guards at the write path:
 
