@@ -19,6 +19,7 @@ import {
   loadSessions, saveSessions, upsertSession, recentSessions,
   deriveTopic, derivePreview, type StoredSession, type StoredMessage,
 } from "@/aurora/lib/tutorSessions";
+import { endSessionPayload } from "@/aurora/lib/tutorSessionEnd";
 import { OPENERS, SUBS, nextIndex } from "@/aurora/lib/tutorGreeting";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
@@ -78,6 +79,42 @@ export function Tutor() {
     saveSessions(userId, upsertSession(existing, session), window.localStorage);
   };
 
+  // POST /api/end-session bookkeeping — the only path that writes a chat_sessions row and
+  // fires update_profile(source="tutor"), so a tutor consult now actually feeds streaks/XP
+  // and gives staff reports a label. `messagesRef` (not `messages` state directly) so the
+  // unmount effect below — armed once with `[]` deps — reads the latest thread instead of
+  // whatever was live on first render; `endSentRef` is the fire-once guard.
+  const messagesRef = useRef<Message[]>(messages);
+  const endSentRef = useRef(false);
+  useEffect(() => { messagesRef.current = messages; });
+
+  // Logs the outgoing conversation when it ends: on unmount (below) or from resumeSession
+  // when a different conversation starts mid-thread. Best-effort — a failed or skipped call
+  // must never block navigation or surface an error to the student, so failures are swallowed.
+  const endTutorSession = () => {
+    const stored: StoredMessage[] = messagesRef.current.map((m) =>
+      m.type === "ai" ? { type: "ai", id: m.id, text: m.content } : { type: "user", id: m.id, text: m.text });
+    const payload = endSessionPayload(stored, endSentRef.current);
+    if (!payload) return;
+    endSentRef.current = true;
+    fetch("/api/end-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    }).catch(() => { /* best-effort — see comment above */ });
+  };
+
+  // Fires on unmount: leaving /chat, whether by route change or closing the tab while still
+  // mounted. `[]` deps means this cleanup is set up once and reads messagesRef at the moment
+  // it actually runs, so it survives a React strict-mode double invoke (the synthetic
+  // mount→cleanup→mount happens before the student has typed anything, so messagesRef is
+  // still empty and endSessionPayload is a no-op) and fires for real exactly once.
+  useEffect(() => {
+    return () => endTutorSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Greeting landing (ricoe A2): /chat opens on a hello + prompt + recent sessions, then
   // cross-fades into the live thread once the student asks something. "leaving" keeps both
   // mounted for the ~460ms cross-fade; the shared constellation canvas bridges them.
@@ -101,6 +138,11 @@ export function Tutor() {
   const enterChat = () => { setPhase("leaving"); window.setTimeout(() => setPhase("chat"), 460); };
   const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
   const resumeSession = (s: StoredSession) => {
+    // Starting a different conversation counts as ending whatever was live (design doc
+    // §6.2a) — log it before it's overwritten, then reset the guard so the resumed thread
+    // is free to be logged again whenever IT ends.
+    endTutorSession();
+    endSentRef.current = false;
     const restored: Message[] = s.messages.map((m) =>
       m.type === "ai" ? { type: "ai", id: m.id, content: m.text } : { type: "user", id: m.id, text: m.text });
     setMessages(restored);
@@ -156,19 +198,11 @@ export function Tutor() {
     const aiMsgId = `ai-${Date.now() + 1}`;
     let aiContent = "";
     try {
-      // The consultation label staff see (spec §4.6). Same rule as the recent-sessions list:
-      // the conversation's first user message, so every turn of one chat groups under one
-      // heading. Reuses deriveTopic rather than restating the rule.
-      const consultTopic = deriveTopic(
-        messages.concat(userMsg).map((m) =>
-          m.type === "ai" ? { type: "ai" as const, id: m.id, text: m.content }
-                          : { type: "user" as const, id: m.id, text: m.text }),
-      );
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: apiMessages, topic: consultTopic }),
+        body: JSON.stringify({ messages: apiMessages }),
       });
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
