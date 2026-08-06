@@ -52,7 +52,7 @@ export const PLACE_TIERS: Record<number, Tier> = { 1: "solar", 2: "volt", 3: "em
  *  --f-lo, exactly — if those five change, these five change with them. */
 const STOPS: Record<Tier, readonly [string, string, string]> = {
   ember: ["#FFC79A", "#FF6320", "#8A2A05"],
-  volt: ["#B7E9FF", "#22B8F0", "#0A4E7A"],
+  volt: ["#B2D4FF", "#4593FF", "#0E3F7E"],
   solar: ["#FFE894", "#FFB800", "#7A5206"],
   nova: ["#E0CBFF", "#B478FA", "#46177F"],
   prism: ["#B9FBF2", "#2DE1D0", "#0A5F5B"],

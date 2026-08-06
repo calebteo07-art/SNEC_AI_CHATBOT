@@ -19,8 +19,10 @@ from datetime import date
 # Each name IS its colour, and the set escalates as light does: a coal, an arc, a star, a star
 # going off, and light split into all of it. The currency is Lumens, so the ladder a student
 # climbs is made of the thing they earn.
-#   Ember  #FF6320 vermilion · Volt  #22B8F0 azure · Solar #FFB800 gold
+#   Ember  #FF6320 vermilion · Volt  #4593FF electric blue · Solar #FFB800 gold
 #   Nova   #B478FA violet    · Prism #2DE1D0 aqua
+# (Volt was #22B8F0 cyan, which it inherited from Silver and which left the ladder's two coolest
+#  rungs 22 degrees apart on the wheel. Repainted 2026-08-06; see leaderboard.css.)
 #
 # ⚠ These strings are DISPLAY ONLY. The database stores `division` as an integer everywhere
 # (migration 016), so renaming costs no migration and no backfill — but the payload field

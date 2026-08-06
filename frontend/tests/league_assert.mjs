@@ -1309,10 +1309,29 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     const now = m.pips.find((q) => q.state === "now");
     const past = m.pips.find((q) => q.state === "past");
     const next = m.pips.find((q) => q.state === "next");
+    /* ⚠ THE CRITERION CHANGED ON 2026-08-06, from element OPACITY to painted luminance.
+       "Locked is ≥0.15 dimmer" was satisfied by `opacity: .74` — and a faded element
+       composites its fill AND its label into whatever is behind it, so what the reader
+       actually saw was a gold rung rendering khaki over the Volt band and a Prism rung
+       rendering sage over Solar, with ink to match. This gate passed on all of it, because
+       0.74 is a number and the colour on screen was not one anybody measured.
+       The report was "the texts in the tier color card ... are somewhat camouflaged and not
+       readable". A luminance floor on the actual fill is the same claim about the same thing,
+       made where it can be checked — and the opacity clause below is what stops a later pass
+       reintroducing the fade underneath it. */
+    const litLum = (q) => lum(rgb(q.bg));
+    const sheer = m.pips.filter((q) => q.op < 1);
     if (!now || !past || !next) bad(`${at}: the trophy road shows only ${[...new Set(m.pips.map((q) => q.state))].join("/")} — earned, current and locked must all be present`);
     else if (now.w <= past.w) bad(`${at}: the current division is not larger than an earned one (${now.w}px vs ${past.w}px)`);
-    else if (next.op >= past.op - 0.15) bad(`${at}: a locked division is not visibly dimmer than an earned one (opacity ${next.op} vs ${past.op})`);
-    else ok(`${at}: earned / current / locked differ by size and opacity, not by hue alone`);
+    else if (sheer.length) {
+      bad(`${at}: ${sheer.length} rung(s) render at opacity <1 (${sheer.map((q) => `${q.state} ${q.op}`).join(", ")}) — a faded rung mixes its fill and its ink into the band, which is the camouflage this road was rebuilt to remove and a surface no contrast probe can resolve`);
+    } else {
+      const lit = Math.min(...m.pips.filter((q) => q.state !== "next").map(litLum));
+      const dark = Math.max(...m.pips.filter((q) => q.state === "next").map(litLum));
+      if (dark > lit - 0.10) {
+        bad(`${at}: the brightest locked rung is luminance ${dark.toFixed(3)} against ${lit.toFixed(3)} for the dimmest reached one — a rung you have not earned must be visibly UNLIT (floor: 0.10 of luminance), and it may not buy that with opacity`);
+      } else ok(`${at}: earned / current / locked differ by size and by painted luminance (${lit.toFixed(3)} vs ${dark.toFixed(3)}), every rung opaque`);
+    }
   }
 
   /* ── the light canvas, and readable ink on every surface ────────────────────────────
@@ -1589,14 +1608,30 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
         }
         return null;
       };
+      /* EVERY RUNG'S LABEL, on every division — the five smallest words in the head and the
+         ones the 2026-08-06 report was actually about. They could not be probed before: a
+         locked rung was `opacity: .74`, so its label's real backdrop was a composite of plate
+         and band that `backdropOf` resolves to the plate's DECLARED colour and the eye never
+         sees. Now every rung is an opaque solid, so what this measures is what renders.
+         Collected from the DOM rather than by selector so a division at either end of the
+         ladder (Ember has no earned rung, Prism no locked one) probes five either way. */
+      const rungs = [...document.querySelectorAll(".tb-pip")].map((pip, i) => {
+        const px = pip.querySelector(".tb-px");
+        if (!px || getComputedStyle(px).display === "none") return null;
+        return { sel: `rung ${i + 1} (${pip.dataset.state})`, color: getComputedStyle(px).color, on: backdropOf(px) };
+      }).filter(Boolean);
+      const now = document.querySelector('.tb-pip[data-state="now"]');
       // The head's own type, plus the numerals that land ON a plinth's metal.
       return [".tb-name", ".tb-league", ".pod-num"].map((sel) => {
         const el = document.querySelector(sel);
         if (!el) return { sel, color: null, on: null };
         return { sel, color: getComputedStyle(el).color, on: backdropOf(el) };
-      }).concat([
+      }).concat(rungs, [
         { sel: "__band", color: null, on: getComputedStyle(document.querySelector(".tb")).backgroundColor },
         { sel: "__field", color: null, on: getComputedStyle(document.querySelector(".aurora-main")).backgroundColor },
+        // What the CURRENT rung stands on, and what it is painted — the pair that was 1.3:1.
+        { sel: "__bed", color: now ? getComputedStyle(now).backgroundColor : null,
+          on: backdropOf(document.querySelector(".tb-pips")) },
       ]);
     });
     fields.push(seen.find((t) => t.sel === "__field").on);
@@ -1613,8 +1648,22 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
       if (dim.length) {
         bad(`${NAMES[d - 1]}: ${dim.length} style(s) below 4.5:1 on this division's own metal: ` +
           dim.map((t) => `${t.sel} ${t.color} on ${t.on} ${t.r.toFixed(2)}:1`).join(" · "));
-      } else ok(`${NAMES[d - 1]}: the head and the plinth numeral clear 4.5:1 on this division's metal`);
+      } else ok(`${NAMES[d - 1]}: all ${probes.length} head styles clear 4.5:1 on this division's metal`);
     }
+
+    /* THE CURRENT RUNG MUST NOT BE THE BAND IT SITS ON. Both are painted the division's own
+       colour by design — that is what "hue is identity" means — so on every one of the five
+       boards the road's one load-bearing plate rendered its own hue on its own hue: 1.3:1,
+       held together by a white ring and nothing else. This is an OBJECT floor (3:1), not a
+       text one; what satisfies it is the trough under the plates, and this is the check that
+       fails the moment a later pass takes the trough away and puts the road back on the band. */
+    const bed = seen.find((t) => t.sel === "__bed");
+    const bc = rgb(bed?.color), bb = rgb(bed?.on);
+    if (!bc || !bb || bc[3] === 0 || bb[3] === 0) {
+      bad(`${NAMES[d - 1]}: the current rung or the surface under it has no resolvable colour (${bed?.color} on ${bed?.on}) — the road must stand on an opaque bed or this is testing nothing`);
+    } else if (contrast(bc, bb) < 3) {
+      bad(`${NAMES[d - 1]}: the current rung is ${contrast(bc, bb).toFixed(2)}:1 against what it stands on (${bed.color} on ${bed.on}) — the one plate a student has to find is camouflaged against its own band`);
+    } else ok(`${NAMES[d - 1]}: the current rung reads ${contrast(bc, bb).toFixed(2)}:1 against the road's bed`);
 
     const field = rgb(seen.find((t) => t.sel === "__field").on);
     if (!field || field[3] === 0) bad(`${NAMES[d - 1]}: the canvas has no resolvable base colour — the stack must end in an opaque light solid or every glyph on it measures against nothing`);
