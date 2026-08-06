@@ -826,6 +826,81 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     0 page overflow; at 1200, 1100, 1024, 390 and 844×390 every rect is byte-identical to the
     third pass, because the row does not engage there at all.
 
+  ### Amendment 2026-08-06 (fifth pass) — THE GREETING IS THE CONSOLE'S SCREEN (user
+  directive: "the waving eyecon card does not match with rest of the page, can you make it
+  match while still keeping the eyecon")
+
+  Two criteria move. The STRUCK material, the lip ladder, the console row and every rect the
+  fourth pass measured are untouched — this pass changes the greeting card's **fill and its
+  mascot plumbing**, nothing else on the deck.
+
+  - **Criterion changed (k) — the Veo art band is RETIRED, and that is the whole reason the
+    colour was stuck.** The second pass wrote "the card's outer plane is the clip's own field
+    **sampled off the render**", which is an honest description of a trap: the clip is opaque
+    (Veo cannot emit alpha), it is full-bleed, and a card whose fill is sampled off a baked
+    peach→pink backdrop **cannot be recoloured at all** — any other fill re-opens the seam that
+    sampling was invented to close. So the card was not warm by choice by the fourth pass; it
+    was warm because the video said so, on a console that had gone deep violet around it.
+    `.hm-eyeconloop`, `.hm-greet-veil` and `EyeconGreetingLoop.tsx` are gone. The mascot is now
+    the **alpha-cut `<EyeconLogo motion="hello">`** — the *same character, the same wave*, and
+    not a new asset: it was already mounted in this card as the reduced-motion/no-video
+    fallback, `aurora_assert.mjs` has always asserted it (`.hm-iriswrap [data-testid=
+    "eyecon-logo"]`, `.hm-iris` frozen under reduce), and `iris.png` + `wave.webp` both carry
+    real alpha. She keeps her bob, her warm halo and her ~9s rest→wave cross-fade.
+    ⚠ **Every "cut off" defence in criteria (h) and (k) is now moot, not deleted-and-at-risk.**
+    The float min-height, `aspect-ratio:1280/510`, `object-position:50% 68%` and the 6%
+    mask-fade all existed to stop `object-fit:cover` amputating her. `contain` on a fixed box
+    cannot crop, so the *class* of bug is gone rather than re-tuned.
+    ⚠ **The absolute positioning went with it, and that is load-bearing.** She was
+    `position:absolute; bottom:0; right:-24px` *under* the copy (z-index 0 vs 3), which was
+    survivable only because the opaque clip and its veil sat between them. On a transparent
+    mascot, cream text crossing her pale skin is ~1.3:1. The card is a **flex row** now — copy
+    in the flexible track, mascot in a fixed one — so text-over-mascot is impossible **by
+    construction** at any width or height, instead of being avoided by a height reservation
+    that happened to be large enough. Her `margin-bottom:-22px` re-grounds her on the card's
+    bottom edge exactly where `bottom:0` had her.
+  - **Criterion changed (j) — `.hm-greet` joins the console family: it is the SCREEN.**
+    `#FFE0B7 → #F7DAE9` is superseded by **`#75307F` over `#5A2462`**, light ink, under the
+    rail's own 42% hard-stop profile (not a radial — the two biggest panels on the console now
+    share one moulding). The row in (j)'s table reads:
+    | object | fill | why that hue |
+    |---|---|---|
+    | `.hm-greet` | `#75307F` / `#5A2462` | **you** — the console's lit screen, the one surface a character stands in |
+    **Value says "lit", hue says "not the rail".** It is **1.82** off the console body where
+    the rail is 1.67 — *more* raised, because a screen is the brightest thing on a console —
+    but only **1.09** against the rail directly above it, so the separation is carried by
+    **+36° of hue** (plum H=292 vs the rail's blue-violet H=256). That is criterion (g)'s
+    stage-vs-plate doctrine applied one level in, and here it is cheap: 14px of dark plate, a
+    2.5px `--mat-ink` outline and a 5px lip already sit between the two objects.
+  - **The peach is not lost, it is promoted.** The retired fill's own warm is now the `<em>`
+    accent word (`#FFC08A`), so the greeting still reads warm where it means *you*, and the
+    accent ties to the mascot's skin rather than to a backdrop. It is **not** the deck's
+    certified gold `#DFA828` (H=42, "gold is Lumens") — one meaning per hue survives.
+  - **Every ink re-derived against the fill that moved.** Light-on-dark, so the worst case is
+    the **LIGHTER** band `#75307F` (both quoted): `h1 #FFF6EC` **7.90** / 10.54 — the rail's own
+    cream, one furniture ink for the console; `<em> #FFC08A` **5.29** / 7.06; `.hm-sub`
+    `#5A4B64 → #E3CFE9` **5.78** / 7.71. Lip `#2A0D31` is 1.55 under its own fill and darker
+    than the plate it lands on. The card-level **radial is gone** for the same reason the
+    streak's was — a 135%×158% ellipse is a wash, the house style `leaderboard.css:15-19`
+    names; `::after` stays as a contained corner specular, re-tinted to the screen's own light.
+  - **What does NOT change.** `pickGreeting`, the day-of-year rotation, the `<em>` split and
+    every string (`greeting_assert.mjs` asserts the text, never the colour). The 36px headline
+    at `max-width:430px` — the fourth pass's measure criterion. Her drawn size: the video drew
+    her **155px** at 1512 after pass 4 and `.hm-iris` is **160px**, so "significantly smaller"
+    is inherited, not re-litigated. The phone tiers still show **no** mascot (2026-07-20).
+    ⚠ The `greeting-selena.{mp4,jpg}` binaries and `tools/media/generate_greeting_loop.py` are
+    **kept, not deleted** — reviewed media, and a violet-baked reshoot is the obvious way back.
+  - **The float min-height becomes a real one.** `::before{float;padding-top:40%}` was a
+    percentage *of the card's width* because the band's height was too; with a fixed-size
+    mascot it is just a tax — at the ≤900px single-column tier it reserved ~326px of card for
+    144px of art. It is now `min-height:196px`, released to `0` in exactly the three tiers the
+    float was switched off in (≤560, ≤640 coarse, ≤480h coarse), so no fold budget moves.
+  - **Acceptance** (gated by `aurora_assert.mjs` + `home_mobile_assert.mjs`): the mascot is
+    present and `iris.png`-rooted at 1512/1280/900; **zero** intersection between `.hm-greet
+    h1`/`.hm-sub` and `.hm-iriswrap` at every viewport; `.hm-greet` computed
+    `background-color` = `#5A2462`; 0 page overflow at 1512/1280/900/390/844×390; the phone
+    fold budget unchanged; `.hm-iris` animation `none` under reduce.
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar
