@@ -137,3 +137,70 @@ def retention_cells(retention_scores: dict | None) -> dict[str, Cell]:
         cells[key] = Cell(value=pct, n=1,
                           band=band_for(pct, n=1, minimum=1, weak_line=KNOWLEDGE_WEAK))
     return cells
+
+
+# Ordered worst-first for the row sort below: a flagged row is the reason a trainer opens
+# this table, so flagged rows lead it.
+_FLAG_RANK = {"knows_cant_do": 0, "consistent_gap": 1, "rote": 2, "": 3}
+
+_UNBANDED = ("thin", "absent")
+
+
+def flag_for(flashcards: Cell, station: Cell) -> str:
+    """The diagonal read of the map (spec §4.1).
+
+    Both cells must be BANDED. A flag off a `thin` cell would turn four lucky cards into
+    "knows it" and a single station into "can't do it" -- the shape of the numbers is
+    suggestive there, which is exactly why the guard is explicit.
+    """
+    if flashcards.band in _UNBANDED or station.band in _UNBANDED:
+        return ""
+    if flashcards.value >= STRONG and station.value < PERFORMANCE_WEAK:
+        return "knows_cant_do"
+    if station.value >= STRONG and flashcards.value < KNOWLEDGE_WEAK:
+        return "rote"
+    if flashcards.band == "weak" and station.band == "weak":
+        return "consistent_gap"
+    return ""
+
+
+@dataclass(frozen=True)
+class TopicRow:
+    topic: str
+    flashcards: Cell
+    station: Cell
+    retention: Cell
+    flag: str = ""
+
+
+@dataclass(frozen=True)
+class TopicMap:
+    rows: list[TopicRow]
+    excluded: dict[str, int]
+
+
+def _worst_banded(row: TopicRow) -> float:
+    """The lowest value this row has a VERDICT for. Unbanded axes are ignored rather than
+    treated as 0 -- 'not measured' must never sort as 'terrible'."""
+    values = [c.value for c in (row.flashcards, row.station, row.retention)
+              if c.band not in _UNBANDED and c.value is not None]
+    return min(values) if values else 999.0
+
+
+def build_topic_map(*, card_rows: list[dict], case_rows: list[dict],
+                    retention_scores: dict | None,
+                    case_topics: dict[str, str]) -> TopicMap:
+    """The knowledge x performance map: one row per topic ANY source knows about."""
+    fc = flashcard_cells(card_rows)
+    st, excluded = station_cells(case_rows, case_topics)
+    rt = retention_cells(retention_scores)
+
+    rows = []
+    for topic in topic_union(flashcards=fc, stations=st, retention=rt):
+        f, s, r = fc.get(topic, Cell()), st.get(topic, Cell()), rt.get(topic, Cell())
+        rows.append(TopicRow(topic=topic, flashcards=f, station=s, retention=r,
+                             flag=flag_for(f, s)))
+    # Flagged rows first, then worst-measured first, then alphabetical so the order is
+    # reproducible across runs and across the three renderers.
+    rows.sort(key=lambda r: (_FLAG_RANK[r.flag], _worst_banded(r), r.topic))
+    return TopicMap(rows=rows, excluded=excluded)
