@@ -44,3 +44,58 @@ def test_mark_loss_on_a_perfect_run_is_zero_not_empty():
 def test_mark_loss_with_no_attempts():
     result = mark_loss([])
     assert result.attempts == 0 and result.total_lost == 0 and result.excluded_legacy == 0
+
+
+from tools.supervisor.osce_analysis import repeat_offenders, critical_offenders
+
+
+def _step(action, performed, critical=False):
+    return {"step_number": 1, "action": action, "phase": "Preparation",
+            "critical": critical, "performed": performed, "skipped": False}
+
+
+def test_repeat_offenders_need_two_misses():
+    """One miss is noise. Two is a habit -- and only the second one is worth a trainer's
+    Tuesday."""
+    rows = [
+        {"checklist_detail": [_step("Check allergy status", False), _step("Wash hands", False)]},
+        {"checklist_detail": [_step("Check allergy status", False), _step("Wash hands", True)]},
+    ]
+    out = repeat_offenders(rows)
+    assert [o.action for o in out] == ["Check allergy status"]
+
+
+def test_repeat_offenders_carry_the_denominator():
+    """'Missed 3 times' is meaningless without the number of stations that CONTAINED the
+    step: 3 of 3 is a blind spot, 3 of 12 is an off day."""
+    rows = [{"checklist_detail": [_step("Check allergy status", False)]} for _ in range(3)]
+    rows += [{"checklist_detail": [_step("Check allergy status", True)]} for _ in range(9)]
+    out = repeat_offenders(rows)
+    assert out[0].missed == 3 and out[0].appeared == 12
+
+
+def test_repeat_offenders_merge_the_same_step_written_differently():
+    rows = [
+        {"checklist_detail": [_step("Check Allergy Status", False)]},
+        {"checklist_detail": [_step("check allergy status", False)]},
+    ]
+    assert len(repeat_offenders(rows)) == 1
+
+
+def test_repeat_offenders_ignore_a_row_with_no_ledger():
+    """A pre-019 attempt has no ledger. It contributes nothing rather than counting as a
+    station in which every step was performed."""
+    rows = [{"checklist_detail": None},
+            {"checklist_detail": [_step("Check allergy status", False)]}]
+    assert repeat_offenders(rows) == []
+
+
+def test_critical_offenders_work_without_a_ledger():
+    """missed_critical has been stored since migration 011, so this half reaches back over
+    every existing attempt. `appeared` is None: nothing recorded how many stations contained
+    the step, and a fabricated denominator is worse than an absent one."""
+    rows = [{"missed_critical": ["Check allergy status"]},
+            {"missed_critical": ["Check allergy status", "Confirm patient identity"]}]
+    out = critical_offenders(rows)
+    assert [(o.action, o.missed, o.appeared) for o in out] == [
+        ("Check allergy status", 2, None)]

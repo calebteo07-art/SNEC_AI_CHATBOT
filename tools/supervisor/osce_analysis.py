@@ -55,3 +55,60 @@ def mark_loss(case_rows: list[dict]) -> MarkLoss:
               else {b: 0.0 for b in lost})
     return MarkLoss(lost=lost, total_lost=total, shares=shares,
                     attempts=attempts, excluded_legacy=excluded)
+
+
+MIN_REPEATS = 2
+
+
+@dataclass(frozen=True)
+class Offender:
+    action: str
+    missed: int
+    critical: bool
+    # How many attempts CONTAINED this step. None when nothing recorded it (the
+    # missed_critical path) -- an absent denominator is honest, a fabricated one is not.
+    appeared: int | None = None
+
+
+def repeat_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[Offender]:
+    """Steps missed in `minimum` or more attempts, with the denominator (spec §4.3).
+
+    Reads the migration-019 ledger. An attempt without one contributes nothing -- treating a
+    NULL as "every step performed" would quietly clear a student's record.
+    """
+    seen: dict[str, dict] = {}
+    for row in case_rows:
+        detail = row.get("checklist_detail")
+        if not isinstance(detail, list):
+            continue
+        for step in detail:
+            key = norm_key(step.get("action"))
+            if not key:
+                continue
+            entry = seen.setdefault(key, {"action": str(step.get("action") or ""),
+                                          "missed": 0, "appeared": 0, "critical": False})
+            entry["appeared"] += 1
+            if not step.get("performed"):
+                entry["missed"] += 1
+            if step.get("critical"):
+                entry["critical"] = True
+    out = [Offender(action=e["action"], missed=e["missed"], appeared=e["appeared"],
+                    critical=e["critical"])
+           for e in seen.values() if e["missed"] >= minimum]
+    return sorted(out, key=lambda o: (-o.missed, -(o.appeared or 0), o.action))
+
+
+def critical_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[Offender]:
+    """The same idea over `missed_critical`, stored since migration 011 -- so this half works
+    on attempts that predate the ledger."""
+    seen: dict[str, dict] = {}
+    for row in case_rows:
+        for raw in (row.get("missed_critical") or []):
+            key = norm_key(raw)
+            if not key:
+                continue
+            entry = seen.setdefault(key, {"action": str(raw), "missed": 0})
+            entry["missed"] += 1
+    out = [Offender(action=e["action"], missed=e["missed"], appeared=None, critical=True)
+           for e in seen.values() if e["missed"] >= minimum]
+    return sorted(out, key=lambda o: (-o.missed, o.action))
