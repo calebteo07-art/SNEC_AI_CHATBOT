@@ -59,19 +59,27 @@ Carried from the 2026-08-04 lock and extended to both documents:
 
 ```
                     ┌──────────────────────────────────────────┐
- Supabase reads ───▶│ tools/analytics/student_insight.py       │
- (already fetched   │  PURE. No I/O, no AI, no DB, no clock.   │
-  by the endpoint)  │  rows in → StudentInsight out            │
+ Supabase reads ───▶│ tools/supervisor/  topic_map.py          │
+ (already fetched   │                    osce_analysis.py      │
+  by the endpoint)  │                    student_insight.py    │
+                    │  PURE. No I/O, no AI, no DB, no clock.   │
+                    │  rows in → one JSON object out           │
                     └──────────────────┬───────────────────────┘
-                                       │  one JSON object
+                                       │
                     ┌──────────────────┼───────────────────────┐
                     ▼                  ▼                       ▼
           AdminStudentDetail   studentReportExport      osceDossierExport
             (console panel)     (download, HTML)         (download, HTML)
 ```
 
-`student_insight.py` is pure — it takes the rows the endpoint has already read and returns a
-typed structure. Purity is what makes it TDD-able and what makes P4 enforceable: there is one
+The core lives in `tools/supervisor/` beside the pure analytics modules already there
+(`mastery.py`, `risk_model.py`, `trend.py`, `cohort_analytics.py`) and is split by
+responsibility: `topic_map.py` owns everything on the topic axis (§4.1, §4.5, §5),
+`osce_analysis.py` owns everything across attempts (§4.2–4.4), `student_insight.py` owns the
+consultation labels (§4.6) and assembles the payload.
+
+All three are pure — they take the rows the endpoint has already read and return a typed
+structure. Purity is what makes them TDD-able and what makes P4 enforceable: there is one
 implementation of "where do this student's marks go", and three renderers.
 
 Inputs (all already fetched by `/api/admin/student/{id}/detail`, no new round trips):
@@ -347,7 +355,8 @@ A zero is never printed where the truth is "not measured".
 
 ## 9. Testing
 
-- **`tests/analytics/test_student_insight.py`** — TDD, one failing test per insight before its
+- **`tests/supervisor/test_topic_map.py`, `test_osce_analysis.py`, `test_student_insight.py`** —
+  TDD, one failing test per insight before its
   implementation. Edge cases that must each have a test: n=0 and n=1 on every axis; mixed
   `grade_scale` (a NULL row must not enter the decomposition); topic-namespace collisions
   (`Visual_Fields` / `visual fields` / `VISUAL FIELDS` collapse to one row); a flag refusing to
