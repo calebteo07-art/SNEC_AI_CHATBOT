@@ -60,6 +60,8 @@ Checked against the running code on 2026-08-06, not assumed. Trust these over th
 
 **Migration 019 may not be applied yet.** Every attempt's `checklist_detail` can be `null`. That is `"Per-step ledger not recorded for this attempt."` — never an empty table.
 
+**Local value imports MUST carry the `.ts` suffix** — `import { esc } from "./reportChrome.ts"`. A `.mjs` harness loads these modules through Node's type-stripping, which resolves specifiers at runtime and cannot guess the extension; an extensionless value import throws `ERR_MODULE_NOT_FOUND`. `frontend/tsconfig.json` sets `allowImportingTsExtensions` (legal because `noEmit` is set) so `tsc` accepts the suffix too — without it, `tsc` rejects it with TS5097 and a module can be typechecked or tested, never both. Verified end to end: typecheck, the logic harnesses and `next build` are all green with a real cross-module value import. `import type` is unaffected either way, since type-stripping erases it.
+
 ---
 
 ## File structure
@@ -693,7 +695,8 @@ Expected: `PASS report_findings_logic`.
 
 - [ ] **Step 5: Prove two guards**
 
-1. Change `if (c.cohortMean == null) continue;` to `const base = c.cohortMean ?? 0;` and compare against `base`. Test 8 must fail. Revert.
+1. Change `if (c.cohortMean == null) continue;` to `const base = c.cohortMean ?? 100;` and compare against `base`. Test 8 must fail. Revert.
+   **Use `?? 100`, not `?? 0`.** A fabricated `0` baseline is unobservable: block 8's fixture has `student: 40`, so `gap = 0 - 40 = -40`, which the very next line (`gap < INDIVIDUAL_GAP`) discards anyway — the guard is never reached and the mutation passes. A mutation that cannot fail proves nothing; it records a false green.
 2. Change `offenderEvidence`'s null branch to `Missed in ${o.missed} of ${o.appeared} attempts`. Test 5 must fail. Revert.
 
 Report both assertion texts.

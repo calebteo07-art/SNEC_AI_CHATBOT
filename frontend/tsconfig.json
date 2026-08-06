@@ -16,6 +16,14 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    // Lets a src module VALUE-import a sibling as "./x.ts". Legal only with noEmit (set
+    // above), and the bundler resolves it unchanged. Without it, lib-to-lib composition is
+    // impossible in any module a .mjs harness tests: Node's type-stripping needs the
+    // explicit suffix to resolve at runtime, and tsc rejects that suffix (TS5097) — so a
+    // module could be typechecked or tested, never both. The report builders share one
+    // escaper, one stylesheet and one findings engine; duplicating those per file to dodge
+    // the suffix is what this flag buys out of.
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
