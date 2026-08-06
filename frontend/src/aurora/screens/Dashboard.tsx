@@ -2,11 +2,17 @@
 /* AURORA Home — the student's game HUD, in THREE ZONES:
 
      .hm-top     the brand, the level chip and the Eyecon menu (unchanged)
-     .hm-deck    what is live RIGHT NOW — the status bar, the greeting host + today's
-                 quest board, the daily chest and the League standing. One struck plate.
-     .hm-record  what you have BUILT — the streak calendar and the Lumens vault.
+     .hm-deck    the CONSOLE — the status rail, the greeting host beside ONE right-hand
+                 rail (quest board → chest → League strip), and the streak band across
+                 the bottom. One dark struck plate carrying every live object.
+     .hm-record  what you have BUILT — the Lumens vault.
 
    The coverflow of the three entry points sits between them, outside both guards.
+
+   ⚠ THE STREAK MOVED ONTO THE DECK (2026-08-06, "can you make the streak card merge into
+   the top card?"). It is the one object that reads as BOTH — a record you have built and a
+   thing that can END TODAY — and the status rail already carries its deadline clock. The
+   record zone keeps the vault, which is the surface that genuinely only moves over weeks.
 
    TWO READS, TWO UNKNOWNS, and neither one is ever painted as a zero: useProgress owns
    who you are (level, XP, streak) and useHome owns what is live today (quests, chest,
@@ -134,8 +140,8 @@ export function Dashboard() {
         <ApiErrorNotice cause="Couldn’t load your progress" className="aurora-api-error--page" />
       ) : (
         /* THE DECK — what is live right now, on one struck plate. The status bar is the
-           only place the live clocks appear, and the streak numeral stays on the record's
-           tile below: one number, one owner, so two readouts can never disagree. */
+           only place the live CLOCKS appear, and the streak NUMERAL has exactly one owner
+           (the band below), so two readouts can never disagree. */
         <div className="hm-deck struck-structural">
           <StatusBar
             level={level}
@@ -147,12 +153,20 @@ export function Dashboard() {
           />
           <div className="hm-deck-mid">
             <GreetingHero greeting={greeting} />
-            <QuestBoard quests={hud?.quests ?? null} />
+            {/* ONE COLUMN, in the order a student works it: what to do → what it pays →
+                where it puts you ("chest, volt, quest all in 1 column", 2026-08-06). The
+                chest and the strip keep their own wrapper because the PHONE puts those two
+                abreast — a single 60px row instead of two, out of the same 844px fold the
+                status bar and three quest rows have already spent. */}
+            <div className="hm-rail">
+              <QuestBoard quests={hud?.quests ?? null} />
+              <div className="hm-deck-foot">
+                <ChestTile chest={hud?.chest ?? null} />
+                <RankStrip league={hud?.league ?? null} />
+              </div>
+            </div>
           </div>
-          <div className="hm-deck-foot">
-            <ChestTile chest={hud?.chest ?? null} />
-            <RankStrip league={hud?.league ?? null} />
-          </div>
+          <StreakTile detail={detail} />
         </div>
       )}
 
@@ -161,9 +175,10 @@ export function Dashboard() {
       <FeatureCarousel />
 
       {!progressUnknown && (
-        /* THE RECORD — what you have built. Slower than the deck, and below it. */
+        /* THE RECORD — what you have built. Slower than the deck, and below it. The streak
+           left for the deck; the vault is the object that looks better wider, and it now
+           gets the whole width instead of the larger of two tracks. */
         <div className="hm-record">
-          <StreakTile detail={detail} />
           <LumenLadder current={coinsEarned} />
         </div>
       )}

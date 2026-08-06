@@ -142,19 +142,42 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    why the greeting's XP readout (and its <Lumen> coin) left GreetingHero when the card
    moved onto this plate — the status bar renders those same four numbers. Gated in
    home_hud_assert.mjs. */
+/* ⚠ THE PLATE IS THE CONSOLE BODY, AND IT IS DARK (amended 2026-08-06, "levels strip
+   color choice not matching well with rest of page" + "more game-like loud addicting
+   colors"). It was cream #F1E3C7, and the status rail had just gone indigo on top of it —
+   so the rail was the one dark object on a light plate and read as an alien rather than as
+   the head of the machine. Two ways to close that gap: light the rail back down, or take
+   the plate to the rail. The rail already contains a machined recess (the XP groove), the
+   deck already carries a gold chest and an orange streak, and the page is a COOL periwinkle
+   stage — so the plate goes deep violet and the whole deck becomes one console with five
+   bright inserts in it. Loud is a figure/ground problem before it is a saturation problem:
+   the five cards did not change hue here, they changed BACKGROUND.
+   ⚠ THE STAGE IS STILL LIGHT. leaderboard.css pins the PAGE above 0.7 luminance and the
+   page is unchanged; the vault (#140B26) has been exactly this kind of dark component on a
+   light page since July. A dark component is not a dark stage. */
 .hm-deck {
-  --lip-c:#D6C39B;
+  --lip-c:#0B0518;
   display:flex; flex-direction:column; gap:14px;
   padding:14px; border-radius:26px;
-  background-color:#F1E3C7;
-  background-image:linear-gradient(180deg,#F9F0DF 0%,#F9F0DF 34%,#F1E3C7 34%);
+  background-color:#1C1236;
+  background-image:linear-gradient(180deg,#2A1B4E 0%,#2A1B4E 34%,#1C1236 34%);
 }
 /* The greeting is the object that looks better wider, so IT owns the larger track. Never
-   the board: its rows are three bands of text beside a 44px control, and a text box handed
+   the rail: its rows are three bands of text beside a 44px control, and a text box handed
    the flexible track is how a 334px row becomes a 107px meter. minmax(0,…) on both, because
    a grid item defaults to min-width:auto and would push the plate past a 390px viewport. */
 .hm-deck-mid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; }
-.hm-deck-foot { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:14px; }
+/* ── the right-hand rail — ONE column, in the order a student works it ──
+   "chest, volt, quest all in 1 column" (2026-08-06). What to do (the board) → what it pays
+   (the chest) → where it puts you (the League). The chest and the strip keep .hm-deck-foot
+   as their own wrapper purely so the PHONE can put those two abreast in one 60px row; on
+   every other tier it is a single column and the wrapper is a pass-through. */
+.hm-rail { display:flex; flex-direction:column; gap:14px; min-width:0; }
+/* The board is the only object in the rail that can honestly absorb slack — the chest and
+   the strip are fixed-height controls, and a 46px pill stretched to 200px is a lie about
+   what it is. This only ever fires when the GREETING is the taller column. */
+.hm-rail > .hm-board { flex:1 1 auto; }
+.hm-deck-foot { display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }
 
 /* ── the greeting host ──
    ⚠ THE 62px HEADLINE IS GONE (superseded design-lock criterion (c)). It was the least
@@ -171,33 +194,44 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    a lip is a darker sibling of the fill it sits under, not of the fill's brightest patch.
    ⚠ `inset:0` on the Veo loop, the veil and the ::after bloom resolves against the PADDING
    box, so all three land inside the new outline and the card frames them. */
+/* ⚠ THE OUTER PLANE IS THE CLIP'S OWN FIELD, SAMPLED (2026-08-06). The art is a
+   bottom-anchored band now (see `.hm-eyeconloop`), so wherever the card is taller than the
+   band, this fill is what meets the clip's top edge — and a hard cut between two DIFFERENT
+   colours is a seam. Sampled off the rendered clip at the join: #FFE0B8 at the left,
+   #FAD9DC..#F8DCEE across the right. The peach plane was already exact; the outer plane was
+   a LAVENDER #E4D3FF running into a pink clip, which is what made the card read as two
+   pieces. #F7DAE9 is the clip's own right-hand field, so the card and the art are now one
+   continuous surface and the join is invisible at every card height.
+   Measured on the pink plane: --hink 11.6:1, .hm-sub's #5A4B64 6.2:1, the <em> accent
+   --violet-d 5.5:1. */
 .hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px;
-  --lip-c:#BFA6E8;
-  background-color:#E4D3FF;
-  background-image:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFE0B7 42%, #E4D3FF 42%); }
-/* ⚠ THE CARD'S HEIGHT IS TIED TO ITS OWN WIDTH, and that is what stops the Veo loop
-   cutting the mascot off ("the waving eyecon is cut off", 2026-08-06).
+  --lip-c:#DBA2BE;
+  background-color:#F7DAE9;
+  background-image:radial-gradient(135% 158% at 4% 0%, #FFE0B7 0%, #FFE0B7 42%, #F7DAE9 42%); }
+/* ⚠ THE CARD'S MINIMUM HEIGHT IS TIED TO ITS OWN WIDTH, and it is only a MINIMUM — see the
+   note on `.hm-eyeconloop` below for why the mascot no longer depends on the card's actual
+   height at all ("the waving eyecon is cut off", 2026-08-06).
 
    The clip is 1280x720 and the mascot spans y 215..600 of it — 385 source pixels, 53% of
-   the frame's height. `object-fit:cover` on a card far wider than 16:9 is scaled by WIDTH,
-   so she is drawn at 385 x (cardW / 1280) REGARDLESS of how tall the card is, while the
-   card only shows cardH of her. Measured at 1512px: she rendered 225px tall inside a 206px
-   card and lost 46px off the bottom — her feet. object-position cannot fix that; moving the
-   window only chooses WHICH end is amputated.
+   the frame's height. `object-fit:cover` on a box far wider than 16:9 is scaled by WIDTH, so
+   she is drawn at 385 x (boxW / 1280) REGARDLESS of how tall the box is, while the box only
+   shows boxH of her. Measured at 1512px: she rendered 225px tall inside a 206px card and
+   lost 46px off the bottom — her feet. object-position cannot fix that; moving the window
+   only chooses WHICH end is amputated.
 
-   So the card needs cardH >= 0.30 x cardW, at every width, and the card's width is a
-   different fraction of the viewport in each of the three tiers where the loop renders
-   (two-column >= 900px, single-column 561-900px, narrow <= 560px). A min-height in px would
-   have to be re-tuned per tier and would still be wrong between them.
-
+   The card's width is a different fraction of the viewport in each of the three tiers where
+   the loop renders (two-column >= 900px, single-column 561-900px, narrow <= 560px), so a
+   min-height in px would have to be re-tuned per tier and would still be wrong between them.
    A zero-width float's padding-top is a percentage OF THE CONTAINING BLOCK'S WIDTH, so this
    is one declaration that holds at every width with no breakpoint tuning. `overflow:hidden`
    above already makes this card a BFC, which is what contains the float so it can set the
-   height. 29.5% is measured, not guessed: it leaves her at ~90% of the card's height at
-   every card width from 340px to 840px, which is also what makes the 66% below a constant.
+   height. 40% is what guarantees the card is never SHORTER than the art band below it at any
+   width: the band is 510/1280 = 39.84% of the card's width, the float reserves
+   40% x (cardW - 52px of padding) + 44px, and 40% x cardW + 23.2 >= 39.84% x cardW for every
+   positive width.
    ⚠ It is switched OFF wherever `.hm-eyeconloop` is display:none (both phone tiers) — there
    is no mascot to fit there, and the height would come straight out of the fold budget. */
-.hm-greet::before { content:""; float:left; width:0; padding-top:29.5%; }
+.hm-greet::before { content:""; float:left; width:0; padding-top:40%; }
 .hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
 .hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
@@ -246,27 +280,46 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    on the right, with calm space on the left for the copy. It's opaque (Veo can't emit
    alpha) so it fully covers the fallback EyeconLogo beneath. A soft veil over it keeps
    the headline/CTAs legible; the greeting body layers on top. ── */
-.hm-eyeconloop { position:absolute; inset:0; z-index:1; pointer-events:none; }
-/* ⚠ 66% IS THE VERTICAL CENTRE OF THE MASCOT, not of the frame, and X NO LONGER CROPS.
-   With the height lock above, the card is always shallower than 0.5625 x its width, so
-   `cover` is always scaled by WIDTH: the full 1280px is drawn and the horizontal position
-   has nothing to choose between. The vertical window is ~420 source px at every card
-   width — that is what the 29.5% ratio buys — and 66% of the remaining overflow centres
-   her 385px span inside it with ~20px of air top and bottom.
+/* ⚠ THE ART IS A BOTTOM-ANCHORED BAND WHOSE HEIGHT FOLLOWS THE CARD'S WIDTH — it is NOT
+   inset:0 any more, and that is what makes the mascot independent of the card's height.
+
+   `inset:0` made the VISIBLE WINDOW the card, so the crop was a function of how tall the
+   card happened to be — and the moment the greeting shares a grid row with a taller
+   neighbour (which is exactly what the one-column rail made it), the card stretches, the
+   window goes past 0.5625 x its width, `cover` flips to HEIGHT-driven and the frame is
+   suddenly cropped SIDEWAYS instead: she is on the right of the frame, so she is the first
+   thing to go. Measured: at a 1000px viewport the rail is ~382px tall against a 539px-wide
+   greeting, whose flip threshold is 303px.
+
+   `aspect-ratio` on a left:0/right:0/bottom:0 box resolves the width from the offsets and
+   the height from the ratio, so the band is ALWAYS 510/1280 of the card's width and `cover`
+   is ALWAYS width-driven, whatever the card does. 510 is the WINDOW, not the mascot — it
+   does not change how big she is drawn (that is width-driven too), only how much of the
+   clip's baked backdrop shows around her, which is what keeps the card reading as one
+   picture rather than as a strip of art pasted onto a panel. At `68%` of the remaining
+   210px of overflow the visible source band is y 143..653, holding her 215..600 with ~72
+   source px of air above and ~53 below. That air is what the top fade is spent out of.
    The old `translateX(2.5%)` is gone with the horizontal crop it used to spend: with the
    frame drawn edge to edge it would push 2.5% of the video off the right and expose a bare
    strip of card on the left. */
-.hm-eyeconloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:50% 66%; }
+.hm-eyeconloop { position:absolute; left:0; right:0; bottom:0; top:auto;
+  aspect-ratio:1280 / 510; z-index:1; pointer-events:none; overflow:hidden;
+  /* The card's fill is the clip's own field (see .hm-greet), so the join is already a
+     colour match; this dissolves the last hard pixel of it. 6% is well under the 14.2% of
+     air above her head, so the fade is spent entirely on backdrop and never touches her. */
+  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 6%);
+  mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 6%); }
+.hm-eyeconloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:50% 68%; }
 /* ⚠ THE VEIL NOW PAINTS THE CARD'S OWN COLOUR INSTEAD OF BLEACHING IT. Its job is
    unchanged — keep the headline legible where it crosses the clip — but it was a CREAM
    wash (#FFF6EC), and the clip is opaque and full-bleed, so `.hm-greet`'s designed
    peach->lavender fill never renders at all: the veil WAS the card's visible colour, and
    it was washing the one object on the deck that carries the art into the palest thing on
    a plate of four saturated ones. Same geometry, same alphas, same legibility (the
-   headline clears 12:1 on every stop); the stops are now the card's own #FFE0B7 -> #E4D3FF,
+   headline clears 11:1 on every stop); the stops are the card's own #FFE0B7 -> #F7DAE9,
    so the greeting reads warm on purpose rather than faded by accident. */
 .hm-greet-veil { position:absolute; inset:0; z-index:2; pointer-events:none;
-  background:linear-gradient(96deg, rgba(255,224,183,.72) 0%, rgba(255,226,190,.44) 30%, rgba(228,211,255,.2) 56%, rgba(228,211,255,0) 74%); }
+  background:linear-gradient(96deg, rgba(255,224,183,.72) 0%, rgba(255,226,190,.44) 30%, rgba(247,218,233,.2) 56%, rgba(247,218,233,0) 74%); }
 .hm-greet-body { position:relative; z-index:3; }
 
 /* ── streak tile ── */
@@ -275,25 +328,46 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    largest object on the page that was still built the rejected way — a 1px 30%-white
    hairline (grey-on-colour, which is exactly what reads as a CSS border) over a smooth
    three-stop wash under a blurred --sh-lg.
-   ⚠ THE HARD STOP CANNOT REGRESS CONTRAST, and that is not a hope: the two planes are the
-   old ramp's own ENDPOINTS (#F1600C, #C9420A), so every pixel of the card is a colour it
-   already had and the whole lower half moves to the DARKEST of them. Measured on the new
-   solid #C9420A (the darker plane, and the background-color a probe resolves): #fff is
-   4.92:1, and only a near-solid white gets there at all.
-   That is why the FOUR translucent-white labels on this card (.hm-slbl .92, .hm-nexttier
-   .hm-nl .90, .hm-caldone .82, .hm-caldows li .72) are now solid: they measured 3.25-4.39:1
-   here and 2.6-3.4:1 on the old ramp's lighter bands — under AA either way, so they are
-   fixed in the same pass that names the fill they land on rather than left as a defect this
-   change would be blamed for. The calendar CELLS keep their alpha ladder: there it ENCODES
-   STATE (done/today/missed/rest/upcoming), and they are the ~35 repeated elements that stay
-   flat. Every text colour on this card is now >= 4.92:1 except those cells. */
-.hm-streak { position:relative; overflow:hidden; border-radius:var(--hr); color:#fff;
-  --lip-c:#8A2C05;
-  background-color:#C9420A;
-  background-image:radial-gradient(72% 64% at 13% 46%, rgba(255,201,74,.62) 0%, rgba(255,165,45,.18) 44%, transparent 70%),
-    linear-gradient(150deg, #F1600C 0%, #F1600C 46%, #C9420A 46%);
-  padding:22px 28px;
-  display:flex; flex-direction:column; justify-content:space-between; }
+   ⚠ THE PREVIOUS PASS CERTIFIED ONE PLANE AND SHIPPED TWO. It measured white at 4.92:1 on
+   the darker #C9420A and wrote "every text colour on this card is now >= 4.92:1" — but the
+   card's top half was #F1600C, where white is 3.27:1, and that is where "Daily streak"
+   (16.5px), "DAY STREAK" (14px) and half the month grid actually landed. For LIGHT-on-dark
+   the worst case is the LIGHTER plane, and only the darker one was ever checked. Both planes
+   are re-derived here: #D14708 = 4.55:1 and #BE3C08 = 5.47:1, so every label on this card
+   clears AA on the plane it is really on. The card is one notch deeper for it; on a dark
+   console it reads hotter than the old ramp did on cream.
+   ⚠ THE CARD-LEVEL RADIAL IS GONE, and that is a contrast fix as much as a material one. It
+   was a 72%x64% ellipse of `rgba(255,201,74,.62)` — a wash across most of the card, which is
+   the exact construction leaderboard.css:15-19 names as the house style, and which put small
+   white labels on an effective ~#ED9831 (2.2:1). In a 1272px band it stopped being a glow
+   and became a second background. `.hm-big::before` is still there and is the real heat
+   source: a tight blurred ellipse behind the FLAME, where no small text lands.
+   The calendar CELLS keep their alpha ladder: there it ENCODES STATE
+   (done/today/missed/rest/upcoming), and they are the ~35 repeated elements that stay flat. */
+/* ⚠ IT LIVES ON THE DECK NOW (2026-08-06, "can you make the streak card merge into the top
+   card?") — the deck's floor, full width, under the greeting + rail row. Two consequences:
+   · IT GOES HORIZONTAL. A full-width band is ~1270px; the month grid is `repeat(7,1fr)`
+     with a 34px cap on the cell, so across that width it would have laid 34px dots out in
+     178px columns — a calendar with the days scattered. The numeral holds the left, the
+     month holds the right at its own natural 262px, and the band is ~2/3 the height the
+     vertical tile was. The flex column is restored on narrow tiers by flipping `display`
+     alone: every grid-column/grid-row below is inert under flex, so there is one switch and
+     no second layout to keep in sync.
+   · IT TAKES THE DECK'S INNER RADIUS (18px), not the page's --hr (24px). Radius is what
+     says which plate an object belongs to. */
+.hm-streak { position:relative; overflow:hidden; border-radius:18px; color:#fff;
+  --lip-c:#7E2704;
+  background-color:#BE3C08;
+  background-image:linear-gradient(96deg, #D14708 0%, #D14708 52%, #BE3C08 52%);
+  padding:18px 22px;
+  display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 1fr auto;
+  column-gap:26px; align-content:space-between; }
+.hm-streak > .hm-sh { grid-column:1; grid-row:1; }
+.hm-streak > .hm-big { grid-column:1; grid-row:2; }
+.hm-streak > .hm-nexttier { grid-column:1; grid-row:3; }
+/* 262px is 7 x 34 + 6 x 4 — the cell cap and the gap the grid already declares — so every
+   column lands exactly on the cap and the month reads as a block instead of a scatter. */
+.hm-streak > .hm-cal { grid-column:2; grid-row:1 / span 3; width:262px; margin-top:0; }
 .hm-streak::before { content:""; position:absolute; left:44px; top:112px; width:7px; height:7px; border-radius:50%;
   background:radial-gradient(circle,#FFE08A,#FF9E2C); opacity:0; pointer-events:none; z-index:1;
   animation:hm-ember 3.4s ease-in-out infinite; }
@@ -301,23 +375,37 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-sh { display:flex; align-items:center; justify-content:space-between; }
 .hm-sh .hm-t { font-family:var(--font-home); font-weight:700; font-size:16.5px; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.28); display:flex; align-items:center; gap:8px; }
 .hm-sh .hm-t .ico { width:18px; height:18px; color:#fff; }
-.hm-big { position:relative; display:flex; align-items:center; gap:15px; margin:14px 0 4px; }
-/* pulsing heat-glow behind the flame — Mario-Kart warmth, never menace */
-.hm-big::before { content:""; position:absolute; left:4px; top:50%; width:104px; height:104px; transform:translateY(-50%); border-radius:50%; z-index:0; pointer-events:none;
-  background:radial-gradient(circle, rgba(255,214,80,.9), rgba(255,150,30,.32) 45%, transparent 72%); filter:blur(6px); animation:hm-heat 2.4s ease-in-out infinite; }
+/* The numeral and the flame are sized for the WIDE band: they hold a ~700px column on their
+   own, and at the vertical tile's 84/70 they read as a caption in it. Both narrow tiers
+   restore the old sizes with the column layout. */
+.hm-big { position:relative; display:flex; align-items:center; gap:18px; margin:14px 0 4px; }
+/* Pulsing heat-glow behind the flame — Mario-Kart warmth, never menace. It is the card's
+   ONLY glow now that the card-level radial wash is gone, so it is a halo rather than a disc:
+   a .9-alpha core under a 6px blur read as a painted blob once there was nothing else warm
+   around it. Wider blur, lower core, same colours and same pulse. */
+.hm-big::before { content:""; position:absolute; left:4px; top:50%; width:122px; height:122px; transform:translateY(-50%); border-radius:50%; z-index:0; pointer-events:none;
+  background:radial-gradient(circle, rgba(255,201,74,.52), rgba(255,150,30,.2) 48%, transparent 76%); filter:blur(16px); animation:hm-heat 2.4s ease-in-out infinite; }
 @keyframes hm-heat { 0%,100% { opacity:.7; transform:translateY(-50%) scale(1); } 50% { opacity:1; transform:translateY(-50%) scale(1.09); } }
-.aurora-home .hm-flame { position:relative; z-index:1; width:84px; height:84px; color:#fff; flex-shrink:0;
+.aurora-home .hm-flame { position:relative; z-index:1; width:98px; height:98px; color:#fff; flex-shrink:0;
   transform-origin:50% 92%; animation:hm-flame-flicker 2.3s ease-in-out infinite;
   filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
 .hm-flame .core { color:#fff; animation:hm-flame-core 1.5s ease-in-out infinite; }
+/* ⚠ NO rotate AND NO skewX — this animation moved onto the deck with the streak card, and
+   the deck's geometry bound fails ANY element whose computed matrix carries a non-zero b/c
+   term (a rotated or skewed box reports an axis-aligned bounding rect up to 1.41x its own
+   width and escapes an overflow sweep even under overflow:hidden, because clipping stops the
+   PAINT and not getBoundingClientRect). The lick reads from an off-axis translate plus
+   independent scaleX/scaleY instead, which are pure a/d terms; nothing about the timing, the
+   drop-shadow ramp or the character of the flicker changed. Same reason `hm-dot-pop` below
+   lost its rotate. */
 @keyframes hm-flame-flicker {
-  0%,100% { transform:scale(1) skewX(0deg) rotate(0deg); filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
-  25% { transform:scale(1.05,1.09) skewX(-2.4deg) rotate(-1.2deg); filter:drop-shadow(0 9px 18px rgba(120,40,0,.5)); }
-  55% { transform:scale(.98,1.03) skewX(2deg) rotate(1deg); filter:drop-shadow(0 6px 12px rgba(120,40,0,.44)); }
-  78% { transform:scale(1.03,1.06) skewX(-1.2deg) rotate(.6deg); filter:drop-shadow(0 10px 20px rgba(120,40,0,.55)); }
+  0%,100% { transform:translateX(0) scale(1); filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
+  25% { transform:translateX(-1.6px) scale(1.05,1.09); filter:drop-shadow(0 9px 18px rgba(120,40,0,.5)); }
+  55% { transform:translateX(1.3px) scale(.98,1.03); filter:drop-shadow(0 6px 12px rgba(120,40,0,.44)); }
+  78% { transform:translateX(-.8px) scale(1.03,1.06); filter:drop-shadow(0 10px 20px rgba(120,40,0,.55)); }
 }
 @keyframes hm-flame-core { 0%,100% { opacity:.9; transform:translateY(0) scaleY(1); } 50% { opacity:1; transform:translateY(-1px) scaleY(1.08); } }
-.hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; color:#fff; text-shadow:0 2px 8px rgba(120,40,0,.38); }
+.hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:88px; line-height:.8; letter-spacing:-.03em; color:#fff; text-shadow:0 2px 8px rgba(120,40,0,.38); }
 .hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:#fff; text-transform:uppercase; margin-top:3px; }
 /* ── month calendar (replaced the seven jewel week-dots 2026-07-29) ──
    The whole month on the orange card: seven columns, every cell keeps its DATE NUMBER
@@ -341,9 +429,16 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;
   background:rgba(255,255,255,.14); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.22);
   animation:hm-dot-pop .5s var(--spring) backwards; }
-@keyframes hm-dot-pop { from { transform:scale(0) rotate(-12deg); opacity:0; } }
+/* No rotate: ~35 of these instantiate on the deck now, and the deck's geometry bound sweeps
+   every descendant. `backwards` with no `forwards` means the transform resolves to none once
+   the 0.5s entrance ends, so a probe that lands mid-animation was the only thing standing
+   between a green gate and a false red. The pop is the scale. */
+@keyframes hm-dot-pop { from { transform:scale(0); opacity:0; } }
+/* The numeral on a DONE chip is the card's own darker plane. #E4530B was 3.80:1 on white —
+   an 11.5px numeral needs 4.5, so it was under AA; #BE3C08 is 5.47:1 and is the same colour
+   the card is now built from. */
 .hm-calday[data-state="done"] .hm-caldot, .hm-calday[data-state="rest-done"] .hm-caldot {
-  background:#fff; color:#E4530B; border-color:transparent; box-shadow:inset 0 1px 1px rgba(255,255,255,.7), 0 4px 9px -3px rgba(120,40,0,.4); }
+  background:#fff; color:#BE3C08; border-color:transparent; box-shadow:inset 0 1px 1px rgba(255,255,255,.7), 0 4px 9px -3px rgba(120,40,0,.4); }
 .hm-calday[data-state="today"] .hm-caldot { background:rgba(255,255,255,.22); color:#fff; border:2px solid #fff;
   box-shadow:0 0 0 3px rgba(255,255,255,.22); animation:hm-dot-pop .5s var(--spring) backwards, hm-today-pulse 1.9s ease-in-out infinite; }
 @keyframes hm-today-pulse { 0%,100% { box-shadow:0 0 0 3px rgba(255,255,255,.22); } 50% { box-shadow:0 0 0 6px rgba(255,255,255,.34); } }
@@ -352,9 +447,12 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-calday[data-state="upcoming"] .hm-caldot { background:rgba(255,255,255,.09); color:rgba(255,255,255,.58); }
 .hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,.30); display:flex; align-items:center; justify-content:space-between; }
 .hm-nexttier .hm-nl { font-size:15px; color:#fff; } .hm-nexttier .hm-nl b { color:#fff; font-weight:700; }
+/* A SOLID chip, not 20% white over the plane — that resolved to ~#DA6C39 and put a 12px
+   label at 3.4:1, and it carried a 1px white hairline, which is the one border width this
+   deck's material language forbids outright. #8E2A03 is the plane's own darker sibling
+   (white 8.46:1), and the depth comes from a lip rather than from a blur. */
 .hm-nexttier .hm-tag { position:relative; overflow:hidden; font-size:12px; font-weight:800; color:#fff; border-radius:999px; padding:6px 13px; letter-spacing:.01em;
-  background:rgba(255,255,255,.20); border:1px solid rgba(255,255,255,.42); box-shadow:0 4px 10px -4px rgba(120,40,0,.4); text-shadow:0 1px 2px rgba(120,40,0,.35); }
-.hm-nexttier .hm-tag::before { content:""; position:absolute; inset:0; background:var(--sheen); opacity:.4; pointer-events:none; }
+  background:#8E2A03; box-shadow:0 2px 0 0 #6A1D01; }
 
 /* ── feature carousel (3D coverflow) — SPLIT-HERO cards ──
    Two layers only: a bold candy gradient (vibrancy from CSS, WCAG-controllable) and a
@@ -423,11 +521,12 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 .hm-carbtn:hover { background:#fff; transform:scale(1.06); }
 
 /* ══ ZONE 3 — THE RECORD (.hm-record) — what you have BUILT ══
-   The streak calendar and the Lumens vault: the two surfaces that move over weeks rather
-   than over a session, which is why they sit BELOW the deck and the carousel instead of
-   competing with them for the fold. The vault is the object that looks better wider (five
-   medallions across a frame), so it takes the larger track. */
-.hm-record { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:16px; align-items:start; }
+   The Lumens vault: the surface that moves over weeks rather than over a session, which is
+   why it sits BELOW the deck and the carousel instead of competing with them for the fold.
+   ⚠ ONE COLUMN, because the streak left for the deck (2026-08-06). It was a 1fr/1.5fr pair
+   and a lone child of that grid would have rendered in the 1fr track — the vault, the object
+   that looks better wider, in the NARROWER of two columns with the wider one empty. */
+.hm-record { display:grid; grid-template-columns:minmax(0,1fr); gap:16px; align-items:start; }
 /* min-width:0 is load-bearing, not tidiness: a grid item defaults to min-width:auto, so
    the panel would GROW to the ~2350px of the 20-medallion shelf instead of letting the
    shelf scroll inside it. */
@@ -651,10 +750,10 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 /* ── responsive ── */
 @media (max-width:900px) {
   .aurora-home { padding:16px 16px 28px; }
-  /* One column for both halves of the deck and for the record. The phone-LANDSCAPE tier
-     below restores two columns: 844px matches this block, and a wide+short screen is the
-     one place side-by-side is what keeps the page short. */
-  .hm-deck-mid, .hm-record { grid-template-columns:1fr; }
+  /* One column: the greeting, then the rail (board → chest → strip) under it. The
+     phone-LANDSCAPE tier below restores two columns — 844px matches this block, and a
+     wide+short screen is the one place side-by-side is what keeps the page short. */
+  .hm-deck-mid { grid-template-columns:1fr; }
   .hm-greet h1 { font-size:30px; max-width:none; }
   .hm-sub { font-size:16px; }
   .hm-iriswrap { width:164px; height:144px; right:-8px; }
@@ -672,6 +771,21 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-greet h1 { font-size:27px; max-width:76%; }
   .hm-sub { font-size:15px; max-width:63%; }
   .hm-iriswrap { display:none; }
+  /* THE STREAK GOES BACK TO A COLUMN. The horizontal band needs ~532px of card (a 200px
+     numeral column + 26px + the month's own 262px + 44px of padding) and this tier has at
+     most 500. ONE property does it: every grid-column/grid-row on the children is inert
+     under flex, so there is no second layout to keep in sync — only `.hm-cal`'s two
+     overrides have to come back, because they are not grid properties. */
+  .hm-streak { display:flex; flex-direction:column; justify-content:space-between;
+    /* the plane step turns with the card: 96deg splits a WIDE band into numeral | month,
+       and on a tall tile the same angle is a crease down the middle of it. */
+    background-image:linear-gradient(168deg, #D14708 0%, #D14708 46%, #BE3C08 46%); }
+  .hm-streak > .hm-cal { width:auto; margin-top:14px; }
+  /* the numeral was sized to hold a ~700px column; with the column back, so are its sizes */
+  .hm-snum { font-size:70px; }
+  .aurora-home .hm-flame { width:84px; height:84px; }
+  .hm-big { gap:15px; }
+  .hm-big::before { width:104px; height:104px; }
   /* shrink the split-hero feature card so the front card fits the narrow viewport */
   .aurora-home { --fcw:min(88vw,392px); --fch:272px; }
   .hm-fcard { padding:26px 26px 24px; }
@@ -717,11 +831,23 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 
   /* THE DECK IS ONE COLUMN — status bar, greeting, board — and then the chest and the rank
      strip share the last row: two ~48-60px objects abreast cost one row of the 844px fold
-     instead of two. Every pixel of padding and gap here comes out of the same budget the
-     status bar (134px), the three quest rows (198px) and the chest (60px) already spent. */
+     instead of two. That pairing is the whole reason `.hm-deck-foot` still exists as a
+     wrapper inside the rail; on every other tier it is a single column and passes through.
+     Every pixel of padding and gap here comes out of the same budget the status bar (134px),
+     the three quest rows (198px) and the chest (60px) already spent. */
   .hm-deck { gap:10px; padding:10px; border-radius:22px; }
   .hm-deck-mid { grid-template-columns:1fr; gap:10px; }
+  .hm-rail { gap:10px; }
   .hm-deck-foot { grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:10px; }
+  /* 561-640px coarse devices do not match the 560px block above, so the streak's column
+     reset is repeated here rather than left to a 20px gap between two breakpoints. */
+  .hm-streak { display:flex; flex-direction:column; justify-content:space-between;
+    /* the plane step turns with the card: 96deg splits a WIDE band into numeral | month,
+       and on a tall tile the same angle is a crease down the middle of it. */
+    background-image:linear-gradient(168deg, #D14708 0%, #D14708 46%, #BE3C08 46%); }
+  .hm-streak > .hm-cal { width:auto; margin-top:14px; }
+  .hm-big { gap:15px; }
+  .hm-big::before { width:104px; height:104px; }
 
   /* top bar: the level pill overlapped the wordmark because its text wrapped inside a
      999px pill (measured 64px tall — two 25px lines). Rank titles run to "Senior
@@ -792,8 +918,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      block, and side-by-side is exactly what keeps a 390-430px-tall page short. */
   .hm-deck { gap:10px; padding:10px; border-radius:22px; }
   .hm-deck-mid { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:10px; }
+  .hm-rail { gap:10px; }
   .hm-deck-foot { grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:10px; }
-  .hm-record { grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:12px; }
+  .hm-record { gap:12px; }
 
   .hm-top { flex-wrap:wrap; gap:8px 10px; }
   .hm-topr { min-width:0; gap:10px; }
@@ -819,9 +946,13 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-snum { font-size:44px; }
   .aurora-home .hm-flame { width:54px; height:54px; }
   .hm-big { margin:10px 0 2px; gap:11px; }
+  .hm-big::before { width:82px; height:82px; }
   /* landscape phones are WIDE + SHORT: the month grid is the tallest thing on this card,
      so trim the cells rather than let it push the hero past a 430px viewport. */
   .hm-cal { margin-top:10px; }
+  /* the band stays HORIZONTAL here — wide + short is exactly what it is for — so the month
+     column follows the trimmed cell: 7 x 26 + 6 x 3. */
+  .hm-streak > .hm-cal { width:200px; margin-top:0; }
   .hm-calhead { margin-bottom:5px; }
   .hm-calmonth { font-size:13px; } .hm-caldone { font-size:10.5px; }
   .hm-caldows, .hm-calgrid { gap:3px; }
@@ -902,32 +1033,33 @@ html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldo
      #3A2600 on gold #DFA828   = 6.70:1        #7A2E06 on ember #FBD7B4  = 6.97:1
    The gold pair is the League's own number, re-derived here and identical — one gold, one
    certified ink, two screens. */
-/* ⚠ THE RAIL IS DARK, AND IT IS THE ONE DARK OBJECT ON THE DECK (amended 2026-08-06,
-   "the smaller cards within the big card are all same color and are boring, i want a
-   variety of vibrant colors"). It was #FBEFD9 — the same cream as the rank strip, on a
-   cream plate, on what was then a cream page. Four objects, one colour, and the whole
-   deck read as one piece of paper with lines ruled on it.
+/* ⚠ THE RAIL IS A RAISED VIOLET BAR ON A DARK CONSOLE (amended 2026-08-06, "levels strip
+   color choice not matching well with rest of page").
 
-   Dark rather than a fourth light tint, for reasons the other three cannot borrow:
-   · IT IS ALREADY HALF DARK. The XP groove is a machined recess (#3B2E52) cut into this
-     bar. Making the bar the groove's own family turns a light plate with a dark slot in it
-     into ONE machined object — which is what a game's status rail actually looks like.
+   It was cream (#FBEFD9) until 2026-08-06 morning, then indigo #2E2148 — and indigo was
+   right about the object and wrong about the room: with the plate still cream, the rail was
+   the ONE dark thing on a light board, which reads as an alien rather than as the head of
+   the machine. The plate is dark now, so the rail is no longer the odd one out; it just has
+   to read as RAISED off it, which is what a 1.67:1 step and a lip buy.
+
+   Why violet and not a fourth light tint, for reasons the other objects cannot borrow:
+   · IT IS ALREADY HALF DARK. The XP groove is a machined recess (#170F2B) cut into this
+     bar. A dark bar with a darker slot in it is ONE machined object — which is what a
+     game's status rail actually looks like.
    · THE GOLD HAS SOMEWHERE TO LAND. The meter fill and the boost chip are the deck's
-     certified #DFA828, and gold on cream is a tint while gold on indigo is a light source.
+     certified #DFA828, and gold on cream is a tint while gold on violet is a light source.
      Nothing about the gold changed; the surface under it did.
-   · IT DOES NOT BREAK THE LIGHT-STAGE DOCTRINE. leaderboard.css pins the STAGE above 0.7
-     luminance, and the stage is the page; the vault (#140B26) has been the same kind of
-     dark component on a light page since July.
-   Every ink on it is re-measured against the DARKER band #2E2148 (L=0.021), which for
-   LIGHT-on-dark is the best case — so the numbers below are quoted against the LIGHTER
-   band #41305F (L=0.047), the one the text actually has to survive:
-     #FFF6EC = 15.2:1   #C9BCE0 = 8.5:1   the gold chips carry their own certified ink. */
+   For LIGHT-on-dark the worst case is the LIGHTER band, so every number is quoted against
+   #4E3A87 (L=0.064) rather than the solid #3B2A6B (L=0.036):
+     #FFF6EC = 8.6:1   #C9BCE0 = 5.2:1   the gold chips carry their own certified ink.
+   The rail vs the plate's own lighter band #2A1B4E = 1.67:1 — enough to read as a separate
+   object, not so much that it competes with the five bright cards under it. */
 .hm-hud {
-  --lip-c:#160E29;
+  --lip-c:#180F2E;
   display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center;
   gap:10px 18px; padding:12px 16px; border-radius:20px;
-  background-color:#2E2148;
-  background-image:linear-gradient(180deg,#41305F 0%,#41305F 42%,#2E2148 42%);
+  background-color:#3B2A6B;
+  background-image:linear-gradient(180deg,#4E3A87 0%,#4E3A87 42%,#3B2A6B 42%);
 }
 /* grid kids without this refuse to shrink below min-content and push the page past 390px */
 .hm-hud > * { min-width:0; }
@@ -948,9 +1080,8 @@ html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldo
    inset edge (blur may describe the ground, never an edge) and no outline of its own —
    which is the flat rung. The dark channel is what makes the unfilled remainder legible;
    a cream groove on a cream bar reads as nothing at 14px. */
-/* The groove drops #3B2E52 -> #170F2B now that the bar around it is indigo: a recess is
-   read as the step DOWN from its surround, and at #3B2E52 on a #2E2148 rail there was no
-   step left to read. The gold fill is untouched. */
+/* The groove is #170F2B: a recess is read as the step DOWN from its surround, and it keeps
+   a 1.52:1 step under the rail's own solid #3B2A6B. The gold fill is untouched. */
 .hm-hudxp-bar { height:14px; border-radius:999px; overflow:hidden;
   background-color:#170F2B; box-shadow:inset 0 2px 0 0 rgba(8,4,16,.7); }
 .hm-hudxp-bar > span { display:block; height:100%; border-radius:999px;
@@ -1073,37 +1204,43 @@ html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !
      #3F2478 on the violet head #E9E0FF = 9.6:1     --violet-d #6D28D9 on white = 7.1:1
      #08331A on the claim green #3FD177 = 7.1:1     #1E7A46 on a spent row #F7F4FC = 4.9:1 */
 /* The plate is VIOLET-TINTED, not white (2026-08-06). White was the correct choice while
-   the objects around it were cream; on a deck where the rail is indigo and the strip is
-   blue it was the third neutral in a row. The tint is the board's own hue at its palest —
-   the rows show it directly (they are the flat rung and paint no background of their own),
-   so this IS the default row colour and every ink on it is measured against it:
-     --hink #2B2431 = 13.4:1     --hink2 #6D6474 = 5.0:1 */
+   the objects around it were cream; the deck is a dark console now and this is its BRIGHT
+   panel — the one object carrying dense text, which is why it stays light-with-dark-ink
+   while the rail and the strip went the other way. The tint is the board's own hue at its
+   palest — the rows show it directly (they are the flat rung and paint no background of
+   their own), so this IS the default row colour and every ink on it is measured against it:
+     --hink #2B2431 = 12.8:1     --hink2 #6D6474 = 4.79:1 */
 .hm-board {
   --lip-c:#B9A4E4;
   display:flex; flex-direction:column; overflow:hidden;
   border-radius:18px;
-  background-color:#F6F1FF;
+  background-color:#F1E9FF;
 }
 /* The head band, built like the League's .lg-zone: a solid fill under a hard-stop plane,
    a lit top edge and a dark return at the bottom. It names the mechanic once — "today's"
    is the whole explanation a daily quest needs — and carries the tally, which is the one
    number that must never be invented (see rule 1 in QuestBoard.tsx). */
-/* SATURATED violet, not the palest lavender it was. This band is the board's whole colour
-   identity in ~28px of height, and at #E9E0FF it was a tint of the plate rather than a
-   different material. White on the darker band #6D28D9 is 7.1:1; the tally is a solid
-   #E9DDFF (5.5:1) rather than white-at-85%-opacity, because an alpha label on a saturated
-   fill is a contrast number nobody can look up. */
+/* SATURATED violet. This band is the board's whole colour identity in ~28px of height.
+   ⚠ ITS INK IS LIGHT, SO THE WORST CASE IS THE LIGHTER BAND — the inverse of every
+   dark-on-light object in this file, and the reason the lighter plane drops #8B5CF6 ->
+   #8241E0 here. White on #8B5CF6 measured 4.23:1: under AA, on the band the label actually
+   crosses, since 2026-08-06 morning. This pass inherits that defect rather than causing it
+   and fixes it in the rule that names the fill. Certified now:
+     #FFFFFF = 5.55:1 on #8241E0, 7.10:1 on #6D28D9
+     the tally #EFE6FF = 4.61:1 on #8241E0, 5.90:1 on #6D28D9
+   The tally is a SOLID, never white-at-85%-opacity: an alpha label on a saturated fill is a
+   contrast number nobody can look up. */
 .hm-qhead {
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin:0; padding:6px 13px; min-height:28px;
   font-family:var(--font-home); font-weight:800; font-size:11.5px;
   letter-spacing:.07em; text-transform:uppercase; color:#FFFFFF;
   background-color:#6D28D9;
-  background-image:linear-gradient(180deg,#8B5CF6 0%,#8B5CF6 42%,#6D28D9 42%);
+  background-image:linear-gradient(180deg,#8241E0 0%,#8241E0 42%,#6D28D9 42%);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.34), inset 0 -3px 0 rgba(45,18,96,.42);
 }
 .hm-qtally { font-family:var(--font-sans); font-weight:700; font-size:11px; letter-spacing:.04em;
-  white-space:nowrap; color:#E9DDFF; }
+  white-space:nowrap; color:#EFE6FF; }
 
 .hm-qs { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
 /* NOT a hairline: a 2px dark channel with a lit return under it reads as a machined groove
@@ -1113,12 +1250,13 @@ html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !
   box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
 }
 /* A SOLID tint, never a wash: the probe can resolve it, and a gradient over white lets an
-   element claim white as its backdrop while rendering on something darker. */
-.hm-qitem[data-state="ready"] { background-color:#EAFBF0; }
-/* Claimed was #F7F4FC, which is now within a hair of the plate itself (#F6F1FF) — a state
-   fill has to be a step DOWN from the surface it sits on, and on a violet plate that step
-   has to be violet. --hink2 on it is 4.66:1. */
-.hm-qitem[data-state="claimed"] { background-color:#EDE7F8; }
+   element claim white as its backdrop while rendering on something darker. Both states are
+   a step LOUDER than the pale tints they were — a state fill on a bright panel has to be
+   read across a dark console, and #EAFBF0 was two steps off the plate. --hink2 = 4.95:1. */
+.hm-qitem[data-state="ready"] { background-color:#DAF7E6; }
+/* A state fill has to be a step DOWN from the surface it sits on, and on a violet plate
+   that step has to be violet. --hink2 on it is 4.62:1, the spent tick 5.51:1. */
+.hm-qitem[data-state="claimed"] { background-color:#EDE5FC; }
 
 /* THE FLAT RUNG. Every property here is a refusal — the row has no material of its own and
    must never grow any; its material is carried by the plate under it and the pill on it. */
@@ -1175,9 +1313,8 @@ html[data-motion="reduce"] .aurora-home .hm-hudxp-bar > span { transition:none !
 
 /* Claimed: the reward stays on screen, spent. Dimmed by INK, not by opacity — a faded
    surface still has to be readable, and 4.9:1 is a number rather than a hope. */
-/* #1E7A46 measured 4.83:1 on the old claimed fill and 4.42:1 on the new one — under AA
-   only because the surface moved, so it is re-derived here rather than left as a defect
-   this change would be blamed for. #17693C is 5.6:1 on #EDE7F8. */
+/* #17693C, re-checked against the claimed fill each time that fill moves: 5.51:1 on
+   #EDE5FC. It only ever lands on a CLAIMED row, so that is the one surface it has to clear. */
 .hm-qspent { display:inline-flex; align-items:center; gap:5px; padding:0 6px;
   font-family:var(--font-home); font-weight:800; font-size:13.5px; color:#17693C; }
 .hm-qspent .ico { width:17px; height:17px; stroke-width:2.4; }
@@ -1254,7 +1391,11 @@ html[data-motion="reduce"] .aurora-home .hm-qbar > span { transition:none !impor
 /* In flight. A second POST is never what the student meant, and the button is disabled for
    the whole mutation — a double-tap cannot fire two claims. */
 .hm-chest:disabled { opacity:.55; cursor:progress; }
-.hm-chest:focus-visible { outline:3px solid var(--violet-d); outline-offset:3px; }
+/* WHITE, not --violet-d. `outline-offset:3px` draws the ring OUTSIDE the tile, i.e. on the
+   deck plate — and the plate is a deep violet now, where #6D28D9 is a 2:1 ring nobody can
+   see. Same for the rank strip below; the claim button keeps violet because its ring lands
+   on the board's own light panel. */
+.hm-chest:focus-visible { outline:3px solid #FFFFFF; outline-offset:3px; }
 /* The spent/unknown tile is focusable only so the ceremony can hand focus back to it; it
    must never show a ring for a click it cannot answer. */
 .hm-chest[data-state="spent"]:focus:not(:focus-visible),
@@ -1284,14 +1425,16 @@ html[data-motion="reduce"] .aurora-home .hm-qbar > span { transition:none !impor
 /* Still stone — a spent chest must not compete with a sealed one — but stone with the
    deck's own violet in it rather than neutral grey. The only truly greyscale object on the
    deck is the one thing the eye finds first because nothing else is grey, which is the
-   opposite of what a spent tile wants. --hink on the darker band #DFD6EE is 11.1:1. */
+   opposite of what a spent tile wants. It steps down from #DFD6EE to #CFC2E6 with the plate
+   going dark: a spent tile that is nearly as bright as the quest panel beside it is not
+   reading as spent. --hink on the darker band #CFC2E6 is 8.94:1, the eyebrow 5.67:1. */
 .hm-chest[data-state="spent"], .hm-chest[data-state="unknown"] {
-  --lip-c:#AFA2C8; color:var(--hink);
-  background-color:#DFD6EE;
-  background-image:linear-gradient(180deg,#EFE9F8 0%,#EFE9F8 46%,#DFD6EE 46%);
+  --lip-c:#A294C4; color:var(--hink);
+  background-color:#CFC2E6;
+  background-image:linear-gradient(180deg,#E2D9F2 0%,#E2D9F2 46%,#CFC2E6 46%);
 }
 .hm-chest[data-state="spent"] .hm-chest-e,
-.hm-chest[data-state="unknown"] .hm-chest-e { color:#5A5265; }
+.hm-chest[data-state="unknown"] .hm-chest-e { color:#4A4257; }
 .hm-chest[data-state="spent"] .hm-chest-lid, .hm-chest[data-state="spent"] .hm-chest-lock,
 .hm-chest[data-state="unknown"] .hm-chest-lid, .hm-chest[data-state="unknown"] .hm-chest-lock {
   background-color:#EFE9F8; }
@@ -1365,8 +1508,7 @@ html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important;
    hard-stop fill, so the probe reads the worst case.
 
    COLOUR — the deck's three existing meanings, and no fourth system:
-   · GOLD MEANS THE MECHANIC. The medal glyph wears the deck's certified gold ink #9A6A08
-     (the boost chip's and the chest's own lip colour) — the League ranks on Lumens.
+   · GOLD MEANS THE MECHANIC. The medal glyph wears gold — the League ranks on Lumens.
    · GREEN MEANS UPWARD MOVEMENT, and only when there IS a climb. The summit line and the
      failed read stay neutral, because neither one is movement.
    · HUE IS IDENTITY — and it is deliberately NOT spent here. The strip does not wear the
@@ -1376,10 +1518,10 @@ html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important;
      ⚠ The old reason for this — "the ARCADE pass fixed the League's field" — expired on
      2026-08-06, when the League's field went back to being per-division. The decision did
      not: it is Home's own deck this protects, not a rule borrowed from that page.
-   The surface is the status bar's cream verbatim — one deck, one furniture colour, one
-   certified pair rather than a second that drifts. Measured against the darker band #FBEFD9:
-     --hink #2B2431 = 13.2:1    --hink2 #6D6474 = 4.95:1
-     green #0F6B36  = 5.81:1    gold #9A6A08 (glyph, 3:1 floor) = 4.16:1
+   ⚠ THE FILL AND EVERY INK LIVE IN THE BLOCK BELOW, not here. This header has now been
+   wrong twice — it claimed "the status bar's cream verbatim, one deck one furniture colour"
+   through two passes that had already changed both — so the surface is named ONCE, in the
+   rule that sets it.
 
    ⚠ NO `white-space:nowrap`, which the old pill had. It pins min-content at the full
    one-line width, and a box that then refuses to shrink inside its track walks straight off
@@ -1388,19 +1530,19 @@ html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important;
    ⚠ NO ANIMATION AND NO TRANSITION, so this block needs no reduced-motion freeze. The
    press-depth from .struck-pill is the whole feedback, and it is a state change rather than
    motion (see the note on the :active rung above). */
-/* ⚠ THE SURFACE IS NO LONGER THE STATUS BAR'S CREAM (amended 2026-08-06). "One deck, one
-   furniture colour" was the old rule here, and it is exactly what made the deck boring —
-   it produced two identical cream objects at opposite corners of the same plate with the
-   rail now indigo between them. The strip gets AZURE, which is its own meaning and not a
-   borrowed one: The League is where you go, and it is the only route off this deck.
-   It stays LIGHT and dark-inked rather than a saturated blue, for one reason worth stating:
-   GREEN still has to read on it. Promotion is the strip's one piece of good news, and mint
-   on mid-blue is the muddiest pair on the deck — so the ceiling on this hue is set by
-   #0F6B36, not by taste. #BEDCFF is that ceiling: one step further and the green drops
-   under AA and the gold glyph under its 3:1 floor, and both would then need re-inking to
-   buy a blue nobody asked for. Measured against the darker band:
-     --hink #2B2431 = 10.7:1     the strip's own --hink2 #4E4557 = 6.5:1
-     green #0F6B36  =  4.7:1     gold glyph #9A6A08 = 3.4:1 (3:1 floor, non-text)
+/* ⚠ THE STRIP IS A SATURATED AZURE WITH LIGHT INK (amended 2026-08-06, "more game-like
+   loud addicting colors"). It was the status bar's cream ("one deck, one furniture colour",
+   superseded), then a PALE azure — and pale was a compromise made for one reason: GREEN has
+   to read on this strip, promotion is its one piece of good news, and mint on mid-blue is
+   the muddiest pair on the deck. That argument set the ceiling on a DARK-INKED strip at
+   #BEDCFF. Going the other way removes the ceiling instead of pushing against it: on a deep
+   azure the ink is white and the promotion line is a BRIGHT mint, which is both louder and
+   further from muddy than anything the pale version could reach.
+   For light-on-dark the worst case is the LIGHTER band #2569CE, so that is what everything
+   is quoted against (the solid #1B5FC0 is strictly better):
+     #FFFFFF = 5.26:1     the strip's own secondary #E4EEFF = 4.50:1
+     promotion #C9FCE1 = 4.63:1
+     medal #FFD166 = 3.65:1 and arrow #A9C8F2 = 3.06:1 (non-text, 3:1 floor)
    ⚠ THE DIVISION STILL DOES NOT PAINT IT, and the reason is Home's own rather than a rule
    borrowed from the League. On this deck promotion is the only thing that changes colour, so
    a strip repainting itself Ember->Prism would put a second identity system on a surface that
@@ -1408,12 +1550,12 @@ html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important;
    (The old reason — "the ARCADE pass fixed the League's field" — expired on 2026-08-06, when
    that field went back to being per-division. The decision did not.) */
 .hm-lb {
-  --lip-c:#7FAEE6;
+  --lip-c:#0F3D80;
   display:flex; align-items:center; gap:11px;
   width:100%; min-height:46px; padding:6px 12px 6px 13px; border-radius:14px;
-  text-decoration:none; color:var(--hink);
-  background-color:#BEDCFF;
-  background-image:linear-gradient(180deg,#DCEBFF 0%,#DCEBFF 44%,#BEDCFF 44%);
+  text-decoration:none; color:#FFFFFF;
+  background-color:#1B5FC0;
+  background-image:linear-gradient(180deg,#2569CE 0%,#2569CE 44%,#1B5FC0 44%);
 }
 /* The copy is the object that looks better wider, so it is the one that grows and both
    glyphs are fixed. min-width:0 is what lets a long division name shrink instead of
@@ -1421,20 +1563,22 @@ html[data-motion="reduce"] .aurora-home .hm-chest * { animation:none !important;
 .hm-lb-copy { display:flex; flex-direction:column; gap:1px; flex:1; min-width:0; }
 .hm-lb-s { font-family:var(--font-home); font-weight:800; font-size:14.5px; line-height:1.2;
   letter-spacing:-.01em; }
-/* The strip's own secondary ink. --hink2 #6D6474 is 4.35:1 on this azure — under AA, and
-   only because the surface moved, so it is fixed in the same rule that names the surface. */
-.hm-lb-dot { margin:0 3px; color:#4E4557; }
-.hm-lb-g { font-weight:700; font-size:12px; line-height:1.25; color:#4E4557; }
-.hm-lb-g[data-tone="up"] { color:#0F6B36; }
+/* The strip's own secondary ink, light now that the surface is dark. --hink2 #6D6474 would
+   be 1.3:1 here — a readout that is technically present and actually invisible. */
+.hm-lb-dot { margin:0 3px; color:#E4EEFF; }
+.hm-lb-g { font-weight:700; font-size:12px; line-height:1.25; color:#E4EEFF; }
+/* GREEN MEANS UPWARD MOVEMENT — the same meaning as before, inverted for the fill under it. */
+.hm-lb-g[data-tone="up"] { color:#C9FCE1; }
 .hm-lb .ico { width:19px; height:19px; flex:none; }
-.hm-lb .hm-lb-medal { color:#9A6A08; }
-.hm-lb .hm-lb-go { color:#4E4557; }
+.hm-lb .hm-lb-medal { color:#FFD166; }
+.hm-lb .hm-lb-go { color:#A9C8F2; }
 /* The failed read (league === null): the same strip, the same route, nothing numeric.
    Quiet rather than absent — the leaderboard is still one tap away when Home cannot say
    the rank, and a rank it cannot read is never a rank it invents. */
-.hm-lb[data-state="unknown"] .hm-lb-s { font-weight:700; color:#4E4557; }
-.hm-lb[data-state="unknown"] .hm-lb-medal { color:#4E4557; }
-.hm-lb:focus-visible { outline:3px solid var(--violet-d); outline-offset:3px; }
+.hm-lb[data-state="unknown"] .hm-lb-s { font-weight:700; color:#E4EEFF; }
+.hm-lb[data-state="unknown"] .hm-lb-medal { color:#A9C8F2; }
+/* white for the same reason as the chest's — the offset ring is drawn on the dark plate */
+.hm-lb:focus-visible { outline:3px solid #FFFFFF; outline-offset:3px; }
 
 /* phone portrait: ~48px, and every pixel comes out of the same 844px the status bar, the
    three quest rows and the chest have already spent. The whole strip is the control, so
