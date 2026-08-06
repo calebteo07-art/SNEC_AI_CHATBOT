@@ -19,9 +19,10 @@ const base = process.argv[2] ?? "http://127.0.0.1:3997";
 const out = process.argv[3] ?? ".tmp/home-shots";
 mkdirSync(out, { recursive: true });
 
-/* The greeting card's certified fill (design-lock Home, 5th pass): #5A2462, the DARKER band
-   of its hard-stop plane — the one a contrast probe reads. */
-const GREET_BG = "rgb(90, 36, 98)";
+/* The greeting card's certified fill (design-lock Home, 6th pass): #DDD9F7, the DARKER band
+   of its hard-stop plane — the one a contrast probe reads, and for a LIGHT card the worst
+   case for the dark ink on it. */
+const GREET_BG = "rgb(221, 217, 247)";
 
 const homePayload = () => ({
   quests: [
