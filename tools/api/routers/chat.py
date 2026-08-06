@@ -20,6 +20,7 @@ from tools.shared import db
 from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL, get_or_create_context_cache
 from tools.shared.jwt_utils import get_current_user, CurrentUser
+from tools.supervisor.student_insight import TOPIC_SENTINEL
 
 router = APIRouter()
 
@@ -53,10 +54,10 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     content: str
 
-# chat.py has always defaulted `topic` to this, so every tutor row written before the client
-# started sending a real label carries it. It stays the default AND the empty-label fallback,
-# so "Ophthalmology" means exactly one thing to a reader: no label was recorded.
-TOPIC_SENTINEL = "Ophthalmology"
+# The sentinel this router writes is the same one the report reader has to recognise, so it is
+# defined once, in the pure module, and imported here -- not copied. It stays the default AND
+# the empty-label fallback, so "Ophthalmology" means exactly one thing to a reader: no label
+# was recorded.
 
 
 def sanitize_topic(raw: str) -> str:
