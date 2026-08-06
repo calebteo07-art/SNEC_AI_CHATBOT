@@ -30,7 +30,11 @@ const entries = NICK.map((n, i) => ({
 const board = (division) => ({
   entries, you: { ...entries[6] }, week_start: "2026-08-03",
   closes_at: "2026-08-10T16:00:00Z", role: null,
-  division, division_name: NAMES[division - 1], pool_size: 30, promote_count: 3,
+  division, division_name: NAMES[division - 1], pool_size: 30,
+  // 0 at the summit, exactly as /api/leaderboard sends it (student.py) — Prism promotes
+  // nobody. Hard-coding 3 here drew a board the server cannot produce, which is how the
+  // summit's deck went five divisions' worth of screenshots without being seen.
+  promote_count: division >= NAMES.length ? 0 : 3,
   division_multiplier: LADDER[division - 1], division_multipliers: LADDER,
 });
 
