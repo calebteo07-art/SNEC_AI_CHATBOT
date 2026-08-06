@@ -2448,6 +2448,79 @@ and `generate_board_art.py` were dead raster generators for art the board no lon
 crest is an inline path, and `league_assert.mjs` fails on any board `url()`), and their prompts
 still described the divisions as literal metals — the wrong model of the ladder. The orphaned
 `public/brand/tiers/*.webp` remain flagged, not deleted.
+
+#### THE ROAD LEAVES THE BAND 2026-08-06 — Volt turns blue, and locked stops being an opacity
+
+User: *"volt color does not look good, and the texts in the tier color card do not have good
+contrast and are somewhat camouflaged and not readable."*
+
+Two criteria change. Everything the lock above pins — the console, the field, the names, the
+geometry, the ranks budget, the lip ladder — is untouched and still gated.
+
+**1. VOLT IS ELECTRIC BLUE `#4593FF`, NOT CYAN `#22B8F0`.** The cyan was chosen while the rung was
+still called **Silver**, as a literal "azure", and it survived the rename by inertia. Measured, the
+problem is a spacing one: it sat at **196°** against Prism's **174°** — the ladder's two coolest
+rungs **22° apart on the wheel**, the pale one in the middle of the climb and the vivid one at the
+summit, which is the same collapse the silver/platinum pair produced and the rarity ladder exists
+to prevent. `#4593FF` is **215°**: 40° clear of Prism, 53° clear of Nova, still HSL S=100%, and the
+only hue a name meaning *voltage* can wear without borrowing Solar's gold. Contrast is unchanged as
+a claim — **5.33:1** for `--ink` against the old 8.8:1, both far over the floor.
+- ⚠ **Eight sites author this one colour**, and the gate only reads three of them: the band tokens,
+  the road pip, `.pod-slot[data-place="2"]` (second place *copies* the volt palette rather than
+  reading it — the one object that can silently fall out of step), the arena field's five tokens,
+  the rank-token tints, `Tiers.tsx::STOPS` (the crest, authored in TSX) and the promotion confetti.
+- The field's **partner** (`--arena-glow`) moves to the band's own `--f-flash` violet
+  `rgba(150,110,255,.32)`. The old partner was violet too, but chosen against a cyan lead; against
+  a blue one it is now literally the second hue the band already wears.
+
+**2. ⚠ LOCKED IS A COLOUR, NOT AN OPACITY — and the road runs in a TROUGH.** This is the whole of
+"camouflaged and not readable", and it was two defects that look like one:
+- **A faded rung composites its ink into the band.** Locked rungs were `opacity: .74` (`.3` on the
+  phone), so plate *and* label mixed with whatever was behind them: a gold rung rendered **khaki**
+  over Volt, a Prism rung **sage** over Solar, with ink to match. Every locked rung was a colour
+  that appears nowhere in the palette, on a surface no probe could resolve. They are opaque
+  `--pm-dim` solids now — the same hue, unlit (**0.10–0.14** luminance against an earned rung's
+  **0.28–0.59**) — with white labels, all of it measurable.
+- **The current rung was painted the band's own colour, on the band.** "Hue is identity" applies to
+  both, so the one plate a student has to find was `Volt on Volt`, `Solar on Solar` — **1.00:1 on
+  all five boards**, held together by a white ring and nothing else. The rail under the plates is
+  now an opaque **`--mat-ink` trough**: one surface, the same at every division. Not a new material
+  — it is the rail that was already there, grown to the plates' height, in the ink the console one
+  row below already wears. The head reads **faceplate / track / console**.
+- ⚠ **The trough costs the head NO height** (34px against the crest's 48 and the module's 48) —
+  measured first, because the pass above lost the eighth visible rank at 1366×768 to a 46px crest.
+- `.tb-pips::before` is **deleted**: on an opaque track the translucent unfilled rail is invisible.
+  Unlit track ahead, gold behind — one object doing the work of two.
+- `.tb-px` inks go `--ink-on-gold` → `--ink` on lit plates. Only one of the five plates is gold;
+  `#3A2600` on the Volt plate is 4.54:1 where `#1F1F1F` is 5.14:1, and the tightest pair on the
+  road should not be set by the gold exception.
+- **The phone road keeps its dots on the band, deliberately.** It carries no labels — the reported
+  defect is not there — the current dot already has a 3px white ring, and horizontal space in that
+  head is the tightest budget on the page.
+
+**The gate's criterion changed with the design, and that is the point.** *"Locked is ≥0.15 dimmer
+by opacity"* was **satisfied by the defect**: 0.74 is a number, and the colour on screen was not
+one anybody measured. It now reads painted luminance, forbids a sub-1 opacity on any rung, probes
+**all five rung labels on all five divisions** (collected from the DOM, so Ember with no earned
+rung and Prism with no locked one both probe five), and adds a 3:1 **object** floor for the current
+rung against whatever it stands on.
+
+**Measured after**: `league_assert` **0 failures** · the current rung reads **5.16 / 5.00 / 8.80 /
+5.05 / 9.34:1** against the trough, per division · every rung label ≥4.5:1 on its own plate ·
+bands still under the 0.86 ceiling (`Volt` 0.409 → **0.294**) · fields still light solids and still
+five distinct · ranks visible ≥8 on every viewport · all 22 gated harnesses green · pytest and
+typecheck clean.
+
+**Mutation-verified**, all three bounds at once — **16 failures, exit 1**: restoring `opacity: .74`
+fires *"3 rung(s) render at opacity <1"* on every plate viewport · lighting one `--pm-dim` fires
+the luminance floor at **0.727 against 0.294** *and* is caught a second time by the new label probe
+at **1.35:1** · removing the trough fires **`1.00:1` on all five divisions**, which is the defect
+itself, quantified.
+
+**Out of scope, deliberately**: everything the lock above pins; the gold multiplier module (it is
+the mechanic's colour and it carries its own outline and lip); `.tb-name`/`.tb-league`, which
+measure 6.9–8.8:1 on every band and were never the unreadable text; the other four divisions'
+hues, which are correctly spaced; the phone road (see above).
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
