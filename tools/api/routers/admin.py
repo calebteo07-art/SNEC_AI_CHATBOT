@@ -1001,6 +1001,51 @@ async def admin_student_detail(student_id: str, request: Request,
     }
 
 
+@router.get("/api/admin/student/{student_id}/attempts")
+# shared_limit (fixed scope), NOT limit: slowapi keys on the ASGI path, so {student_id}
+# would land in the bucket key and a caller could dodge the cap by walking ids. Same
+# rationale as admin_student_detail above.
+@limiter.shared_limit("30/minute", scope="admin_student_attempts")
+async def admin_student_attempts(student_id: str, request: Request,
+                                 current_user: CurrentUser = Depends(require_staff)):
+    """Every attempt for one student, WITH the per-step ledger and the coaching block.
+
+    Separate from /detail on purpose. That endpoint is polled every 30s (useAdmin.ts:9);
+    a worst-case ledger is ~5KB, so a student with 30 attempts would add ~152KB to every
+    poll to carry data that is only read when a trainer clicks a download. This is fetched
+    once, on that click.
+    """
+    try:
+        rows = await db.get_case_results(student_id)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+
+    # `trajectory` and the dossier's per-attempt sections both read this in order, and
+    # Supabase returns case_progress unordered.
+    rows = sorted(rows, key=lambda r: str(r.get("completed_at") or ""))
+    return {"attempts": [
+        {
+            "case_id": r.get("case_id", ""),
+            "completed_at": str(r.get("completed_at", "")),
+            "total_score": int(r.get("total_score") or 0),
+            "passed": bool(r.get("passed", False)),
+            "score_100": r.get("score_100"),
+            "safe": r.get("safe"),
+            "checklist_coverage": r.get("checklist_coverage"),
+            "consult_technique": r.get("consult_technique"),
+            "judgement_safety": r.get("judgement_safety"),
+            "grade_scale": r.get("grade_scale"),
+            "missed_critical": [str(m) for m in (r.get("missed_critical") or [])],
+            "coaching": r.get("coaching"),
+            # Passed through as-is. NULL means "predates migration 019", NEVER "no steps
+            # performed" -- collapsing it to [] would let the document assert a record we
+            # do not have.
+            "checklist_detail": r.get("checklist_detail"),
+        }
+        for r in rows
+    ]}
+
+
 @router.get("/api/admin/token-summary")
 @limiter.limit("30/minute")
 async def admin_token_summary(request: Request, current_user: CurrentUser = Depends(require_staff)):
