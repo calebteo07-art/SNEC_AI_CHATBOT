@@ -99,3 +99,38 @@ def test_critical_offenders_work_without_a_ledger():
     out = critical_offenders(rows)
     assert [(o.action, o.missed, o.appeared) for o in out] == [
         ("Check allergy status", 2, None)]
+
+
+from tools.supervisor.osce_analysis import trajectory, MIN_TRAJECTORY_N
+
+
+def test_trajectory_improving():
+    t = trajectory([40.0, 50.0, 70.0, 80.0])
+    assert t.band == "improving" and t.delta == 30.0
+    assert t.first_mean == 45.0 and t.second_mean == 75.0
+
+
+def test_trajectory_declining():
+    assert trajectory([80.0, 78.0, 50.0, 48.0]).band == "declining"
+
+
+def test_trajectory_steady_inside_the_dead_band():
+    assert trajectory([60.0, 62.0, 63.0, 61.0]).band == "steady"
+
+
+def test_trajectory_drops_the_middle_on_an_odd_count():
+    """Halves must be equal-sized or the delta is an artefact of the split."""
+    t = trajectory([10.0, 10.0, 999.0, 20.0, 20.0])
+    assert t.first_mean == 10.0 and t.second_mean == 20.0
+
+
+def test_trajectory_refuses_to_call_a_trend_off_two_points():
+    t = trajectory([10.0, 90.0])
+    assert t.band == "insufficient"
+    assert t.delta is None
+    assert t.n == 2 and t.needed == MIN_TRAJECTORY_N
+
+
+def test_trajectory_of_nothing_is_insufficient_not_zero():
+    t = trajectory([])
+    assert t.band == "insufficient" and t.n == 0 and t.delta is None

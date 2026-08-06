@@ -112,3 +112,48 @@ def critical_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> lis
     out = [Offender(action=e["action"], missed=e["missed"], appeared=None, critical=True)
            for e in seen.values() if e["missed"] >= minimum]
     return sorted(out, key=lambda o: (-o.missed, o.action))
+
+
+MIN_TRAJECTORY_N = 4
+# Movement smaller than this is inside the noise of a per-station grade.
+TRAJECTORY_DEAD_BAND = 5.0
+
+
+@dataclass(frozen=True)
+class Trajectory:
+    band: str                    # improving | steady | declining | insufficient
+    delta: float | None
+    n: int
+    needed: int
+    first_mean: float | None
+    second_mean: float | None
+
+
+def trajectory(values: list[float], minimum: int = MIN_TRAJECTORY_N) -> Trajectory:
+    """First half vs second half (spec §4.4).
+
+    `values` MUST already be in chronological order: the timestamp column differs by source
+    (case_progress.completed_at vs flashcard_attempts.created_at), so ordering is the
+    caller's job and sorting here would silently accept an unordered list.
+
+    Below `minimum` this returns `insufficient` WITH the counts. It does not draw a line
+    through two points -- which is what `learning_velocity`, the single word this replaces,
+    has always been willing to do.
+    """
+    n = len(values)
+    if n < minimum:
+        return Trajectory(band="insufficient", delta=None, n=n, needed=minimum,
+                          first_mean=None, second_mean=None)
+    half = n // 2
+    first, second = values[:half], values[n - half:]
+    first_mean = sum(first) / len(first)
+    second_mean = sum(second) / len(second)
+    delta = round(second_mean - first_mean, 1)
+    if delta >= TRAJECTORY_DEAD_BAND:
+        band = "improving"
+    elif delta <= -TRAJECTORY_DEAD_BAND:
+        band = "declining"
+    else:
+        band = "steady"
+    return Trajectory(band=band, delta=delta, n=n, needed=minimum,
+                      first_mean=round(first_mean, 1), second_mean=round(second_mean, 1))
