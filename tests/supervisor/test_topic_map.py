@@ -1,7 +1,8 @@
 """The knowledge x performance map (spec §4.1)."""
 from tools.supervisor.topic_map import (
-    Cell, band_for, build_topic_map, flag_for, flashcard_cells,
-    norm_key, retention_cells, station_cells, topic_union,
+    Cell, MIN_PEERS, TopicRow, band_for, build_topic_map, cohort_topic_means,
+    contrast_for, flag_for, flashcard_cells, norm_key, retention_cells,
+    station_cells, topic_union,
 )
 
 
@@ -171,3 +172,54 @@ def test_a_topic_with_no_banded_axis_sorts_below_a_confirmed_strong_one():
     assert [r.topic for r in result.rows] == ["solid", "unmeasured"]
     assert result.rows[1].flashcards.band == "thin"
     assert result.rows[1].flashcards.n == 2
+
+
+def test_cohort_means_exclude_the_student_being_measured():
+    """Leave-one-out: a student is never an input to the average they are measured against."""
+    cards = ([{"student_id": "me", "topic_tag": "tonometry", "correct": False}] * 10
+             + [{"student_id": "p1", "topic_tag": "tonometry", "correct": True}] * 10
+             + [{"student_id": "p2", "topic_tag": "tonometry", "correct": True}] * 10)
+    means = cohort_topic_means(card_rows=cards, case_rows=[], case_topics={},
+                               exclude_student_id="me")
+    assert means["tonometry"]["flashcards"] == (100.0, 2)
+
+
+def test_cohort_means_average_students_not_pooled_cards():
+    """Per-student then mean, so one heavy user cannot dominate the baseline."""
+    cards = ([{"student_id": "p1", "topic_tag": "t", "correct": True}] * 100
+             + [{"student_id": "p2", "topic_tag": "t", "correct": False}] * 2)
+    means = cohort_topic_means(card_rows=cards, case_rows=[], case_topics={},
+                               exclude_student_id="me")
+    assert means["t"]["flashcards"] == (50.0, 2)
+
+
+def test_contrast_individual_gap():
+    row = TopicRow(topic="t", flashcards=_fc(40.0), station=Cell(), retention=Cell())
+    c = contrast_for(row, {"t": {"flashcards": (80.0, 5)}})
+    assert c is not None and c.label == "individual_gap"
+    assert c.cohort_mean == 80.0 and c.peers == 5
+
+
+def test_contrast_cohort_gap_when_the_peers_are_weak_too():
+    """The curriculum signal: the student is weak AND so is everyone else."""
+    row = TopicRow(topic="t", flashcards=_fc(52.0), station=Cell(), retention=Cell())
+    c = contrast_for(row, {"t": {"flashcards": (55.0, 5)}})
+    assert c is not None and c.label == "cohort_gap"
+
+
+def test_contrast_both_when_the_student_trails_a_weak_cohort():
+    row = TopicRow(topic="t", flashcards=_fc(30.0), station=Cell(), retention=Cell())
+    c = contrast_for(row, {"t": {"flashcards": (60.0, 5)}})
+    assert c is not None and c.label == "individual_gap_in_cohort_gap"
+
+
+def test_contrast_refuses_a_baseline_below_the_peer_minimum():
+    """Two peers is not a cohort. The row reports the shortfall instead of a number."""
+    row = TopicRow(topic="t", flashcards=_fc(30.0), station=Cell(), retention=Cell())
+    c = contrast_for(row, {"t": {"flashcards": (90.0, MIN_PEERS - 1)}})
+    assert c is not None and c.label == "no_baseline" and c.peers == MIN_PEERS - 1
+
+
+def test_contrast_is_none_when_the_student_is_not_weak_there():
+    row = TopicRow(topic="t", flashcards=_fc(90.0), station=Cell(), retention=Cell())
+    assert contrast_for(row, {"t": {"flashcards": (50.0, 9)}}) is None

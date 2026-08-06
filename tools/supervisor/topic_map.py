@@ -216,3 +216,94 @@ def build_topic_map(*, card_rows: list[dict], case_rows: list[dict],
     # reproducible across runs and across the three renderers.
     rows.sort(key=lambda r: (_FLAG_RANK[r.flag], _worst_banded(r), r.topic))
     return TopicMap(rows=rows, excluded=excluded)
+
+
+# Three is the floor for calling something a cohort. Below it the row says so.
+MIN_PEERS = 3
+# How far below the peer mean counts as this student's own gap rather than noise.
+INDIVIDUAL_GAP = 15.0
+
+
+def _mean_of_student_means(per_student: dict[str, list[int]]) -> tuple[float, int]:
+    """Average the STUDENTS, not the rows -- otherwise one heavy user is the baseline."""
+    means = [100 * c / n for c, n in per_student.values() if n]
+    if not means:
+        return (0.0, 0)
+    return (round(sum(means) / len(means), 1), len(means))
+
+
+def cohort_topic_means(*, card_rows: list[dict], case_rows: list[dict],
+                       case_topics: dict[str, str],
+                       exclude_student_id: str) -> dict[str, dict]:
+    """Per-topic peer baselines, leave-one-out: `{topic: {axis: (mean, peers)}}`."""
+    cards: dict[str, dict[str, list[int]]] = {}
+    for row in card_rows:
+        sid = str(row.get("student_id") or "")
+        if not sid or sid == exclude_student_id:
+            continue
+        key = norm_key(row.get("topic_tag")) or "general"
+        bucket = cards.setdefault(key, {}).setdefault(sid, [0, 0])
+        bucket[1] += 1
+        if row.get("correct"):
+            bucket[0] += 1
+
+    stations: dict[str, dict[str, list[float]]] = {}
+    for row in case_rows:
+        sid = str(row.get("student_id") or "")
+        score = row.get("score_100")
+        if not sid or sid == exclude_student_id or score is None:
+            continue
+        key = norm_key(case_topics.get(str(row.get("case_id") or "").strip()))
+        if not key:
+            continue
+        bucket = stations.setdefault(key, {}).setdefault(sid, [0.0, 0])
+        bucket[0] += float(score)
+        bucket[1] += 1
+
+    out: dict[str, dict] = {}
+    for key, per_student in cards.items():
+        out.setdefault(key, {})["flashcards"] = _mean_of_student_means(per_student)
+    for key, per_student in stations.items():
+        means = [total / n for total, n in per_student.values() if n]
+        out.setdefault(key, {})["station"] = (
+            (round(sum(means) / len(means), 1), len(means)) if means else (0.0, 0))
+    return out
+
+
+@dataclass(frozen=True)
+class Contrast:
+    topic: str
+    axis: str            # flashcards | station
+    student: float
+    cohort_mean: float
+    peers: int
+    label: str           # individual_gap | cohort_gap | individual_gap_in_cohort_gap | no_baseline
+
+
+def contrast_for(row: TopicRow, means: dict[str, dict]) -> Contrast | None:
+    """Is this weakness the student's, or the cohort's? (spec §4.5)
+
+    None when the student is not banded weak on either axis -- there is nothing to explain.
+    """
+    for axis, cell, weak_line in (("flashcards", row.flashcards, KNOWLEDGE_WEAK),
+                                  ("station", row.station, PERFORMANCE_WEAK)):
+        if cell.band != "weak" or cell.value is None:
+            continue
+        mean, peers = (means.get(row.topic, {}) or {}).get(axis, (None, 0))
+        if mean is None or peers < MIN_PEERS:
+            return Contrast(topic=row.topic, axis=axis, student=cell.value,
+                            cohort_mean=0.0, peers=int(peers), label="no_baseline")
+        cohort_weak = mean < weak_line
+        trails = cell.value <= mean - INDIVIDUAL_GAP
+        if cohort_weak and trails:
+            label = "individual_gap_in_cohort_gap"
+        elif cohort_weak:
+            label = "cohort_gap"
+        elif trails:
+            label = "individual_gap"
+        else:
+            # Weak, but level with peers and the peers are fine -- nothing honest to say.
+            continue
+        return Contrast(topic=row.topic, axis=axis, student=cell.value,
+                        cohort_mean=mean, peers=peers, label=label)
+    return None
