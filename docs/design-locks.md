@@ -901,6 +901,83 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `background-color` = `#5A2462`; 0 page overflow at 1512/1280/900/390/844×390; the phone
     fold budget unchanged; `.hm-iris` animation `none` under reduce.
 
+  ### Amendment 2026-08-06 (sixth pass) — THE SCREEN JOINS THE PAGE, AND THE MASCOT FILLS IT
+  (user directive: "i want a different color of background that still matches with the entire
+  page and fill up the awkward empty space")
+
+  **THIS IS THE LIVE STATE OF THE GREETING CARD.** Two criteria move — the card's **fill**
+  (again) and its **track axis**. The STRUCK material, the lip ladder, the console row, the
+  dark plate and every other object on the deck are untouched.
+
+  - **Criterion changed (j) — the fill supersedes the fifth pass's plum: `#EDEBFF` over
+    `#DDD9F7`, dark ink.** The fifth pass matched the card to the console **body** it sits on;
+    the thing it did not match was the **page**. Plum was a sixth hue on a deck already running
+    cream, white, gold, orange and indigo, and the plate is dark precisely so the objects on it
+    can be the **bright inserts** — the status bar's cream, the board's `#F1E9FF`, the chest's
+    gold. A light greeting is the deck's own doctrine, not an exception to it.
+    | object | fill | why that hue |
+    |---|---|---|
+    | `.hm-greet` | `#EDEBFF` / `#DDD9F7` | **you** — the console's lit screen, in the *stage's* family |
+    **It is the stage's family, not the board's, and that distinction is the whole choice.**
+    The page is `#DED8F5` (H=254); the quest board 14px to its right is `#F1E9FF` (H=262).
+    The greeting is the only object on the deck with a **light neighbour**, so it has to belong
+    to the first without dissolving into the second. `#EDEBFF → #DDD9F7` is **H=247**, the
+    bluest of the three, and the **hard stop carries the separation**: the darker band is 58%
+    of the card and reads **1.16 under the board**, while the top band matches it (1.01) and so
+    reads as *the same material* rather than a near-miss of it. Against the plate's lighter
+    band `#2A1B4E` the card is **11.2:1** — unmistakably an insert. Same 42% hard-stop profile
+    as the rail, the board and the streak; still no radial, still no wash.
+  - **Every ink re-derived, and the worst case flips with the plane.** Dark-on-light, so the
+    worst case is the **DARKER** band `#DDD9F7` (lighter band quoted second): `h1 --hink
+    #2B2431` **10.96** / 12.82; `<em> --violet-d #6D28D9` **5.03** / 5.89; `.hm-sub #5A4B64`
+    **5.84** / 6.83. The fifth pass's `<em>` peach `#FFC08A` is **1.4:1** here — an accent that
+    vanishes — so the accent returns to the page's own violet. `--hink2 #6D6474` was rejected
+    for the sub at **4.02:1**; `#5A4B64` is the card's own pre-plum sub ink and clears AA.
+  - **The lip is a LIGHT moulding now, and it is the board's construction.** `--lip-c:#A79ED8`,
+    **1.80** under its own fill — the same relationship `#B9A4E4` has to the board's `#F1E9FF`
+    (1.87). The fifth pass's rule "the lip is darker than the plate it lands on" was a
+    *dark-card* rule; a light insert on this plate takes a light lip, as the board already did.
+    `::after` goes back to a **52% white** corner specular (on plum it had to be re-tinted
+    `#D68CFF`, because white at that alpha on a dark plane is a blown highlight).
+  - **Criterion changed (k) — the card is a COLUMN above 900px, and that, not the colour, is
+    the "awkward empty space" fix.** The card does not choose its own height: it shares a grid
+    row with the rail (board 210 + chest 70 + strip 49 + 28 of gaps = **357**) while being only
+    **473–518px wide**. Two side-by-side tracks in a near-square box are two tall thin columns,
+    so 130px of copy sat at the top of a 313px content box and the bottom-left **~250×160 was
+    the hole**. Stacked, the copy gets the card's full measure (still capped at `max-width:430px`
+    by the h1) and the mascot gets the **entire bottom band**. The fifth pass's guarantee is
+    **kept, not traded**: two tracks on the block axis cannot cross either, so text-over-mascot
+    is still impossible by construction. ⚠ The **row comes back at ≤900px**, where the card is
+    836×182 — wide-and-short is the one shape a stack is wrong for.
+  - **She is sized by what is left over, not by a number.** `flex:0 1 240px` in the column makes
+    240 her *height*, `flex-shrink` lets the copy take its share first, and `aspect-ratio:1` on
+    **the wrap** derives her width from whatever height survives. The ratio is on the wrap
+    because her box is what the floor and halo are positioned against (both are now **%** of
+    that box, so they scale with her) and a `width:auto` wrap around a percentage-height child
+    is exactly the circular case a browser resolves to the raster's intrinsic size. Measured:
+    **240px** at 1512/1280/1100 (up from 160/160/152 — the cap, so she stops being the card),
+    **152px** in the ≤900 row tier, where the card's 182px floor leaves no height to be sized by.
+  - **The deck is 23px taller at 1280 and that is the price, stated.** The greeting is now the
+    taller column, so `.hm-rail > .hm-board { flex:1 1 auto }` fires as designed and the quest
+    board stretches **210 → 233**; the deck goes 499 → 522. No other rect moves, no tier
+    reflows, and the phone tiers are untouched (mascot still hidden there, 2026-07-20).
+  - **`.hm-greet-body` is `flex:0 0 auto` in the column, and the row tier restores `1 1 auto`.**
+    With shrink on both tracks, a 313px content box under a 346px demand takes the deficit
+    *proportionally* — and a text block shrunk below its content height does not reflow, it
+    overflows into the card's `overflow:hidden`. Only the mascot may absorb.
+  - **What does NOT change.** `pickGreeting`, the rotation, the `<em>` split, every string; the
+    36px headline at `max-width:430px`; the `<EyeconLogo motion="hello">` mascot, her bob, her
+    ~9s rest→wave cross-fade and her warm halo (kept warm on a cool card on purpose — only the
+    alpha comes down, `.42 → .34`, because a light plane needs less of it). Her contact shadow
+    is the **stage's** vignette ink `rgba(58,38,108,.30)` — the plum card's near-black at .5 is
+    a smudge on periwinkle.
+  - **Acceptance** (gated by `aurora_assert.mjs` + `home_mobile_assert.mjs` + `home_hud_assert
+    .mjs`, reported by `_home_shot.mjs`): `.hm-greet` computed `background-color` =
+    **`rgb(221, 217, 247)`**; **zero** intersection between `.hm-greet h1`/`.hm-sub` and
+    `.hm-iriswrap` and **zero** clipped mascot px at 1512/1280/1100/900; 0 page overflow at
+    1512/1280/900/390/844×390; every struck object still ≥2px outline and still ends in a solid
+    `background-color`; the phone fold budget unchanged.
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar

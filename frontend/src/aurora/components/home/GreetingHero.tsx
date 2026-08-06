@@ -11,12 +11,15 @@
    iris.png → wave.webp on a ~9s beat, and both rasters carry real alpha, so the card's own
    fill shows through around her.
 
-   ⚠ THE CARD IS A FLEX ROW, AND THAT IS LOAD-BEARING, NOT LAYOUT TASTE. She used to be
+   ⚠ THE CARD IS TWO FLEX TRACKS, AND THAT IS LOAD-BEARING, NOT LAYOUT TASTE. She used to be
    `position:absolute` UNDERNEATH the copy (z-index 0 vs 3) — survivable only because the
-   opaque clip and its veil sat between them. Against a transparent mascot, cream text
-   crossing her pale skin is ~1.3:1. Two tracks make text-over-mascot impossible by
-   construction at every width and height, instead of relying on the card being tall enough.
-   ⚠ THE BODY MUST STAY THE FIRST CHILD — the row's order IS the reading order.
+   opaque clip and its veil sat between them. Against a transparent mascot, text crossing her
+   pale skin is ~1.3:1. Two tracks make text-over-mascot impossible by construction at every
+   width and height, instead of relying on the card being tall enough. The 6th pass turned
+   the row into a COLUMN on the wide tiers (the card is near-square there, and stacking is
+   what let the mascot fill it) — the guarantee is unchanged either way, because two tracks
+   on either axis still cannot cross.
+   ⚠ THE BODY MUST STAY THE FIRST CHILD — the track order IS the reading order.
 
    ⚠ THE LEVEL / XP READOUT LEFT THIS CARD when the card moved onto the deck: the status
    bar above it renders the SAME four numbers (level, rank, XP into level, XP to next),
