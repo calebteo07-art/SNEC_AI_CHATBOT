@@ -1,18 +1,26 @@
 "use client";
-/* AURORA Home — the student's game HUD, in THREE ZONES:
+/* AURORA Home — the student's game HUD, in FOUR ZONES:
 
      .hm-top     the brand, the level chip and the Eyecon menu (unchanged)
-     .hm-deck    the CONSOLE — the status rail, the greeting host beside ONE right-hand
-                 rail (quest board → chest → League strip), and the streak band across
-                 the bottom. One dark struck plate carrying every live object.
+     .hm-deck    the CONSOLE — the status rail, and the greeting host beside ONE right-hand
+                 rail (quest board → chest → League strip). One dark struck plate carrying
+                 every object that is live RIGHT NOW.
+     .hm-streak  the streak band — its own card, directly under the console.
      .hm-record  what you have BUILT — the Lumens vault.
 
-   The coverflow of the three entry points sits between them, outside both guards.
+   The coverflow of the three entry points sits between the streak and the record, outside
+   both guards.
 
-   ⚠ THE STREAK MOVED ONTO THE DECK (2026-08-06, "can you make the streak card merge into
-   the top card?"). It is the one object that reads as BOTH — a record you have built and a
-   thing that can END TODAY — and the status rail already carries its deadline clock. The
-   record zone keeps the vault, which is the surface that genuinely only moves over weeks.
+   ⚠ THE STREAK IS OFF THE PLATE (2026-08-06, "separate the streak card from the rest of the
+   top card"). It went ONTO the deck one pass earlier and it keeps everything that move
+   bought it — the horizontal band, its place in the reading order directly under the
+   console, the AA-corrected planes — but it is no longer one of the console's inserts. It
+   is the page's own card now, so it takes the page radius back, and .aurora-home's 16px
+   column gap is the whole separation.
+   It needs no guard of its own and must not be given one: StreakTile renders null without a
+   streak_detail, which is exactly what a failed /api/progress leaves behind — so the same
+   read that puts the notice above also silences this card, with no second condition to
+   drift out of sync.
 
    TWO READS, TWO UNKNOWNS, and neither one is ever painted as a zero: useProgress owns
    who you are (level, XP, streak) and useHome owns what is live today (quests, chest,
@@ -166,9 +174,11 @@ export function Dashboard() {
               </div>
             </div>
           </div>
-          <StreakTile detail={detail} />
         </div>
       )}
+
+      {/* Off the plate, under it. See the zone map above. */}
+      <StreakTile detail={detail} />
 
       {/* Outside the guard on purpose: the carousel reads no progress, so a failed read
           must still leave the three features reachable. */}
@@ -176,8 +186,8 @@ export function Dashboard() {
 
       {!progressUnknown && (
         /* THE RECORD — what you have built. Slower than the deck, and below it. The streak
-           left for the deck; the vault is the object that looks better wider, and it now
-           gets the whole width instead of the larger of two tracks. */
+           left this zone for the top of the page; the vault is the object that looks better
+           wider, and it now gets the whole width instead of the larger of two tracks. */
         <div className="hm-record">
           <LumenLadder current={coinsEarned} />
         </div>
