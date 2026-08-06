@@ -194,4 +194,23 @@ const hostile = buildSessionHtml({
 assert.ok(hostile.includes("&lt;script&gt;"), "must escape angle brackets");
 assert.ok(!hostile.includes("<script>alert(1)</script>"), "must not emit a raw script tag");
 
+// ── 12) An empty appendix must say WHY it is empty, when the caller knows why. The student's
+//        own save doesn't: their transcript really is the whole conversation, so "— no
+//        messages —" is true there and that path stays byte-identical. A trainer-generated
+//        per-attempt record is the opposite — chat_sessions retains no messages, only a
+//        200-char summary — so the same dash would assert that nothing was said.
+{
+  const bare = { ...data, patientTranscript: [], actionTranscript: [] };
+
+  const student = buildSessionHtml(bare);
+  assert.ok(/— no messages —/.test(student),
+    "the student's own save must be unchanged when no note is supplied");
+
+  const trainer = buildSessionHtml({ ...bare, transcriptNote: "Transcript not retained for this attempt." });
+  assert.ok(/Transcript not retained for this attempt\./.test(trainer),
+    "a supplied note must explain WHY the appendix is empty");
+  assert.ok(!/— no messages —/.test(trainer),
+    "the note REPLACES the empty-list dash, which would assert nothing was said");
+}
+
 console.log("session_export_logic: all assertions passed");
