@@ -1,5 +1,8 @@
 """The knowledge x performance map (spec §4.1)."""
-from tools.supervisor.topic_map import norm_key, topic_union
+from tools.supervisor.topic_map import (
+    Cell, band_for, build_topic_map, flag_for, flashcard_cells,
+    norm_key, retention_cells, station_cells, topic_union,
+)
 
 
 def test_norm_key_collapses_the_three_namespaces():
@@ -31,9 +34,6 @@ def test_topic_union_merges_the_same_topic_written_three_ways():
         retention={"VISUAL FIELDS": 1},
     )
     assert rows == ["visual fields"]
-
-
-from tools.supervisor.topic_map import Cell, band_for, flashcard_cells, station_cells, retention_cells
 
 
 def test_band_for_uses_the_axis_weak_line():
@@ -85,7 +85,13 @@ def test_retention_cells_scale_the_zero_to_one_dict():
     assert cells["visual fields"].band == "weak"
 
 
-from tools.supervisor.topic_map import flag_for, build_topic_map
+def test_flashcard_cells_bucket_a_blank_tag_as_general_rather_than_dropping_it():
+    """A blank-but-truthy tag reaches the table through a direct API call (student.py:462
+    has no content validation). Dropping the row would lose an attempt with no counter --
+    the one thing station_cells' `excluded` dict exists to prevent."""
+    cells = flashcard_cells([{"topic_tag": "   ", "correct": True},
+                             {"topic_tag": None, "correct": False}])
+    assert cells["general"].n == 2
 
 
 def _cell(value, n, minimum, weak_line):
@@ -127,6 +133,13 @@ def test_a_flag_never_fires_off_an_absent_cell():
     assert flag_for(_fc(90.0), Cell()) == ""
 
 
+def test_every_flag_for_output_is_ranked():
+    """build_topic_map subscripts _FLAG_RANK, so a new flag added to flag_for without a rank
+    is a KeyError at report time. Pinned here so the omission fails in CI instead."""
+    from tools.supervisor.topic_map import _FLAG_RANK
+    assert set(_FLAG_RANK) == {"knows_cant_do", "consistent_gap", "rote", ""}
+
+
 def test_build_topic_map_leads_with_the_flagged_rows():
     """A trainer reads the map top-down for what to do next, so the actionable rows are
     first and the order is deterministic."""
@@ -143,3 +156,18 @@ def test_build_topic_map_leads_with_the_flagged_rows():
     perimetry = next(r for r in result.rows if r.topic == "perimetry")
     assert perimetry.flashcards.band == "absent" and perimetry.station.band == "absent"
     assert perimetry.retention.value == 90.0
+
+
+def test_a_topic_with_no_banded_axis_sorts_below_a_confirmed_strong_one():
+    """A 2-card topic has no verdict, so it sorts last among unflagged rows. Deliberate: the
+    map is read top-down for what to TEACH, and 'we have not measured this' is an assessment
+    gap, not a teaching one. It is still printed, with its band and its n, so it never
+    disappears -- that is what makes sinking it honest rather than quiet."""
+    result = build_topic_map(
+        card_rows=([{"topic_tag": "unmeasured", "correct": True}] * 2
+                   + [{"topic_tag": "solid", "correct": True}] * 20),
+        case_rows=[], retention_scores=None, case_topics={},
+    )
+    assert [r.topic for r in result.rows] == ["solid", "unmeasured"]
+    assert result.rows[1].flashcards.band == "thin"
+    assert result.rows[1].flashcards.n == 2

@@ -75,9 +75,12 @@ def flashcard_cells(card_rows: list[dict]) -> dict[str, Cell]:
     """
     agg: dict[str, list[int]] = {}
     for row in card_rows:
-        key = norm_key(row.get("topic_tag") or "general")
-        if not key:
-            continue
+        # `or "general"` AFTER norm_key, not before: `"   " or "general"` evaluates to
+        # `"   "` (a non-empty string is truthy), so a whitespace-only tag would skip the
+        # fallback, normalise to "", and vanish with no trace -- the one thing this module
+        # exists to prevent. `norm_key("general")` is never empty, so every row lands
+        # somewhere.
+        key = norm_key(row.get("topic_tag")) or "general"
         bucket = agg.setdefault(key, [0, 0])
         bucket[1] += 1
         if row.get("correct"):
@@ -124,7 +127,13 @@ def station_cells(case_rows: list[dict],
 def retention_cells(retention_scores: dict | None) -> dict[str, Cell]:
     """`retention_scores` is a 0-1 dict with no attempt count behind it, so n is 1 by
     construction. Banded on the knowledge line: it measures durability of recall, and the
-    console has always coloured it against 0.65."""
+    console has always coloured it against 0.65.
+
+    A malformed (non-numeric) score is skipped UNCOUNTED, matching mastery.py:54-60's
+    treatment of the same field -- never coerced to 0.0, which would read as a real zero
+    score. Unlike station_cells' two exclusions, there is no counter for this one: a topic
+    whose only source is a malformed retention value simply vanishes from the map.
+    """
     cells: dict[str, Cell] = {}
     for raw, score in (retention_scores or {}).items():
         key = norm_key(raw)
@@ -184,7 +193,10 @@ def _worst_banded(row: TopicRow) -> float:
     treated as 0 -- 'not measured' must never sort as 'terrible'."""
     values = [c.value for c in (row.flashcards, row.station, row.retention)
               if c.band not in _UNBANDED and c.value is not None]
-    return min(values) if values else 999.0
+    # A row with no banded axis at all sorts last among the unflagged rows -- "always sorts
+    # last" should be self-evident from the sentinel, not something the reader verifies by
+    # reasoning that a percentage cannot exceed 100.
+    return min(values) if values else float("inf")
 
 
 def build_topic_map(*, card_rows: list[dict], case_rows: list[dict],
