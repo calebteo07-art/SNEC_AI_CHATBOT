@@ -122,4 +122,31 @@ assert.deepEqual(rankFindings(EMPTY), [], "no data must yield no findings");
   assert.deepEqual(out.map((f) => f.topic), ["alpha", "zeta"], "equal severity sorts by topic");
 }
 
+// 11 — a critical step known ONLY to the ledger must not vanish.
+// `stepFindings` skips criticals because `safetyFindings` is supposed to cover them, but the
+// two lists come from different columns: criticalOffenders reads missed_critical (migration
+// 011), offenders reads the checklist_detail ledger (migration 019). If a critical reaches
+// only the ledger, assuming coverage drops the document's highest-severity finding.
+{
+  const out = rankFindings(insight({
+    offenders: [{ action: "Perform hand hygiene.", missed: 9, critical: true, appeared: 12 }],
+    criticalOffenders: [],
+  }));
+  const f = out.find((x) => x.kind === "critical_safety");
+  assert.ok(f, "a critical step present only in the ledger must still be reported");
+  assert.ok(/9 of 12/.test(f.evidence), `and must keep the ledger's real denominator: ${f?.evidence}`);
+}
+
+// 12 — the same action in both sources is ONE finding, carrying the better evidence
+{
+  const out = rankFindings(insight({
+    offenders: [{ action: "Perform hand hygiene.", missed: 9, critical: true, appeared: 12 }],
+    criticalOffenders: [{ action: "Perform hand hygiene.", missed: 9, critical: true, appeared: null }],
+  }));
+  const crit = out.filter((x) => x.kind === "critical_safety");
+  assert.equal(crit.length, 1, "one action must not be reported twice");
+  assert.ok(/9 of 12/.test(crit[0].evidence),
+    `the ledger's denominator must win over the bare count: ${crit[0].evidence}`);
+}
+
 console.log("PASS report_findings_logic");

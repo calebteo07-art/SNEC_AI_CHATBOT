@@ -14,12 +14,10 @@
    `thin` cell, a null cohort baseline, or an `insufficient` trajectory is NOT a finding; it
    is an honest state, and the document renders those as words in their own section.
 
-   The only import is an `import type`, which Node's type-stripping erases before it tries to
-   resolve the specifier — the same constraint tutorSessionEnd.ts records. A VALUE import of
-   ./insight would need a "./insight.ts" specifier to resolve under the harness, and tsconfig's
-   `moduleResolution: "bundler"` rejects that suffix without `allowImportingTsExtensions`,
-   which this project does not set. Hence the mirrored threshold below. */
-import type { Offender, StudentInsight, TopicRow } from "./insight";
+   The ".ts" suffix is required, not stylistic: a .mjs harness loads this module through Node's
+   type-stripping, which resolves specifiers at runtime and cannot guess the extension.
+   tsconfig sets `allowImportingTsExtensions` so tsc accepts it too. */
+import { INDIVIDUAL_GAP, type Offender, type StudentInsight, type TopicRow } from "./insight.ts";
 
 export type FindingKind =
   | "critical_safety" | "knows_cant_do" | "declining" | "cohort_gap"
@@ -46,12 +44,6 @@ const RANK: Record<FindingKind, number> = {
     the three buckets are just where marks live, which the table already shows. */
 const CONCENTRATION = 55.0;
 
-/* Mirrors INDIVIDUAL_GAP in insight.ts (itself a mirror of tools/supervisor/topic_map.py:224)
-   — how far below the peer mean counts as this student's own gap rather than noise. Kept as a
-   private duplicate rather than a value import; see the module comment. Change it in all three
-   places or the document will claim a gap the analysis core does not. */
-const INDIVIDUAL_GAP = 15.0;
-
 const pct = (v: number) => `${Math.round(v)}%`;
 const nice = (t: string) => t.replace(/_/g, " ");
 
@@ -64,8 +56,27 @@ function offenderEvidence(o: Offender): string {
     : `Missed in ${o.missed} of ${o.appeared} attempts that included this step.`;
 }
 
+/** Every repeatedly-missed critical step, from BOTH sources, each reported exactly once.
+ *
+ * The two lists have different coverage AND different evidence. `criticalOffenders` reads
+ * `missed_critical` (migration 011), so it reaches attempts that predate the ledger — but it
+ * carries no denominator. `offenders` reads the migration-019 per-step ledger, so it knows how
+ * many attempts actually contained the step. Where both name the same action the ledger wins:
+ * "missed in 9 of 12 attempts that included it" is a fact a trainer can act on, "missed in 9
+ * attempts" is not.
+ *
+ * Merged rather than assumed: `stepFindings` skips criticals on the grounds that this function
+ * reports them, so a critical reaching only the ledger would otherwise drop the single
+ * highest-severity finding in the document — and drop the better-evidenced copy at that.
+ */
 function safetyFindings(insight: StudentInsight): Finding[] {
-  return insight.criticalOffenders.map((o) => ({
+  const byAction = new Map<string, Offender>();
+  for (const o of insight.criticalOffenders) byAction.set(o.action.trim().toLowerCase(), o);
+  // Ledger entries overwrite by design — same action, strictly better evidence.
+  for (const o of insight.offenders) {
+    if (o.critical) byAction.set(o.action.trim().toLowerCase(), o);
+  }
+  return [...byAction.values()].map((o) => ({
     kind: "critical_safety" as const, rank: RANK.critical_safety, topic: "",
     claim: `A safety-critical step is being missed repeatedly: ${o.action}`,
     evidence: offenderEvidence(o),
