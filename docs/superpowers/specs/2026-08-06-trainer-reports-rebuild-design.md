@@ -197,8 +197,14 @@ axis, computed leave-one-out from `get_cohort_reads()`.
 | **Individual gap within a cohort gap** | both | Hardest case: the topic is taught poorly *and* this student is behind even that. |
 
 Requires ≥ 3 peers with data on that topic; below that the row reads *"no cohort baseline for
-this topic (1 peer with data)"*. The leave-one-out rule is already established on this endpoint
-and is preserved: a student is never an input to the average they are measured against.
+this topic (1 peer with data)"*, and `cohort_mean` is **`None`, never `0.0`** — a renderer that
+reads it without checking the label must be unable to print "cohort average 0" for a topic
+nobody has data on. `mastery.py`'s `cohort_avg` takes the same position on the same question.
+
+The peer mean averages each **student's** own accuracy, not the pooled attempts: pooling makes
+a peer who did 400 cards the baseline on their own. And the leave-one-out rule already
+established on this endpoint is preserved — a student is never an input to the average they
+are measured against.
 
 ### 4.6 Consultation labels
 
