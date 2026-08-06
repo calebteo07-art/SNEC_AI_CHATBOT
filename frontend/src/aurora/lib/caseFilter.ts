@@ -41,6 +41,52 @@ export function filterCases<T extends { set_key?: string; topic: string; title: 
   return cases.filter((c) => regionMatch(`${c.topic} ${c.title}`, lens.region));
 }
 
+/** One section of the patient journey. */
+export type JourneySection<T> = { key: string; label: string; hint: string; items: T[]; done?: boolean };
+
+/** A tier row as declared in lib/tiers.ts. */
+type TierDef = { key: string; label: string; hint: string };
+
+/**
+ * Group the visible patients into the journey: the difficulty tiers in order, then anything
+ * of an unknown tier, then — LAST — the ones this student has already passed.
+ *
+ * Completed patients are pulled OUT of their tier rather than greyed in place (user-directed:
+ * "make sure that it is listed at the bottom/last with a tick badge and grey off to signify
+ * completed … student does not access the completed cases unless they scroll out of their
+ * way"). They are never dropped: a finished patient is still worth replaying for practice,
+ * it just stops being in the way of, and stops looking like, the work still to do.
+ *
+ * A LOCKED case is never treated as completed — the two states are mutually exclusive
+ * upstream, but ordering locked-and-completed after locked-and-not would be nonsense.
+ */
+export function journeySections<T extends { difficulty: string; completed?: boolean; locked?: boolean }>(
+  cases: T[],
+  tiers: readonly TierDef[],
+): JourneySection<T>[] {
+  const isDone = (c: T) => !!c.completed && !c.locked;
+  const active = cases.filter((c) => !isDone(c));
+  const done = cases.filter(isDone);
+  const known = new Set(tiers.map((t) => t.key));
+
+  const sections: JourneySection<T>[] = tiers
+    .map((t) => ({ ...t, items: active.filter((c) => (c.difficulty || "").toLowerCase() === t.key) }))
+    .filter((s) => s.items.length > 0);
+
+  const rest = active.filter((c) => !known.has((c.difficulty || "").toLowerCase()));
+  if (rest.length) sections.push({ key: "more", label: "More patients", hint: "", items: rest });
+  if (done.length) {
+    sections.push({
+      key: "completed",
+      label: "Completed",
+      hint: "Passed already — replay any of these for practice (they no longer earn Lumens).",
+      items: done,
+      done: true,
+    });
+  }
+  return sections;
+}
+
 /** Build the topic chip-row. Primary: the role-aware sets from `/api/cases/topics`, in
     canonical order, hiding empty sets and flagging fully-completed ones. Fallback (topics
     fetch failed → `null`/empty): derive unique sets from the loaded cases in first-seen

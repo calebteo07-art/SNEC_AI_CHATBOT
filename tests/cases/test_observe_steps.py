@@ -70,3 +70,25 @@ def test_aggregates_evidence_across_multiple_student_messages(monkeypatch):
     assert "combine" in sp and "messages" in sp
     # generous token headroom so the JSON array is never silently truncated
     assert captured["max_tokens"] >= 512
+
+
+# ── Calibration (user-reported: the station is "too strict and hard") ────────────────
+# The examiner is an AI, so what it is TOLD is the only place this rule can live. These pin
+# the two halves against each other: a later edit that drops either one is the bug.
+
+def test_the_examiner_marks_to_a_competent_standard():
+    """Enumerated sub-items are guidance for the assessor, not a script to recite."""
+    system = observe_steps._EXAMINER_SYSTEM.lower()
+    assert "competent standard" in system
+    assert "substance" in system
+    assert "upward" in system
+    assert "names that protocol" in system
+
+
+def test_leniency_never_reaches_the_evidence_guards():
+    """Leniency about DEPTH must not become leniency about whether it happened at all —
+    those three guards are what stop the checklist ticking itself."""
+    system = observe_steps._EXAMINER_SYSTEM
+    assert "BE STRICT" in system
+    assert "NEVER tick a step because the PATIENT said it" in system
+    assert "mentioned in passing" in system

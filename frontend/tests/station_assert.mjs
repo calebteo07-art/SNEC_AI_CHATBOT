@@ -704,9 +704,20 @@ await p.waitForSelector('.aurora-station-step[data-current="true"]:has-text("not
 // composer. A dual step must leave BOTH panes live.
 if (await p.locator('[data-testid="patient-lock"]').count()) die("a dual-source step must NOT lock the patient chat — asking is half of it");
 if (!(await p.locator('[data-testid="patient-pane"] .aurora-station-composer-input').count())) die("patient composer must stay available on a dual-source step");
+// The spotlight must name BOTH panes while both halves are outstanding. It used to read
+// "patient" for the whole step — dimming the pane that holds the chip the student still
+// owes (user-reported: "the spotlight to convo panel and manual panel is not accurate").
 const dualTurn = await p.getAttribute(".aurora-station-grid", "data-turn");
-if (dualTurn !== "patient") die(`dual-source gate should keep the patient turn, got "${dualTurn}"`);
-ok("dual-source step keeps the patient composer live (both halves reachable)");
+if (dualTurn !== "both") die(`a dual gate with neither half done should be "both", got "${dualTurn}"`);
+// Both panes lit means NEITHER is dimmed — the dimming selectors key off patient/eyebot only.
+for (const sel of [".aurora-patient", ".aurora-eyebot"]) {
+  const dimmed = await p.waitForFunction(
+    (s) => Number(getComputedStyle(document.querySelector(s)).opacity) > 0.95,
+    sel, { timeout: 4000 },
+  ).catch(() => null);
+  if (!dimmed) die(`data-turn="both" must not dim ${sel}`);
+}
+ok("dual-source step keeps the patient composer live and lights BOTH panes");
 
 // Click the chip: it must REVEAL the record and NOT tick the step.
 await p.locator('.aurora-pchip:has-text("Check allergy")').click();
@@ -733,7 +744,23 @@ await p.waitForFunction(
   const got = await p.evaluate(() => getComputedStyle(document.querySelector('.aurora-pchip[data-half="record"]')).backgroundColor);
   die(`half-done chip must settle on amber, not the pane's blue: ${got}`);
 });
-ok("chip reveals the record, marks itself half-done, and explains the missing half");
+// RESPONSIVENESS: doing one half must MOVE the spotlight to the other. Before this, the
+// turn was computed without reference to either half, so the screen looked identical
+// before and after the click ("not accurate or responsive"). Now the outstanding half
+// picks the pane — and the pane that no longer owes anything recedes.
+const movedTurn = await p.waitForFunction(
+  () => document.querySelector(".aurora-station-grid")?.getAttribute("data-turn") === "patient",
+  null, { timeout: 4000 },
+).catch(() => null);
+if (!movedTurn) {
+  const got = await p.getAttribute(".aurora-station-grid", "data-turn");
+  die(`the record half landing must move the spotlight to the patient, got "${got}"`);
+}
+await p.waitForFunction(
+  () => Number(getComputedStyle(document.querySelector(".aurora-eyebot")).opacity) < 0.95,
+  null, { timeout: 4000 },
+).catch(() => die("the finished half's pane must recede once the spotlight moves"));
+ok("chip reveals the record, marks itself half-done, explains the missing half, and MOVES the spotlight");
 
 // Now ask the patient. The examiner credits the asking (it was sent record_done), so the
 // step finally ticks — and the half-done affordance clears.
@@ -769,6 +796,13 @@ if ((await askChip.getAttribute("data-half")) !== "asked") die("the chip must sh
 if (await askChip.isDisabled()) die("the chip must stay clickable — checking the record is the half still outstanding");
 const askHint = await p.locator('[data-testid="dual-hint"]').innerText();
 if (!/record|chart|EMR/i.test(askHint)) die(`the hint must name the record as outstanding, got "${askHint}"`);
+// The spotlight moves the OTHER way in this order — and the composer must stay live even
+// though the turn is now "eyebot", because the examiner's credit for the asking is a
+// judgement and a student who thinks it misread them has to be able to say it again.
+const askTurn = await p.getAttribute(".aurora-station-grid", "data-turn");
+if (askTurn !== "eyebot") die(`the asked half landing must move the spotlight to EyeBot, got "${askTurn}"`);
+if (await p.locator('[data-testid="patient-lock"]').count()) die("an eyebot turn on a DUAL step must not lock the patient composer");
+if (!(await p.locator('[data-testid="patient-pane"] .aurora-station-composer-input').count())) die("the composer must survive the spotlight moving to EyeBot on a dual step");
 // Now open the chart: the held credit is admitted and the step ticks on this click alone.
 await askChip.click();
 await p.waitForSelector('.aurora-station-step[data-ticked="true"]:has-text("not allergic")', { timeout: 8000 });

@@ -1261,6 +1261,22 @@ html[data-motion="reduce"] .aurora-atlas-readout::before, html[data-motion="redu
 .aurora-case--skeleton { display: block; height: 76px; background: linear-gradient(100deg, rgba(31, 31, 31, 0.04), rgba(31, 31, 31, 0.07), rgba(31, 31, 31, 0.04)); border: none; margin-bottom: 12px; pointer-events: none; }
 .aurora-case--skeleton::before { display: none; }
 
+/* ── Completed patients (2026-08-06) ────────────────────────────────────────────────
+   A passed case is FINISHED, not gone: it drops to its own section at the very bottom of
+   the journey (caseFilter.journeySections) and reads as done rather than as outstanding
+   work. Greyed and desaturated, but never disabled — replaying one is good practice, it
+   just stops paying Lumens. The tick is echoed in the avatar slot AND in words in the
+   foot, so the state survives a greyscale screenshot and doesn't rely on colour alone. */
+.aurora-case[data-done] { opacity: 0.62; filter: saturate(0.35); }
+.aurora-case[data-done]:hover { opacity: 0.9; filter: saturate(0.7); }
+.aurora-case[data-done] .aurora-case-avatar--live { background: var(--on-green, #2FA36B); font-weight: 800; }
+.aurora-case-done { margin-left: auto; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-green, #2FA36B); font-weight: 700; }
+
+/* The section head carries the same tick, so the boundary is legible before the cards are. */
+.aurora-tier-group[data-done] .aurora-tier-node { background: var(--on-green, #2FA36B); }
+.aurora-tier-tick { margin-right: 6px; color: var(--on-green, #2FA36B); font-weight: 800; }
+.aurora-tier-n { margin-left: 7px; font-style: normal; font-size: 12.5px; color: var(--ink-3); }
+
 .aurora-cases-empty { padding: 30px 0; text-align: center; }
 
 @media (max-width: 920px) {
@@ -3437,6 +3453,25 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-grid[data-turn="eyebot"] .aurora-eyebot::before {
   padding: 2px; background: rgba(var(--turn-accent), .55);
 }
+/* data-turn="both" — a DUAL-SOURCE step, which genuinely needs BOTH panes (read the chart
+   AND ask the patient). It deliberately matches none of the dimming selectors above, so
+   neither pane recedes; instead both pulse in their own identity colour. Dimming one of
+   them was the reported inaccuracy — the pane holding the chip the student still owed was
+   the one being told to recede. Once either half lands the turn becomes "patient" or
+   "eyebot" and the ordinary single-pane spotlight takes over, which is what makes it move. */
+.aurora-station-grid[data-turn="both"] .aurora-patient {
+  --turn-accent: 217, 101, 112;
+  animation: station-turnglow 2.4s var(--st-ease, ease) infinite;
+}
+.aurora-station-grid[data-turn="both"] .aurora-eyebot {
+  --turn-accent: 44, 107, 224;
+  animation: station-turnglow 2.4s var(--st-ease, ease) infinite;
+}
+.aurora-station-grid[data-turn="both"] .aurora-patient::before,
+.aurora-station-grid[data-turn="both"] .aurora-eyebot::before {
+  padding: 2px; background: rgba(var(--turn-accent), .55);
+}
+
 /* "All steps done" — the handover button takes the emphasis instead of either pane. */
 .aurora-station-grid[data-turn="handover"] .aurora-station-submit-toggle {
   --turn-accent: 60, 160, 90;

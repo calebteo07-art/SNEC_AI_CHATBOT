@@ -13,7 +13,7 @@ import { HelpButton } from "@/aurora/components/HelpButton";
 import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
 import {
-  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips,
+  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections,
   type Lens, type ApiTopic,
 } from "@/aurora/lib/caseFilter";
 import { PLATE } from "@/aurora/media";
@@ -66,16 +66,9 @@ export function Cases() {
   }, [cases]);
 
   // Group the visible patients into ordered difficulty tiers; unknown tiers fall to the end
-  // so nothing is ever silently dropped.
-  const journey = useMemo(() => {
-    const known = new Set(TIERS.map((t) => t.key));
-    const sections = TIERS
-      .map((t) => ({ ...t, items: filtered.filter((c) => (c.difficulty || "").toLowerCase() === t.key) }))
-      .filter((s) => s.items.length > 0);
-    const rest = filtered.filter((c) => !known.has((c.difficulty || "").toLowerCase()));
-    if (rest.length) sections.push({ key: "more", label: "More patients", hint: "", items: rest });
-    return sections;
-  }, [filtered]);
+  // and already-passed patients fall LAST, so nothing is silently dropped and nothing
+  // finished sits in the way of the work still to do. See caseFilter.journeySections.
+  const journey = useMemo(() => journeySections(filtered, TIERS), [filtered]);
 
   // The active lens, resolved to a single label for the journey-head readout.
   const activeLabel = lens.topic
@@ -170,10 +163,16 @@ export function Cases() {
               <div className="aurora-journey aurora-stagger">
                 <span className="aurora-spine" aria-hidden />
                 {journey.map((section) => (
-                  <section key={section.key} className="aurora-tier-group">
+                  <section key={section.key} className="aurora-tier-group"
+                           data-done={section.done || undefined}
+                           data-testid={section.done ? "completed-section" : undefined}>
                     <div className="aurora-tier">
                       <span className="aurora-tier-node" aria-hidden />
-                      <span className="aurora-tier-label">{section.label}</span>
+                      <span className="aurora-tier-label">
+                        {section.done && <span className="aurora-tier-tick" aria-hidden>✓</span>}
+                        {section.label}
+                        {section.done && <i className="aurora-tier-n">{section.items.length}</i>}
+                      </span>
                       {section.hint && <span className="aurora-tier-hint">{section.hint}</span>}
                     </div>
                     {section.items.map((c) => <CaseCard key={c.case_id} data={c} onOpen={openCase} />)}

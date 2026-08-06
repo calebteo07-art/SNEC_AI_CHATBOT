@@ -10,6 +10,9 @@ AI reasons, deterministic code executes). An optional AI tip may be layered on t
 by the caller, but the verdict/covered/missing here are the source of truth.
 """
 
+import math
+import re
+
 # Richer keyword families than examination_actions' label rules, tuned to match the
 # authored `rubric.investigations.key_points` for each hands-on procedure. First entry
 # whose keys appear in the action label wins; the label's own words are a fallback.
@@ -54,6 +57,46 @@ _CURATED_MODEL_ANSWERS: dict[str, list[str]] = {
         "Step 7: Rub hands for at least 20–30 seconds until dry (observing the 5 moments for when to clean).",
     ],
 }
+
+
+# Naming the standard IS the answer. A curated model answer is a fixed protocol that
+# students learn BY NAME; making them retype all seven steps of the WHO/MOH handrub into a
+# free-text box measures typing, not competence (user-reported: "not realistic for student
+# to list down all 7 steps of hand hygiene … if student just types something like 7 steps
+# hand hygiene they should be able to get the full marks"). So a technique that names the
+# protocol covers every point of it.
+#
+# Only CURATED standards can be claimed this way. A model answer derived from a case's own
+# rubric is specific to that case and has no name to invoke, so it still has to be described.
+# Phrases are matched against the technique with punctuation flattened to spaces, so
+# "seven-step" and "seven step" are the same string by the time they get here.
+_STANDARD_NAMES: dict[str, tuple[str, ...]] = {
+    "Hand hygiene": ("7 step", "seven step", "hand rub", "handrub", "moh 7", "who 7"),
+}
+
+
+def _flat(text: str) -> str:
+    """Lowercase with every non-alphanumeric run collapsed to one space, so phrase matching
+    doesn't care about hyphens, punctuation or double spaces."""
+    out = []
+    prev_sep = False
+    for ch in (text or "").lower():
+        if ch.isalnum():
+            out.append(ch)
+            prev_sep = False
+        elif not prev_sep:
+            out.append(" ")
+            prev_sep = True
+    return "".join(out).strip()
+
+
+def names_the_standard(action_label: str, technique: str) -> bool:
+    """Does the typed technique invoke this procedure's named standard by name?"""
+    phrases = _STANDARD_NAMES.get(action_label.strip())
+    if not phrases:
+        return False
+    flat = _flat(technique)
+    return any(p in flat for p in phrases)
 
 
 def _label_keywords(action_label: str) -> tuple[str, ...]:
@@ -110,7 +153,14 @@ def craft_model_answer(case: dict, action_label: str, satisfies_steps,
     return list(_GENERIC_FALLBACK)
 
 
+_STEP_PREFIX = re.compile(r"^\s*step\s*\d+\s*[:.\-–]\s*", re.I)
+
+
 def _salient(text: str) -> list[str]:
+    # "Step 4: Backs of the fingers…" — the "Step 4:" is scaffolding for the READER, not
+    # content the student has to reproduce, and counting "step" and "4" as salient made
+    # every point of a numbered protocol two tokens harder to cover than it should be.
+    text = _STEP_PREFIX.sub("", text)
     tokens = []
     tok = ""
     for ch in text.lower():
@@ -148,21 +198,44 @@ def _covered(point: str, technique_tokens: set[str]) -> bool:
     return (shared / len(salient) >= 0.34) or (shared >= 3)
 
 
-def grade_technique(model_points: list[str], technique: str) -> dict:
+# A COMPETENT answer, not a perfect one. Requiring every single model point for "strong"
+# meant the longer the model answer, the harder the station — a seven-point protocol needed
+# a flawless recitation while a two-point one did not. That is the same calibration error
+# the 40/30/30 amendment fixed for the AI grader ("competent-not-perfect … resolves a
+# between-bands performance upward", docs/design-locks.md). Three fifths of the points, and
+# never fewer than one, is a pass at this station; what is still missing is returned either
+# way, so the coaching line stays truthful about it.
+_COMPETENT_RATIO = 0.6
+
+
+def _competent_bar(total: int) -> int:
+    """How many of `total` model points a competent technique must cover."""
+    return max(1, math.ceil(_COMPETENT_RATIO * total))
+
+
+def grade_technique(model_points: list[str], technique: str,
+                    action_label: str = "") -> dict:
     """Deterministically grade a typed technique against the model-answer points.
 
     Returns {verdict, covered, missing}:
-      strong      — every model point covered (and there is at least one)
-      partial     — some points covered
+      strong      — the named standard was invoked, or a competent share of points covered
+      partial     — some points covered, but below the competent bar
       developing  — no point convincingly covered
+
+    `missing` is populated regardless of verdict — a strong technique can still have a
+    point worth mentioning, and the coaching line names it rather than claiming full marks.
     """
+    if model_points and names_the_standard(action_label, technique):
+        # The student named the protocol. Nothing is outstanding — they invoked all of it.
+        return {"verdict": "strong", "covered": list(model_points), "missing": []}
+
     tokens = _all_tokens(technique or "")
     covered: list[str] = []
     missing: list[str] = []
     for p in model_points:
         (covered if _covered(p, tokens) else missing).append(p)
 
-    if model_points and not missing:
+    if model_points and len(covered) >= _competent_bar(len(model_points)):
         verdict = "strong"
     elif covered:
         verdict = "partial"
@@ -175,7 +248,11 @@ def _coaching_line(grade: dict) -> str:
     """A grounded, deterministic coaching line — never a hardcoded 'good job'."""
     verdict, covered, missing = grade["verdict"], grade["covered"], grade["missing"]
     if verdict == "strong":
-        return "Strong technique — you covered the key points of the model answer."
+        # Strong is now a competent bar, not a perfect one, so a strong technique can still
+        # have a point outstanding. Saying "you covered the key points" over a gap is the
+        # kind of congratulation the truthful-record amendment exists to stop.
+        return (f"Strong technique. One more to round it out: {missing[0]}" if missing
+                else "Strong technique — you covered the key points of the model answer.")
     if verdict == "partial":
         tip = missing[0] if missing else ""
         return f"Good coverage so far. To match the model answer, also: {tip}" if tip \
@@ -193,7 +270,7 @@ def grade_action(case: dict, action_label: str, satisfies_steps, checklist_steps
     is instant and works keyless in MOCK_MODE. The caller may replace `coaching` with
     a grounded AI tip, but must keep the deterministic verdict/covered/missing."""
     model_points = craft_model_answer(case, action_label, satisfies_steps, checklist_steps)
-    grade = grade_technique(model_points, technique)
+    grade = grade_technique(model_points, technique, action_label)
     return {
         "verdict": grade["verdict"],
         "covered": grade["covered"],

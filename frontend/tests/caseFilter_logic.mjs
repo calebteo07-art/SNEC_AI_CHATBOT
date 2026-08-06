@@ -8,7 +8,7 @@
    fallback when /api/cases/topics is unavailable). */
 import assert from "node:assert";
 import {
-  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips,
+  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections,
 } from "../src/aurora/lib/caseFilter.ts";
 
 // ── ONE lens at a time (the state invariant /ship-check guards) ───────────────
@@ -89,3 +89,57 @@ assert.strictEqual(topicChips([], CASES).length, 3, "empty api array → fallbac
 assert.deepStrictEqual(topicChips(null, [{ set_key: "screening" }]).map((c) => c.label), ["screening"], "fallback label defaults to key");
 
 console.log("caseFilter_logic: all assertions passed");
+
+// ── journeySections — completed patients sink to the bottom (2026-08-06) ──────
+// User-directed: "when student finish the virtual patient case, make sure that it is
+// listed at the bottom/last with a tick badge and grey off … make sure student does not
+// access the completed cases unless they scroll out of their way".
+const TIERS3 = [
+  { key: "beginner", label: "Foundational", hint: "" },
+  { key: "intermediate", label: "Developing", hint: "" },
+  { key: "advanced", label: "Advanced", hint: "" },
+];
+const mk = (case_id, difficulty, extra = {}) => ({ case_id, difficulty, ...extra });
+
+{
+  const secs = journeySections([
+    mk("a", "beginner"),
+    mk("b", "beginner", { completed: true }),
+    mk("c", "advanced", { completed: true }),
+    mk("d", "advanced"),
+  ], TIERS3);
+  // The completed section is LAST, whatever tier its patients came from.
+  assert.strictEqual(secs[secs.length - 1].key, "completed", "completed section sorts last");
+  assert.strictEqual(secs[secs.length - 1].done, true);
+  assert.deepStrictEqual(secs[secs.length - 1].items.map((c) => c.case_id), ["b", "c"]);
+  // …and they are pulled OUT of their difficulty tiers, not greyed in place.
+  const tierIds = secs.filter((s) => s.key !== "completed").flatMap((s) => s.items.map((c) => c.case_id));
+  assert.deepStrictEqual(tierIds, ["a", "d"], "a completed patient must not also sit in its tier");
+}
+
+{
+  // Nothing completed → no completed section at all (no empty header).
+  const secs = journeySections([mk("a", "beginner")], TIERS3);
+  assert.ok(!secs.some((s) => s.key === "completed"), "no completed patients → no section");
+}
+
+{
+  // Nothing is ever dropped: an unknown tier still lands in "More patients", and the
+  // completed section comes after even that.
+  const secs = journeySections([
+    mk("a", "beginner"),
+    mk("x", "mystery"),
+    mk("b", "beginner", { completed: true }),
+  ], TIERS3);
+  assert.deepStrictEqual(secs.map((s) => s.key), ["beginner", "more", "completed"]);
+  const all = secs.flatMap((s) => s.items.map((c) => c.case_id)).sort();
+  assert.deepStrictEqual(all, ["a", "b", "x"], "no patient may be lost by the regrouping");
+}
+
+{
+  // A LOCKED patient is never "completed" — it has not been passed, and sinking it would
+  // hide the prerequisite the student is supposed to see.
+  const secs = journeySections([mk("l", "advanced", { locked: true, completed: true })], TIERS3);
+  assert.ok(!secs.some((s) => s.key === "completed"), "locked beats completed");
+  assert.strictEqual(secs[0].items[0].case_id, "l");
+}

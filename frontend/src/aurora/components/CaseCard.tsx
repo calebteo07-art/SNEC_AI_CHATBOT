@@ -12,6 +12,7 @@ export interface CaseInfo {
   estimated_minutes: number;
   locked?: boolean;
   unlock_hint?: string;   // backend-computed per-topic "how to unlock" note (tier_gate.py)
+  completed?: boolean;    // this student has PASSED it — sunk to the bottom, ticked, greyed
   set_key?: string;
   set_label?: string;
   patient: { name: string; age: number; presenting_complaint: string };
@@ -68,16 +69,36 @@ export function CaseCard({ data, onOpen }: { data: CaseInfo; onOpen: (c: CaseInf
     );
   }
 
+  /* A passed patient stays fully openable — replaying one is good practice — but it reads
+     as finished rather than as work outstanding: greyed, ticked, and labelled "Replay" so
+     nobody mistakes it for a fresh case or expects it to pay again. The class stays
+     .aurora-case so the case-list smoke test still counts it. */
+  const done = (data.completed ?? false) && !locked;
+
   return (
-    <button type="button" className="aurora-case aurora-tilt" onClick={() => onOpen(data)} onPointerMove={onMove} onPointerLeave={onLeave}>
-      <span className="aurora-case-avatar aurora-case-avatar--live" aria-hidden>{initials(data.patient.name)}</span>
+    <button
+      type="button"
+      className="aurora-case aurora-tilt"
+      data-done={done || undefined}
+      aria-label={done ? `${data.patient.name} — completed, replay for practice` : undefined}
+      onClick={() => onOpen(data)}
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+    >
+      <span className="aurora-case-avatar aurora-case-avatar--live" aria-hidden>
+        {done ? "✓" : initials(data.patient.name)}
+      </span>
       <div className="aurora-case-body">
         <p className="aurora-case-name">{data.patient.name} <span>· {data.patient.age}</span></p>
         <p className="aurora-case-cc">“{data.patient.presenting_complaint}”</p>
         <div className="aurora-case-foot">
           {chip && <span className="aurora-case-chip">{chip}</span>}
           <span className="aurora-case-time">~{data.estimated_minutes} min</span>
-          <span className="aurora-case-start"><span>Start →</span></span>
+          {done
+            /* Words, not just the grey — the same rule the station's report follows: a
+               state nobody can read in a screenshot isn't communicated. */
+            ? <span className="aurora-case-done" data-testid="case-done">Completed · Replay →</span>
+            : <span className="aurora-case-start"><span>Start →</span></span>}
         </div>
       </div>
     </button>

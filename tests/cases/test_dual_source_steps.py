@@ -47,9 +47,11 @@ DROP_CHECKLISTS = ("Eye Drop Instillation and Dilation", "Instillation of Eye Dr
 HYGIENE_CHECKLISTS = ("Amsler Grid Testing", "Ishihara Colour Vision Testing")
 
 
-def _chip(procedure: str, label: str, allergy_record: str = "") -> dict:
+def _chip(procedure: str, label: str, allergy_record: str = "",
+          identity_record: str = "") -> dict:
     cl = next(c for c in CHECKLISTS if c["procedure_name"] == procedure)
-    actions = build_actions({}, cl["steps"], allergy_record=allergy_record)
+    actions = build_actions({}, cl["steps"], allergy_record=allergy_record,
+                            identity_record=identity_record)
     return next(a for a in actions if a["label"] == label)
 
 
@@ -115,7 +117,92 @@ def test_no_other_chip_in_any_real_checklist_is_dual():
     assert dual == (
         {(p, "Check allergy") for p in DROP_CHECKLISTS}
         | {(p, "Hand hygiene") for p in HYGIENE_CHECKLISTS}
+        | {(p, "Identify patient") for p in IDENTITY_CHECKLISTS}
     )
+
+
+# ── The identify-against-the-chart shape ────────────────────────────────────────────
+# The third dual shape, and by far the widest: 117 of 155 cases carry it, and it is
+# CRITICAL in every one. "Identify the correct patient … and check the patient's identity
+# against medical record/EMR using at least 2 identifiers: Patient Name, Patient
+# Identification Number / Address / Date of Birth" names both channels the way the allergy
+# row does — you cannot read a chart by talking, and you cannot get a patient's name off a
+# chart by reading it. It used to tick from the consult alone, so the EMR half of the app's
+# most common critical step was never actually required of anyone.
+
+IDENTITY_CHECKLISTS = tuple(
+    c["procedure_name"]
+    for c in CHECKLISTS
+    if any(a["label"] == "Identify patient" and a["kind"] == "manual"
+           for a in build_actions({}, c["steps"]))
+)
+
+
+def test_the_identity_sweep_found_the_checklists():
+    # Guards the generated tuple above from silently emptying and passing everything.
+    assert len(IDENTITY_CHECKLISTS) >= 10
+
+
+def test_no_identify_chip_is_ever_manual_only():
+    """The invariant that keeps the fix from becoming its own bug. A manual-only step locks
+    the patient composer, so an Identify-patient chip that is NOT dual would make the half
+    the student is supposed to ask about impossible to do."""
+    offenders = [
+        (c["procedure_name"], a["satisfies_steps"])
+        for c in CHECKLISTS
+        for a in build_actions({}, c["steps"])
+        if a["label"] == "Identify patient" and a["kind"] == "manual" and not a["also_ask_steps"]
+    ]
+    assert not offenders, f"manual-only identify chips (composer would lock): {offenders}"
+
+
+def test_identify_against_the_record_names_both_sources():
+    assert dual_kind(
+        "Identify the correct patient for Cirrus-OCT testing and check the patient’s "
+        "identity against medical record/EMR using at least 2 identifiers: Patient Name, "
+        "Patient Identification Number / Address / Date of Birth."
+    ) == "identity"
+
+
+def test_identity_without_a_chart_is_not_dual():
+    """"Introduce self to patient and verify the patient's identity to ensure correctness"
+    names no record, so there is no panel half to wait for — it stays a plain verbal step."""
+    assert is_dual_step("Introduce self to patient and verify the patient's identity to "
+                        "ensure correctness.") is False
+
+
+def test_identify_patient_chip_is_a_one_click_record_check():
+    for procedure in IDENTITY_CHECKLISTS:
+        chip = _chip(procedure, "Identify patient")
+        assert chip["kind"] == "manual", procedure
+        assert chip["dual_kind"] == "identity", procedure
+        assert chip["also_ask_steps"] == chip["satisfies_steps"], procedure
+        # Reading the chart is one click; the ASSESSED half is the question, graded by
+        # /observe from the student's own words.
+        assert chip["quick"] is True, procedure
+
+
+def test_identify_patient_stays_visible_to_the_examiner():
+    """The half the consult owes. Excluding it would cap 117 cases at the ×0.6 safety
+    penalty forever, through no fault of the student."""
+    for procedure in IDENTITY_CHECKLISTS:
+        cl = next(c for c in CHECKLISTS if c["procedure_name"] == procedure)
+        actions = build_actions({}, cl["steps"])
+        chip = next(a for a in actions if a["label"] == "Identify patient")
+        excluded = examiner_excluded_steps(actions)
+        assert not (set(chip["satisfies_steps"]) & excluded), procedure
+
+
+def test_identify_patient_chip_reveals_the_chart_identifiers():
+    """A chip that says only "record checked" is the complaint this feature already had
+    once. The student is comparing the chart against what the patient says — show it."""
+    record = "EMR — Tan Wei Ming, 62 yr"
+    chip = _chip(IDENTITY_CHECKLISTS[0], "Identify patient", identity_record=record)
+    assert chip["reveal_text"] == record
+
+
+def test_an_unauthored_identity_reveals_nothing():
+    assert _chip(IDENTITY_CHECKLISTS[0], "Identify patient")["reveal_text"] == ""
 
 
 def test_non_dual_chips_default_to_empty():

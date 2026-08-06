@@ -59,12 +59,16 @@ await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, set_key: "triage_referral", set_label: "Triage & Referral", patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
   // ricoe C2: a LOCKED case is still returned so it shows (as a locked card) attached to its eye part.
   { case_id: "C004", title: "Advanced disc assessment", difficulty: "advanced", topic: "Glaucoma optic disc", estimated_minutes: 15, locked: true, set_key: "tonometry_iop", set_label: "Intraocular Pressure", patient: { name: "Mr Ng", age: 68, presenting_complaint: "Progressive field loss" } },
+  // COMPLETED (2026-08-06): a case this student has already PASSED. Deliberately listed
+  // SECOND, and in the FIRST difficulty tier, so sinking it to the bottom is a real
+  // reordering rather than the API order happening to look right.
+  { case_id: "C005", title: "Post-operative review", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, completed: true, set_key: "perioperative", set_label: "Pre & Post-Operative Care", patient: { name: "Mr Ong", age: 58, presenting_complaint: "Routine follow-up, no symptoms" } },
 ] })));
 // Topic-sets for the chip-row picker: canonical order + counts. eye_drops (total 0) must be
 // hidden; triage_referral (completed==total) must show the done tick.
 await navCtx.route("**/api/cases/topics", (r) => r.fulfill(JSON_OK({ topics: [
   { set_key: "tonometry_iop", label: "Intraocular Pressure", total: 2, completed: 0 },
-  { set_key: "perioperative", label: "Pre & Post-Operative Care", total: 1, completed: 0 },
+  { set_key: "perioperative", label: "Pre & Post-Operative Care", total: 2, completed: 1 },
   { set_key: "triage_referral", label: "Triage & Referral", total: 1, completed: 1 },
   { set_key: "eye_drops", label: "Eye Drop Instillation", total: 0, completed: 0 },
 ] })));
@@ -314,6 +318,45 @@ if ((await np.locator('[data-testid="case-list"] .aurora-case--locked').count())
   console.error("FAIL: locked case must still show (as a locked card) in its eye region"); process.exit(1);
 }
 console.log("PASS: locked cases still show attached to their part of the eye (ricoe C2)");
+
+// COMPLETED patients (2026-08-06, user-directed): a passed case is listed LAST, in its own
+// ticked section, greyed — and out of the way of the work still to do. It stays openable
+// (replay is good practice), it just stops reading as, and stops paying like, a fresh case.
+await np.goto(base + "/cases", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('[data-testid="case-list"] .aurora-case', { timeout: 15000 });
+if ((await np.locator('[data-testid="completed-section"]').count()) !== 1) {
+  console.error("FAIL: a passed case must get its own Completed section"); process.exit(1);
+}
+// LAST, not merely present — C005 is served second and is a Foundational-tier case, so if
+// the regrouping were a no-op it would sit near the top.
+const groupKeys = await np.locator(".aurora-tier-group").evaluateAll(
+  (els) => els.map((e) => (e.getAttribute("data-done") === "" || e.getAttribute("data-done") === "true" ? "done" : "open")),
+);
+if (groupKeys[groupKeys.length - 1] !== "done") {
+  console.error(`FAIL: the Completed section must be last, got order ${JSON.stringify(groupKeys)}`); process.exit(1);
+}
+if (groupKeys.slice(0, -1).includes("done")) {
+  console.error("FAIL: there must be exactly one Completed section, at the end"); process.exit(1);
+}
+// The card itself: ticked, greyed, still clickable, and says so in WORDS (not colour alone).
+const doneCard = np.locator('[data-testid="completed-section"] .aurora-case[data-done]');
+if ((await doneCard.count()) !== 1) { console.error("FAIL: the completed case must render as a done card"); process.exit(1); }
+const doneTxt = await doneCard.locator('[data-testid="case-done"]').innerText();
+if (!/completed/i.test(doneTxt)) { console.error(`FAIL: a completed card must SAY it, got "${doneTxt}"`); process.exit(1); }
+if (await doneCard.isDisabled()) { console.error("FAIL: a completed case must stay replayable"); process.exit(1); }
+// Greyed — asserted on the SETTLED value, since opacity here is transition-adjacent.
+const greyed = await np.waitForFunction(
+  () => {
+    const el = document.querySelector('[data-testid="completed-section"] .aurora-case[data-done]');
+    return el && Number(getComputedStyle(el).opacity) < 0.8;
+  },
+  null, { timeout: 4000 },
+).catch(() => null);
+if (!greyed) { console.error("FAIL: a completed case must be greyed off"); process.exit(1); }
+// …and it must NOT also still be sitting in its difficulty tier.
+const strays = await np.locator('.aurora-tier-group:not([data-done]) .aurora-case[data-done]').count();
+if (strays) { console.error(`FAIL: ${strays} completed card(s) left in a difficulty tier`); process.exit(1); }
+console.log("PASS: completed patients sink to a ticked, greyed section at the very bottom");
 
 // topic filter (spec 2026-07-19): a chip-row filters the SAME list by topic-set and is
 // MUTUALLY EXCLUSIVE with the eye-region lens (one active lens at a time). Zero-count sets are
