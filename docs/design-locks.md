@@ -2848,6 +2848,123 @@ paint the 27 gauges, the medallion lips and the discipline labels. They say *whi
 are*, never *which division*, and this pass is what stops the two systems colliding: after it,
 blue on the board means "not a tier". `--you-blue #1A56C4` (your own row) is the same argument at
 one instance. Both were surfaced to the user rather than changed.
+
+#### THE FIELD GOES QUIET 2026-08-06 — and the arc above REOPENS (supersedes it)
+
+User: *"color choices of the leaderboard page does not look aesthetically pleasing or beautiful,
+too over stimulating. but i dont want it to be quiet or boring either."*
+
+⚠ **THE SECTION ABOVE IS SUPERSEDED BY NAME.** 150°–300° is no longer closed; its palette table,
+its "cost of closing half a wheel" list, and its arc gate are all history. Everything the three
+locks *before* it pin — the console, the trough, the names, the geometry, the ranks budget, the
+lip ladder, the authoring sites — is untouched and still gated.
+
+**THE DIAGNOSIS, because it is the whole pass.** The complaint decodes to **quantity, not
+brightness**. One screen carried **seven hue families**: the field alone was four deep (division
+wash .42 · partner .34 in both corners · gold footlights .46 · division stripes .10), and the
+objects standing on it therefore had nothing to be loud *against*. Saturation had stopped being
+an event and become weather, and **ambient saturation IS over-stimulation**. The board never
+needed a quieter palette — it needed 90% of its area to stop competing.
+
+**1. THE FIELD CARRIES ONE HUE, QUIETLY.** The partner bloom and the gold footlights are deleted
+outright — two hue families off the largest surface in the app in one cut. Wash `.42 → .15`, on
+a tighter crown (`104% 46%` → `92% 38%`); stripes `.10 → .045` on a quarter duty cycle
+(30/120, from 26/78); bases pulled to near-neutral so the tint reads as **temperature**.
+`--arena-deep` moves the *other* way — a stop darker — because with the field this light the
+lane's flanks can only earn their keep as a tonal step, not as stacked texture (three stripe
+passes + both blooms → one pass over the deeper solid). Gold did not leave the page; it went
+back to **meaning** something. A mechanic that also paints the floor is not a mechanic.
+- ⚠⚠ **DELETING `--arena-glow` IS NOT A LOCAL EDIT.** The podium **deck** read it for its left
+  flank. A `var()` with no fallback and no definition is invalid at computed-value time, which
+  does not fade one gradient — it discards the entire `background-image`, so the deck would have
+  lost its gold as well as its flank. Both flanks read `--arena-wash` now. Check consumers
+  before removing any `--arena-*` token.
+- ⚠ Layer count on `.aurora-main` drops **6 → 3**, so `background-repeat` was rewritten to match.
+  The existing gate (`repeat` must land on the *index of* the tiling gradient) covered this.
+
+**2. THE LADDER SPREADS BACK OVER THE WHOLE WHEEL.** Only the three rungs the closed arc
+distorted move; Ember and Solar were never the problem.
+
+| rung | was | is | hue | band luminance |
+|---|---|---|---|---|
+| Ember | `#FF6320` vermilion | *unchanged* | 18° | 0.303 |
+| Volt | `#A5F000` acid lime | **`#3D9BFF` electric blue** | 211° | 0.317 |
+| Solar | `#FFB800` gold | *unchanged* | 43° | 0.555 |
+| Nova | `#FF47AE` hot magenta | **`#D06BFF` violet** | 281° | 0.311 |
+| Prism | `#28E063` emerald | **`#2BE8CE` aqua** | 172° | 0.627 |
+
+- ⚠ **THE INK FLOOR PICKS THE VALUES, and it is invisible until you look.** `.tb-head` paints
+  `--f-lo` and `.tb-name`/`.tb-league` put `--ink` on it, so a rung below **~0.29 luminance
+  fails 4.5:1 on its own band**. That is what rules out the deep azure and deep violet these
+  three obviously want to be: `#0A84FF` measures 4.23:1, `#C93BF5` worse. **Volt is a *bright*
+  electric blue for a contrast reason, not a taste one.** Know this before "correcting" them.
+- **Prism gets its name back honestly** — aqua *is* light at its most split, and the summit is
+  now also the brightest rung (0.627), which is the right shape for a summit.
+
+**3. `--f-flash` IS A LIGHT TINT OF THE RUNG'S OWN HUE — a REVERSAL.** It used to be a deliberate
+SECOND hue (hot pink rimming acid lime, gold rimming hot magenta, acid yellow rimming emerald),
+sold as "two-tone enamel instead of one tint". On a page already four hue families deep those
+rims were the harshest pairs on the board, and they sat **inside single objects** where the eye
+cannot look away. A highlight is a highlight. Solar's cream flash always worked this way.
+
+**4. `--you-blue` → `--you-ink #2A1F3D`. "YOU" IS NO LONGER A HUE.** Forced by §2, not optional
+beside it: Volt now sits 47° from the old `--you-blue` and 20° from `--role-ot` teal, so a Volt
+board would have read the band, your row and every OT gauge as blue — and the wheel is full.
+⚠ **It was never one token.** "You" was a whole **Gemini family**: the row's blue-into-violet
+tint, the animated 4px `var(--gemini)` rail, the XP bar's two-stop fill, the podium face ring
+and the blue lip under both YOU pills. All ink now. Your row is the one **dark** object in a
+light ladder — reads on all five boards, reuses a material already on the page, and takes a
+sixth colour system off a board whose complaint was having too many. The rail keeps its
+breathing animation, which is what actually made it findable. White on it is ~13:1.
+⚠ The pill keeps its `--mat-ink` border though the fill now matches: an outline defines an
+object against a **light** page, and a dark object on a white row is already defined.
+
+**5. THE GATE CHANGES SHAPE RATHER THAN DISAPPEARING.** Deleting a palette rule and replacing it
+with nothing is how the next pass drifts straight back. The ban is replaced by the two claims it
+was a crude proxy for, both in `league_assert`:
+> **SPREAD** — the five rungs occupy **≥210°** of the wheel (360 minus the largest adjacent gap,
+> the only definition that survives the wrap at 0°). **SEPARATION** — no two rungs sit within
+> **60°** of hue *unless* they are **≥0.15** apart in relative luminance.
+
+Plus a **quiet-field** pin, swept on all five divisions: `--arena-wash` ≤ .18 · `--arena-stripe`
+≤ .06 · `--arena-glow` **unset** (deleted, not faded — a partner at .05 is a smudge). And the
+band's arc check became something better rather than being dropped: spread cannot be read
+per-division, so `:1675` now pins that the band (`--f-lo`) and its own rung on the road (`--pm`)
+**agree within 12°** — two authoring sites for one colour, the documented failure mode here, and
+previously untested.
+- ⚠ **THE `OR` IS LOAD-BEARING.** Ember and Solar are 25° apart and always have been; they read
+  as vermilion and gold on 0.25 of luminance. A hue-only rule bans the one pair nobody confuses.
+- ⚠⚠ **A CUSTOM PROPERTY COMPUTES TO ITS TOKEN TEXT, AND THE BUILD REWRITES IT.** The first
+  quiet-field probe parsed only `rgba(…)` and the minifier ships `rgba(255,99,32,.15)` as
+  **`#ff632026`** — one number in the string, so it fell back to opaque and fired on all five
+  divisions. It failed *loudly* only because the fallback breached a **ceiling**; against a
+  FLOOR it would have passed vacuously everywhere. Parse the authored form and the shipped form.
+
+**Measured after**: `league_assert` **523 assertions, 0 failures** (545 − the 50 arc checks + 28
+new) · spread **233°** on all nine viewports · five bands 0.303 / 0.317 / 0.555 / 0.311 / 0.627,
+all under the 0.86 ceiling · band and rung agree exactly on every division (18/18 · 211/211 ·
+43/43 · 281/281 · 172/172) · the current rung reads **5.18 / 5.38 / 8.89 / 5.31 / 9.94:1**
+against the trough · all 8 head styles ≥4.5:1 on all five · five distinct light fields
+(0.970 / 0.960 / 0.974 / 0.965 / 0.967, floor 0.70 — up from 0.929-0.982) · `aurora_assert` and
+`console_assert` green · typecheck clean.
+
+**Mutation-verified** against both palettes, arithmetically: the rejected set scores **173°**
+(fails the 210° floor) **and collapses twice** — ⚠ **Ember–Nova at 52° with 0.015 of luminance**
+(vermilion `#FF6320` 0.303 against hot magenta `#FF47AE` 0.288: two hot colours of the same
+weight and nearly the same value, neither able to sit behind the other — *that pair is most of
+what "fairground" was*) and Volt–Solar at 35° with 0.148, missing the floor by 0.002. **Neither
+was visible to the closed-arc rule, because both pairs lie outside 150°–300°. The ban was
+policing the wrong property.** The shipped set: 233°, no collapses.
+
+**Out of scope, deliberately**: the ladder's 27 role-tinted gauges — they are the loud objects
+the direction keeps, and `league_assert:1265` actively *forbids* flattening them ("the ladder is
+the flattest thing on a page that is meant to be loud"). The lane's existence and geometry (only
+its paint changed). No payload or backend change, so **`PERSIST_SCHEMA_VERSION` does not bump**.
+⚠ The ROLE palette still keeps its blue, but the argument changed: the two axes are no longer
+held apart by hue (Volt sits 20° from `--role-ot`) but by **scale and value** — a tier is a
+large, bright, saturated surface (lum 0.30-0.63), a role is a small, dark, muted gauge
+(lum 0.09-0.15). That is exactly why `--you-blue` could not survive: it was the one object that
+was blue, large *and* bright.
 > Historical. Its "out of scope: promotion/relegation leagues … rank-movement arrows" is
 > exactly what The League ships; `.lb-sub`, `.lb-ped`, `.lb-row` and `tiers.ts` no longer exist.
 User de-cluttered "The Climb": the old board stacked **five** individually-styled floating

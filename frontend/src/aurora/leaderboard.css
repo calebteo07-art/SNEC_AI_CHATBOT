@@ -144,22 +144,29 @@
      as the objects standing on it, so a saturated band, an amber deck and a white ladder all
      sat on a surface arguing with each of them separately.
 
-   THE RULE NOW: the page is painted from THREE families and no more, and every one of them is
-   already an object on it —
-     1. the DIVISION's own hue (--arena-wash), which the band, the crest, the road, the rank
-        token and the lane all wear;
-     2. its PARTNER (--arena-glow), the second hue of the same pair — the counter-note that
-        keeps a one-hue field from reading as a tint;
-     3. GOLD, the mechanic — the promotion zone, the multiplier, the chase number and the
-        podium deck are all gold, so the footlights under the stage are the page's own
-        accent rather than a sixth colour.
-   Variety did not leave; it moved onto the LADDER, which is where the 08-05 pass put it (27
-   role-tinted gauges, medallions and rank plates). A field is a field.
+   · The field went THREE-hued and per-division — the division's own hue at .42, a partner at
+     .34 in both top corners, gold footlights at .46, stripes at .10. Every one of the three
+     was already an object on the page, so it fixed the mismatch. It did not fix the volume,
+     and the next report was "too over stimulating".
 
-   ⚠ THE STRIPES ARE ONE HUE AT .10, on a third duty cycle. Four hues at .13-.16 on a half
-   cycle is a candy cane — the pattern was reading as the loudest object on the page while the
-   board floated on top of it. Same 135deg, same parallel-and-uniform rule, still not a dot
-   grid and still not the banned sunburst: quieter, and now the division's own.
+   THE RULE NOW (2026-08-06): the field carries ONE hue — the division's — and it carries it
+   quietly. The partner bloom and the gold footlights are gone, which takes two whole hue
+   families off the largest surface in the app in one cut.
+
+   ⚠ THE ARGUMENT, because it is the one thing every pass here has got wrong in a different
+   way: the complaint was never BRIGHTNESS, it was QUANTITY. A field painted four hues deep
+   leaves the objects standing on it nothing to be loud against, so saturation stops being an
+   event and becomes weather — and ambient saturation IS over-stimulation. The board did not
+   need a quieter palette. It needed 90% of its area to stop competing, so that the 10% that
+   is the band, the podium, the promotion zone and your own row could land.
+   Gold did not leave the page; it went back to meaning something. It is the promotion zone,
+   the multiplier, the chase number and the podium deck — the mechanic — and a mechanic that
+   also paints the floor is not a mechanic. Variety did not leave either: it is on the LADDER,
+   where the 08-05 pass put it (27 role-tinted gauges, medallions and rank plates).
+
+   ⚠ THE STRIPES ARE ONE HUE AT .045, on a quarter duty cycle (30 of 120, from 26 of 78 at
+   .10). Present as texture, invisible as pattern. Same 135deg, same parallel-and-uniform
+   rule, still not a dot grid and still not the banned sunburst.
 
    Everything the previous passes pinned still holds and is still gated: the stack ENDS IN AN
    OPAQUE LIGHT SOLID (the contrast probe walks to the nearest ancestor with alpha > 0.92, so a
@@ -172,53 +179,57 @@
   /* EMBER IS THE DEFAULT, so a pre-migration null division still gets a real arena — and the
      five tokens below are set as a SET. A base tinted for one division under another one's
      wash is the mismatch this pass exists to remove, which is why they move together. */
-  --arena-base: #FFF7F1;
-  --arena-wash: rgba(255, 99, 32, .42);
-  --arena-glow: rgba(255, 46, 138, .34);
-  --arena-stripe: rgba(255, 99, 32, .10);
-  --arena-deep: #F8D3BE;
+  --arena-base: #FFFBF8;
+  --arena-wash: rgba(255, 99, 32, .15);
+  --arena-stripe: rgba(255, 99, 32, .045);
+  --arena-deep: #F4E2D6;
   background:
     /* The spotlight over the stage. First, so it sits on top of everything and keeps the
        podium in a pool of light no matter how loud the field gets. */
     radial-gradient(58% 30% at 50% 18%, rgba(255, 255, 255, .94) 0%, rgba(255, 255, 255, 0) 74%),
-    /* The division, overhead — the largest statement of who you are on the page. */
-    radial-gradient(104% 46% at 50% -12%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
-    /* Its partner, entering from both top corners. */
-    radial-gradient(44% 34% at -4% 14%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(44% 34% at 104% 26%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
-    /* Gold footlights under the stage: the same gold the deck, the zone and the chase wear. */
-    radial-gradient(52% 32% at 50% 106%, rgba(255, 184, 0, .46) 0%, rgba(255, 184, 0, 0) 74%),
+    /* The division, overhead — and now the ONLY hue the field carries. Pulled in from
+       104%x46% to a tighter crown, so it reads as light entering the top of the page rather
+       than as a wash lying over the whole upper half of it. */
+    radial-gradient(92% 38% at 50% -12%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
     repeating-linear-gradient(135deg,
-      var(--arena-stripe) 0 26px, rgba(255, 255, 255, 0) 26px 78px),
+      var(--arena-stripe) 0 30px, rgba(255, 255, 255, 0) 30px 120px),
     var(--arena-base);
-  /* ⚠ SIX values for six image layers, in order. The stripe is the only repeating one, and
-     miscounting here silently tiles a bloom across the page. */
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  /* ⚠ THREE values for three image layers, in order — it was six. The stripe is the only
+     repeating one, and miscounting here silently tiles a bloom across the page. (The
+     shorthand's colour-only layer computes as a fourth image layer of `none`, and Chrome
+     cycles this list to reach it; what the gate reads is the INDEX `repeat` lands on.) */
+  background-repeat: no-repeat, no-repeat, repeat;
 }
-/* The whole field per division, as one block each — base, wash, partner, stripe and the lane's
-   apron. This is what "climbing re-skins the screen" means now that it is not one bloom's job.
-   The partner is chosen to sit a long way round the wheel from the lead so the pair reads as
-   two colours rather than as one tint at two strengths, and every base clears the 0.7
-   luminance floor by a wide margin (0.93-0.97) — this is still the light Aurora canvas. */
+/* The whole field per division, as one block each — base, wash, stripe and the lane's apron.
+   This is what "climbing re-skins the screen" means now that it is not one bloom's job.
+   FOUR tokens, not five: --arena-glow is DELETED rather than faded, because a partner hue at
+   .05 is a smudge nobody asked for rather than a quieter counter-note. The gate reads it as
+   unset and fails if it comes back.
+
+   Every base is now a near-white that the division only warms or cools — luminance 0.96-0.98,
+   where these were 0.93-0.97. The tint reads as TEMPERATURE, and the hue proper arrives in
+   the crown at the top of the page. --arena-deep is the one token that moves the other way:
+   with the field this light, the lane's flanks can only earn their keep as a tonal step, so
+   they go a stop deeper than the base they used to sit under. */
 .aurora-main:has(.lb-climb[data-tier="volt"]) {
-  --arena-base: #FBFFEE; --arena-wash: rgba(165, 240, 0, .40);
-  --arena-glow: rgba(255, 71, 174, .30); --arena-stripe: rgba(150, 216, 0, .10);
-  --arena-deep: #DDF3AA;
+  --arena-base: #F7FBFF; --arena-wash: rgba(61, 155, 255, .15);
+  --arena-stripe: rgba(61, 155, 255, .045);
+  --arena-deep: #DDE9F5;
 }
 .aurora-main:has(.lb-climb[data-tier="solar"]) {
-  --arena-base: #FFFBF0; --arena-wash: rgba(255, 184, 0, .44);
-  --arena-glow: rgba(255, 92, 60, .32); --arena-stripe: rgba(255, 150, 0, .10);
-  --arena-deep: #FBE3AE;
+  --arena-base: #FFFCF4; --arena-wash: rgba(255, 184, 0, .16);
+  --arena-stripe: rgba(255, 150, 0, .05);
+  --arena-deep: #F6EBD2;
 }
 .aurora-main:has(.lb-climb[data-tier="nova"]) {
-  --arena-base: #FFF4FA; --arena-wash: rgba(255, 71, 174, .42);
-  --arena-glow: rgba(255, 184, 0, .30); --arena-stripe: rgba(255, 71, 174, .10);
-  --arena-deep: #F9D0E6;
+  --arena-base: #FDFAFF; --arena-wash: rgba(208, 107, 255, .15);
+  --arena-stripe: rgba(208, 107, 255, .045);
+  --arena-deep: #EDE1F6;
 }
 .aurora-main:has(.lb-climb[data-tier="prism"]) {
-  --arena-base: #F1FFF5; --arena-wash: rgba(40, 224, 99, .44);
-  --arena-glow: rgba(214, 255, 90, .34); --arena-stripe: rgba(35, 200, 90, .10);
-  --arena-deep: #C3EFCF;
+  --arena-base: #F5FDFC; --arena-wash: rgba(43, 232, 206, .16);
+  --arena-stripe: rgba(35, 200, 178, .05);
+  --arena-deep: #DCEEEA;
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
@@ -257,21 +268,17 @@
     content: "";
     position: absolute; top: 0; bottom: 0; z-index: 0; pointer-events: none;
     width: max(0px, calc(50% - var(--lane, 1400px) / 2));
-    /* The stripe layer is declared THREE times at the same pitch — the canvas's own token
-       dropped to .10 in the 08-06 pass, and the apron needs roughly three passes of it to
-       stay a step denser than the lane it borders. Layering the one token rather than
-       inventing a second is what keeps the two surfaces from ever drifting apart. */
+    /* ⚠ ONE pass of the stripe over the deeper solid, where this was three passes plus the
+       partner bloom plus the wash (2026-08-06). The apron used to be told from the lane by
+       DENSITY — stack the texture until the ground either side reads heavier — which is
+       exactly the move that made the flanks the loudest object on a 1600px screen.
+       It is told by VALUE now: --arena-deep went a stop darker precisely so this could stop
+       shouting, and the lit keyline facing the lane does the rest. That is the file's own
+       material recipe (a dark defining edge, a lit return, hard-stop fills) rather than a
+       fourth colour system — which was always the argument for having a lane at all. */
     background:
       repeating-linear-gradient(135deg,
-        var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
-      repeating-linear-gradient(135deg,
-        var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
-      repeating-linear-gradient(135deg,
-        var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 44px),
-      /* The partner hue, entering over the top of the apron — the same second note the
-         canvas carries, so the ground either side of the lane belongs to the same pair. */
-      radial-gradient(70% 40% at 50% 4%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 74%),
-      linear-gradient(180deg, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 46%),
+        var(--arena-stripe) 0 22px, rgba(255, 255, 255, 0) 22px 66px),
       var(--arena-deep, #ECE4D8);
   }
   /* The lit edge faces the lane on both sides: 3px of outline, then 3px of white return.
@@ -362,10 +369,17 @@
   --role-oa: #5B3BC4;   --role-oa-hi: #A98BFF;   --role-oa-soft: #C9B6F5;
   --role-ot: #0E6C80;   --role-ot-hi: #2FD3EE;   --role-ot-soft: #9FDDEA;
   --role-psa: #B32B54;  --role-psa-hi: #FF6F9C;  --role-psa-soft: #F4AFC3;
-  /* A deepened Gemini blue. The gradient `var(--gemini)` has no background-color at all, so
-     white-on-it measures against the page and its own #4285F4 head is 3.56:1 — this is 6.6:1
-     and declares a solid the probe can actually read. */
-  --you-blue: #1A56C4;
+  /* ⚠ "YOU" IS NO LONGER A HUE (2026-08-06), and the rename is the point: this was
+     --you-blue #1A56C4, a deepened Gemini blue. It stopped working the moment the tier arc
+     reopened. Volt is #3D9BFF and --role-ot is a teal at 190°, so on a Volt board the band,
+     your own row and every OT gauge would all have read blue — and the wheel is full, so
+     there was no spare hue to move to.
+     Your row is the one DARK object in a light ladder instead: the same --mat-ink console
+     the readout row already wears. It reads on all five boards rather than on four, it
+     reuses a material that is on the page anyway, and it takes a whole colour system off a
+     board whose complaint was that it had too many. White on it is ~13:1, where the ORIGINAL
+     white-on-gradient this token was invented to fix measured 3.56:1. */
+  --you-ink: #2A1F3D;
 
   --disp: var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
 
@@ -420,36 +434,40 @@
    Measured before choosing: these saturated bases clear the 4.5 floor by MORE than the washes
    they replace (gold 7.7→9.5, diamond 8.0→10.0). The old palette was desaturated by choice.
 
-   ⚠ NO RUNG MAY CARRY A BLUE HINT (2026-08-06, "i dont want anything with a blue hint for
-   tiers, it makes the leaderboard page looks ugly"). THREE of the five were blue and only one
-   of them was obvious: Volt at 215° was blue outright, Nova at 271° was blue-violet, Prism at
-   175° was blue-green. The ladder now lives entirely in 17°–148° and at 331° — vermilion, acid
-   lime, gold, hot magenta, emerald — and 150°–300° is CLOSED to this palette. Anything added
-   here later (a sixth division, a new place tier) picks from the open arc or it reopens the
-   report.
+   ⚠ THE CLOSED ARC IS REOPENED (2026-08-06, "too over stimulating"). For one day 150°–300°
+   was banned to tier hues, which forced five max-chroma colours onto HALF a wheel — vermilion,
+   acid lime, gold, hot magenta, emerald. That set could not be tuned into anything calm: lime
+   beside magenta beside vermilion is a fairground by construction, and the ban's own cost note
+   (two greens, a doubled hue, a summit that could not be named) was the palette telling us it
+   had nowhere left to stand. Volt, Nova and Prism go back over the line; Ember and Solar never
+   moved, because they were never the problem.
 
-   The cost of closing half a wheel is named rather than hidden, because the next author will
-   otherwise "fix" it:
-   · TWO rungs are greens (Volt 79°, Prism 139°). Unavoidable at five hues on half a wheel.
-     They are rungs 2 and 5 — never adjacent on the road — and 0.703 against 0.547 of luminance
-     holds them apart where 60° of hue alone would be thin.
-   · Volt is #A5F000: S=100% and a blue channel of literally ZERO, which is the one rung where
-     that was reachable. Magenta needs blue to be magenta and emerald needs a little to be a
-     jewel rather than grass, so the rule is what the eye reads, not what the byte says.
-   · PRISM IS THE ONE NAME THIS COSTS SOMETHING. "Light split into all of it" has no blue-free
-     single hue, so the summit earns its name from its GRADIENT instead: acid yellow → lime →
-     spring → emerald is a spectrum slice, and Prism is the only band whose four stops are four
-     hues rather than one hue at four strengths. If that ever reads as a stretch, rename the
-     rung — do not reach back into the closed arc for it.
+   THE RULE THAT REPLACED IT, and it is measured in league_assert rather than left in a comment
+   for the next pass to rediscover:
+   · SPREAD — the five occupy 231° of the wheel (19 · 43 · 172 · 211 · 281), against 169° for
+     the set they replace. A floor of 210°.
+   · SEPARATION — no two rungs sit within 60° of hue UNLESS they are 0.15 apart in luminance.
+     Ember and Solar are 24° apart and always have been; they read as vermilion and gold on
+     0.25 of luminance, which is why the rule is an OR and not an AND.
+   · THE INK FLOOR IS WHAT PICKS THE VALUES. .tb-head paints --f-lo and .tb-name/.tb-league
+     put --ink on it, so a rung darker than ~0.29 luminance fails 4.5:1 on its own band. That
+     is what rules out the deep azure and the deep violet these three obviously want to be —
+     Volt is #3D9BFF and not #0A84FF for exactly this reason, and it is worth knowing before
+     "correcting" them.
+   · Prism keeps its name honestly now: aqua IS light at its most split, and the summit is also
+     the brightest rung on the ladder (0.63), which is the right shape for a summit.
 
-   --f-flash is a SECOND HUE, a thin rim at the top of the head's hard-stop stack. One extra
-   stop in a gradient that already existed, and it is the whole of "wild" that a single base
-   colour cannot buy: the band reads as two-tone enamel instead of as one tint. */
-.tb[data-tier="ember"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
-.tb[data-tier="volt"] { --f-flash: #FF6FD0; --f-hi: #E4FF8F; --f-mid: #C6F84A; --f-lo: #A5F000; --f-lip: #4A7000; }
+   ⚠ --f-flash IS A LIGHT TINT OF THE RUNG'S OWN HUE, and this is a REVERSAL. It used to be a
+   deliberate SECOND hue — hot pink rimming acid lime, gold rimming hot magenta, acid yellow
+   rimming emerald — sold as "two-tone enamel instead of one tint". On a page already carrying
+   four hue families on its field, those rims were the harshest colour pairs on the board, and
+   they were INSIDE single objects where the eye cannot look away from them. A highlight is a
+   highlight. Solar's cream flash always worked this way and is the model for the other four. */
+.tb[data-tier="ember"] { --f-flash: #FFD8BE; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; }
+.tb[data-tier="volt"] { --f-flash: #D8ECFF; --f-hi: #A3D2FF; --f-mid: #6DB4FF; --f-lo: #3D9BFF; --f-lip: #0B4C8F; }
 .tb[data-tier="solar"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; }
-.tb[data-tier="nova"] { --f-flash: #FFD24A; --f-hi: #FFB0DC; --f-mid: #FF7BC4; --f-lo: #FF47AE; --f-lip: #9B0D5C; }
-.tb[data-tier="prism"] { --f-flash: #F5FF6B; --f-hi: #B7F77E; --f-mid: #5CEC8C; --f-lo: #28E063; --f-lip: #0A5F2C; }
+.tb[data-tier="nova"] { --f-flash: #F5DEFF; --f-hi: #E8B5FF; --f-mid: #DC8CFF; --f-lo: #D06BFF; --f-lip: #6B1E96; }
+.tb[data-tier="prism"] { --f-flash: #D2FBF4; --f-hi: #96F5E6; --f-mid: #5BEED8; --f-lo: #2BE8CE; --f-lip: #06705F; }
 
 /* THE RECIPE, structural tier. The second lip shadow carries the outline as SPREAD rather than
    as a second Y offset, so the keyline wraps the lip's side crescents too. */
@@ -530,10 +548,10 @@
    nothing left to say, at the size where a wash reads as grey.
    --pm-dim is the SAME hue, unlit: what a rung you have not reached is made of. */
 .tb-pip[data-tier="ember"] { --pm: #FF6320; --pm-dim: #9A3D12; }
-.tb-pip[data-tier="volt"] { --pm: #A5F000; --pm-dim: #4A6B0C; }
+.tb-pip[data-tier="volt"] { --pm: #3D9BFF; --pm-dim: #1B5E9E; }
 .tb-pip[data-tier="solar"] { --pm: #FFB800; --pm-dim: #8A6206; }
-.tb-pip[data-tier="nova"] { --pm: #FF47AE; --pm-dim: #A81862; }
-.tb-pip[data-tier="prism"] { --pm: #28E063; --pm-dim: #0C6E33; }
+.tb-pip[data-tier="nova"] { --pm: #D06BFF; --pm-dim: #8F35C2; }
+.tb-pip[data-tier="prism"] { --pm: #2BE8CE; --pm-dim: #086B59; }
 /* ⚠ LOCKED IS A COLOUR, NOT AN OPACITY (2026-08-06, "the texts in the tier color card do not
    have good contrast and are somewhat camouflaged and not readable"). This was `opacity: .3`
    here and `.74` at the plate tiers, and a faded element composites BOTH its fill and its
@@ -736,11 +754,18 @@
      ⚠ AND THEY WERE THE CANVAS'S HUES ONLY IN THE COMMENT (2026-08-06). Fixed pink and fixed
      cyan, written when the canvas was fixed too — so once the field went back to the
      division's own pair, an Ember page put a cyan flank on the one card in the middle of it.
-     They read the same two tokens the canvas does now, which is what the sentence above always
-     meant: the field showing THROUGH the stage, not the stage claiming an identity. */
+     They read the same tokens the canvas does now, which is what the sentence above always
+     meant: the field showing THROUGH the stage, not the stage claiming an identity.
+     ⚠ BOTH FLANKS ARE --arena-wash (2026-08-06, the quiet-field pass). They used to be the
+     canvas's PAIR, one token each — and --arena-glow was deleted outright when the partner
+     bloom left the field. A `var()` with no fallback and no definition makes the whole
+     background-image invalid at computed-value time, so the deck would have lost its gold as
+     well as its flank: not a faded bloom, no background at all. Worth knowing before deleting
+     any other --arena-* token. The wash is .15 now rather than .34, so these read as a breath
+     of the division rather than as two coloured corners — which is the point. */
   background-image:
     radial-gradient(46% 84% at 50% 98%, rgba(255, 190, 40, .78) 0%, rgba(255, 190, 40, 0) 72%),
-    radial-gradient(42% 96% at -2% 62%, var(--arena-glow) 0%, rgba(255, 255, 255, 0) 76%),
+    radial-gradient(42% 96% at -2% 62%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
     radial-gradient(42% 96% at 102% 62%, var(--arena-wash) 0%, rgba(255, 255, 255, 0) 76%),
     linear-gradient(180deg,
       #FFF8E4 0%, #FFF8E4 12%, #FFE9BC 12.01%, #FFE9BC 70%, #F8CE7E 70.01%, #F8CE7E 100%);
@@ -847,16 +872,18 @@
 .pod-slot[data-place="3"] { order: 3; --pl-h: 82px; --face: 66px; --num-sz: 34px; animation-delay: .24s; }
 
 /* The three places follow the rarity ladder's own Solar / Volt / Ember, so the stage and the
-   road are one colour system — a grey 2nd plinth beside an acid-lime Volt rung would read as
-   two different boards. --num-ink is per place because a numeral lands ON the metal: 8.3 /
-   11.8 / 5.9:1 against each block's declared --f-lo.
+   road are one colour system — a grey 2nd plinth beside an electric-blue Volt rung would read
+   as two different boards. --num-ink is per place because a numeral lands ON the metal, and
+   each is cut for the block it sits on rather than shared.
    ⚠ These five ARE .tb[data-tier="volt"]'s five, and second place is the only object on the
-   page that copies a division's palette instead of reading it — so it is the one that silently
-   falls out of step. It did exactly that until 2026-08-06, and Volt has been repainted TWICE
-   since: cyan → blue in the morning, blue → acid lime when blue itself was rejected. */
+   page that COPIES a division's palette instead of reading it — so it is the one that silently
+   falls out of step. It did exactly that until 2026-08-06, and Volt has been repainted FOUR
+   times since: cyan → blue in the morning, blue → acid lime when blue was banned, then back to
+   electric blue when the ban was reversed the same day. If a fifth repaint is ever needed, the
+   two sites move together or this comment gets written again. */
 .pod-slot[data-place="1"] { --f-flash: #FFF6C2; --f-hi: #FFE071; --f-mid: #FFC92E; --f-lo: #FFB800; --f-lip: #9A5E00; --num-ink: #3A2600; }
-.pod-slot[data-place="2"] { --f-flash: #FF6FD0; --f-hi: #E4FF8F; --f-mid: #C6F84A; --f-lo: #A5F000; --f-lip: #4A7000; --num-ink: #1F1F1F; }
-.pod-slot[data-place="3"] { --f-flash: #FFD166; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; --num-ink: #2A1405; }
+.pod-slot[data-place="2"] { --f-flash: #D8ECFF; --f-hi: #A3D2FF; --f-mid: #6DB4FF; --f-lo: #3D9BFF; --f-lip: #0B4C8F; --num-ink: #0A1A2E; }
+.pod-slot[data-place="3"] { --f-flash: #FFD8BE; --f-hi: #FFB877; --f-mid: #FF8A44; --f-lo: #FF6320; --f-lip: #A8320A; --num-ink: #2A1405; }
 
 /* The figure: crown, portrait in a struck ring, name, score. A button, like a row, so all three
    open the same peek sheet — a podium you cannot touch is a picture of a leaderboard. */
@@ -922,9 +949,9 @@
   content: "YOU"; display: inline-block; margin-left: 6px; vertical-align: 1px;
   box-sizing: border-box;
   font-size: 8.5px; font-weight: 900; letter-spacing: .09em; color: #FFFFFF;
-  background-color: var(--you-blue); border-radius: 999px; padding: 2px 6px;
+  background-color: var(--you-ink); border-radius: 999px; padding: 2px 6px;
   border: 2px solid var(--mat-ink);
-  box-shadow: 0 2px 0 0 #103A85, 0 2px 0 2px var(--mat-ink);
+  box-shadow: 0 2px 0 0 #140E1D, 0 2px 0 2px var(--mat-ink);
 }
 
 .pod-block {
@@ -967,7 +994,7 @@
 .pod-slot[data-you] .pod-face { box-shadow:
   inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 31, 61, .2),
   0 3px 0 0 var(--f-lip), 0 3px 0 2px var(--mat-ink),
-  0 0 0 5px var(--you-blue), 0 8px 10px -5px rgba(42, 31, 61, .34); }
+  0 0 0 5px var(--you-ink), 0 8px 10px -5px rgba(42, 31, 61, .34); }
 
 /* The lit top face: a trapezoid narrow at the BACK and wide at the FRONT, drawn at top:0 so it
    can never protrude and never be conditionally clipped. */
@@ -1201,10 +1228,10 @@
    chroma — under the gate's own 32 floor, so "no division" would have shipped the grey plate
    this pass exists to remove, on the one board nobody tests. */
 .lb-climb, .lb-climb[data-tier="ember"] { --rk-hi: #FFF6EE; --rk-mid: #FFE7D5; --rk-lo: #FBD9C0; --rk-lip: #DCA57F; }
-.lb-climb[data-tier="volt"] { --rk-hi: #FCFFF0; --rk-mid: #F0FBD2; --rk-lo: #E3F5B4; --rk-lip: #A8C766; }
+.lb-climb[data-tier="volt"] { --rk-hi: #F4FAFF; --rk-mid: #DDEDFD; --rk-lo: #C6E1FB; --rk-lip: #8AB8E0; }
 .lb-climb[data-tier="solar"] { --rk-hi: #FFFBEE; --rk-mid: #FFF0C9; --rk-lo: #FCE4A8; --rk-lip: #D9B85F; }
-.lb-climb[data-tier="nova"] { --rk-hi: #FFF7FB; --rk-mid: #FEE5F2; --rk-lo: #FBD3E7; --rk-lip: #E098C0; }
-.lb-climb[data-tier="prism"] { --rk-hi: #F3FFF7; --rk-mid: #DDF9E6; --rk-lo: #C3F2D3; --rk-lip: #79CB95; }
+.lb-climb[data-tier="nova"] { --rk-hi: #FCF6FF; --rk-mid: #F2E1FE; --rk-lo: #E7CDFC; --rk-lip: #C39AE4; }
+.lb-climb[data-tier="prism"] { --rk-hi: #F0FEFB; --rk-mid: #D5F9F2; --rk-lo: #BAF2E8; --rk-lip: #72CFC0; }
 .lg-rk {
   box-sizing: border-box; display: grid; place-items: center; width: 32px; height: 26px;
   border: 2px solid var(--mat-ink); border-radius: 7px;
@@ -1276,9 +1303,9 @@
 .lg-you {
   box-sizing: border-box; flex: 0 0 auto;
   font-size: 9px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase;
-  color: #FFFFFF; background-color: var(--you-blue); border-radius: 999px; padding: 2px 7px;
+  color: #FFFFFF; background-color: var(--you-ink); border-radius: 999px; padding: 2px 7px;
   border: 2px solid var(--mat-ink);
-  box-shadow: 0 2px 0 0 #103A85, 0 2px 0 2px var(--mat-ink);
+  box-shadow: 0 2px 0 0 #140E1D, 0 2px 0 2px var(--mat-ink);
 }
 .lg-sub { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-2); min-width: 0; }
 .lg-role {
@@ -1349,21 +1376,28 @@
   box-shadow: inset 0 -2px 0 rgba(122, 82, 6, .55);
 }
 .lg-row[data-you] .lg-bar::before {
-  background-color: var(--you-blue);
-  background-image: linear-gradient(180deg, #3E7BE0 0%, #3E7BE0 46%,
-                                            var(--you-blue) 46.01%, var(--you-blue) 100%);
-  box-shadow: inset 0 -2px 0 rgba(11, 42, 100, .5);
+  background-color: var(--you-ink);
+  background-image: linear-gradient(180deg, #4A3A66 0%, #4A3A66 46%,
+                                            var(--you-ink) 46.01%, var(--you-ink) 100%);
+  box-shadow: inset 0 -2px 0 rgba(10, 6, 16, .5);
 }
 
 /* Your row wears GEMINI, not gold: gold is reserved for promotion, so a gold rail on a row
    nowhere near the cut would promise something the board is not offering. Its rail sits above
    the zone's, so being inside the zone never costs you your own marker. */
+/* ⚠ THE ROW TINT AND THE RAIL WERE GEMINI (2026-08-06). A blue-into-violet wash plus a
+   gradient rail made "you" a SIXTH colour family on a board already carrying five tier hues,
+   three role tints and gold — and it was the family with the weakest claim to one, because
+   "this row is you" is the one thing on the page a reader can find without being told a hue.
+   Ink instead, on the same argument as --you-ink itself: your row is marked by VALUE, which
+   costs the palette nothing and works identically on all five boards. The rail keeps its
+   breathing animation — that is what makes it findable, and it never needed the gradient. */
 .lg-row[data-you] {
-  background-image: linear-gradient(90deg, rgba(66, 133, 244, .16), rgba(155, 114, 203, .07) 58%, rgba(155, 114, 203, 0));
+  background-image: linear-gradient(90deg, rgba(42, 31, 61, .13), rgba(42, 31, 61, .05) 58%, rgba(42, 31, 61, 0));
 }
 .lg-row[data-you]::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 2;
-  background: var(--gemini);
+  background: var(--you-ink);
   animation: lg-breathe 3.4s ease-in-out infinite;
 }
 
@@ -1487,7 +1521,7 @@
 .rules-rung[data-state="next"] .rr-x { color: var(--ink-3); }
 .rr-you {
   flex: 0 0 auto; font-size: 9.5px; font-weight: 900; letter-spacing: .09em;
-  text-transform: uppercase; color: #FFFFFF; background-color: var(--you-blue);
+  text-transform: uppercase; color: #FFFFFF; background-color: var(--you-ink);
   border-radius: 999px; padding: 3px 7px;
 }
 .rules-fine {

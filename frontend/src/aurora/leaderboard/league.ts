@@ -29,10 +29,17 @@ export interface Arrow {
  *  the payload for the CURRENT division; this list exists so the promotion line can name the
  *  one above it ("advance to Volt") without a second round-trip.
  *
- *  ⚠ A LADDER OF LIGHT since 2026-08-06 — each name IS its colour (Ember vermilion, Volt
- *  azure, Solar gold, Nova violet, Prism aqua), and the order is the ladder. Every tint on
- *  the board indexes off the same position, so this list and TIERS in
- *  components/leaderboard/Tiers.tsx are two views of one thing and move together. */
+ *  ⚠ A LADDER OF LIGHT since 2026-08-06 — each name IS its colour (Ember vermilion #FF6320,
+ *  Volt electric blue #3D9BFF, Solar gold #FFB800, Nova violet #D06BFF, Prism aqua #2BE8CE),
+ *  and the order is the ladder. Every tint on the board indexes off the same position, so this
+ *  list and TIERS in components/leaderboard/Tiers.tsx are two views of one thing and move
+ *  together.
+ *
+ *  ⚠ THIS COMMENT WAS STALE FOR A DAY and that is the warning worth keeping: it went on
+ *  describing azure/violet/aqua through the pass that banned blue and repainted them acid
+ *  lime, hot magenta and emerald. A prose list of colours in a file that holds no colours
+ *  rots silently, because nothing renders it. The hexes are named here now so the drift is at
+ *  least greppable — leaderboard.css is still where they are authored. */
 export const DIVISION_NAMES = ["Ember", "Volt", "Solar", "Nova", "Prism"] as const;
 export const TOP_DIVISION = DIVISION_NAMES.length;
 
