@@ -66,9 +66,10 @@ router = APIRouter()
 # OSCE is the app's premium earner (a long, AI-graded clinical encounter), so its reward
 # is scaled by difficulty tier AND by the grade. A pass (>=60) pays the tier base scaled by
 # the score; a sub-pass attempt pays only a flat consolation (an honest attempt earns a
-# little, but failing doesn't pay like passing). The award actually granted is the
-# improvement over the student's best prior attempt at that case (high-water mark, applied
-# in case_submit) — so re-running an aced case, or repeatedly failing, both re-pay nothing.
+# little, but failing doesn't pay like passing). What is actually granted is capped twice in
+# case_submit: a case the student has already PASSED pays nothing at all, and below that a
+# per-case high-water mark pays only the improvement over their best prior attempt. So a
+# completed case is practice from then on, and repeated failures pay the consolation once.
 OSCE_PASS_MARK = 60
 OSCE_FAIL_CONSOLATION = 20
 OSCE_TIER_BASE = {"beginner": 150, "intermediate": 220, "advanced": 300}
@@ -97,6 +98,20 @@ def _row_score_100(row: dict) -> int:
         return max(0, min(100, round(float(row.get("total_score", 0)) / 0.4)))
     except (TypeError, ValueError):
         return 0
+
+
+def _row_passed(row: dict) -> bool:
+    """Did this stored attempt pass?
+
+    ONE predicate, used by both the /cases card and the Lumens guard, because a card that
+    reads "completed" while the wallet still pays for a re-run is exactly the farm this is
+    meant to close. The stored flag is authoritative when present; a row written before it
+    existed falls back to the derived /100.
+    """
+    val = row.get("passed")
+    if val is not None:
+        return bool(val)
+    return _row_score_100(row) >= OSCE_PASS_MARK
 
 
 # ── Case simulation models ─────────────────────────────────────────────────
@@ -134,6 +149,11 @@ class CaseInfo(BaseModel):
     unlock_hint: str = ""   # student-facing "how to unlock" note when locked (per-topic gate)
     set_key: str = ""
     set_label: str = ""
+    # This student has PASSED this case before. The list sinks these to the bottom, marks
+    # them done and stops paying Lumens for them. Deliberately "passed", not "attempted":
+    # a failed attempt is not a finished case, and greying it out (or refusing to pay for
+    # the eventual pass) would punish the student who most needs to go back in.
+    completed: bool = False
 
 class CasesResponse(BaseModel):
     cases: list[CaseInfo]
@@ -395,6 +415,7 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
             unlock_hint=hint,
             set_key=sk,
             set_label=label_for(role, sk),
+            completed=_row_passed(case_progress.get(c["case_id"]) or {}),
         ))
 
     # Topic-set view: the student picked a topic, so return that whole set
@@ -420,8 +441,13 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
         role = (await get_profile(student_id)).get("role", "OA") or "OA"
     except Exception:
         pass
+    # PASSED, not merely attempted — the same `_row_passed` predicate the cards use. The
+    # chip-row's tick and the cards beneath it are the same claim about the same cases, so
+    # counting them differently showed a set as fully done over cards that still read as
+    # outstanding.
     try:
-        completed = set((await get_case_progress(student_id)).keys())
+        completed = {cid for cid, row in (await get_case_progress(student_id)).items()
+                     if _row_passed(row)}
     except Exception:
         completed = set()
 
@@ -601,12 +627,28 @@ def _station_checklist(case: dict) -> dict:
     return build_rubric_checklist(case)
 
 
+def _identity_record(case: dict) -> str:
+    """The chart identifiers the Identify-patient chip reveals, from authored case data.
+
+    Fail-closed like the allergy record: with no authored name there is nothing truthful to
+    show, so the chip reveals nothing rather than inventing an identity. Age, not a DOB —
+    the cases author an age, and a derived date of birth would be a fact the case never made.
+    """
+    patient = (case.get("patient") or {})
+    name = str(patient.get("name") or "").strip()
+    if not name:
+        return ""
+    age = str(patient.get("age") or "").strip()
+    return f"EMR — {name}" + (f", {age} yr" if age else "")
+
+
 def _case_actions(case: dict, steps: list[dict]) -> list[dict]:
     """build_actions for one case — ONE place, so /station and /observe can't classify the
     same case differently (the examiner's exclusion set is derived from this)."""
     return build_actions(
         case.get("examination_findings", {}), steps,
         allergy_record=str((case.get("history") or {}).get("allergies") or ""),
+        identity_record=_identity_record(case),
     )
 
 
@@ -1197,24 +1239,38 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         feedback = raw_result.get(domain, "")
         if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
             missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
-    # Difficulty-scaled, grade-scaled gross reward, then the per-case high-water mark: award
-    # only the improvement over the student's best prior attempt at this case, so retries
-    # never re-pay (an aced case re-run pays 0; repeated fails pay 0). One indexed read — the
-    # profile WRITE stays deferred to the BackgroundTask; a lookup failure defaults prior_best
-    # to 0 (the student's favour → full award), never blocking the grant.
+    # Difficulty-scaled, grade-scaled gross reward, then TWO guards against farming one case.
+    #
+    # 1. Once the case has been PASSED, it pays nothing, ever again (user-directed: "their
+    #    second attempt does not earn them lumens … if not student can just farm the same
+    #    case over and over again"). This is what the greyed, sunk, ticked card on /cases
+    #    means — a completed patient is practice from then on, not income.
+    # 2. Before a pass, the per-case HIGH-WATER MARK still applies: award only the
+    #    improvement over the best prior attempt, so repeated failures pay the consolation
+    #    once rather than once per try.
+    #
+    # Rule 1 is deliberately keyed on PASSED and not on "attempted". A student who failed at
+    # 40 and comes back to earn a 90 is the exact behaviour this feature is meant to
+    # encourage; refusing to pay them for it would make a first bad attempt permanently
+    # cost them the case. One indexed read — the profile WRITE stays deferred to the
+    # BackgroundTask; a lookup failure falls through to the student's favour (full award),
+    # never blocking the grant.
     difficulty = str(case.get("difficulty") or "beginner")
     gross = osce_reward(score["score_100"], difficulty)
     prior_best = 0
+    already_passed = False
     try:
-        prior_rows = await db.get_case_results(student_id)
+        prior_rows = [r for r in await db.get_case_results(student_id)
+                      if r.get("case_id") == case_id]
+        already_passed = any(_row_passed(r) for r in prior_rows)
         prior_best = max(
-            (osce_reward(_row_score_100(r), difficulty)
-             for r in prior_rows if r.get("case_id") == case_id),
+            (osce_reward(_row_score_100(r), difficulty) for r in prior_rows),
             default=0,
         )
     except Exception:
         prior_best = 0
-    award = max(0, gross - prior_best)
+        already_passed = False
+    award = 0 if already_passed else max(0, gross - prior_best)
 
     # Difficulty progression: pass at 60/100 (== 24/40).
     passed = score["score_100"] >= 60

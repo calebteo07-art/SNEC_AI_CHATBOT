@@ -678,14 +678,16 @@ export function CaseSession() {
   // manual actions) never lock. A DUAL-SOURCE step is excluded: asking the patient is half
   // of it, so it must leave both panes live (the lock made that step impossible).
   const manualStepNumbers = panelOnlySteps(manualActions);
-  // One source of truth for "where do I act now" — drives the pane spotlight, the badges
-  // and the patient-composer lock that used to be computed separately here.
-  const { turn, badge } = stationTurn(gateStep, manualStepNumbers, {
-    loaded: !!station, hasResult: !!result, hasEyebot,
-  });
-  const patientLocked = turn === "eyebot";
   // Which half of the gate step is still outstanding, and the chips' half-done affordance.
   const halfOf = (step: number) => dualHalf(step, dualStepsRef.current, chartDone, askedDual, ticked);
+  // One source of truth for "where do I act now" — drives the pane spotlight, the badges
+  // and the patient-composer lock that used to be computed separately here. A dual gate
+  // step is passed in so the spotlight can follow the OUTSTANDING half rather than sitting
+  // on one pane for the whole step.
+  const { turn, badge, lockComposer } = stationTurn(gateStep, manualStepNumbers, {
+    loaded: !!station, hasResult: !!result, hasEyebot,
+  }, gateStep !== null && dualStepsRef.current.has(gateStep) ? { half: halfOf(gateStep) } : null);
+  const patientLocked = lockComposer;
   // Which patient-facing half the step owes — "now ask the patient" on a hygiene+identity
   // step would send the student hunting for a question the step never asked for.
   const dualKindOf = (step: number): DualKind =>
@@ -793,9 +795,9 @@ export function CaseSession() {
           isStreaming={isStreaming}
           hasResult={!!result}
           locked={patientLocked}
-          active={turn === "patient"}
-          turnBadge={turn === "patient" ? badge : ""}
-          canSkip={turn === "patient" && canSkip(turn, attempts, !!result)}
+          active={turn === "patient" || turn === "both"}
+          turnBadge={turn === "patient" || turn === "both" ? badge : ""}
+          canSkip={(turn === "patient" || turn === "both") && canSkip(turn, attempts, !!result)}
           skipping={skipping}
           onSkip={() => void skipStep()}
           endRef={endRef}
@@ -815,10 +817,12 @@ export function CaseSession() {
             procText={procText}
             coaching={coachingCount > 0}
             showActions={!result}
-            active={turn === "eyebot"}
-            turnBadge={turn === "eyebot" ? badge : ""}
+            active={turn === "eyebot" || turn === "both"}
+            /* On a dual step BOTH panes carry the badge — it says the step needs both, and
+               a student reading only one pane must still see that. */
+            turnBadge={turn === "eyebot" || turn === "both" ? badge : ""}
             busy={sending || isStreaming}
-            canSkip={turn === "eyebot" && canSkip(turn, attempts, !!result)}
+            canSkip={(turn === "eyebot" || turn === "both") && canSkip(turn, attempts, !!result)}
             skipping={skipping}
             dualHint={gateHint}
             halfOf={halfOf}

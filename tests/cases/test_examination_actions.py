@@ -32,7 +32,10 @@ def test_history_question_is_verbal_with_prompt():
 def test_conversational_do_steps_are_verbal():
     by_label = {a["label"]: a for a in build_actions({}, STEPS)}
     assert by_label["Introduce self"]["kind"] == "verbal"
+    # This identify step names NO chart, so there is no panel half to perform and it stays
+    # conversational. A chip here would be manual-only and would lock the composer.
     assert by_label["Identify patient"]["kind"] == "verbal"
+    assert by_label["Identify patient"]["dual_kind"] == ""
 
 
 def test_manual_procedures_are_manual():
@@ -76,11 +79,15 @@ def test_documentation_step_is_a_quick_manual_chip():
 
 def test_medical_record_phrase_does_not_hijack_identification():
     # "medical record notes" sits inside every identification step. Documentation is
-    # matched on the LEADING VERB, so identification must stay verbal.
+    # matched on the LEADING VERB, so this must stay Identify patient, never Document results.
     action = "Identify patient against medical record notes using at least 2 identifiers"
     label = build_actions({}, [{"step_number": 1, "action": action, "category": "patient_identification", "critical": True}])[0]
     assert label["label"] == "Identify patient"
-    assert label["kind"] == "verbal"
+    # It DOES name the chart, so it is the dual shape: one click reads the record, and the
+    # consult still owes the two identifiers asked of the patient.
+    assert label["kind"] == "manual"
+    assert label["dual_kind"] == "identity"
+    assert label["also_ask_steps"] == [1]
 
 
 def test_blank_action_is_skipped():

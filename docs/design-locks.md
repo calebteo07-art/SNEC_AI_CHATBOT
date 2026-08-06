@@ -892,6 +892,97 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   **Out of scope**: the grade formula and its weighting, gating order, the two-pane structure,
   the handover flow, the skip valve's own semantics.
 
+- **A step must be reachable in the channel it actually needs (2026-08-06, user-reported:
+  "for items that are manual, for example bring patient to doctor for follow-up, they are not
+  listed in the manual panel, and when i try to complete the step in convo panel, checklist
+  impossible to tick, i want it to be only in manual panel")** — criterion changed: *`kind`
+  is no longer "manual if the label is on the allow-list, verbal otherwise"; a step's channel
+  must match what performing it physically requires.* `kind` DEFAULTS to verbal, so a
+  physical step lands there silently, and the consequence is terminal: `/observe` grades the
+  student's words **to the patient**, and no sentence to a patient constitutes walking them
+  to the doctor or demonstrating a tonometer's features. The only way past was the skip
+  valve, which is subtracted from the score — a guaranteed lost mark for work the student
+  really did. `test_action_panel_completeness` only ever asserted a step had *a label*, never
+  that its channel was survivable, so all of this passed. Four shapes were stranded:
+  **Doctor to examine** (7 cases), **Demonstrate knowledge** (26, assessed against the
+  examiner and so `quick: false`), **Select intervention** (9, split out from "Learning
+  barriers" — identifying a barrier is conversational, choosing the intervention is not),
+  and the big one below. **Acceptance when refining**: `test_physical_steps_are_never_verbal_only`
+  and the all-checklist sweep beside it stay green; a new physical shape adds a marker there
+  rather than being discovered by a student losing a mark.
+- **Identification is DUAL, and it is 117 of 155 cases (2026-08-06, same report: "not limited
+  to my listed examples")** — criterion changed: *the dual-source rule above had two shapes;
+  it has three, and the third is the app's most common CRITICAL step.* "Identify the correct
+  patient … and check the patient's identity **against medical record/EMR** using at least 2
+  identifiers: Patient Name, …" names both channels exactly the way the allergy row does —
+  you cannot read a chart by talking, and you cannot get a patient's name off a chart by
+  reading it — but it ticked from the consult alone, so the EMR half was never once required
+  of anybody. Now `dual_kind` returns `"identity"` for it (a RECORD token **and** an
+  identity-check token, so "Introduce self … and verify the patient's identity", which names
+  no chart, stays plain verbal), the chip is `quick` (one click reads the record; the
+  ASSESSED half is the question, graded by `/observe`), and it reveals the chart identifiers
+  from authored case data — an unauthored patient reveals **nothing**, the same fail-closed
+  rule as the allergy record. The hazard this creates is the mirror image of the bug:
+  `_CHART_CONDITIONAL_LABELS` exists because an identify step naming no chart would become a
+  manual-**only** chip, which locks the patient composer and makes asking impossible.
+  **Acceptance when refining**: `test_no_identify_chip_is_ever_manual_only` and
+  `test_identify_patient_stays_visible_to_the_examiner` stay green — a dual step excluded
+  from `examiner_excluded_steps` is 117 cases pinned to the ×0.6 safety cap forever, and one
+  excluded from `panelOnlySteps` is 117 cases whose patient half cannot be done at all.
+- **The spotlight follows the OUTSTANDING half (2026-08-06, user-reported: "the spotlight to
+  convo panel and manual panel is not accurate or responsive")** — criterion changed: *`turn`
+  is a function of the gate step AND, on a dual step, of which half is still owed.*
+  `stationTurn` took `manualSteps`, which deliberately EXCLUDES dual steps, so a dual step
+  fell through to `"patient"` — dimming the EyeBot pane that holds the chip the student still
+  owes (inaccurate), and never changing when a half landed, because the answer never depended
+  on either half (unresponsive). Now: neither half → `data-turn="both"`, which matches none
+  of the dimming selectors so both panes stay lit and pulse in their own identity colour;
+  record half in → `"patient"`; asked half in → `"eyebot"`. `lockComposer` is **returned by
+  `stationTurn`** rather than inferred as `turn === "eyebot"`, because a dual step now
+  produces an eyebot turn and locking there would make the half the student owes impossible.
+  **Acceptance when refining**: `SKIP_AFTER` keeps a `both` entry (a missing one reads as
+  `attempts >= undefined` → the way out is never offered and the student is stranded on the
+  one step shape with two ways to go wrong); the badge still names the CHANNEL only; both
+  panes carry the badge on a dual turn; station_assert proves the spotlight MOVES in both
+  orders and that the composer survives the eyebot turn.
+- **The technique grade marks competence, not recall (2026-08-06, user-reported: "some
+  procedures that require steps are too strict and hard … not realistic for student to list
+  down all 7 steps of hand hygiene, so if student just types something like 7 steps hand
+  hygiene they should be able to get the full marks")** — criterion changed: *"strong"
+  stops meaning "recited every model point".* Three edits, all in `action_model_answer.py`:
+  (1) naming a CURATED standard covers all of it (`_STANDARD_NAMES`) — a fixed protocol is
+  learned by name, and only curated standards can be claimed this way, so a case-specific
+  rubric answer still has to be described; (2) a `Step N:` prefix is stripped before
+  salience, since the scaffolding made every point of a numbered protocol two tokens harder
+  to cover; (3) `strong` is `_COMPETENT_RATIO` 0.6 of the points, never fewer than one —
+  the same calibration the 40/30/30 amendment applied to the AI grader, which had left the
+  longest model answers the hardest stations. `_EXAMINER_SYSTEM` gets the matching clause for
+  the conversational side (enumerated sub-items are guidance for the assessor, not a script).
+  **Acceptance when refining**: leniency never reaches the bottom of the scale — "I washed my
+  hands" is still not a technique, `"7 steps"` is not a skeleton key for an unrelated
+  procedure, and the examiner's three EVIDENCE guards (never on mention, never on a "would",
+  never because the PATIENT said it) survive verbatim; a `strong` verdict with a point still
+  missing NAMES it rather than claiming full coverage.
+- **A completed patient stops being in the way, and stops paying (2026-08-06, user-directed:
+  "when student finish the virtual patient case, make sure that it is listed at the
+  bottom/last with a tick badge and grey off to signify completed, and their second attempt
+  does not earn them lumens … if not student can just farm the same case over and over
+  again")** — criterion changed: *the journey is difficulty tiers alone; it is now difficulty
+  tiers **then** a trailing Completed section.* `CaseInfo.completed` was already computed for
+  the tier gate at `GET /api/cases` and thrown away. `journeySections` (pure, unit-tested)
+  pulls passed cases OUT of their tier into a ticked section at the very bottom — greyed and
+  desaturated, never disabled, because replaying one is good practice. On the wallet side the
+  per-case high-water mark alone still paid the DELTA, so scraping a 60 and returning for a
+  100 was a second payday on one case; a case the student has **passed** now pays 0
+  permanently, with the high-water mark still governing everything before a pass.
+  **Acceptance when refining**: "completed" means **passed**, not "attempted", in BOTH places
+  and through the same `_row_passed` predicate — a card reading "Completed" while the wallet
+  still pays is the farm this closes, and greying a *failed* attempt (or refusing to pay for
+  the eventual pass) would punish the student who most needs to go back in; a locked case is
+  never completed; no patient is lost by the regrouping (`caseFilter_logic.mjs` asserts the
+  set is preserved); the state is carried in WORDS as well as colour.
+  **Out of scope**: the reward curve itself, the forfeit penalty, the tier unlock gate.
+
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
 `BrandSplash`) is now the **mono `<Logo>` glyph** — solid black on light / white on dark, no

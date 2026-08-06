@@ -243,15 +243,66 @@ def test_conversational_steps_stay_verbal():
     for text in (
         "Introduce self to patient.",
         "Explain the purpose and procedure to patient.",
-        "Identify patient against medical record/EMR using at least 2 identifiers: Patient Name",
         "Give clear explanation to patient on performing the test.",
         "Listens attentively to opening statement without interruption.",
         "Received the patient with respect",
         "Ensure patient is directed to waiting room.",
+        "Provide Falls Precaution Education",
+        "Screen if emotions are abnormal",
+        "Identify learning barriers.",
+        "Tell patient to gaze at the yellow / green light.",
     ):
         label = match_label(text)
         assert label is not None, f"unclassified: {text}"
         assert label not in _MANUAL_LABELS, f"{text!r} became a manual chip ({label!r})"
+
+
+# Steps you DO, not steps you SAY. `kind` defaults to verbal, so one of these landing in
+# the conversational channel is SILENT — and terminal: the /observe examiner grades the
+# student's words to the PATIENT, and no sentence to a patient constitutes bringing them
+# to the doctor or demonstrating a tonometer's features. The student's only way past is
+# the skip valve, which subtracts the step from their score. Every entry below was in that
+# state in prod (the reported bug: "they are not listed in the manual panel, and when i try
+# to complete the step in convo panel, checklist impossible to tick").
+PHYSICAL_STEPS = (
+    ("Doctor to examine patient’s eyes after the procedure.", "Doctor to examine"),
+    ("Demonstrates knowledge on the features of the ICARE Tonometer.", "Demonstrate knowledge"),
+    ("Demonstrates knowledge in identifying the various components & functions of the "
+     "IOL Master 700", "Demonstrate knowledge"),
+    ("Select appropriate intervention to learning barrier present", "Select intervention"),
+)
+
+
+@pytest.mark.parametrize("text,expected", PHYSICAL_STEPS)
+def test_physical_steps_are_never_verbal_only(text, expected):
+    """A step no consult turn can satisfy MUST have a chip, or it is unreachable."""
+    label = match_label(text)
+    assert label == expected, f"{text!r} labelled {label!r}"
+    assert label in _MANUAL_LABELS, f"{text!r} has no chip — only the skip valve gets past it"
+
+
+def test_every_physical_step_in_every_real_checklist_has_a_chip():
+    """The sweep, so a re-ingest cannot reintroduce the class. Any step naming one of these
+    physically-performed markers must be manual (or a say-step, which is a question and so
+    genuinely conversational). Add a marker here when a new physical shape appears — the
+    point is that it fails loudly instead of costing every student a mark."""
+    markers = ("doctor to examine", "demonstrates knowledge", "demonstrate knowledge",
+               "select appropriate intervention")
+    stranded = []
+    for c in CHECKLISTS:
+        by_step = {
+            n: a
+            for a in build_actions({}, c["steps"])
+            for n in a["satisfies_steps"]
+        }
+        for s in c["steps"]:
+            action = str(s.get("action") or "").strip()
+            if not action or not any(m in action.lower() for m in markers):
+                continue
+            chip = by_step.get(int(s.get("step_number", 0)))
+            if chip is None or chip["kind"] != "manual":
+                stranded.append((c["procedure_name"], s.get("step_number"), action[:70]))
+    assert not stranded, f"physical steps with no chip (unreachable except by skipping): {stranded}"
 
 
 def test_every_procedure_checklist_yields_at_least_one_manual_chip():

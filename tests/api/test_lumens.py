@@ -170,6 +170,25 @@ def test_osce_retry_of_aced_case_pays_nothing():
     assert body["lumens_awarded"] == 0
 
 
+def test_a_passed_case_never_pays_again_even_on_a_better_grade():
+    """User-directed: "their second attempt does not earn them lumens … if not student can
+    just farm the same case over and over again". The high-water mark alone still paid the
+    DELTA, so scraping a 60 and coming back for a 100 was a second payday on one case."""
+    prior = [{"case_id": "case_lumen", "score_100": 60, "passed": True, "total_score": 24}]
+    applied, body = _submit_case(prior_results=prior)   # this attempt scores 80
+    assert applied == [0]
+    assert body["lumens_awarded"] == 0
+
+
+def test_a_legacy_row_without_the_passed_flag_still_blocks_the_re_award():
+    """Rows predating the `passed` column derive it from the /40 total_score. Reading a
+    missing flag as False would hand every pre-migration case one more full payout."""
+    prior = [{"case_id": "case_lumen", "total_score": 32}]   # 32/0.4 == 80 → a pass
+    applied, body = _submit_case(prior_results=prior)
+    assert applied == [0]
+    assert body["lumens_awarded"] == 0
+
+
 def test_osce_retry_pays_only_the_improvement():
     # Failed before (40 -> consolation 20), now passes at 80 -> earns the delta only.
     from tools.api.routers.cases import osce_reward

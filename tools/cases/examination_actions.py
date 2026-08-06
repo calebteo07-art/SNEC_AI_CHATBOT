@@ -62,6 +62,12 @@ _ALIASES = {"va_distance": "va", "iop_nct": "iop", "va_near": "near_va"}
 # is not an examination finding and so can't come through _finding_for_step).
 _ALLERGY_LABEL = "Check allergy"
 
+# The chart-side identity check. Same pattern as the allergy row: what the chip shows is
+# authored case data, not an examination finding, so it cannot come through
+# _finding_for_step. Showing the chart's identifiers is the point of the chip — the
+# student compares them against what the patient says.
+_IDENTITY_LABEL = "Identify patient"
+
 # Canonical short chip labels for "do" steps (first keyword match wins).
 #
 # ORDER IS LOAD-BEARING. A step names the procedure it documents ("Record the date /
@@ -124,6 +130,10 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     # PFAER screens are questions put to the patient, so they stay verbal (answered in
     # the live consult); only SCORING the scale below is form work.
     (("screen for", "screen if"), "Screen patient"),
+    # ABOVE the learning-barrier rule, which owns "learning barrier": IDENTIFYING a barrier
+    # is something you do by talking to the patient, but SELECTING the intervention for it is
+    # a decision the student records — one label for both left the selection untickable.
+    (("select appropriate intervention", "appropriate intervention to"), "Select intervention"),
     (("learning barrier",), "Learning barriers"),
     (("falls precaution education", "provide falls precaution"), "Falls education"),
 
@@ -207,11 +217,16 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
 
 _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
 
-# A step can need TWO channels and mean BOTH. Two real shapes, one per kind:
+# A step can need TWO channels and mean BOTH. Three real shapes, two kinds:
 #   "ask"      — "Check that the patient is not allergic to the selected eye drops by
 #                 verifying with the patient's medical record/EMR AND by asking the patient."
 #   "identity" — "Perform hand hygiene AND confirm the patient's identity (name and
 #                 NRIC/date of birth) AND the indication for Amsler testing."
+#   "identity" — "Identify the correct patient … AND check the patient's identity AGAINST
+#                 medical record/EMR using at least 2 identifiers: Patient Name, …" — the
+#                 single most common CRITICAL step in the library (117 of 155 cases). You
+#                 cannot read a chart by talking, and you cannot get a patient's name off a
+#                 chart by reading it: the step names both channels and means both.
 # Either way the chip is only the ACTION-PANEL half; the step ticks once the /observe
 # examiner also sees the patient-facing half.
 #
@@ -223,14 +238,24 @@ _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
 _RECORD_TOKENS = ("medical record", "emr", "case notes", "case sheet")
 _ASK_TOKENS = ("asking the patient", "ask the patient", "asks the patient")
 _IDENTITY_TOKENS = ("confirm the patient's identity", "confirm the patient’s identity")
+# The identify-against-the-chart shape. These require a RECORD token as well (below), so
+# "Introduce self to patient and verify the patient's identity to ensure correctness" —
+# which names no chart — stays a plain verbal step that ticks from the consult alone.
+_IDENTITY_CHECK_TOKENS = (
+    "identity against", "identify patient against", "identify the correct patient",
+    "check the patient's identity", "check the patient’s identity",
+)
 
 
 def dual_kind(action: str) -> str:
     """Which patient-facing half a chip click can never cover — "" if the step is single."""
     low = (action or "").strip().lower()
-    if any(t in low for t in _RECORD_TOKENS) and any(t in low for t in _ASK_TOKENS):
+    has_record = any(t in low for t in _RECORD_TOKENS)
+    if has_record and any(t in low for t in _ASK_TOKENS):
         return "ask"
     if any(t in low for t in _IDENTITY_TOKENS):
+        return "identity"
+    if has_record and any(t in low for t in _IDENTITY_CHECK_TOKENS):
         return "identity"
     return ""
 
@@ -293,6 +318,26 @@ _MANUAL_LABELS = {
     "Test each eye", "Avoid cueing", "Operate machine", "Monitor patient",
     # Scoring the fall-risk scale is form work the student does, not a question they ask.
     "Score fall risk",
+    # ── Steps you DO, that were classified as steps you SAY. A step the student cannot
+    # satisfy by talking, and that has no chip, can only be got past by SKIPPING it — and
+    # a skip is subtracted from the score. So each of these was a guaranteed mark lost for
+    # work the student would really have done (the reported bug: "bring patient to doctor
+    # for follow-up … checklist impossible to tick"). Verbal is the DEFAULT here, so a
+    # physical step lands in it silently — the guard is
+    # test_physical_steps_are_never_verbal_only.
+    #
+    # "Doctor to examine patient's eyes after the procedure" is a handover the student
+    # performs, not a sentence they say to the patient (7 cases).
+    "Doctor to examine",
+    # "Demonstrates knowledge on the features of the ICARE Tonometer" is assessed against
+    # the EXAMINER, not the patient — no consult turn will ever satisfy it (26 cases).
+    "Demonstrate knowledge",
+    # Choosing the intervention for a learning barrier is a decision recorded, not asked.
+    "Select intervention",
+    # Reading the chart to identify the patient is done at the screen. Its other half —
+    # asking the patient their name and NRIC — stays in the consult: this is a DUAL step
+    # (dual_kind "identity"), so the chip never ticks it alone and the composer stays live.
+    "Identify patient",
     # Ophthalmic-investigation procedures (SNEC Procedure Manual, Module 2).
     "Check dilation", "Enter patient data", "Read PAM chart", "Analyse cells",
 }
@@ -317,9 +362,25 @@ _QUICK_LABELS = {
     "Monitor patient", "Score fall risk",
     # Machine setup / teardown confirmations — nothing to grade.
     "Check dilation", "Enter patient data",
+    # Handover and form decisions — you either walked the patient to the doctor and picked
+    # the intervention, or you didn't. Reading the chart to identify the patient is the same
+    # one-click confirmation as Check allergy (its assessed half is the QUESTION, which the
+    # consult grades).
+    "Doctor to examine", "Select intervention", "Identify patient",
     # NOT quick: reading the PAM chart and selecting endothelial cells are the assessed
-    # techniques (spiral, continuous, consistent cell selection is the skill).
+    # techniques (spiral, continuous, consistent cell selection is the skill). Nor
+    # "Demonstrate knowledge" — describing the equipment IS the thing being assessed.
 }
+
+
+# Labels that earn a chip ONLY when the step actually names the chart. Identification is
+# the case: "Identify the correct patient … against medical record/EMR" has a panel half
+# (read the record) and a consult half (ask the patient), but a bare "Identify the correct
+# patient and check identity against 2 identifiers" names no record — there is nothing to
+# do at the screen. A chip there would be manual-ONLY, which locks the patient composer and
+# makes asking impossible: the exact reverse of the bug the chip exists to fix. So without
+# a chart, the step stays verbal and ticks from the consult as it always did.
+_CHART_CONDITIONAL_LABELS = {_IDENTITY_LABEL}
 
 
 def _clip_words(text: str, max_chars: int) -> str:
@@ -428,12 +489,16 @@ def _finding_for_step(action: str, findings: dict, label: str) -> str:
 
 
 def build_actions(examination_findings: dict, steps: list[dict],
-                  allergy_record: str = "") -> list[dict]:
+                  allergy_record: str = "", identity_record: str = "") -> list[dict]:
     """One chip per non-blank step; consecutive same-(label,mode) chips merge.
 
     allergy_record: the case's EMR allergy line (case["history"]["allergies"]) — what the
     Check-allergy chip reveals. Empty reveals NOTHING rather than implying "no allergies";
     tests/cases/test_allergy_record_authored.py is the guard that keeps it authored.
+
+    identity_record: the chart identifiers the Identify-patient chip reveals, built from the
+    case's authored patient block. Same fail-closed rule — unauthored reveals nothing rather
+    than inventing an identity for the student to "match".
     """
     from tools.cases.phase_split import assign_phases
 
@@ -450,9 +515,13 @@ def build_actions(examination_findings: dict, steps: list[dict],
         else:
             label = _do_label(action, str(s.get("category", "")))
             kind = "manual" if label in _MANUAL_LABELS else "verbal"
+            if kind == "manual" and label in _CHART_CONDITIONAL_LABELS and not dual_kind(action):
+                kind = "verbal"
             reveal = _finding_for_step(action, examination_findings, label)
             if label == _ALLERGY_LABEL and allergy_record:
                 reveal = allergy_record
+            if label == _IDENTITY_LABEL and identity_record:
+                reveal = identity_record
             dual = dual_kind(action) if kind == "manual" else ""
             chip = {
                 "label": label,
