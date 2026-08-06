@@ -985,6 +985,13 @@ under a charging electric ring + blink, OCT trace, charging streaming-bubble bor
 `.aurora-chat` background must keep a linear-gradient (harness asserts it). No sliding
 scan-sweep (removed, ricoe A1). Reply-bubble avatar = the default Selena mascot, never a
 student's customised avatar (ricoe A3).
+- **The constellation yields to the composer (2026-08-06)**: `ChatField` holds its rAF loop
+  to ~1/4 of wall-clock, charged from the observed frame interval. On any machine that can
+  afford the field nothing changes — it still draws every frame — but where a frame costs
+  more than the page can spare, the canvas drops frames instead of taking the main thread.
+  It is a decoration; it never outranks input. Unbounded, it starved the tutor composer for
+  a full 30s on a GPU-less CI runner. Gated by `frontend/tests/tutor_field_perf_assert.mjs`;
+  do not "restore" a free-running loop to smooth it out on slow hardware.
 - **Greeting landing (ricoe A2)**: `/chat` opens on `TutorLanding` (the empty state) —
   an ever-changing, learning-humour hello opener with a Gemini-gradient name and cheeky sub, a big
   centred prompt (reuses `Composer`), and the student's real recent sessions ("Pick up
