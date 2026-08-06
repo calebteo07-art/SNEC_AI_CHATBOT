@@ -45,7 +45,7 @@ def _shared_read_stubs(profiles_read, cases_read, cards_read):
               new=AsyncMock(return_value={"student_name": "A B", "email": "a@b.c"})),
         patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])),
         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=list(_CASES))),
-        patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})),
+        patch("tools.shared.db.get_flashcard_attempts", new=AsyncMock(return_value=[])),
         # /cohort-analytics globs 155 case files for its index; stand it in.
         patch("tools.api.routers.admin.get_case_index", new=AsyncMock(return_value={})),
     ]
