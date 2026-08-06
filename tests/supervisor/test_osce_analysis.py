@@ -101,6 +101,103 @@ def test_critical_offenders_work_without_a_ledger():
         ("Check allergy status", 2, None)]
 
 
+import json
+from pathlib import Path
+
+from tools.cases.station_score import compute_station_score
+
+# Every test above builds its own checklist, and every one of them gives each step a
+# DISTINCT action -- which is why nothing here noticed that a real SNEC checklist repeats
+# one. "Perform hand hygiene." is step 5 AND step 21 of Distance Vision Testing LogMAR,
+# both critical: once before the procedure, once after. 2 of the 21 real checklists do it
+# (the other is I-Care Competency, steps 11 and 13), and this one resolves for 9 of the
+# 155 live cases.
+FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "procedure_checklists.json"
+LOGMAR = next(c for c in json.loads(FIXTURE.read_text(encoding="utf-8"))
+              if c["procedure_name"] == "Distance Vision Testing LogMAR")
+HYGIENE = "Perform hand hygiene."
+FIRST_HYGIENE, LAST_HYGIENE = 5, 21
+
+
+def _ledger(missed: set[int]) -> list[dict]:
+    """One attempt's migration-019 ledger, shaped as cases.py::_build_checklist_detail
+    writes it -- one entry per STEP NUMBER, so a repeated action appears twice."""
+    return [{"step_number": int(s["step_number"]), "action": str(s["action"]),
+             "phase": "", "critical": bool(s.get("critical")),
+             "performed": int(s["step_number"]) not in missed, "skipped": False}
+            for s in LOGMAR["steps"]]
+
+
+def test_the_real_checklist_repeats_a_critical_action_within_one_procedure():
+    """Pins the fixture property the four tests below are built on. If SNEC ever
+    de-duplicates the source checklist, those tests go vacuous silently -- this one fails
+    loudly instead."""
+    hygiene = [s for s in LOGMAR["steps"] if s["action"] == HYGIENE]
+    assert [s["step_number"] for s in hygiene] == [FIRST_HYGIENE, LAST_HYGIENE]
+    assert all(s["critical"] for s in hygiene)
+
+
+def test_repeat_offenders_count_attempts_not_step_objects():
+    """The denominator is ATTEMPTS THAT CONTAINED THE STEP, not step objects.
+
+    A student who washes their hands before the procedure and forgets afterwards misses
+    hand hygiene in that attempt -- once. Counting the two hygiene rows separately puts
+    every such attempt into `appeared` twice and halves the rate a trainer reads: 9 of 9
+    attempts, a 100% miss on a critical safety step, prints as 50%.
+    """
+    rows = [{"checklist_detail": _ledger({LAST_HYGIENE})} for _ in range(9)]
+    rows += [{"checklist_detail": _ledger(set())} for _ in range(3)]
+    out = [o for o in repeat_offenders(rows) if o.action == HYGIENE]
+    assert len(out) == 1
+    assert (out[0].missed, out[0].appeared) == (9, 12), (
+        f"hand hygiene reported as {out[0].missed} of {out[0].appeared}; the student took "
+        f"12 attempts containing the step and missed it in 9 of them")
+
+
+def test_repeat_offenders_do_not_call_one_attempt_a_pattern():
+    """One attempt that misses BOTH hygiene steps is one miss, not two.
+
+    Tallying per step object lets a single attempt clear MIN_REPEATS on its own, and the
+    whole point of the threshold is that it separates a habit from an off day.
+    """
+    one = [{"checklist_detail": _ledger({FIRST_HYGIENE, LAST_HYGIENE})}]
+    assert [o.action for o in repeat_offenders(one)] == [], (
+        "a single attempt was reported as a repeated pattern")
+    out = [o for o in repeat_offenders(one * 2) if o.action == HYGIENE]
+    assert len(out) == 1, "two attempts that each miss it are still a pattern"
+    assert (out[0].missed, out[0].appeared) == (2, 2)
+
+
+def _missed_critical(missed: set[int]) -> list[str]:
+    """`missed_critical` as the real scorer writes it for an attempt that skipped
+    `missed` -- the column critical_offenders reads."""
+    performed = [int(s["step_number"]) for s in LOGMAR["steps"]
+                 if int(s["step_number"]) not in missed]
+    return compute_station_score({"history": 8, "investigations": 8, "diagnosis": 8,
+                                  "management": 8}, LOGMAR["steps"], performed)["missed_critical"]
+
+
+def test_critical_offenders_do_not_call_one_attempt_a_pattern():
+    """station_score appends one entry per missed critical STEP, so a single attempt that
+    skips both hygiene steps writes the same action into `missed_critical` twice. Counting
+    those as two attempts fabricates a repeated pattern out of one event -- and `missed` is
+    the number rendered to the trainer as a count of attempts."""
+    missed_critical = _missed_critical({FIRST_HYGIENE, LAST_HYGIENE})
+    assert missed_critical.count(HYGIENE) == 2, (
+        "the scorer no longer duplicates; this test is vacuous")
+    assert critical_offenders([{"missed_critical": missed_critical}]) == [], (
+        "one attempt reported as a repeat offender")
+
+
+def test_critical_offenders_still_count_every_attempt_that_repeats_it():
+    """The dedup is WITHIN an attempt only. Two attempts that each miss it twice are still
+    two attempts -- collapsing across rows would erase the pattern this section reports."""
+    missed_critical = _missed_critical({FIRST_HYGIENE, LAST_HYGIENE})
+    out = critical_offenders([{"missed_critical": missed_critical},
+                              {"missed_critical": missed_critical}])
+    assert [(o.action, o.missed, o.appeared) for o in out] == [(HYGIENE, 2, None)]
+
+
 from tools.supervisor.osce_analysis import trajectory, MIN_TRAJECTORY_N
 
 

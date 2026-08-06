@@ -48,9 +48,16 @@ def mark_loss(case_rows: list[dict]) -> MarkLoss:
             excluded += 1
             continue
         for bucket, value in values.items():
+            # Clamp: every bucket is already clamped to its maximum by
+            # station_score.compute_station_score before it is persisted, so an over-max
+            # value means a hand-edited or corrupted row. Without it such a row would
+            # contribute NEGATIVE loss and quietly credit back marks lost elsewhere.
             lost[bucket] += max(0, BUCKET_MAX[bucket] - int(value))
         attempts += 1
     total = sum(lost.values())
+    # Each share is rounded independently, so the three need not total exactly 100.0
+    # ({1,1,1} -> 99.9, {1,1,4} -> 100.1). A renderer must not "correct" the sum: the
+    # adjusted share would stop being its bucket's true fraction of the marks lost.
     shares = ({b: round(100 * v / total, 1) for b, v in lost.items()} if total
               else {b: 0.0 for b in lost})
     return MarkLoss(lost=lost, total_lost=total, shares=shares,
@@ -67,7 +74,9 @@ class Offender:
     critical: bool
     # How many attempts CONTAINED this step. None when nothing recorded it (the
     # missed_critical path) -- an absent denominator is honest, a fabricated one is not.
-    appeared: int | None = None
+    # Required, not defaulted: in a module whose thesis is that no denominator may be
+    # implicit, a caller must SAY it has none.
+    appeared: int | None
 
 
 def repeat_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[Offender]:
@@ -75,22 +84,36 @@ def repeat_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[
 
     Reads the migration-019 ledger. An attempt without one contributes nothing -- treating a
     NULL as "every step performed" would quietly clear a student's record.
+
+    Both numbers count ATTEMPTS, not step objects, so each row is collapsed onto its
+    actions first. A checklist may name the same action twice -- hand hygiene opens AND
+    closes Distance Vision Testing LogMAR, 2 of the 21 real checklists do it, and the
+    ledger carries one entry per step NUMBER -- so tallying per step object would enter one
+    attempt into `appeared` twice and print 9 misses in 9 attempts as 9 of 18.
     """
     seen: dict[str, dict] = {}
     for row in case_rows:
         detail = row.get("checklist_detail")
         if not isinstance(detail, list):
             continue
+        per_row: dict[str, dict] = {}
         for step in detail:
             key = norm_key(step.get("action"))
             if not key:
                 continue
-            entry = seen.setdefault(key, {"action": str(step.get("action") or ""),
+            row_entry = per_row.setdefault(key, {"action": str(step.get("action") or ""),
+                                                 "missed": False, "critical": False})
+            # Missed ANYWHERE in the attempt is missed: washing your hands beforehand does
+            # not undo forgetting to afterwards.
+            row_entry["missed"] = row_entry["missed"] or not step.get("performed")
+            row_entry["critical"] = row_entry["critical"] or bool(step.get("critical"))
+        for key, row_entry in per_row.items():
+            entry = seen.setdefault(key, {"action": row_entry["action"],
                                           "missed": 0, "appeared": 0, "critical": False})
             entry["appeared"] += 1
-            if not step.get("performed"):
+            if row_entry["missed"]:
                 entry["missed"] += 1
-            if step.get("critical"):
+            if row_entry["critical"]:
                 entry["critical"] = True
     out = [Offender(action=e["action"], missed=e["missed"], appeared=e["appeared"],
                     critical=e["critical"])
@@ -100,14 +123,24 @@ def repeat_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[
 
 def critical_offenders(case_rows: list[dict], minimum: int = MIN_REPEATS) -> list[Offender]:
     """The same idea over `missed_critical`, stored since migration 011 -- so this half works
-    on attempts that predate the ledger."""
+    on attempts that predate the ledger.
+
+    Deduplicated within the attempt for the same reason, and it bites harder here:
+    station_score appends one entry per missed critical STEP, so ONE attempt that skips both
+    of LogMAR's hand-hygiene steps lists the action twice and would reach MIN_REPEATS by
+    itself -- a repeated pattern fabricated from a single event, in the very number rendered
+    to a trainer as a count of attempts.
+    """
     seen: dict[str, dict] = {}
     for row in case_rows:
+        per_row: dict[str, str] = {}
         for raw in (row.get("missed_critical") or []):
             key = norm_key(raw)
             if not key:
                 continue
-            entry = seen.setdefault(key, {"action": str(raw), "missed": 0})
+            per_row.setdefault(key, str(raw))
+        for key, action in per_row.items():
+            entry = seen.setdefault(key, {"action": action, "missed": 0})
             entry["missed"] += 1
     out = [Offender(action=e["action"], missed=e["missed"], appeared=None, critical=True)
            for e in seen.values() if e["missed"] >= minimum]
