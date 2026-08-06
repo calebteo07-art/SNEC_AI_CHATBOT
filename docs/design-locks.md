@@ -905,9 +905,14 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   (user directive: "i want a different color of background that still matches with the entire
   page and fill up the awkward empty space")
 
-  **THIS IS THE LIVE STATE OF THE GREETING CARD.** Two criteria move — the card's **fill**
-  (again) and its **track axis**. The STRUCK material, the lip ladder, the console row, the
-  dark plate and every other object on the deck are untouched.
+  ⚠ **SUPERSEDED for the card's FILL and its MASCOT by the seventh pass below** — the card is a
+  clip now, so criterion (j)'s periwinkle, the corner specular and the mascot track are all
+  history. Criterion (k)'s reasoning (why the card is near-square, why ≤900 is a band) still
+  holds and is what the seventh pass's crop math is built on. Everything else here stands.
+
+  Two criteria move — the card's **fill** (again) and its **track axis**. The STRUCK material,
+  the lip ladder, the console row, the dark plate and every other object on the deck are
+  untouched.
 
   - **Criterion changed (j) — the fill supersedes the fifth pass's plum: `#EDEBFF` over
     `#DDD9F7`, dark ink.** The fifth pass matched the card to the console **body** it sits on;
@@ -977,6 +982,98 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `.hm-iriswrap` and **zero** clipped mascot px at 1512/1280/1100/900; 0 page overflow at
     1512/1280/900/390/844×390; every struck object still ≥2px outline and still ends in a solid
     `background-color`; the phone fold budget unchanged.
+
+  ### Amendment 2026-08-06 (seventh pass) — THE CARD IS A FILM, AND THERE ARE FOUR OF HER
+  (user directive: "instead of the current eyecon in the greeting card, can you regenerate a
+  group of friends of eyecons moving using my api key, the eyecons must look like the actual
+  current eyecons, but the group of friends can be in different outfits, the background of the
+  greeting card change to something else, now the color too boring, the whole card to be
+  generated on veo, just leave enough space for laying the words that are always
+  different/shuffled" · scene chosen by the user: "a picnic in a grassy and sunny place
+  beautiful but enough space for the words to appear", crew: 4 friends, mixed casual)
+
+  **THIS IS THE LIVE STATE OF THE GREETING CARD.** One criterion moves and it takes three
+  others with it: the card no longer has a **fill**, so the sixth pass's periwinkle, the corner
+  specular and the whole mascot **track** go with it. The STRUCK material, the lip ladder, the
+  console row, the dark plate and every other object on the deck are untouched.
+
+  - **Criterion changed (j) — the card IS `greeting-crew.mp4`, full-bleed.** Four Eyecons in
+    different outfits (striped scarf · orange beanie · brown hoodie · round specs) at a
+    golden-hour picnic; 1280×712, 8s, 24fps, silent, 652 KB, seamless (frame 0 vs frame 191
+    differ by **2.16/255** mean, because the still was pinned as both `image` and `last_frame`).
+    A recolour was the sixth pass's answer and the verdict on it was "the color too boring";
+    there is no seventh colour that fixes that, only a different **kind** of surface.
+  - **Identity is bought in stage 1, not asked for in stage 2.** Veo will not hold a character
+    from words, so `--frame` draws the conditioning still with `gemini-3.1-flash-image` and the
+    real `iris.png` + the three paid poses passed as **reference parts**; only the still you
+    approved goes to Veo (`--pick`, then `--generate`). Cost shape: the look is decided in
+    cents and iterated 7 candidates deep; exactly **one** paid clip
+    (`veo-3.1-fast-generate-preview`) was ever generated.
+  - **The composition IS the layout, and it lives in the generator.** `FRAME_PROMPT` reserves
+    the **entire top half** as empty sky and pins the crew **bottom-right** (measured on the
+    installed poster: x 46–96%, y 47–92%). That is not scenery — it is what the copy is laid
+    over, and `tests/test_greeting_loop.py` asserts both promises so the CSS cannot be silently
+    orphaned by a prompt edit.
+  - **`object-position:100% 50%` is load-bearing at every tier.** The card is ~1.45:1 against a
+    1.80:1 clip, so `cover` discards **19% of the width**; centre-anchored it takes 9.5% off
+    each edge and **amputates the specs Eyecon** — the exact failure that killed the fourth
+    pass's loop ("the waving eyecon is cut off"). Only a right anchor discards from the empty
+    side. Asserted in `aurora_assert.mjs`, not left to review.
+  - **The no-overlap GUARANTEE is gone and is replaced by MEASUREMENT, deliberately.** The fifth
+    pass made the card two flex tracks so no word could reach the mascot at any width; a
+    full-bleed backdrop cannot offer that. Three things replace it and they are load-bearing
+    *together*: the reserved top half, the `max-width:430/380` caps (which keep both lines
+    inside the x-range the ink was sampled over), and the scrim.
+  - **The scrim is a BUMP, not a veil.** Sampled per 4% row off the poster, the sky holds ≥219
+    down to **32%** of frame height, breaks at the horizon (~34%) and is meadow (**99–153**) by
+    42% — while the copy runs to ~44%. A uniform wash strong enough for that strip also flattens
+    the golden flare, which is the best thing in the shot. So the alpha **rises into the horizon
+    and releases below it** (`.30 → .34@28% → .70@42% → .52@50% → 0@60%`), which reads as aerial
+    haze on the horizon it is aligned to. Measured on the composited frame, worst pixel under
+    each line: `h1 --hink` **12.44:1**, `<em> --violet-d` **5.93:1** (36px/800 = WCAG *large*,
+    floor 3:1), `.hm-sub #5A4B64` **6.56:1** (floor 4.5:1).
+  - **The lip and the fallback fill come off the shot, not off the page.** `--lip-c:#8A7A4E`
+    over `background-color:#E9DEC6`, with the poster as the card's `background-image` — so the
+    card is never bare before the video decodes, and never bare when it is suppressed.
+  - **At ≤900 the crop axis FLIPS, and the card grows 182 → 220px because of it.** One column
+    makes the card 836 wide, so `cover` now scales to the **width** and throws away the
+    **height**. At 182 the visible window is 39% of the frame while the crew occupies 45% — the
+    window is *shorter than the crew*, so **no** `object-position` holds all four (62% cost 70px
+    off the bottom; every other value moves the loss to the top). 220 makes the window 47%, the
+    first height that fits them. The tier pays **38px of page**; it buys one invariant instead of
+    a special case. The scrim turns 90° with the crop, and its plateau reaches 46% because the
+    sub's box ends at card x 366 and the ink is measured at its far edge.
+  - **Phone keeps the copy and loses the film (≤560, ≤640 coarse, ≤480h coarse).** Standing
+    directive 2026-07-20 is that the phone card is copy on a bare plane, and 334px wide is where
+    it bites hardest: `cover` there shows nearly the whole frame, so the crew lands directly
+    behind a headline that needs the full measure, and the only scrim strong enough to fix it
+    hides the picnic anyway. The clip is suppressed and the card falls back to a flat plane in
+    the **shot's** family (`#F6EDDC` / `#E9DEC6`, the same 42% hard stop), not the sixth pass's
+    periwinkle — the phone card should read as the same object, lit the same way, minus the film.
+    `--hink` on `#E9DEC6` is **12.6:1**.
+  - **Reduced motion is `display:none` on the video, and it has to be.** Every other surface on
+    Home freezes with `animation:none`; **no CSS property pauses a `<video>`**. The card falls
+    back to its own `background-image` — the same still as the poster — so reduced motion still
+    gets the picnic, held. The old assertion (`.hm-iris` animation `none`) would have passed
+    vacuously forever against a video, so it was replaced, not deleted.
+  - **What does NOT change.** `pickGreeting`, the rotation, the `<em>` split, every string; the
+    36px headline at `max-width:430px` and the 380px sub; the deck, the rail, the console row,
+    the STRUCK material and every other object's fill and lip. `<EyeconLogo>`, `brand-mascot.css`
+    and the pose rasters all remain in the repo — the poses are the generator's identity anchors
+    — but **nothing mounts `<EyeconLogo>` any more**.
+  - **Deleted:** `greeting-selena.{mp4,jpg}` (the fourth pass's single-mascot loop, unreferenced
+    since the fifth pass retired its player) and the `.hm-iriswrap` / `.hm-irisfloor` / `.hm-iris`
+    rules. `@keyframes hm-iris-bob` + `hm-halo-breathe` **stay** — `.hm-eyecon-img` and
+    `.hm-eyecon-halo` (the student's own Eyecon, a different surface) still run them.
+  - **Acceptance** (gated by `aurora_assert.mjs` + `home_mobile_assert.mjs` + `home_hud_assert
+    .mjs`, reported by `_home_shot.mjs`, contract gated by `tests/test_greeting_loop.py`):
+    `[data-testid="greet-loop"]` present with `src=/media/loops/greeting-crew.mp4`, a
+    `greeting-crew.jpg` poster, `object-fit:cover`, `object-position` starting `100%`, muted and
+    looping; **zero** clipped crew px at 1512/1280/900; every ink line above its WCAG floor on
+    the **composited** frame (the reporter parses the scrim out of `getComputedStyle`, so a
+    gradient edited in `home.css` alone cannot report contrast the page does not have); 0 page
+    overflow at 1512/1280/900/390/844×390; `.hm-greetvid` `display:none` under reduce with the
+    poster still on the card; the phone fold budget unchanged.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout

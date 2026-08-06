@@ -198,48 +198,61 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    fit inside; 36px keeps the greeting a greeting without spending the budget. The greeting
    ENGINE is untouched — pickGreeting, the day-of-year rotation and the <em> accent word all
    read exactly as before, and greeting_assert.mjs asserts the text, never the size. */
-/* STRUCTURAL rung, and the console's SCREEN (6th pass 2026-08-06, "i want a different color
-   of background that still matches with the entire page and fill up the awkward empty
-   space").
-   ⚠ THE 5TH PASS FREED THE FILL; THIS ONE SPENDS IT ON THE STAGE INSTEAD OF THE PLATE. That
-   pass retired the opaque Veo clip — which is what had locked the card to the video's own
-   baked peach->pink — and took the card PLUM (#75307F -> #5A2462), matched to the console
-   BODY it sits on. Plum is a sixth hue on a deck already running cream, white, gold, orange
-   and indigo, and the one thing it did not match was the PAGE. The plate is dark and the
-   objects on it are the bright inserts (the status bar's cream, the board's #F1E9FF, the
-   chest's gold): a LIGHT greeting is the deck's own doctrine, not an exception to it.
-   ⚠ THE FILL IS THE STAGE'S FAMILY, NOT THE BOARD'S. The page is #DED8F5 (H=254) and the
-   quest board 14px to the right is #F1E9FF (H=262) — the greeting has to belong to the first
-   without dissolving into the second, and it is the only object on the deck with a LIGHT
-   neighbour. #EDEBFF -> #DDD9F7 is H=247, the bluest of the three, and the HARD STOP carries
-   the separation: the darker band is 58% of the card and reads 1.16 under the board, while
-   the top band matches it (1.01) and so reads as the same material rather than a near-miss
-   of it. Against the plate's lighter band #2A1B4E the card is 11.2:1 — unmistakably an insert.
-   ⚠ Same hard-stop profile as the rail, the board and the streak (a light plane to 42%, then
-   a step) — no radial, no wash. Ink measured on the DARKER band (worst case for dark-on-light,
-   the mirror of the rule the plum card was quoted under), lighter band second:
-     h1 --hink #2B2431 10.96 / 12.82   <em> --violet-d #6D28D9 5.03 / 5.89
-     .hm-sub #5A4B64 5.84 / 6.83
-   The lip #A79ED8 is 1.80 under its own fill, and it is the BOARD's construction (#B9A4E4,
-   1.87 under #F1E9FF): a light insert on this plate takes a light moulding, not a dark one. */
-/* ⚠ A COLUMN, NOT A ROW — and THAT is the "awkward empty space" fix; the colour had nothing
-   to do with it. The 5th pass made the card two side-by-side tracks (copy | mascot) because
-   an alpha-cut mascot UNDER the copy is cream text on pale skin at ~1.3:1. But this card does
-   not choose its own height: it shares a grid row with the rail, and the rail is board 210 +
-   chest 70 + strip 49 + 28 of gaps = 357 tall against a card only 473-518 wide. Two tracks in
-   a near-square box are two tall thin columns — 130px of copy at the top of a 313px content
-   box, and the bottom-left ~250x160 is the hole.
-   Stacked, the copy gets the card's full measure (still capped at 430px by the h1's own
-   max-width) and the mascot gets the ENTIRE bottom band, sized by what is left over rather
-   than by a number (see `.hm-iriswrap`). Overlap stays impossible — two tracks on the block
-   axis cannot cross — so the 5th pass's contrast guard is kept, not traded away.
-   ⚠ The ROW comes back at <=900px, where the card is 836x182: wide and short is the one shape
-   a stack is wrong for. */
+/* STRUCTURAL rung, and the console's SCREEN (7th pass 2026-08-06, "regenerate a group of
+   friends of eyecons moving … the whole card to be generated on veo, just leave enough space
+   for laying the words that are always different/shuffled").
+   ⚠ THE CARD IS NOW A FILM, NOT A FILL. The 6th pass took it light periwinkle
+   (#EDEBFF -> #DDD9F7) to join the page; the verdict on that was "the color too boring". So
+   the whole card is one generated shot — four Eyecons in different outfits (striped scarf,
+   orange beanie, brown hoodie, round specs) at a golden-hour picnic, `greeting-crew.mp4`,
+   an 8s seamless loop. That kills the hard-stop plane, the corner specular and the mascot
+   TRACK in one move, because the card no longer has a fill for them to sit on.
+   ⚠ THE COMPOSITION IS THE LAYOUT, AND IT IS PINNED IN THE GENERATOR, NOT HERE. See
+   tools/media/greeting_loop.py: the crew is bottom-right, the top of the frame is open sky.
+   `object-position:100% 50%` is what makes that survive the crop — the card is ~1.45:1 and
+   the clip 1.80:1, so `cover` throws away 19% of the WIDTH, and only a right anchor throws
+   it away from the empty side. Centre-anchored, it takes 9.5% off each edge and amputates
+   the specs Eyecon.
+   ⚠ THE 5TH PASS'S NO-OVERLAP GUARANTEE IS GONE BY CONSTRUCTION — two flex tracks cannot
+   both be a track and a full-bleed backdrop — so contrast is now MEASURED, not structural.
+   Sampled off the installed poster, per 4% row, across the x-range the copy actually
+   occupies: the sky holds >=219 down to 32% of frame height, breaks at the horizon (~34%),
+   and is meadow (99-153) by 42%. The copy runs to ~44%. That one strip is what
+   `.hm-greet::before` lifts — see it. */
+/* ⚠ 5TH-PASS HISTORY, KEPT BECAUSE IT IS THE REASON FOR THE SCRIM: the first Veo loop was
+   retired for being opaque, which forced the card's fill to be SAMPLED off the clip to hide
+   the join and left the card un-recolourable. That is not a regression here — a card that IS
+   the clip has no join to hide and nothing left to recolour. The trap it leaves behind is the
+   other one: the clip is a photograph, so its luminance under the ink is a RANGE, and the
+   fix is the scrim, not a fill. */
 .hm-greet { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px;
-  display:flex; flex-direction:column; justify-content:space-between; gap:18px; min-height:196px;
-  --lip-c:#A79ED8;
-  background-color:#DDD9F7;
-  background-image:linear-gradient(180deg,#EDEBFF 0%,#EDEBFF 42%,#DDD9F7 42%); }
+  display:flex; flex-direction:column; justify-content:flex-start; min-height:196px;
+  --lip-c:#8A7A4E;
+  background-color:#E9DEC6;
+  background-image:url(/media/loops/greeting-crew.jpg);
+  background-size:cover; background-position:100% 50%; }
+/* The clip itself, under everything. `poster` on the element AND the same still as the card's
+   background-image: the first paints before metadata arrives, the second is what shows when
+   the video is suppressed entirely (reduced motion), so there is no tier where the card is
+   bare. Decorative — aria-hidden and out of the tab order in the component. */
+.hm-greetvid { position:absolute; inset:0; width:100%; height:100%; z-index:0;
+  object-fit:cover; object-position:100% 50%; pointer-events:none; }
+/* ⚠ THE SCRIM IS A BUMP, NOT A VEIL, AND THAT IS DELIBERATE. A uniform wash strong enough for
+   the meadow strip (.70) also flattens the sky and puts out the golden flare in the top-left,
+   which is the best thing in the shot. The sky needs almost nothing (227 raw), the strip the
+   sub's last line crosses needs almost all of it, and the crew's head-tops at 55% need it
+   GONE. So the alpha rises into the horizon and releases below it — which reads as aerial
+   haze on the horizon it is aligned to, not as a panel.
+   Ink measured on the WORST pixel under each line, post-composite (the mirror of the rule a
+   flat card is quoted under — on a photograph the worst case is a pixel, not a band):
+     h1 --hink #2B2431 on the scrimmed sky (234)         12.5:1
+     <em> --violet-d #6D28D9, 36px bold = LARGE text      4.3:1  (AA large = 3:1)
+     .hm-sub #5A4B64 on the scrimmed strip at 43% (203)   4.9:1
+   z-index 1 puts it over the clip and under the copy's 3. */
+.hm-greet::before { content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(255,250,240,.30) 0%, rgba(255,250,240,.34) 28%, rgba(255,250,240,.70) 42%,
+    rgba(255,250,240,.52) 50%, rgba(255,250,240,0) 60%); }
 /* ⚠ THE WIDTH-PROPORTIONAL FLOAT IS GONE, AND ITS JOB WENT WITH THE VIDEO. It was
    `::before { float:left; width:0; padding-top:40% }` — a percentage of the card's WIDTH
    because the art band's height was a percentage of the card's width too (510/1280), so one
@@ -248,55 +261,35 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    for 144px of art. A real min-height is now both simpler and smaller, and it is released to
    0 in exactly the three tiers the float was switched off in (<=560, <=640 coarse, <=480h
    coarse), so no fold budget moves. */
-/* The corner specular goes back to WHITE with the plane. On the plum card it had to be
-   re-tinted to a #D68CFF bloom because 52% white on a dark plane is a blown highlight; on a
-   pale periwinkle it is the moulding's own light again, and it is the one place the card
-   still catches the page's house beam. Contained by `overflow:hidden` and out of flow
-   (position:absolute), so it is never a flex item. */
-.hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.5),transparent 62%); }
-.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
-/* The accent returns to --violet-d, the page's own violet, with the light plane: the plum
-   card's warm #FFC08A was promoted from the retired peach fill and is 1.4:1 on periwinkle —
-   an accent that vanishes. Still deliberately NOT the deck's certified gold #DFA828 (H=42):
-   gold is Lumens, and one meaning per hue is the deck's rule. */
+/* ⚠ THE CORNER SPECULAR IS DELETED, NOT MOVED. It was `::after`, a 52%-white radial in the
+   TOP-RIGHT — the page's house beam, and on a flat fill the one place the card caught it. The
+   shot carries its own directional light, raking in from the upper LEFT, and a second
+   highlight in the opposite corner reads as a lens smudge on a photograph rather than as
+   moulding. `::after` is now free; `::before` (the retired width-proportional float, then
+   nothing) is the scrim above. */
+.hm-greet h1 { position:relative; z-index:3; font-family:var(--font-home); font-weight:800; font-size:36px; line-height:1.06; letter-spacing:-.025em; max-width:430px; margin:0; color:var(--hink); }
+/* --violet-d survives the change of plane: on the scrimmed sky it is 4.3:1, and at 36px/800
+   it is WCAG large text, so its floor is 3:1 and not 4.5:1. Still deliberately NOT the deck's
+   certified gold #DFA828 (H=42) — gold is Lumens, and one meaning per hue is the deck's rule.
+   It would also now be the same hue as the light in the shot, which is the other reason. */
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
-/* The measure is the headline's own (4th pass): 430px at 36px. The mascot has her own track
-   now, so this cap is about line length and nothing else — it is no longer what keeps words
-   out from under her. */
-.hm-sub { position:relative; margin-top:10px; font-size:17px; font-weight:500; color:#5A4B64; max-width:380px; line-height:1.42; }
+/* ⚠ THE MEASURE IS NOW A CONTRAST DEVICE, NOT ONLY A LINE LENGTH. 430/380 keeps both lines
+   inside the x-range the poster was sampled over (source 23-90%) and off the crew, who start
+   at 46% of the frame. Widen either cap and the ink leaves the region these ratios were
+   measured on. */
+.hm-sub { position:relative; z-index:3; margin-top:10px; font-size:17px; font-weight:500; color:#5A4B64; max-width:380px; line-height:1.42; }
 /* The leaderboard control (.hm-lb) used to live here, as a candy CTA under the XP bar. It
    is now the deck's RANK STRIP and its rules moved with it — see "THE RANK STRIP" near the
    bottom of this file. Nothing on the greeting card styles it any more. */
-/* ⚠ THE MASCOT IS THE CARD'S ONLY ART, AND SHE IS A FLEX TRACK, NOT AN OVERLAY. She was
-   `position:absolute; right:-24px; bottom:0` at z-index 0, UNDER the copy — safe only while
-   an opaque clip and its veil sat between them. Alpha-cut, dark text crossing her pale skin
-   is ~1.3:1, so the overlap has to be impossible rather than unlikely.
-   `margin-bottom:-22px` cancels the card's own bottom padding, which is what re-grounds her
-   on the card's bottom edge exactly where `bottom:0` had her (that resolved against the
-   PADDING box).
-   ⚠ SHE IS SIZED BY WHAT IS LEFT OVER, NOT BY A NUMBER, and that is what fills the card
-   (6th pass). 160px was inherited from the 4th pass and was a third of a 313px content box —
-   whatever the card did not use stayed empty. `flex:0 1 240px` in a COLUMN makes 240 her
-   height, `flex-shrink:1` lets the copy take its share first, and `aspect-ratio:1` derives
-   her WIDTH from whatever height survives: at 1280-1512 the copy leaves ~207px, so she is
-   ~30% bigger than the 5th pass's mascot and the card is exactly full. She grows on a taller
-   card and shrinks on a shorter one, and 240 is the cap — past that she stops being the
-   card's art and starts being the card.
-   ⚠ THE RATIO IS ON THE WRAP, NOT ONLY THE MASCOT, and it has to be: her box is what the
-   floor and the halo are positioned against (both are % of this box now, so they scale with
-   her), and a wrap sized `width:auto` around a percentage-height child is exactly the
-   circular case browsers resolve to the raster's intrinsic size. A definite flex main size
-   plus `aspect-ratio` gives the cross size with no cycle.
-   ⚠ `min-height` is the floor that keeps her from being squeezed to nothing on a card the
-   rail has made short; the three tiers that hide her entirely never reach it. */
-.hm-iriswrap { position:relative; flex:0 1 240px; min-height:150px; aspect-ratio:1/1;
-  align-self:flex-end; margin-bottom:-22px;
-  z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
-/* The contact shadow that grounds her. Back to the STAGE's own vignette ink, at a light
-   surface's alpha: the plum card needed near-black at .5 to register at all, and that same
-   shadow on periwinkle is a smudge. Percentages, not px, so it tracks her size. */
-.hm-irisfloor { position:absolute; left:50%; bottom:7.5%; width:74%; height:11%; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(58,38,108,.30),transparent 70%); filter:blur(2px); }
-.hm-iris { position:relative; z-index:1; width:100%; height:100%; animation:hm-iris-bob 4.8s ease-in-out infinite; }
+/* ⚠ THE MASCOT TRACK IS DELETED — `.hm-iriswrap`, `.hm-irisfloor`, `.hm-iris` and the wrap's
+   warm halo are all gone, and so is <EyeconLogo> in the component. She was the card's only
+   art and had to be a flex TRACK so that dark copy could never cross her pale alpha-cut skin
+   (~1.3:1). She is not the card's art any more: there are four of her in the clip, they are
+   part of the shot rather than an overlay on it, and a single raster standing in front of a
+   picnic would be a fifth Eyecon at a different scale in a different light.
+   ⚠ `@keyframes hm-iris-bob` and `hm-halo-breathe` STAY — `.hm-eyecon-img` and
+   `.hm-eyecon-halo` below (the student's OWN Eyecon, a different surface) still run them.
+   Deleting them with the mascot would have taken the popover's animation with it. */
 /* single transform track (no stacked conflicting animations): the bob carries a
    gentle breathe (scaleY) + a quick eye-close squash near the end of the cycle. */
 @keyframes hm-iris-bob {
@@ -306,14 +299,6 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   95% { transform:translateY(0) rotate(-.6deg) scaleY(.9); }
   100% { transform:translateY(0) rotate(-1deg) scaleY(1); }
 }
-/* Breathing warm halo behind the mascot — the light source she is standing in, and the one
-   thing tying her warm skin to a cool card. It stays warm on periwinkle for the same reason
-   it stayed warm on plum; only the alpha comes down, because a light plane needs far less of
-   it to read. Percentages, like the floor, so it scales with her. */
-.hm-iriswrap::before { content:""; position:absolute; left:50%; bottom:11%; width:82%; height:82%; transform:translateX(-50%);
-  border-radius:50%; z-index:0; background:radial-gradient(circle, rgba(255,196,132,.34), transparent 66%);
-  filter:blur(10px); animation:hm-halo-breathe 4.8s ease-in-out infinite; }
-
 /* ── the student's OWN Eyecon on the greeting card (seamless-custom spec) ──
    One transparent render, animated CSS-only: entrance rise, continuous
    breathe/bob, and a soft halo glow tinted by their chosen backdrop. */
@@ -327,23 +312,19 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 @keyframes hm-eyecon-enter { from { opacity:0; transform: translateY(18px) scale(0.94); } to { opacity:1; transform: translateY(0) scale(1); } }
 @keyframes hm-halo-breathe { 0%,100% { opacity:0.42; } 50% { opacity:0.68; } }
 
-/* ── the baked Veo greeting loop is RETIRED (5th pass 2026-08-06) ──
-   `.hm-eyeconloop`, `.hm-eyeconloop-v`, `.hm-greet-veil` and `EyeconGreetingLoop.tsx` are
-   gone. The clip was opaque and full-bleed, so the card's fill had to be SAMPLED off the
-   clip's own baked peach->pink backdrop to hide the join — which is what made the greeting
-   un-recolourable while every other object on the deck went violet. The mascot is the
-   alpha-cut <EyeconLogo> above; the veil went with the thing it was veiling.
-   ⚠ Everything those rules defended is MOOT, not deleted-and-at-risk: `aspect-ratio
-   1280/510`, `object-position:50% 68%` and the 6% mask-fade all existed to stop
-   `object-fit:cover` amputating her ("the waving eyecon is cut off", 2026-08-06).
-   `object-fit:contain` on a fixed box cannot crop, so the class of bug is gone.
-   ⚠ The `greeting-selena.{mp4,jpg}` binaries and `tools/media/generate_greeting_loop.py`
-   are KEPT — reviewed media, and a violet-baked reshoot is the obvious way back. */
-/* ⚠ `flex:0 0 auto`, NOT `1 1 auto`, now the card is a column: the mascot is the only track
-   allowed to absorb the deficit. With shrink on BOTH, a 313px content box under a 346px
-   demand takes the 33px proportionally — and a text block shrunk below its content height
-   does not reflow, it overflows into the card's `overflow:hidden`. The row tier restores
-   `1 1 auto`, where the property is about width and the copy SHOULD take the slack. */
+/* ⚠ THE OLD LOOP'S BUG CLASS IS BACK IN SCOPE, SO HERE IS WHAT ACTUALLY FIXED IT. The 4th
+   pass's clip was cropped by `object-fit:cover` until the mascot lost an edge ("the waving
+   eyecon is cut off", 2026-08-06), and the 5th pass escaped it by not having a clip. This
+   card has one again — the difference is that the crop is now DESIGNED: the generator pins
+   the crew inside the right 50% and the ONE property that has to agree with it is
+   `object-position`, per tier, verified in frontend/tests/_home_shot.mjs (it reports clipped
+   px and the copy/crew intersection at every breakpoint). Never centre this clip.
+   ⚠ `greeting-selena.{mp4,jpg}` (the 4th pass's single-mascot loop) are DELETED — this clip
+   replaces them in the same slot and nothing referenced them after the 5th pass retired the
+   player. `tools/media/generate_greeting_loop.py` now generates THIS one. */
+/* `flex:0 0 auto` on the one remaining track: a text block shrunk below its content height
+   does not reflow, it overflows into the card's `overflow:hidden`. There is no longer a
+   second track to absorb a deficit, so the copy must simply never be asked to. */
 .hm-greet-body { position:relative; z-index:3; flex:0 0 auto; min-width:0; }
 
 /* ── streak tile ── */
@@ -850,26 +831,51 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      phone-LANDSCAPE tier below restores two columns — 844px matches this block, and a
      wide+short screen is the one place side-by-side is what keeps the page short. */
   .hm-deck-mid { grid-template-columns:1fr; }
-  .hm-greet h1 { font-size:30px; max-width:none; }
-  .hm-sub { font-size:16px; }
-  /* ⚠ THE ROW COMES BACK HERE, and only here. One column makes this card 836x182 — wide and
-     short — and a stack in that shape is a full-width copy block with a mascot band it has
-     no height to give. Side by side is the correct answer for a band, which is what the
-     card was built as before the deck ever put it beside the rail. The copy takes the slack
-     again (see the base rule's note), and the mascot goes back to a fixed 152px track: with
-     the card at its 182px floor there is no leftover height for her to be sized by. */
-  .hm-greet { flex-direction:row; min-height:182px; }
-  .hm-greet-body { flex:1 1 auto; }
-  .hm-iriswrap { flex:0 0 152px; min-height:0; }
+  /* ⚠ THE CROP AXIS FLIPS HERE, AND EVERY OTHER RULE IN THIS BLOCK FOLLOWS FROM THAT. One
+     column makes the card 836x182 — 4.59:1 against a 1.80:1 clip — so `cover` now scales to
+     the WIDTH and throws away 61% of the HEIGHT instead of 19% of the width. Consequences:
+       · `object-position`'s X is inert (nothing overflows horizontally) and its Y is doing
+         all the work: 62% frames source y 38-77%, horizon down to mid-blanket, which is the
+         one band that still holds all four heads.
+       · The crew therefore sits at card x 46-95% UNCROPPED, so the copy is capped off it by
+         hand. 360/340 are measured against that 385px of clear left, not guessed.
+       · The scrim turns 90 degrees with the crop. A top-down bump would be lifting sky that
+         is no longer on screen while leaving the copy on bare meadow. */
+  /* ⚠ 220px, NOT THE 182px FLOOR THIS TIER CARRIED FOR FOUR PASSES, AND THE CLIP SETS IT.
+     `cover` here shows a window of card-height/465 of the frame, and the crew occupies 45% of
+     that frame (y 47-92%). At 182 the window is 39% — SHORTER THAN THE CREW — so no
+     `object-position` exists that holds all four: 62% cost 70px off the bottom, and every
+     other value trades it for the same loss at the top. 220 makes the window 47%, which is
+     the first height that fits them with any margin at all. The tier pays 38px of page for
+     it, and it buys ONE invariant instead of a special case: the crew is never clipped, at
+     any width. Re-measure this if the clip is ever regenerated. */
+  .hm-greet { min-height:220px; background-position:100% 87%; }
+  .hm-greet h1 { font-size:30px; max-width:360px; }
+  .hm-sub { font-size:16px; max-width:340px; }
+  .hm-greetvid { object-position:100% 87%; }
+  /* The plateau reaches 46% because the sub's box ends at card x 366 (43%) and the ink is
+     measured at its far edge, not its start — at the old .74@38% stop that corner was the
+     one pixel in the card under 4.5:1. */
+  .hm-greet::before { background:linear-gradient(90deg,
+    rgba(255,250,240,.84) 0%, rgba(255,250,240,.78) 46%,
+    rgba(255,250,240,.28) 60%, rgba(255,250,240,0) 72%); }
   .hm-eyecon { width:158px; height:158px; }
   .hm-carousel { height:340px; }
 }
 @media (max-width:560px) {
-  .hm-greet h1 { font-size:27px; max-width:76%; }
-  .hm-sub { font-size:15px; max-width:63%; }
-  .hm-iriswrap { display:none; }
-  /* the mascot's floor goes with the mascot — same release the float lock used to get */
-  .hm-greet { min-height:0; }
+  /* ⚠ PHONE KEEPS THE COPY AND LOSES THE FILM. The standing directive is "remove the waving
+     eyecon on phone" (2026-07-20) — the phone card is copy on a bare plane — and a 358px-wide
+     card is where that directive bites hardest: at this size `cover` shows almost the whole
+     frame, so the crew lands DIRECTLY behind a 27px headline that needs the full measure, and
+     the only scrim strong enough to fix it is one that hides the picnic anyway. So the clip
+     is suppressed and the card falls back to a flat plane in the SHOT's family (a warm sky
+     cream), not the 6th pass's periwinkle: the phone card should read as the same object as
+     the desktop one, lit the same way, just without the film. --hink on #E9DEC6 is 12.6:1. */
+  .hm-greetvid { display:none; }
+  .hm-greet { min-height:0; background-image:linear-gradient(180deg,#F6EDDC 0%,#F6EDDC 42%,#E9DEC6 42%); }
+  .hm-greet::before { display:none; }
+  .hm-greet h1 { font-size:27px; max-width:none; }
+  .hm-sub { font-size:15px; max-width:none; }
   /* THE STREAK GOES BACK TO A COLUMN. The horizontal band needs ~532px of card (a 200px
      numeral column + 26px + the month's own 262px + 44px of padding) and this tier has at
      most 500. ONE property does it: every grid-column/grid-row on the children is inert
@@ -972,10 +978,12 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
      floor comes off with her — it would come straight out of the 844px fold budget the
      status bar, three quest rows and the chest already have to fit inside. `column` is the
      base again, but this block sits after the <=900 row tier and has to say so. */
-  .hm-greet { padding:0; flex-direction:column; min-height:0; }
-  /* The ≤560px block already hides her, but this tier reaches 640px — without this, a
-     561-640px coarse device would still render her beside the copy. */
-  .hm-iriswrap { display:none; }
+  .hm-greet { padding:0; flex-direction:column; min-height:0;
+    background-image:linear-gradient(180deg,#F6EDDC 0%,#F6EDDC 42%,#E9DEC6 42%); }
+  /* The ≤560px block already suppresses the clip, but this tier reaches 640px — without
+     this, a 561-640px coarse device would still play a picnic behind the copy. */
+  .hm-greetvid { display:none; }
+  .hm-greet::before { display:none; }
   .hm-greet-body { padding:14px 15px 15px; }
   .hm-greet h1 { font-size:clamp(21px,5.6vw,25px); max-width:none; }
   .hm-sub { font-size:14.5px; margin-top:8px; max-width:none; line-height:1.38; }
@@ -1019,12 +1027,14 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-pool-seg button { padding:5px 10px; font-size:12px; }
 
   /* the mascot's height floor comes off with the mascot — see the portrait tier's note */
-  .hm-greet { padding:13px 16px; border-radius:16px; min-height:0; }
+  .hm-greet { padding:13px 16px; border-radius:16px; min-height:0;
+    background-image:linear-gradient(180deg,#F6EDDC 0%,#F6EDDC 42%,#E9DEC6 42%); }
   .hm-greet h1 { font-size:clamp(18px,2.3vw,21px); max-width:none; }
   .hm-sub { font-size:13px; margin-top:6px; max-width:none; line-height:1.35; }
-  /* phone landscape: same as portrait — no mascot on the greeting card (2026-07-20). This
-     tier keeps the desktop-style card, so she has to be hidden explicitly. */
-  .hm-iriswrap { display:none; }
+  /* phone landscape: same as portrait — the card is copy on a bare plane (2026-07-20). This
+     tier keeps the desktop-style card, so the clip has to be suppressed explicitly. */
+  .hm-greetvid { display:none; }
+  .hm-greet::before { display:none; }
 
   .hm-streak { padding:14px 16px; }
   .hm-snum { font-size:44px; }
@@ -1071,18 +1081,24 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
 }
 
 /* ── reduced motion ── */
+/* ⚠ THE GREETING CARD IS THE ONE SURFACE HERE THAT `animation:none` CANNOT REACH. Everything
+   else on this list is a CSS animation; the greeting is an autoplaying <video>, and no CSS
+   property pauses one. `display:none` on the element is what stops it — and it is safe to do
+   because the card's own `background-image` is the SAME still as the video's poster, so the
+   card keeps the picnic and simply stops moving. The phone tiers already suppress the clip
+   this way for a different reason; this is the same mechanism, not a second one. */
 @media (prefers-reduced-motion: reduce) {
-  .aurora-home .hm-iris, .aurora-home .hm-eyecon, .aurora-home .hm-eyecon-img, .aurora-home .hm-eyecon-halo,
-  .aurora-home .hm-iriswrap::before, .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
+  .aurora-home .hm-greetvid { display:none; }
+  .aurora-home .hm-eyecon, .aurora-home .hm-eyecon-img, .aurora-home .hm-eyecon-halo,
+  .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
   .aurora-home .hm-big::before,
   .aurora-home .hm-panel--lumen,
   .aurora-home .hm-caldot, .aurora-home .hm-calday[data-state="today"] .hm-caldot { animation:none !important; }
 }
-html[data-motion="reduce"] .aurora-home .hm-iris,
+html[data-motion="reduce"] .aurora-home .hm-greetvid { display:none; }
 html[data-motion="reduce"] .aurora-home .hm-eyecon,
 html[data-motion="reduce"] .aurora-home .hm-eyecon-img,
 html[data-motion="reduce"] .aurora-home .hm-eyecon-halo,
-html[data-motion="reduce"] .aurora-home .hm-iriswrap::before,
 html[data-motion="reduce"] .aurora-home .hm-flame,
 html[data-motion="reduce"] .hm-flame .core,
 html[data-motion="reduce"] .hm-streak::before,

@@ -288,15 +288,32 @@ const overflow = await np.evaluate(() => document.documentElement.scrollWidth - 
 if (overflow > 2) { console.error(`FAIL: horizontal overflow at 390px = ${overflow}px`); process.exit(1); }
 console.log("PASS: dashboard has no horizontal overflow at 390px");
 
-// Animated Eyecon logo greets on Home (logo→raster brief): the rest frame IS the
-// homepage iris.png, running the calm "hello" motion.
-const homeLogo = np.locator('[data-testid="eyecon-logo"]').first();
-if ((await homeLogo.count()) < 1) { console.error("FAIL: EyeconLogo missing on the Home greeting"); process.exit(1); }
-const homeMotion = await homeLogo.getAttribute("data-motion");
-if (homeMotion !== "hello") { console.error(`FAIL: Home EyeconLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
-const homeRestSrc = (await homeLogo.locator(".eyecon-logo-rest").getAttribute("src")) ?? "";
-if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home EyeconLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
-console.log("PASS: Home — animated EyeconLogo (hello) on the iris.png rest frame");
+// The Eyecon crew loop IS the greeting card (design-lock Home, 7th pass): a full-bleed
+// <video> carrying its own poster. This replaced the single animated <EyeconLogo> that had
+// stood in a flex track beside the copy.
+// ⚠ THE CROP ANCHOR IS ASSERTED, NOT DECORATIVE. The card is ~1.45:1 against a 1.80:1 clip,
+// so `cover` discards 19% of the width; only a RIGHT anchor discards it from the empty side.
+// Centre-anchored (the CSS default) it takes 9.5% off each edge and amputates the specs
+// Eyecon — the exact bug that killed the 4th pass's loop ("the waving eyecon is cut off").
+// Needs a desktop viewport: the phone tiers suppress the clip entirely. The `cases` block
+// below opens by setting this same size, so nothing is left disturbed.
+await np.setViewportSize({ width: 1440, height: 900 });
+await np.waitForTimeout(300);
+const greetLoop = np.locator('[data-testid="greet-loop"]');
+if ((await greetLoop.count()) < 1) { console.error("FAIL: greeting crew loop missing on Home"); process.exit(1); }
+const loopSrc = (await greetLoop.getAttribute("src")) ?? "";
+if (!/\/media\/loops\/greeting-crew\.mp4$/.test(loopSrc)) { console.error(`FAIL: greeting loop src is '${loopSrc}', expected /media/loops/greeting-crew.mp4`); process.exit(1); }
+const loopPoster = (await greetLoop.getAttribute("poster")) ?? "";
+if (!/\/media\/loops\/greeting-crew\.jpg$/.test(loopPoster)) { console.error(`FAIL: greeting loop has no crew poster (poster=${loopPoster})`); process.exit(1); }
+const loopCss = await greetLoop.evaluate((el) => {
+  const s = getComputedStyle(el);
+  return { pos: s.objectPosition, fit: s.objectFit, muted: el.muted, loop: el.loop, shown: s.display };
+});
+if (loopCss.shown === "none") { console.error("FAIL: greeting loop is suppressed at 1440px (desktop should play it)"); process.exit(1); }
+if (loopCss.fit !== "cover") { console.error(`FAIL: greeting loop object-fit is '${loopCss.fit}', expected cover`); process.exit(1); }
+if (!/^100%/.test(loopCss.pos)) { console.error(`FAIL: greeting loop is not right-anchored (object-position=${loopCss.pos}) — cover will amputate the right-hand Eyecon`); process.exit(1); }
+if (!loopCss.muted || !loopCss.loop) { console.error(`FAIL: greeting loop must be muted+looping (muted=${loopCss.muted} loop=${loopCss.loop})`); process.exit(1); }
+console.log("PASS: Home greeting — the Eyecon crew loop, right-anchored cover, muted + looping");
 
 // cases: the Atlas Map renders and a region pin filters the case list.
 await np.setViewportSize({ width: 1440, height: 900 });
@@ -860,16 +877,18 @@ const PORTRAIT_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQA
 const DEFAULT_CFG = { version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "natural", mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none", outfit: "none", background: "mist" };
 await navCtx.route("**/api/avatar", (r) =>
   r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: true, portrait_status: "none", portrait_url: null })));
-// The greeting card is ALWAYS the default living mascot (brand EyeconLogo), even for a
-// customized student — the custom Eyecon lives only on the home popover + leaderboard.
+// The greeting card is ALWAYS the brand crew loop, even for a customized student — the
+// custom Eyecon lives only on the home popover + leaderboard. The 7th pass swapped the single
+// default <EyeconLogo> for the four-Eyecon clip, so the surface changed but the invariant did
+// not: a per-student render must never reach this card.
 await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.hm-iriswrap [data-testid="eyecon-logo"]', { timeout: 15000 });
-if ((await np.locator(".hm-eyecon img.hm-eyecon-img").count()) > 0) {
-  console.error("FAIL: greeting shows a custom render for a customized student (should always be the default mascot)"); process.exit(1);
+await np.waitForSelector('.hm-greet [data-testid="greet-loop"]', { timeout: 15000 });
+if ((await np.locator(".hm-greet .hm-eyecon img.hm-eyecon-img").count()) > 0) {
+  console.error("FAIL: greeting shows a custom render for a customized student (should always be the brand crew loop)"); process.exit(1);
 }
-const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="eyecon-logo"] .eyecon-logo-rest').getAttribute("src")) ?? "";
-if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
-console.log("PASS: Home greeting — always the DEFAULT living mascot, even when customized");
+const greetLoopSrc = (await np.locator('.hm-greet [data-testid="greet-loop"]').getAttribute("src")) ?? "";
+if (!/\/media\/loops\/greeting-crew\.mp4$/.test(greetLoopSrc)) { console.error(`FAIL: greeting is not the brand crew loop (src=${greetLoopSrc})`); process.exit(1); }
+console.log("PASS: Home greeting — always the BRAND crew loop, even when customized");
 
 // Leaderboard — "The League": the tier band + a PODIUM holding ranks 1-3 + the ranked board
 // holding rank 4 down. (The podium was deleted on 2026-08-03 and restored on 2026-08-04 by
@@ -1019,9 +1038,18 @@ const rmPage = await navCtx.newPage();
 await rmPage.emulateMedia({ reducedMotion: "reduce" });
 await rmPage.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await rmPage.waitForSelector('[data-testid="streak-tile"]', { timeout: 15000 });
-const rmAnim = await rmPage.locator(".hm-iris").first().evaluate((el) => getComputedStyle(el).animationName);
-if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the mascot (animationName=${rmAnim})`); process.exit(1); }
-console.log("PASS: reduced motion freezes the home mascot animation");
+// ⚠ THE GREETING IS A <video>, AND NO CSS PROPERTY PAUSES ONE — `animation:none` is what
+// freezes every other surface on Home and it does nothing here. The card is suppressed
+// instead, falling back to its own background-image (the same still as the video's poster),
+// so reduced motion still gets the picnic, just held. Asserting `animation` on this card
+// would have passed vacuously forever.
+const rmVid = await rmPage.locator(".hm-greetvid").first().evaluate((el) => getComputedStyle(el).display);
+if (rmVid !== "none") { console.error(`FAIL: reduced motion did not stop the greeting loop (display=${rmVid})`); process.exit(1); }
+const rmPoster = await rmPage.locator(".hm-greet").first().evaluate((el) => getComputedStyle(el).backgroundImage);
+if (!/greeting-crew\.jpg/.test(rmPoster)) { console.error(`FAIL: reduced-motion greeting has no still to fall back to (background-image=${rmPoster})`); process.exit(1); }
+const rmAnim = await rmPage.locator(".hm-flame").first().evaluate((el) => getComputedStyle(el).animationName);
+if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the streak flame (animationName=${rmAnim})`); process.exit(1); }
+console.log("PASS: reduced motion stops the greeting loop (poster holds) and freezes the flame");
 
 // (The mandatory first-login gate — uncustomized → forced/unskippable welcome Studio,
 //  customized → never gated, re-customization locked — is covered end-to-end by
