@@ -80,7 +80,9 @@ def _detail_patches():
             {"student_id": "s1", "case_id": "c1", "score_100": 90,
              "passed": True, "safe": True},
         ])),
-        patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})),
+        # The RAW attempts: the handler aggregates accuracy in-process now, because
+        # get_topic_accuracy discarded the `ts` the flashcard trajectory needs.
+        patch("tools.shared.db.get_flashcard_attempts", new=AsyncMock(return_value=[])),
         patch("tools.shared.db.get_active_student_profiles",
               new=AsyncMock(return_value=(_PROFILES, 0))),
         patch("tools.shared.db.get_all_case_scores",
@@ -256,14 +258,18 @@ def test_a_new_attempt_moves_the_cases_list_and_the_mastery_value_together():
 
 
 def test_the_flashcard_value_matches_the_accuracy_panel_on_the_same_page():
-    # Same contract for the second scale: flashcard_accuracy renders from
-    # db.get_topic_accuracy, so the mastery value must come from that read too.
-    extra = [patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={
-        "red_eye": {"correct": 3, "total": 4, "pct": 75.0},
-        "glaucoma": {"correct": 1, "total": 6, "pct": 16.7},
-    }))]
+    # Same contract for the second scale: flashcard_accuracy renders from this student's own
+    # attempts, so the mastery value must come from that read too. The rows are raw now —
+    # the handler aggregates them itself, because get_topic_accuracy discarded the `ts`.
+    attempts = ([{"topic_tag": "red_eye", "correct": i < 3} for i in range(4)]
+                + [{"topic_tag": "glaucoma", "correct": i < 1} for i in range(6)])
+    extra = [patch("tools.shared.db.get_flashcard_attempts",
+                   new=AsyncMock(return_value=attempts))]
     body = _get(extra=extra).json()
-    assert body["flashcard_accuracy"]["red_eye"]["correct"] == 3
+    # Whole bucket, not just `correct`: the in-process aggregation has to stay shape-identical
+    # to db.get_topic_accuracy, which is what the console's accuracy bars are built on.
+    assert body["flashcard_accuracy"]["red_eye"] == {"correct": 3, "total": 4, "pct": 75.0}
+    assert body["flashcard_accuracy"]["glaucoma"] == {"correct": 1, "total": 6, "pct": 16.7}
     # 4 of 10 attempts — the whole bank behind the panel above, not the cohort scan, which
     # has no flashcard rows for s1 at all.
     assert body["mastery"]["flashcard_mastery"]["value"] == 40.0

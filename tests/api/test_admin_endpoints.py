@@ -111,7 +111,9 @@ def _stub_admin_db():
         "tools.shared.db.get_consent_by_student_id": None,
         "tools.shared.db.get_sessions": [],
         "tools.shared.db.get_case_results": [],
-        "tools.shared.db.get_topic_accuracy": {},
+        # The detail endpoint reads the RAW attempts now and aggregates them in-process —
+        # get_topic_accuracy called this same function and discarded the timestamps.
+        "tools.shared.db.get_flashcard_attempts": [],
         # GET /api/admin/token-summary — (rows, complete) pagination tuple
         "tools.shared.db.get_all_session_tokens": ([], True),
         # GET /api/admin/cohort-analytics — the two bulk readers are whole-table
@@ -507,7 +509,7 @@ def _detail_patches(consent):
         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent)),
         patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])),
         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])),
-        patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})),
+        patch("tools.shared.db.get_flashcard_attempts", new=AsyncMock(return_value=[])),
     )
 
 
@@ -604,3 +606,57 @@ def test_admin_token_summary_excludes_removed_student():
     assert body["total_tokens"] == 100
     by_student = {row["student_id"]: row["tokens"] for row in body["by_student"]}
     assert by_student == {"act1": 100}
+
+
+# ---------------------------------------------------------------------------
+# Functional: the assembled per-student insight (spec §4.6)
+# ---------------------------------------------------------------------------
+
+def test_student_detail_returns_the_insight_payload():
+    """The three renderers read `insight`. Its absence is a blank report, not a broken one,
+    so this asserts the key exists and is shaped even for a student with no data at all."""
+    r = client.get("/api/admin/student/stu_x/detail", cookies=_admin_headers())
+    assert r.status_code == 200
+    insight = r.json()["insight"]
+    assert "topics" in insight and "mark_loss" in insight
+    assert insight["osce_trajectory"]["band"] == "insufficient"
+
+
+def test_the_insight_carries_this_students_own_cards_and_stations():
+    """Shape alone would still pass with the assembler's arguments swapped — every key is
+    always present, empty or not. Pin that the student's OWN two reads reach the payload,
+    joined onto one topic by the case index."""
+    cards = [{"topic_tag": "tonometry", "correct": True, "ts": "2026-08-01T09:00:00Z"}]
+    cases = [{"case_id": "c1", "score_100": 60, "passed": True,
+              "completed_at": "2026-08-02T09:00:00Z"}]
+    with patch("tools.shared.db.get_flashcard_attempts", new=AsyncMock(return_value=cards)), \
+         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=cases)), \
+         patch("tools.api.routers.admin.get_case_index",
+               new=AsyncMock(return_value={"c1": {"topic": "Tonometry"}})):
+        r = client.get("/api/admin/student/stu_x/detail", cookies=_admin_headers())
+    assert r.status_code == 200
+    topics = {t["topic"]: t for t in r.json()["insight"]["topics"]}
+    assert topics["tonometry"]["flashcards"] == {"value": 100.0, "n": 1, "band": "thin"}
+    assert topics["tonometry"]["station"] == {"value": 60.0, "n": 1, "band": "developing"}
+
+
+def test_a_failed_insight_leaves_the_rest_of_the_page_standing():
+    """`insight` is an ADDITION to a page trainers already use. A bug in the pure assembler
+    must cost the new panel and nothing else — the same contract the mastery block keeps.
+    build_student_insight patches on the ROUTER's namespace: admin.py binds it at import."""
+    audit = AsyncMock()
+    with patch("tools.api.routers.admin.build_student_insight",
+               side_effect=RuntimeError("assembler blew up")), \
+         patch("tools.shared.db.insert_audit_event", new=audit):
+        r = client.get("/api/admin/student/stu_x/detail", cookies=_admin_headers())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["insight"] is None
+    assert "sessions" in body and "cases" in body and "insights" in body
+    # ...and the failure is durable, not a silent permanent null — same detector the
+    # mastery degrade got, for the same reason.
+    audit.assert_awaited_once()
+    kw = audit.call_args.kwargs
+    assert kw["action"] == "student_insight_failed"
+    assert kw["target"] == "stu_x"
+    assert "assembler blew up" in kw["detail"]

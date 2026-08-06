@@ -33,6 +33,7 @@ from tools.supervisor.cohort_analytics import (
 from tools.supervisor.cohort_reads import get_cohort_reads
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
 from tools.supervisor.mastery import mastery_block, retention_mastery
+from tools.supervisor.student_insight import build_student_insight
 from tools.supervisor.trend import build_points, period_for, window_start_utc
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 
@@ -773,6 +774,23 @@ async def admin_student_insights(student_id: str, request: Request, current_user
     return {"findings": findings, "narrative": narrative}
 
 
+def _accuracy_from_rows(card_rows: list[dict]) -> dict[str, dict]:
+    """`get_topic_accuracy`'s aggregation, over rows we have already read. Kept byte-identical
+    in shape ({topic: {correct, total, pct}}) because the existing `flashcard_accuracy`
+    response field and its console bar list both read it."""
+    agg: dict[str, dict] = {}
+    for row in card_rows:
+        topic = row.get("topic_tag") or "general"
+        bucket = agg.setdefault(topic, {"correct": 0, "total": 0, "pct": 0.0})
+        bucket["total"] += 1
+        if row.get("correct"):
+            bucket["correct"] += 1
+    for bucket in agg.values():
+        bucket["pct"] = (round(100 * bucket["correct"] / bucket["total"], 1)
+                         if bucket["total"] else 0.0)
+    return agg
+
+
 @router.get("/api/admin/student/{student_id}/detail")
 # shared_limit (fixed scope), NOT limit: slowapi's default key_style="url" keys on the
 # ASGI path, so {student_id} would land in the bucket key and a caller could dodge the
@@ -792,10 +810,16 @@ async def admin_student_detail(student_id: str, request: Request,
         case_rows = await db.get_case_results(student_id)
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+    # The RAW attempts, not get_topic_accuracy: that helper calls this same function and
+    # throws away the timestamps, which the flashcard trajectory needs. Per-topic accuracy is
+    # derived from these rows in topic_map.flashcard_cells, so this is one read, not two.
     try:
-        flashcard_acc = await db.get_topic_accuracy(student_id)
+        card_rows = await db.get_flashcard_attempts(student_id)
     except Exception:
-        flashcard_acc = {}
+        # Raises by design pre-migration-010 (db.py:566) — the normal state before the
+        # flashcard log existed. Degrade to no cards, exactly as before.
+        card_rows = []
+    flashcard_acc = _accuracy_from_rows(card_rows)
 
     # Mastery vs cohort (P2b, §6.2). Best-effort: this is an ADDITION to a page that
     # already works, so a failure here emits `mastery: null` and leaves the sessions,
@@ -804,6 +828,10 @@ async def admin_student_detail(student_id: str, request: Request,
     # flashcard read exactly as below, so this is a narrower version of that split, not
     # its opposite.
     mastery = None
+    # Hoisted out of the try below so the insight block can still see it: an exception in
+    # there leaves the name unbound, and the cohort baseline then has to degrade to "no
+    # peers" rather than take the whole payload down with it.
+    reads = None
     try:
         # One shared read across /at-risk, /cohort-analytics and every student a trainer
         # opens (cohort_reads). This endpoint was the uncached one, and its query
@@ -927,6 +955,29 @@ async def admin_student_detail(student_id: str, request: Request,
     # Cross-feature findings (deterministic, free) — the AI narrative is fetched separately.
     findings = _build_student_findings(profile, all_sessions, case_rows, flashcard_acc)
 
+    # Best-effort, exactly like the mastery block above it: this is an ADDITION to a page that
+    # already works, so a failure here emits `insight: None` and leaves the sessions, cases
+    # and findings intact.
+    insight = None
+    try:
+        case_topics = {cid: str(entry.get("topic") or "")
+                       for cid, entry in (await get_case_index()).items()}
+        insight = build_student_insight(
+            profile=profile, sessions=all_sessions, case_rows=case_rows,
+            card_rows=card_rows, case_topics=case_topics,
+            cohort_card_rows=reads.card_rows if reads else [],
+            cohort_case_rows=reads.case_rows if reads else [],
+            student_id=student_id,
+        )
+    except Exception as exc:
+        audit_log("student_insight_failed", student_id=student_id,
+                  feature="admin", detail=str(exc))
+        await db.insert_audit_event(action="student_insight_failed",
+                                    actor=current_user["sub"], target=student_id,
+                                    feature="admin", detail=str(exc),
+                                    ip=_client_ip(request))
+        insight = None
+
     return {
         "student_id": student_id,
         "full_name": (consent.get("student_name") or "").strip(),
@@ -941,6 +992,7 @@ async def admin_student_detail(student_id: str, request: Request,
         "retention_scores": retention_scores,
         "flashcard_accuracy": flashcard_acc,
         "mastery": mastery,
+        "insight": insight,
         "supervisor_note": profile.get("supervisor_note", ""),
         "sessions": sessions,
         "cases": cases,
