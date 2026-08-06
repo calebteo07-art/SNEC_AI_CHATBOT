@@ -113,3 +113,46 @@ def test_submit_schedules_persistence_as_background_task():
     body = r.json()
     assert isinstance(body["lumens_awarded"], int)
     assert body["coaching"]["focus"] == "escalate sooner"
+
+
+def test_submit_survives_a_broken_checklist_detail_builder():
+    """checklist_detail is built as an ARGUMENT to background_tasks.add_task(...), which
+    Python evaluates on the request path, before the response is sent -- NOT inside the
+    backgrounded _persist_submit like everything else scheduled there. Unlike its sibling
+    arguments (already-computed values that cannot raise), it does real work over authored
+    checklist data. A purely-additive analytics field must never be able to 500 a submission
+    that was already graded and coached successfully -- and the fallback (an empty ledger)
+    must still reach persistence, not silently drop the rest of the record with it.
+
+    add_task is NOT stubbed here (unlike the sibling test above) so _persist_submit really
+    runs; its other writes (log_session, update_profile, log_case_completion) are mocked
+    individually instead, matching tests/cases/test_case_submit_persists_grade.py.
+    """
+    captured = {}
+
+    async def _log(*args, **kwargs):
+        captured["kwargs"] = kwargs
+
+    client = TestClient(app)
+    with patch.dict("tools.api.shared._case_cache", {"case_bg": _CASE}, clear=False), \
+         patch("tools.api.routers.cases.list_available_cases", return_value=["case_bg"]), \
+         patch("tools.api.routers.cases.load_case", return_value=_CASE), \
+         patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
+         patch("tools.api.routers.cases._station_checklist",
+               return_value={"procedure_name": "NCT", "steps": [], "source": "checklist"}), \
+         patch("tools.api.routers.cases.evaluate_case", return_value=_DOMAINS), \
+         patch("tools.api.routers.cases.compute_station_score", return_value=_SCORE), \
+         patch("tools.api.routers.cases.log_session", new=AsyncMock(return_value=None)), \
+         patch("tools.api.routers.cases.ask", return_value=_COACH_JSON), \
+         patch("tools.profile.update_profile.update_profile", new=AsyncMock(return_value=None)), \
+         patch("tools.api.routers.cases.log_case_completion", new=_log), \
+         patch("tools.api.routers.cases._build_checklist_detail",
+               side_effect=RuntimeError("boom")):
+        r = _post(client)
+
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert isinstance(body["lumens_awarded"], int)
+    assert body["coaching"]["focus"] == "escalate sooner"
+    # The fallback reaches persistence as an empty ledger, not a dropped record.
+    assert captured["kwargs"]["checklist_detail"] == []

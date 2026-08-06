@@ -1004,6 +1004,36 @@ def _fallback_coaching(score: dict, raw_result: dict,
     )
 
 
+def _build_checklist_detail(steps: list[dict], *, performed: set[int],
+                            skipped: set[int]) -> list[dict]:
+    """The per-step ledger persisted with the attempt (migration 019).
+
+    Built from the SAME resolved steps and the SAME phase grouping /station serves, so a
+    report rebuilt from this row groups exactly as the ledger the student watched. `skipped`
+    is recorded alongside `performed=False` rather than instead of it: on the day they are the
+    same outcome, and the distinction is only for whoever reviews the attempt later.
+    """
+    # Two passes on purpose: the ledger is emitted in the STEPS' order, not in phase order.
+    # group_by_phase buckets by category, and nothing guarantees categories appear in phase
+    # order — flattening its groups would silently reorder the ledger a student worked through.
+    phase_of: dict[int, str] = {}
+    for group in group_by_phase(steps):
+        for s in group["steps"]:
+            phase_of[int(s.get("step_number", 0))] = str(group["name"])
+    detail: list[dict] = []
+    for s in steps:
+        n = int(s.get("step_number", 0))
+        detail.append({
+            "step_number": n,
+            "action": str(s.get("action", "")),
+            "phase": phase_of.get(n, ""),
+            "critical": bool(s.get("critical", False)),
+            "performed": n in performed,
+            "skipped": n in skipped,
+        })
+    return detail
+
+
 async def _persist_submit(
     *,
     student_id: str,
@@ -1015,6 +1045,7 @@ async def _persist_submit(
     missed: list,
     passed: bool,
     coaching: dict,
+    checklist_detail: list[dict],
 ) -> None:
     """Best-effort persistence for a submitted station, run as a BackgroundTask so
     the ~7 Supabase round-trips (session log + profile/XP + rich case grade) stay OFF
@@ -1057,6 +1088,7 @@ async def _persist_submit(
             # by the enclosing except and silently drop the whole row instead.
             checklist_coverage=score.get("checklist_coverage"),
             grade_scale=score.get("grade_scale"),
+            checklist_detail=checklist_detail,
         )
     except Exception:
         pass
@@ -1093,8 +1125,10 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     _skipped_set = set(body.skipped_steps)
     performed_set = set(body.performed_steps) - _skipped_set
     performed_list = sorted(performed_set)
+    _cl_steps: list[dict] = []
     try:
         _cl_compare = await asyncio.to_thread(_station_checklist, case)
+        _cl_steps = list(_cl_compare.get("steps") or [])
         for s in (_cl_compare.get("steps") or []):
             step_num = int(s.get("step_number", 0))
             performed = step_num in performed_set
@@ -1325,6 +1359,14 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     #    the session log + profile/XP update + rich case grade run after the response is
     #    flushed. The rich grade's sub-domain/safety/coaching fields feed the Analytics
     #    dashboard; they were dropped before RICOE and degrade gracefully pre-migration 011.
+    # Built HERE rather than inside _persist_submit, so wrap it: an argument to add_task is
+    # evaluated on the request path, and a purely-additive analytics field must never be able
+    # to fail a submission that was already graded.
+    try:
+        _checklist_detail = _build_checklist_detail(
+            _cl_steps, performed=performed_set, skipped=_skipped_set)
+    except Exception:
+        _checklist_detail = []
     background_tasks.add_task(
         _persist_submit,
         student_id=student_id,
@@ -1341,6 +1383,7 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
             "missed": coaching.missed,
             "focus": coaching.focus,
         },
+        checklist_detail=_checklist_detail,
     )
 
     per_phase = _per_phase_summary(_cl_compare.get("steps", []), performed_list)
