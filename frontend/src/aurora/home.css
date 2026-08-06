@@ -155,6 +155,17 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
    ⚠ THE STAGE IS STILL LIGHT. leaderboard.css pins the PAGE above 0.7 luminance and the
    page is unchanged; the vault (#140B26) has been exactly this kind of dark component on a
    light page since July. A dark component is not a dark stage. */
+/* ── THE CONSOLE ROW — the deck and the streak card abreast ──
+   "streak card and top card in the same row" (2026-08-06, fourth pass). LAYOUT ONLY: no
+   fill, no radius, no material. Wrapping two cards in a row must not merge them back into
+   the one object the pass before this one took them apart into — the row is where they sit,
+   not what they are.
+   ⚠ `gap:inherit`, never a number. `.aurora-home` already declares this spacing
+   responsively (16 / 14 / 12 by tier) and the stacked case below reproduces the exact
+   column gap the streak had as a sibling — a hardcoded 16 here would silently disagree with
+   it on both phone tiers. The row layout itself is in the min-width block further down;
+   this stays a column so every narrow tier keeps today's page unchanged. */
+.hm-console { display:flex; flex-direction:column; gap:inherit; }
 .hm-deck {
   --lip-c:#0B0518;
   display:flex; flex-direction:column; gap:14px;
@@ -165,7 +176,9 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 /* The greeting is the object that looks better wider, so IT owns the larger track. Never
    the rail: its rows are three bands of text beside a 44px control, and a text box handed
    the flexible track is how a 334px row becomes a 107px meter. minmax(0,…) on both, because
-   a grid item defaults to min-width:auto and would push the plate past a 390px viewport. */
+   a grid item defaults to min-width:auto and would push the plate past a 390px viewport.
+   The console row re-cuts this to 1.25fr — but ONLY there, where the deck has actually paid
+   322px to the streak beside it. See the min-width block below. */
 .hm-deck-mid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; }
 /* ── the right-hand rail — ONE column, in the order a student works it ──
    "chest, volt, quest all in 1 column" (2026-08-06). What to do (the board) → what it pays
@@ -759,6 +772,67 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 }
 
 /* ── responsive ── */
+
+/* ── THE CONSOLE ROW, and the streak as a TILE again — wide screens only ──
+   The one tier where there is room for two cards abreast. Everything below this block is a
+   narrower tier and is untouched by the change: there the console stays a column and the
+   streak stays the full-width band it has been.
+
+   ⚠ 1280px IS MEASURED, NOT ROUND. The row costs the deck a fixed 322px, and the deck does
+   not degrade gracefully as it loses width — it degrades in STEPS, because the status rail
+   and the quest rows wrap. Measured deck height / greeting width with the row on:
+     1512 → 477 / 518    1280 → 499 / 473    1200 → 524 / 429    1100 → 620 / 373
+   A 620px-tall deck beside the streak is not a narrower version of this design, it is a
+   different and worse one, so the row simply does not engage there — below this width the
+   page renders exactly what it rendered before this pass. 1280 is the last step that still
+   reads (one wrapped label in the rail; see the note on `.hm-hudxp-l`), and it is also the
+   most common laptop width, which is precisely why the cut is there and not at the 1316 the
+   rail alone would have asked for.
+
+   ⚠ THE HEIGHT GUARD IS THE COMPLEMENT OF THE PHONE-LANDSCAPE TIER (`max-height:480px`), and
+   it stays even though 1280px already excludes every phone: it is what keeps this block out
+   of that tier BY CONSTRUCTION rather than by the width cut happening to be high enough
+   today. Without it, lowering the width here later silently hands a 932x430 phone a layout
+   that tier deliberately rejects — and the alternative down there is four
+   `.hm-console > …` resets fighting this block's specificity. A short desktop window stacks,
+   which is the correct answer for it anyway.
+
+   ⚠ 306px IS THE MONTH'S OWN WIDTH, not a taste. 306 - 44px of padding = 262 = 7 x 34 + 6 x 4
+   — the cell cap and the gap the calendar grid already declares — so every column lands
+   exactly on the cap and the month reads as a block. Any wider and `repeat(7,1fr)` scatters
+   34px dots down 40px+ tracks; that scatter is the whole reason this card was a wide band in
+   the first place, and it is only survivable now because the column is cut to the grid.
+
+   The band→tile switch is the same ONE property the ≤560 block flips, for the same reason
+   (every grid-column/grid-row on the children is inert under flex), plus the same two
+   `.hm-cal` overrides, which are not grid properties. The numeral ramp comes with it: 88/98
+   was sized to hold a ~700px band and reads as a poster in a 262px column. */
+@media (min-width:1280px) and (min-height:481px) {
+  .hm-console { flex-direction:row; align-items:stretch; }
+  /* :not() rather than `.hm-deck`, because the deck is not always what is in this slot —
+     a failed /api/progress puts the error notice here instead, and it must fill the row. */
+  .hm-console > :not(.hm-streak) { flex:1 1 auto; min-width:0; }
+  .hm-console > .hm-streak { flex:0 0 306px; }
+  /* ⚠ 1.25, down from 1.5 ("significantly smaller waving eyecon card", 2026-08-06), and
+     scoped HERE because this is the only tier that pays for it: the deck has just handed
+     322px to the streak, and a proportional share of what is left would have been a card
+     that merely got narrower along with everything else. The base rule above is unchanged —
+     the greeting still owns the larger track, it is the MARGIN that shrank. 1.25 is that
+     rule's floor and not a free dial: the headline is 36px held to `max-width:430px`, and
+     1.25 leaves the card 518px = 466px of content, so the measure is still the headline's
+     own. Below ~482px of card the greeting starts re-wrapping. */
+  .hm-deck-mid { grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); }
+  .hm-streak { display:flex; flex-direction:column; justify-content:space-between;
+    /* the plane step turns with the card: 96deg splits a WIDE band into numeral | month,
+       and on a tall tile the same angle is a crease down the middle of it. */
+    background-image:linear-gradient(168deg, #D14708 0%, #D14708 46%, #BE3C08 46%); }
+  .hm-streak > .hm-cal { width:auto; margin-top:14px; }
+  .hm-snum { font-size:70px; }
+  .aurora-home .hm-flame { width:84px; height:84px; }
+  .hm-big { gap:15px; }
+  .hm-big::before { width:104px; height:104px; }
+}
+
 @media (max-width:900px) {
   .aurora-home { padding:16px 16px 28px; }
   /* One column: the greeting, then the rail (board → chest → strip) under it. The

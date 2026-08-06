@@ -764,6 +764,68 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   - **Acceptance**: `.hm-streak` is not a descendant of `.hm-deck`; computed radius = 24px;
     0 page overflow and `MASCOT whole=true` still hold at 1512/1280/390/844.
 
+  ### Amendment 2026-08-06 (fourth pass) — THE CONSOLE ROW (user directive: "decrease width
+  of top card and streak card … streak card and top card in the same row (significantly
+  smaller streak card) and significantly smaller waving eyecon card without cropping or
+  distorting anything")
+
+  Three cards shrink; nothing changes hue, material or rung. **This is a WIDE-SCREEN-only
+  change** — `@media (min-width:1280px) and (min-height:481px)`. Every narrower tier renders
+  exactly what it rendered before, which is why the phone gates are untouched by it.
+
+  - **Criterion changed (i) again — the streak sits BESIDE the console, not under it.** A new
+    `.hm-console` wrapper holds the deck and the streak as one flex row. It is **layout only**:
+    no fill, no radius, no material, no `data-` state. Wrapping two cards must not undo the
+    third pass — the streak keeps its own `--hr` radius and its own plate, and the row gap is
+    still `.aurora-home`'s own (`gap:inherit`, never a number, so the 16/14/12 tier ramp stays
+    in one place). Measured at 1512: deck 1300 → **978**, streak 1300 → **306**.
+  - **306px is the MONTH'S width, not a taste.** 306 − 44px of padding = 262 = `7 × 34 + 6 × 4`
+    — the cell cap and the gap `.hm-calgrid` already declares. Cut the column to the grid and
+    every calendar column lands exactly on the cap; cut it anywhere else and `repeat(7,1fr)`
+    scatters 34px dots down wider tracks, which is the whole reason the third pass kept this
+    card a wide band. The band→tile switch is the same ONE `display:grid`→`flex` property the
+    ≤560 tier already flips, plus the two `.hm-cal` overrides that are not grid properties,
+    plus the 70/84 numeral ramp that column has always used.
+  - **The greeting's track goes 1.5fr → 1.25fr, and that is the "significantly" part.** The
+    deck handed ~322px to the streak, so a proportional share of what was left would have been
+    a card that merely got narrower along with everything else. The rule above it is unchanged
+    — **the greeting still owns the larger track, it is the MARGIN that shrank** — and 1.25 is
+    that rule's floor, not a free dial: the headline is 36px held to `max-width:430px`, and
+    1.25 leaves 466px of content, so the measure is still the headline's own. Below ~482px of
+    card the greeting starts re-wrapping. Measured at 1512: greeting 752 → **518**. It is
+    **scoped to the row tier**, not the base: below 1280 no streak sits beside the deck, so
+    nothing has been paid for and there is nothing to re-cut.
+  - **THE THRESHOLD IS MEASURED, AND THE DECK DEGRADES IN STEPS, NOT SMOOTHLY.** The row costs
+    the deck a fixed 322px, and the rail and quest rows wrap as it loses width — deck height /
+    greeting width with the row on: `1512 → 477/518 · 1280 → 499/473 · 1200 → 524/429 ·
+    1100 → 620/373`. A 620px-tall deck beside the streak is not a narrower version of this
+    design, it is a worse one, so the row does not engage below 1280 at all. 1280 is the last
+    step that still reads **and** the most common laptop width, which is why the cut is there
+    and not at the ~1316 the status rail alone would have asked for.
+  - **"Without cropping or distorting" is two numbers, not an opinion.** `_home_shot.mjs`
+    reports the visible source band against the mascot's own bounds: `MASCOT whole=true
+    cutTop=0 cutBottom=0` at every viewport, with `drawnHeight` 225 → **155px** (−31%) at 1512
+    and 211 → **141px** at 1280. Nothing about how she is drawn changed — the third pass tied
+    the art band to the card's WIDTH (`aspect-ratio:1280/510` on a left/right/bottom-anchored
+    box), so `cover` stays width-driven and a narrower card scales her down instead of
+    cropping her. That is the property this pass is spending; do not trade it away.
+  - **The height guard stays even though 1280px already excludes every phone.** It is the
+    exact complement of the phone-landscape tier's own `max-height:480px`, so this block is
+    kept out of that tier *by construction* rather than by the width cut happening to be high
+    enough today — lower the width later and a 932×430 phone would otherwise silently get a
+    layout that tier deliberately rejects (wide + short is what the horizontal band is for).
+    One condition, versus four `.hm-console > …` resets down-file fighting this block's
+    specificity.
+  - **Known and accepted:** between 1280px and ~1316px the status rail's XP label wraps to two
+    lines and the groove shortens, because three groups no longer fit one row inside the
+    narrower deck. That is `.hm-hudxp-l`'s own designed `flex-wrap`, it is the same
+    degradation the rail already had below ~994px before this pass, and every alternative
+    (capping the clock track, flooring the meter) just moves the wrap onto the chips for the
+    same height. Not a defect to "fix" by widening the deck back.
+  - **Acceptance**: at 1512 — deck 978, streak 306, greeting 518, `MASCOT whole=true`,
+    0 page overflow; at 1200, 1100, 1024, 390 and 844×390 every rect is byte-identical to the
+    third pass, because the row does not engage there at all.
+
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar

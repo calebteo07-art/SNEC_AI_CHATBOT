@@ -33,12 +33,19 @@ const homePayload = () => ({
   league: { rank: 1, pool_size: 6, promote_count: 3, division_name: "Silver", xp_to_promotion: 0 },
 });
 
-const VIEWPORTS = [
-  { w: 1512, h: 860, tag: "laptop" },
-  { w: 1280, h: 800, tag: "small-desktop" },
-  { w: 390, h: 844, tag: "phone", touch: true },
-  { w: 844, h: 390, tag: "phone-landscape", touch: true },
-];
+/* The four the crop was tuned against. `HOME_SHOT_VP="1200x800,1100x800"` swaps in your own
+   when you are hunting a breakpoint — the console row's threshold was picked this way. */
+const VIEWPORTS = process.env.HOME_SHOT_VP
+  ? process.env.HOME_SHOT_VP.split(",").map((s) => {
+      const [w, h] = s.trim().split("x").map(Number);
+      return { w, h, tag: `${w}x${h}` };
+    })
+  : [
+    { w: 1512, h: 860, tag: "laptop" },
+    { w: 1280, h: 800, tag: "small-desktop" },
+    { w: 390, h: 844, tag: "phone", touch: true },
+    { w: 844, h: 390, tag: "phone-landscape", touch: true },
+  ];
 
 const b = await chromium.launch();
 for (const vp of VIEWPORTS) {
