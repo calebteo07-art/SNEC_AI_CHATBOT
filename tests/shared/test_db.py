@@ -494,6 +494,39 @@ async def test_insert_case_result_falls_back_to_base_when_columns_absent():
                               "total_score": 32, "passed": True}
 
 
+@pytest.mark.asyncio
+async def test_insert_case_result_writes_the_checklist_ledger():
+    client = _make_client([])
+    detail = [{"step_number": 1, "action": "Wash hands", "phase": "Preparation",
+               "critical": False, "performed": True, "skipped": False}]
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result("stu-001", "case_1", 30, True, checklist_detail=detail)
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload["checklist_detail"] == detail
+
+
+@pytest.mark.asyncio
+async def test_insert_case_result_omits_the_ledger_when_absent():
+    """Omitted, not written as null -- the rich/base fallback keys on the payload having
+    nothing extra to shed, and a null would make every legacy-path insert look 'rich'."""
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result("stu-001", "case_1", 30, True)
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert "checklist_detail" not in payload
+
+
+@pytest.mark.asyncio
+async def test_insert_case_result_writes_an_empty_ledger_not_null():
+    """A station that resolved zero steps writes [], which is NOT the same as a pre-019 row.
+    Guards the `is not None` condition against being tidied into a truthiness check."""
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result("stu-001", "case_1", 30, True, checklist_detail=[])
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload["checklist_detail"] == []
+
+
 # ── audit_events (migration 014 — durable audit trail) ─────────────────────────
 
 @pytest.mark.asyncio
