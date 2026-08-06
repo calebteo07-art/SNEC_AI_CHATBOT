@@ -83,14 +83,53 @@ const hue = (c) => {
   const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return (h * 60 + 360) % 360;
 };
-/* ⚠ 150-300 DEGREES IS CLOSED TO THE TIER PALETTE (2026-08-06, "i dont want anything with a blue
-   hint for tiers"). Volt was repainted THREE times in two days — cyan, then electric blue, then
-   acid lime — and each pass left its palette rule in a comment for the next one to rediscover.
-   This is that rule as a number. It is deliberately about the DIVISIONS only: --role-oa violet,
-   --role-ot teal and --you-blue are a different axis and keep their blue on purpose, which is
-   what now makes blue on this board mean "not a tier". */
-const ARC = [150, 300];
-const inArc = (h) => h !== null && h >= ARC[0] && h <= ARC[1];
+/* ⚠ THE ARC REOPENED 2026-08-06 ("too over stimulating"), and this is what replaced it.
+   150-300° was closed to tier hues for exactly one day. Closing it forced five max-chroma hues
+   onto half the wheel — vermilion, lime, gold, magenta, emerald — and lime beside magenta
+   beside vermilion is a fairground by construction, not by tuning. No repaint inside a closed
+   arc could have fixed it.
+
+   Deleting a palette rule and replacing it with NOTHING is how the next pass drifts straight
+   back, so the ban is replaced by the two claims it was a crude proxy for:
+
+     1. SPREAD — the five rungs use the whole wheel rather than a slice of it. Measured as 360
+        minus the largest gap between adjacent hues, which is the only definition that survives
+        the wrap at 0°. The rejected set scores 173°; the set that replaced it scores 233°.
+     2. SEPARATION — no two rungs collapse into each other: ≥60° apart in hue, OR ≥0.15 apart
+        in relative luminance. ⚠ THE `OR` IS LOAD-BEARING. Ember and Solar sit 25° apart and
+        always have; they read as vermilion and gold because they are 0.25 apart in luminance,
+        and a hue-only rule would ban the one pair the eye has never confused.
+
+   ⚠ BOTH RULES FIRE ON THE REJECTED PALETTE, which is worth knowing because it locates the
+   ugliness precisely. Beyond the 173° spread, two of its pairs collapse outright:
+     · EMBER vs NOVA — vermilion #FF6320 and hot magenta #FF47AE, 52° apart at luminance 0.303
+       against 0.288. A 0.015 gap. Two hot colours of the same weight and nearly the same
+       value, neither able to sit behind the other; this pair is most of what "fairground"
+       actually was.
+     · VOLT vs SOLAR — acid lime and gold, 35° apart at 0.148 of luminance, which misses the
+       floor by 0.002.
+   Neither was visible to the closed-arc rule, because both pairs are outside 150-300°. The ban
+   was policing the wrong property.
+
+   ⚠ WHAT THE BAN WAS ACTUALLY PROTECTING, and what protects it now. A closed arc kept blue
+   meaning "not a tier", which is what held the tier axis apart from the ROLE axis (--role-oa
+   violet 254°, --role-ot teal 190°). With the arc open, Volt sits 20° from --role-ot. The two
+   axes are separated by SCALE AND VALUE instead: a tier is a large, bright, saturated surface
+   (lum 0.22-0.56), a role is a small, dark, muted gauge (lum 0.09-0.15). That is also why
+   --you-blue had to become --you-ink in the same pass — your row was the one object that was
+   blue, large AND bright, so it was the only one that could not survive the arc reopening. */
+const SPREAD_MIN = 210;
+const HUE_MIN = 60;
+const LUM_MIN = 0.15;
+/* Circular distance: two hues are never more than 180° apart. */
+const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+/* The arc the palette actually occupies — 360 minus its largest empty gap. */
+const spread = (hs) => {
+  const s = [...hs].sort((a, b) => a - b);
+  let gap = s[0] + 360 - s[s.length - 1];
+  for (let i = 1; i < s.length; i++) gap = Math.max(gap, s[i] - s[i - 1]);
+  return 360 - gap;
+};
 
 /* A 30-person division with the top THREE promoting — the shape the backend produces since
    2026-08-04, when promote_count became min(n-1, 3) and the podium became the cut. It was 7
@@ -1323,13 +1362,32 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     if (hues.size !== 5) bad(`${at}: the five divisions paint ${hues.size} distinct colour(s) — divisions are identified by material, not by luminance`);
     else ok(`${at}: five divisions paint five distinct metals`);
 
-    // The whole ladder in one place: the road paints all five bases side by side.
-    m.pips.forEach((q, i) => {
-      const c = rgb(q.bg), h = c && c[3] !== 0 ? hue(c) : undefined;
-      if (h === undefined) bad(`${at}: rung ${i + 1} has no resolvable colour — the arc rule is testing nothing here`);
-      else if (inArc(h)) bad(`${at}: rung ${i + 1} sits at ${h.toFixed(0)}° (${q.bg}) — ${ARC[0]}-${ARC[1]}° is CLOSED to the tier palette; a division may not carry a blue hint`);
-      else ok(`${at}: rung ${i + 1} is outside the closed arc (${h === null ? "neutral" : h.toFixed(0) + "°"})`);
-    });
+    /* THE PALETTE'S OWN RULE, measured on the road — the one place all five bases paint at
+       once, so it is the only place SPREAD can be read at all. A per-division probe sees one
+       hue and can never answer "do these five crowd each other". */
+    const hs = m.pips.map((q) => { const c = rgb(q.bg); return c && c[3] !== 0 ? hue(c) : null; });
+    const mute = hs.map((h, i) => (h === null ? i + 1 : 0)).filter(Boolean);
+    if (mute.length) {
+      bad(`${at}: rung(s) ${mute.join(", ")} paint no resolvable hue — the spread and separation rules are testing nothing here`);
+    } else {
+      const sp = spread(hs);
+      if (sp < SPREAD_MIN) {
+        bad(`${at}: the five rungs occupy ${sp.toFixed(0)}° of the wheel (${hs.map((h) => h.toFixed(0)).join("°, ")}°) — under the ${SPREAD_MIN}° floor, so the ladder is crowded into a slice and the hues fight each other`);
+      } else ok(`${at}: the five rungs spread across ${sp.toFixed(0)}° of the wheel`);
+
+      const ls = m.pips.map((q) => lum(rgb(q.bg)));
+      let collapsed = 0;
+      for (let i = 0; i < hs.length; i++) {
+        for (let j = i + 1; j < hs.length; j++) {
+          const dh = hueGap(hs[i], hs[j]), dl = Math.abs(ls[i] - ls[j]);
+          if (dh < HUE_MIN && dl < LUM_MIN) {
+            collapsed++;
+            bad(`${at}: rungs ${i + 1} and ${j + 1} collapse — ${dh.toFixed(0)}° apart in hue (floor ${HUE_MIN}) AND ${dl.toFixed(2)} apart in luminance (floor ${LUM_MIN}); a rung must be told apart by one or the other`);
+          }
+        }
+      }
+      if (!collapsed) ok(`${at}: no two of the five rungs collapse into each other`);
+    }
 
     // Earned / current / locked must all read, and not by hue alone.
     const now = m.pips.find((q) => q.state === "now");
@@ -1670,10 +1728,14 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
        --f-lo rather than from --pm — a separate site from the road above, so a drift can hit
        one and not the other. Both are gated for the same reason the crest is called out in
        Tiers.tsx: this colour has eight authors. */
-    if (band && band[3] !== 0) {
-      const h = hue(band);
-      if (inArc(h)) bad(`${NAMES[d - 1]}: the band sits at ${h.toFixed(0)}° — ${ARC[0]}-${ARC[1]}° is CLOSED to the tier palette ("i dont want anything with a blue hint for tiers")`);
-      else ok(`${NAMES[d - 1]}: the band is outside the closed arc (${h === null ? "neutral" : h.toFixed(0) + "°"})`);
+    const rung = rgb(seen.find((t) => t.sel === "__bed")?.color);
+    if (band && band[3] !== 0 && rung && rung[3] !== 0) {
+      const hb = hue(band), hr = hue(rung);
+      if (hb === null || hr === null) {
+        bad(`${NAMES[d - 1]}: the band or its rung is neutral (band ${seen.find((t) => t.sel === "__band").on}, rung ${seen.find((t) => t.sel === "__bed").color}) — a division has a hue, and this check needs both to have one`);
+      } else if (hueGap(hb, hr) > 12) {
+        bad(`${NAMES[d - 1]}: the band sits at ${hb.toFixed(0)}° and its own rung on the road at ${hr.toFixed(0)}° — ${hueGap(hb, hr).toFixed(0)}° apart, so the two authoring sites have drifted and one division is painting two colours`);
+      } else ok(`${NAMES[d - 1]}: the band and its rung agree on the division's hue (${hb.toFixed(0)}° / ${hr.toFixed(0)}°)`);
     }
 
     const probes = seen.filter((t) => !t.sel.startsWith("__"));
@@ -1705,6 +1767,49 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     if (!field || field[3] === 0) bad(`${NAMES[d - 1]}: the canvas has no resolvable base colour — the stack must end in an opaque light solid or every glyph on it measures against nothing`);
     else if (lum(field) < 0.7) bad(`${NAMES[d - 1]}: the canvas's base luminance is ${lum(field).toFixed(3)} — this is the LIGHT Aurora canvas (floor 0.7), and the dark stage has been rejected twice`);
     else ok(`${NAMES[d - 1]}: the field is a light solid (luminance ${lum(field).toFixed(3)})`);
+
+    /* ── THE FIELD IS QUIET (2026-08-06, "too over stimulating") ────────────────────────
+       The complaint was about QUANTITY, not brightness: the field carried the division's hue
+       at .42, a partner hue at .34 in both top corners, gold footlights at .46 and the
+       division's stripes at .10 — four hue families on the largest surface in the app, so the
+       objects standing on it had nothing to be loud against. Saturation was ambient, and
+       ambient saturation is the definition of over-stimulating.
+
+       Gated on the TOKENS rather than on a screenshot sample, for the reason this file keeps
+       relearning: a pixel probe goes vacuous the moment a bloom moves, and an alpha is exactly
+       the number the design decision is written in. --arena-glow must be gone entirely, not
+       merely faint — a partner hue at .05 is a smudge nobody asked for rather than a quieter
+       version of a counter-note. */
+    const arena = await p.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector(".aurora-main"));
+      /* ⚠ READ BOTH FORMS. A custom property is not resolved to a colour by the engine — it
+         computes to its token text — so what this reads is whatever the BUILD left behind, and
+         the minifier rewrites `rgba(255, 99, 32, .15)` to `#ff632026`. A probe that only knows
+         rgba() finds a single number in that string and falls back to opaque.
+         It failed loudly here, because the fallback (1) is over a ceiling. Had this been a
+         FLOOR it would have passed vacuously on every division — which is the same class of
+         hole as measuring a gradient with no background-color. Parse the authored form and the
+         shipped form, always. */
+      const a = (v) => {
+        const s = cs.getPropertyValue(v).trim();
+        if (!s) return null;
+        const hex = s.match(/^#([0-9a-f]{3,8})$/i)?.[1];
+        if (hex) {
+          if (hex.length === 8) return parseInt(hex.slice(6), 16) / 255;
+          if (hex.length === 4) return parseInt(hex[3] + hex[3], 16) / 255;
+          return 1;                                     // #RGB / #RRGGBB are opaque
+        }
+        const m = s.match(/[\d.]+/g)?.map(Number);
+        return m ? (m.length > 3 ? m[3] : 1) : null;
+      };
+      return { wash: a("--arena-wash"), stripe: a("--arena-stripe"), glow: a("--arena-glow") };
+    });
+    if (arena.wash === null || arena.stripe === null) {
+      bad(`${NAMES[d - 1]}: --arena-wash/--arena-stripe do not resolve — the quiet-field rule is testing nothing`);
+    } else if (arena.wash > 0.18 || arena.stripe > 0.06 || arena.glow !== null) {
+      bad(`${NAMES[d - 1]}: the field is loud again — wash ${arena.wash} (ceiling 0.18), stripe ${arena.stripe} (ceiling 0.06)` +
+        (arena.glow !== null ? `, and --arena-glow is back at ${arena.glow} (it must be unset; the partner bloom was one of the two hue families this pass removed)` : ""));
+    } else ok(`${NAMES[d - 1]}: the field is quiet — one hue, wash ${arena.wash} / stripe ${arena.stripe}, no partner bloom`);
 
     await ctx.close();
   }
