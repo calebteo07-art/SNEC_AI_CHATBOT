@@ -1569,6 +1569,15 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-submit-toggle:hover { transform: translateY(-1px); box-shadow: 0 13px 28px -10px rgba(123,86,180,.72); filter: brightness(1.03); }
 .aurora-station-submit-toggle:active { transform: translateY(0); box-shadow: 0 6px 16px -8px rgba(123,86,180,.6); }
 .aurora-station-stakes { margin-top: 8px; font-size: .8rem; color: var(--ink-3); text-align: center; line-height: 1.4; }
+
+/* Resumed-station notice. A student who reloads mid-station has every reason to expect the
+   encounter is gone — that is what used to happen — so the recovery is stated, not implied.
+   Green (the "safe" channel), not the purple used for instruction. */
+.aurora-station-resumed { margin-top: 10px; padding: 11px 13px; border-radius: 12px; background: rgba(52,168,83,.1); border: 1px solid rgba(52,168,83,.32); }
+.aurora-station-resumed-title { margin: 0; font-size: 14px; font-weight: 700; color: var(--on-green-2); }
+.aurora-station-resumed-body { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.aurora-station-resumed-x { margin-top: 8px; padding: 5px 12px; border: 1px solid rgba(52,168,83,.4); border-radius: 999px; background: transparent; color: var(--on-green-2); font-size: 12.5px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background .16s var(--st-ease); }
+.aurora-station-resumed-x:hover { background: rgba(52,168,83,.14); }
 .aurora-station-submit-go { margin-top: 4px; padding: 12px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15.6px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px -8px rgba(123,86,180,.6); transition: transform .16s var(--st-ease), box-shadow .2s var(--st-ease), filter .2s var(--st-ease); }
 .aurora-station-submit-go:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 13px 28px -10px rgba(123,86,180,.72); filter: brightness(1.03); }
 .aurora-station-submit-go:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
