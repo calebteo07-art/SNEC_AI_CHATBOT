@@ -151,7 +151,14 @@ const ENTRIES = NAMES.map((name, i) => ({
   streak_days: (i * 3) % 24,
   avatar_config: i % 3 === 0 ? { background: "galaxy" } : null,
   is_you: name === "You",
-  division: 2,
+  /* A COHORT, NOT A DIVISION (2026-08-08). This was a flat `division: 2` for the fixture's
+     whole life, which made every league-scoped claim below untestable: with one division on
+     the board, "the promoted set is your division's top three" and "the promoted set is
+     ranks 1-3" are the same sentence, and the harness could not tell which one the page
+     actually implemented. Three divisions interleaved make them different sentences.
+     The viewer is pinned to division 2 rather than left to the i%3 pattern — the whole point
+     is that the race is THEIRS, so it cannot be an accident of their index. */
+  division: name === "You" ? 2 : [1, 2, 3][i % 3],
   // i===4 (rank 5) is null ON PURPOSE: the "no snapshot" arrow has to be observable, and an
   // earlier fixture put the only null on a rank the podium hid — so the check below passed
   // while testing nothing. Every rank is a row now, but the redundancy is free.
@@ -161,12 +168,25 @@ const ENTRIES = NAMES.map((name, i) => ({
 /* The real ladder, so the board under test pays what the server pays. Volt is 1.1x — a
    round 2x here would make the chip and the road agree with each other and with nothing else. */
 const LADDER = [1, 1.1, 1.25, 1.5, 2];
+/* `pool_size` is the viewer's DIVISION (11 of the 30 on the board), which is the fact the
+   server actually sends and the number the head's standing line reads. A 30 here would be the
+   cohort, and it would hide the very confusion this pass has to get right: the list is one
+   population and the race is another. */
 const BOARD = {
   entries: ENTRIES, you_hidden: false, display_name: null, roles: ["OA", "OT"],
-  division: 2, division_name: "Volt", pool_size: 30, promote_count: 3,
+  division: 2, division_name: "Volt", pool_size: 11, promote_count: 3,
   division_multiplier: LADDER[1], division_multipliers: LADDER,
 };
 const PROMOTE = BOARD.promote_count;
+/* THE PROMOTED SET, computed from the fixture rather than assumed to be ranks 1..PROMOTE.
+   These are COHORT ranks — the numbers actually printed on the board — belonging to the top
+   PROMOTE members of the viewer's own division. With divisions interleaved they come out
+   non-contiguous (2, 5, 8), which is precisely the shape that made the filled gold region and
+   its struck cut undrawable, and precisely what a per-row flag has to get right instead. */
+const VIEWER_DIVISION = BOARD.division;
+const PROMO_RANKS = ENTRIES.filter((e) => e.division === VIEWER_DIVISION)
+  .slice(0, PROMOTE).map((e) => e.rank);
+const POOL = ENTRIES.filter((e) => e.division === VIEWER_DIVISION).length;
 
 async function boardCtx(b, vp, { board = BOARD, result = null, extra = {} } = {}) {
   const ctx = await seededContext(b, base, student, { width: vp.width, height: vp.height },
@@ -936,13 +956,13 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   /* ── the stage holds the top three, and the ladder resumes at 4 ──────────────────────
      The split is the one place a student can silently VANISH: an off-by-one drops rank 4 or
      renders it twice, and both look perfectly fine. So this checks the UNION against the whole
-     division rather than checking either end alone. */
+     cohort rather than checking either end alone. */
   if (String(m.podiumRanks) !== String(["1", "2", "3"])) {
     bad(`${at}: the podium shows ranks ${JSON.stringify(m.podiumRanks)}, expected 1, 2, 3`);
   } else if (m.firstRank !== "4") {
     bad(`${at}: the ladder resumes at rank ${JSON.stringify(m.firstRank)}, expected "4" — the stage already holds 1-3, so anything else duplicates or drops a student`);
   } else if (String(m.allRanks) !== String(ENTRIES.map((e) => e.rank))) {
-    bad(`${at}: stage + ladder render ${m.allRanks.length} ranks for a division of ${ENTRIES.length}, and not in order — got ${JSON.stringify(m.allRanks.slice(0, 8))}…`);
+    bad(`${at}: stage + ladder render ${m.allRanks.length} ranks for a cohort of ${ENTRIES.length}, and not in order — got ${JSON.stringify(m.allRanks.slice(0, 8))}…`);
   } else ok(`${at}: the stage holds ranks 1-3, the ladder resumes at 4, and all ${ENTRIES.length} ranks are present exactly once`);
 
   /* DOM order 1-2-3, PAINTED 2-1-3. The old board's DOM was literally 2-1-3, so every screen
@@ -1236,30 +1256,45 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     } else ok(`${at}: every struck object on the board wears the dark outline`);
   }
 
-  /* ── the promotion zone ─────────────────────────────────────────────────────────────
-     A filled region with a labelled head and a struck cut, replacing a hairline with a
-     caption. Exactly the top 7 are inside it — three on the stage, four in the list — and the
-     cut lands above rank 8. */
-  if (m.cutNextRank !== null) {
-    bad(`${at}: the ladder drew a cut above rank ${m.cutNextRank} while the stage already holds every promoted rank — the same boundary, stated twice`);
-  } else ok(`${at}: the cut is drawn once, by the stage`);
-  const wantPromo = Array.from({ length: PROMOTE }, (_, i) => i + 1);
-  if (String(m.promoRanks) !== String(wantPromo)) bad(`${at}: the promoted set is ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(wantPromo)} — stage and ladder together`);
-  else ok(`${at}: exactly ranks 1-${PROMOTE} are marked promoted across the stage and the ladder`);
-  // The stage is inside the zone, so it must SAY so. Three students standing on a podium with
-  // no promotion marking, above a gold region that starts at rank 4, reads as excluded.
-  if (!m.podiumBlocks.every((s) => s.promo)) {
-    bad(`${at}: podium places ${JSON.stringify(m.podiumBlocks.filter((s) => !s.promo).map((s) => s.place))} are not marked promoted, though the top ${PROMOTE} advance — the stage must carry the zone it sits in`);
-  } else ok(`${at}: the stage carries the promotion marking it sits inside`);
+  /* ── the promotion state ────────────────────────────────────────────────────────────
+     ⚠ REWRITTEN 2026-08-08, and the rewrite is the whole point of this block now. It used to
+     assert the promoted set was ranks 1..PROMOTE, which was correct while the board WAS one
+     division — and would still pass today on a page that gilded the cohort's leaders instead
+     of the viewer's division-mates. That is the exact bug this board can most easily ship:
+     the gold is the only thing on the ladder that makes a claim about the future, and on a
+     mixed list the top three rows are usually NOT the three who advance.
+     PROMO_RANKS is derived from the fixture (2, 5, 8 — non-contiguous, spanning the stage and
+     the ladder), so this now fails on a page that reverted to "the top three". */
+  if (String(m.promoRanks) !== String(PROMO_RANKS.map(String))) {
+    bad(`${at}: the promoted set is ${JSON.stringify(m.promoRanks)}, expected ${JSON.stringify(PROMO_RANKS)} — the viewer's own division's top ${PROMOTE}, across the stage and the ladder`);
+  } else ok(`${at}: exactly the viewer's division's top ${PROMOTE} (cohort ranks ${PROMO_RANKS.join(", ")}) are marked promoted`);
+  /* A podium slot is gilded only when THAT finisher's own division is promoting them. Here
+     that is place 2 alone: places 1 and 3 lead the cohort from other divisions. A stage where
+     all three wear the marking is the old per-place reading, still rendering perfectly. */
+  {
+    const wantSlots = m.podiumBlocks.filter((s) => PROMO_RANKS.includes(Number(s.place))).map((s) => s.place);
+    const gotSlots = m.podiumBlocks.filter((s) => s.promo).map((s) => s.place);
+    if (String(gotSlots) !== String(wantSlots)) {
+      bad(`${at}: the stage gilds places ${JSON.stringify(gotSlots)}, expected ${JSON.stringify(wantSlots)} — a finisher wears the promotion marking only when their OWN division is promoting them`);
+    } else ok(`${at}: the stage gilds only the finishers their own division promotes`);
+  }
+  /* THE ZONE AND THE CUT ARE GONE, and their absence is now a claim rather than an oversight:
+     both drew a contiguous region, which a scattered promoted set cannot honestly have. */
+  if (m.zoneText || m.cutNextRank !== null) {
+    bad(`${at}: the ladder drew a promotion region (${m.zoneText ? "zone head" : ""}${m.cutNextRank !== null ? ` cut above rank ${m.cutNextRank}` : ""}) — the promoted rows are ${PROMO_RANKS.join(", ")}, which is not a contiguous run, so any band or cut here marks the wrong students`);
+  } else ok(`${at}: no contiguous promotion band on a cohort board`);
 
-  /* THE DECK'S BANNER carries the whole mechanic now, which is why nothing above the board
-     needs a sentence about it. Asserted on CONTENT, not on the element existing — a generic
-     label ("keep climbing!") would still render. */
+  /* THE DECK'S BANNER says what the STAGE is, not what it decides. It named the promotion
+     ("Top 3 promote to Solar") while the podium was the promotion set; those three are now
+     the week's best across every league and generally do not all advance, so a promotion
+     claim here would be false for two of them. Asserted on CONTENT — a generic label would
+     still render. */
   if (!m.deck) bad(`${at}: there is no deck under the stage`);
-  else if (!m.deck.text) bad(`${at}: the stage says nothing — three students on a podium with no marking do not read as the ones who advance`);
-  else if (!new RegExp(`top ${PROMOTE}\\b`, "i").test(m.deck.text)) bad(`${at}: the banner does not name the promotion count (top ${PROMOTE}): "${m.deck.text}"`);
-  else if (!/Solar/.test(m.deck.text)) bad(`${at}: the banner does not name the division being climbed into: "${m.deck.text}"`);
-  else ok(`${at}: the banner names both the cut and the destination`);
+  else if (!m.deck.text) bad(`${at}: the stage says nothing — three students on a podium with no caption do not read as anything`);
+  else if (!/top 3\b/i.test(m.deck.text)) bad(`${at}: the banner does not say what the stage holds (top 3): "${m.deck.text}"`);
+  else if (!/every league/i.test(m.deck.text)) bad(`${at}: the banner does not state the stage's SCOPE: "${m.deck.text}" — without it a podium wearing three different metals reads as one division whose colours have gone wrong`);
+  else if (/promote/i.test(m.deck.text)) bad(`${at}: the banner still claims a promotion: "${m.deck.text}" — these three come from different leagues and generally do not all advance`);
+  else ok(`${at}: the banner states what the stage is and its scope, without claiming a promotion`);
 
   /* THE DECK IS STRUCK — the same check that would have failed all four rejected passes,
      applied to the newest structural object: a real outline in a dark OPAQUE ink, and a lip
@@ -1630,12 +1665,14 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   const ctx = await boardCtx(b, VIEWPORTS[1], { board: solo });
   const p = await openBoard(ctx, { podium: false });
   const rows = await p.locator('[data-testid="lb-row"]').count();
-  const cut = await p.locator('[data-testid="promotion-line"]').count();
-  const zone = await p.locator('[data-testid="promotion-zone"]').count();
   if (rows !== 1) bad(`a cohort of one rendered ${rows} rows, expected 1`);
   else ok("a cohort of one still renders a board");
-  if (cut !== 0 || zone !== 0) bad("a cohort of one drew a promotion zone — nobody can be promoted out of a pool of one");
-  else ok("no promotion zone when promote_count is 0");
+  /* Nobody is promoted out of a pool of one, so the one row must not be gilded. Reads the gold
+     itself rather than the deleted zone/cut testids: with promote_count 0 the promoted set is
+     empty, and a page that gilded on rank instead of on league membership would light it. */
+  if (await p.locator('.lg-item[data-promo]').count() !== 0) {
+    bad("a cohort of one gilded its only row — promote_count is 0, so nobody is promoting");
+  } else ok("no promotion marking when promote_count is 0");
   /* An UNDERFILLED podium is no podium. One student on a three-place stage is a plinth with
      nobody beside it; splitPodium refuses below `places`, and that refusal has to reach the
      DOM or the solo board renders a lone block labelled "1st" over an empty ladder. */
@@ -1645,15 +1682,20 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   await ctx.close();
 }
 
-/* ── 5b) THE UNDERFILLED STAGE, the only board that still draws the cut in the LADDER ──
+/* ── 5b) THE UNDERFILLED STAGE — the gold row is the ONLY promotion marking left ────────
    Below three entries splitPodium refuses the stage, so the promoted rank has nowhere to be
-   except a row — which is exactly why the cut is withheld CONDITIONALLY rather than deleted.
-   Without this case the zone, the line and the gold rows would keep their CSS and lose their
-   gate: paint that nothing ever measures again. */
+   except a row. This used to be the one board that still drew the cut; the cut is gone
+   entirely (2026-08-08), so what this case protects now is the per-row gold — without it,
+   `.lg-item[data-promo]`'s CSS would keep its paint and lose its gate.
+   ⚠ Both entries are pinned into the VIEWER's division. ENTRIES now interleaves three, and a
+   slice of two could otherwise hand this board two students from leagues the viewer is not
+   in — a board where nobody is promoting, which would pass a "0 gold rows" bug silently. */
 {
   const two = {
     ...BOARD,
-    entries: ENTRIES.slice(0, 2).map((e, i) => ({ ...e, is_you: i === 0 })),
+    entries: ENTRIES.slice(0, 2).map((e, i) => ({
+      ...e, is_you: i === 0, division: VIEWER_DIVISION,
+    })),
     pool_size: 2, promote_count: 1,
   };
   const ctx = await boardCtx(b, DESKTOP, { board: two });
@@ -1661,12 +1703,45 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   if (await p.locator('[data-testid="podium"]').count() !== 0) {
     bad("a two-student cohort built a stage — a three-place podium holding two is a hole, not a ceremony");
   } else ok("below three entries there is no stage");
-  if (await p.locator('[data-testid="promotion-line"]').count() !== 1) {
-    bad("the underfilled board drew no cut — with no stage to carry it, the ladder is the only place the boundary can be");
-  } else ok("the cut still draws when the podium is withheld");
   const promoRows = await p.locator('.lg-item[data-promo]').count();
-  if (promoRows !== 1) bad(`the underfilled board marked ${promoRows} promoted rows, expected 1`);
+  if (promoRows !== 1) bad(`the underfilled board marked ${promoRows} promoted row(s), expected 1 — with no stage to carry it, the row is the only place the promotion state can be`);
   else ok("the underfilled board marks its one promoted row");
+  await ctx.close();
+}
+
+/* ── 5d) EVERY ROW SAYS WHICH RACE IT IS IN ─────────────────────────────────────────────
+   The reason this board exists (2026-08-07): students who onboarded into Ember were invisible
+   to everyone already promoted out of it, because the board only ever ranked the viewer's own
+   division. The list is the cohort now — so the chip is not decoration, it is the thing that
+   keeps a mixed list readable, and the thing that explains why the gold lands where it does.
+   Three claims: every row has one, they are not all the same word (which is what a board still
+   scoped to one division would produce, passing a chip check while showing nobody new), and
+   each names its own row's division rather than the viewer's. */
+{
+  const ctx = await boardCtx(b, DESKTOP);
+  const p = await openBoard(ctx);
+  const chips = await p.evaluate(() => [...document.querySelectorAll(".lg-item")].map((li) => ({
+    rank: li.querySelector(".lg-rk")?.textContent?.trim() ?? null,
+    league: li.querySelector(".lg-league")?.textContent?.trim() ?? null,
+    tier: li.querySelector(".lg-league")?.dataset.tier ?? null,
+  })));
+  const NAMED = ["Ember", "Volt", "Solar", "Nova", "Prism"];
+  const missing = chips.filter((c) => !c.league);
+  const want = new Map(ENTRIES.map((e) => [String(e.rank), NAMED[e.division - 1]]));
+  const wrong = chips.filter((c) => c.league && want.get(c.rank) !== c.league);
+  if (!chips.length) bad("5d: no rows to read a league chip from — this check is testing nothing");
+  else if (missing.length) {
+    bad(`5d: ${missing.length} row(s) carry no league chip (ranks ${missing.map((c) => c.rank).join(", ")}) — on a cohort list a row with no league is a rank with no race`);
+  } else if (new Set(chips.map((c) => c.league)).size < 2) {
+    bad(`5d: every row reads "${chips[0].league}" — the board is still showing one division, which is the bug this pass exists to fix`);
+  } else if (wrong.length) {
+    bad(`5d: ${wrong.length} chip(s) name the wrong division — ` +
+      wrong.slice(0, 4).map((c) => `rank ${c.rank} says ${c.league}, expected ${want.get(c.rank)}`).join(" · "));
+  } else if (chips.some((c) => !c.tier)) {
+    bad("5d: a league chip carries no data-tier — the hue is how a rung is recognised at 10px, and without the attribute it inherits nothing");
+  } else {
+    ok(`5d: all ${chips.length} rows name their own league (${[...new Set(chips.map((c) => c.league))].join(", ")})`);
+  }
   await ctx.close();
 }
 
@@ -1847,15 +1922,24 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
       })) : null;
     });
     const full = promo?.map((l) => l.text).join(" ") ?? "";
+    /* ⚠ THE "NAMES THE DESTINATION" CLAIM WAS DROPPED on 2026-08-08, deliberately. It required
+       the module to name the division being climbed into, which was right while this card
+       stated the PROMOTION — the podium was the promotion set. The stage is now the cohort's
+       top three from any league, so naming one destination would be false for two of them, and
+       the destination moved to the head's hook (nextRungPayoff), which states what the next
+       rung pays as well as what it is called.
+       What is left is stronger for being uniform: the same three claims on every rung, with no
+       summit special case, because there is no longer a promotion claim for the summit to
+       contradict. */
     if (!promo) {
-      bad(`${NAMES[d - 1]}: the deck states no promotion mechanic — the flank beside the stage renders empty`);
+      bad(`${NAMES[d - 1]}: the deck states nothing — the flank beside the stage renders empty`);
     } else if (promo.some((l) => !l.text)) {
       bad(`${NAMES[d - 1]}: the deck's module renders ${promo.filter((l) => !l.text).length} EMPTY line(s) ` +
         `(${promo.map((l) => `${l.cls}="${l.text}"`).join(" · ")}) — a blank row in a centred card is a hole in it`);
-    } else if (d >= NAMES.length && /top \d+ promote/i.test(full)) {
-      bad(`${NAMES[d - 1]}: the summit's module still offers a promotion ("${full}") — nothing is above Prism and promote_count is 0`);
-    } else if (d < NAMES.length && !new RegExp(NAMES[d]).test(full)) {
-      bad(`${NAMES[d - 1]}: the module does not name ${NAMES[d]}, the division being climbed into: "${full}"`);
+    } else if (/promote/i.test(full)) {
+      bad(`${NAMES[d - 1]}: the stage's caption claims a promotion ("${full}") — these three come from different leagues and generally do not all advance, and at the summit nobody does`);
+    } else if (!/every league/i.test(full)) {
+      bad(`${NAMES[d - 1]}: the caption does not state the stage's scope ("${full}") — a podium wearing three different metals reads as one division whose colours have gone wrong`);
     } else ok(`${NAMES[d - 1]}: the deck's module states ${promo.length} full lines ("${full}")`);
 
     await ctx.close();
@@ -1872,13 +1956,14 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
   } else ok(`five divisions paint five distinct fields (${fields.join(" · ")})`);
 }
 
-/* ── 6) the promotion zone is NOT drawn on a role-filtered view ──────────────────────── */
+/* ── 6) the promotion statement is NOT drawn on a role-filtered view ─────────────────── */
 {
   const ctx = await boardCtx(b, DESKTOP);
   const p = await openBoard(ctx);
-  /* The unfiltered board states the cut on the DECK now, not as a bar in the ladder: the
-     podium holds every promoted rank, so the bar would repeat a boundary stated 8px above
-     it. What must still vanish under a filter is the marking of any kind. */
+  /* The unfiltered board's stage carries a caption; a filtered view withholds the stage
+     entirely, so the caption goes with it. What must vanish under a filter is any marking at
+     all — `promote_count` describes the viewer's whole division, and a lens cannot honestly
+     say who inside it is promoting. */
   if (await p.locator('[data-testid="podium-promo"]').count() !== 1) bad("no promotion statement on the unfiltered board");
   else {
     await p.locator('.lb-filter .lb-chip:has-text("OT")').click();
