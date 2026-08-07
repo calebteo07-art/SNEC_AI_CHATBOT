@@ -16,7 +16,8 @@
 import { forwardRef } from "react";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Lumen } from "@/aurora/components/Lumen";
-import { arrowFor } from "@/aurora/leaderboard/league";
+import { arrowFor, DIVISION_NAMES, TOP_DIVISION } from "@/aurora/leaderboard/league";
+import { TIERS } from "./Tiers";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
 export const LeagueRow = forwardRef<HTMLLIElement, {
@@ -31,6 +32,13 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
   // The gauge. Clamped both ways: a stale snapshot can put a row above the leader it was
   // scaled against, and a bar wider than its own track paints outside the board.
   const pct = topXp > 0 ? Math.max(0, Math.min(100, (e.xp / topXp) * 100)) : 0;
+  /* WHICH RACE THIS ROW IS IN (2026-08-08). The board lists the whole cohort now, so a row
+     without its league reads as one ladder — and the promotion gold, which marks only the
+     viewer's OWN division, would look like it lands at arbitrary places. Clamped exactly as
+     nextDivisionName clamps: a null or out-of-range column must render a chip, not crash a
+     row that is otherwise fine. */
+  const tierIdx = Math.max(0, Math.min(TOP_DIVISION - 1, Math.trunc(Number(e.division) || 1) - 1));
+  const leagueName = DIVISION_NAMES[tierIdx];
   return (
     /* data-role carries the row's ROLE onto the rung so CSS can colour it. Role is identity,
        which is the same licence the band has to wear a metal — spent here on the object that
@@ -44,7 +52,7 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
         data-testid="lb-row"
         data-you={e.is_you || undefined}
         onClick={() => onPeek(e)}
-        aria-label={`${e.name}, rank ${e.rank}, ${e.xp.toLocaleString()} Lumens this week. ${mv.label}.`}
+        aria-label={`${e.name}, ${leagueName} league, rank ${e.rank}, ${e.xp.toLocaleString()} Lumens this week. ${mv.label}.`}
       >
         <span className="lg-rk">{e.rank}</span>
         <span className="lg-mv" data-dir={mv.dir} title={mv.label}>
@@ -63,6 +71,10 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
             {e.is_you && <span className="lg-you">You</span>}
           </span>
           <span className="lg-sub">
+            {/* Ink over a wash of its own metal, never a solid fill: promotion gold is the one
+                state on this row that means something mechanical, and twenty-seven saturated
+                league pills would drown it. Same reasoning as data-role's fill-only rule. */}
+            <span className="lg-league" data-tier={TIERS[tierIdx]}>{leagueName}</span>
             {e.role && <span className="lg-role">{e.role}</span>}
             <span className="lg-lvl">Lv {e.level}</span>
             {e.streak_days > 0 && <span className="lg-streak">{e.streak_days}d</span>}

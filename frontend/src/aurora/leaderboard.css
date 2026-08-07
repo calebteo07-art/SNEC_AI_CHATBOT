@@ -547,11 +547,14 @@
    wheel rather than five steps of luminance — which is the one place the old palette had
    nothing left to say, at the size where a wash reads as grey.
    --pm-dim is the SAME hue, unlit: what a rung you have not reached is made of. */
-.tb-pip[data-tier="ember"] { --pm: #FF6320; --pm-dim: #9A3D12; }
-.tb-pip[data-tier="volt"] { --pm: #3D9BFF; --pm-dim: #1B5E9E; }
-.tb-pip[data-tier="solar"] { --pm: #FFB800; --pm-dim: #8A6206; }
-.tb-pip[data-tier="nova"] { --pm: #D06BFF; --pm-dim: #8F35C2; }
-.tb-pip[data-tier="prism"] { --pm: #2BE8CE; --pm-dim: #086B59; }
+/* ⚠ THE ROW CHIP SHARES THESE FIVE (2026-08-08), rather than restating the hexes a third
+   time — .tb[data-tier] already carries the same ladder as --f-*, and a third hand-kept copy
+   is the drift this file keeps warning about. One declaration site per rung, two consumers. */
+.tb-pip[data-tier="ember"], .lg-league[data-tier="ember"] { --pm: #FF6320; --pm-dim: #9A3D12; }
+.tb-pip[data-tier="volt"], .lg-league[data-tier="volt"] { --pm: #3D9BFF; --pm-dim: #1B5E9E; }
+.tb-pip[data-tier="solar"], .lg-league[data-tier="solar"] { --pm: #FFB800; --pm-dim: #8A6206; }
+.tb-pip[data-tier="nova"], .lg-league[data-tier="nova"] { --pm: #D06BFF; --pm-dim: #8F35C2; }
+.tb-pip[data-tier="prism"], .lg-league[data-tier="prism"] { --pm: #2BE8CE; --pm-dim: #086B59; }
 /* ⚠ LOCKED IS A COLOUR, NOT AN OPACITY (2026-08-06, "the texts in the tier color card do not
    have good contrast and are somewhat camouflaged and not readable"). This was `opacity: .3`
    here and `.74` at the plate tiers, and a faded element composites BOTH its fill and its
@@ -1308,6 +1311,22 @@
   box-shadow: 0 2px 0 0 #140E1D, 0 2px 0 2px var(--mat-ink);
 }
 .lg-sub { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-2); min-width: 0; }
+/* THE LEAGUE CHIP (2026-08-08) — which race this row is in, now that the list mixes all five.
+   ⚠ INK IS --pm-dim, NOT --pm. The board is light, and three of the five bases fail badly as
+   text on it: Prism aqua #2BE8CE is ~1.7:1 and Volt #3D9BFF ~3:1, so the two brightest rungs
+   would ship the least readable chips — the exact inversion the 08-06 "camouflaged and not
+   readable" pass was about. The unlit hue is the same colour with the contrast to be text;
+   --pm survives as an 18% wash behind it, which is what keeps the rung recognisable at 11px.
+   flex: none because .lg-sub is a flex row with a min-width:0 name beside it: without it the
+   chip is the item that gets squashed to nothing when a long name arrives. */
+.lg-league {
+  flex: none;
+  font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  font-size: 10px; line-height: 1.5;
+  padding: 0 4px; border-radius: 4px;
+  color: var(--pm-dim);
+  background-color: color-mix(in srgb, var(--pm) 18%, #FFFFFF);
+}
 .lg-role {
   font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
   color: var(--role, var(--ink-2));
