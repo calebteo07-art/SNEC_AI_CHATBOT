@@ -22,6 +22,21 @@ from tools.shared.gemini_client import ask, MODEL
 
 _GRADER_SYSTEM = "You are a clinical grader. Return only valid JSON."
 
+
+class GraderUnavailable(RuntimeError):
+    """The AI half of the grade could not be obtained, so there is no grade.
+
+    Raised for BOTH failure modes of the grading call — a raise from `ask` (quota,
+    timeout, truncation, transport) and an HTTP-200-with-no-content reply that leaves
+    nothing to parse. They used to sit on opposite sides of one try block and produce
+    opposite wrong outcomes: a raw 500 that destroyed the attempt, or an invented
+    5/5/5/5 that persisted a pass worth 30 marks nobody computed.
+
+    The caller turns this into a 503 and persists nothing, so the student's resubmit is
+    a real retry. Never downgrade it to a default score: a grade that was not computed
+    must not become a permanent record.
+    """
+
 _DOMAINS = ("history", "investigations", "diagnosis", "management")
 
 _ALL_DOMAINS_SCHEMA = {
@@ -127,28 +142,38 @@ def _evaluate_all_domains(conv_text: str, case_context: str,
         f'"management": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}}}'
     )
 
-    raw = ask(
-        system_prompt=_GRADER_SYSTEM,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2048,
-        feature="case_eval",
-        model=MODEL,
-        # becky §6: HIGH(16k)→MEDIUM(8k) thinking. The per-domain few-shot anchors
-        # carry the calibration; MEDIUM holds the score with far less reasoning latency.
-        thinking_level="MEDIUM",
-        response_json_schema=_ALL_DOMAINS_SCHEMA,
-    )
+    # `ask` raises on quota, transport and truncation, and returns "" on an HTTP-200 reply
+    # with no usable content. Both mean the same thing to the student — there is no grade —
+    # so both land on one path instead of one 500 and one invented score.
+    try:
+        raw = ask(
+            system_prompt=_GRADER_SYSTEM,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=2048,
+            feature="case_eval",
+            model=MODEL,
+            # becky §6: HIGH(16k)→MEDIUM(8k) thinking. The per-domain few-shot anchors
+            # carry the calibration; MEDIUM holds the score with far less reasoning latency.
+            thinking_level="MEDIUM",
+            response_json_schema=_ALL_DOMAINS_SCHEMA,
+        )
+    except Exception as exc:
+        raise GraderUnavailable(f"grading call failed: {exc}") from exc
 
-    _fallback = {d: {"score": 5, "feedback": "Evaluation error — please retry."} for d in _DOMAINS}
     try:
         text = raw.strip()
         if text.startswith("```"):
             lines = text.splitlines()
             text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
         result = json.loads(text)
-        return {d: result.get(d, _fallback[d]) for d in _DOMAINS}
-    except (json.JSONDecodeError, AttributeError):
-        return _fallback
+    except (json.JSONDecodeError, AttributeError) as exc:
+        raise GraderUnavailable("grader returned no parseable grade") from exc
+    if not isinstance(result, dict):
+        raise GraderUnavailable("grader returned no parseable grade")
+    # A domain the model omitted scores 0 and says so. That is a real (harsh) grade of a
+    # real reply; it is NOT the invented midpoint the old fallback wrote across all four.
+    absent = {"score": 0, "feedback": "The grader did not return a score for this domain."}
+    return {d: (result.get(d) if isinstance(result.get(d), dict) else absent) for d in _DOMAINS}
 
 
 def evaluate_case(

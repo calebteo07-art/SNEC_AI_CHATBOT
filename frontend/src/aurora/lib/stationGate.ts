@@ -43,6 +43,26 @@ export function performedOnly(ticked: ReadonlySet<number>, skipped: ReadonlySet<
   return [...ticked].filter((n) => !skipped.has(n)).sort((a, b) => a - b);
 }
 
+/** What the stuck-step escape valve should do with the lenient re-read's answer.
+
+    The valve presses /observe once with `focus_step` set — "look again, leniently, at THIS
+    step" — and only skips if that still finds nothing. The bug was returning early on ANY
+    non-empty reply: `advance` only ticks an in-order run STARTING AT THE GATE, so a reply of
+    [6,7] while the gate sits at 5 ticked nothing, skipped nothing, and left the student
+    pressing a button that visibly did nothing. It was not rare — out-of-order examiner
+    credits are never persisted, so the same numbers come back on every pass including this
+    one. And when the gate step is a manual procedure (the exact case the button exists for)
+    it is in the request's `exclude_steps`, so the backend structurally CANNOT return it:
+    stage 1 could only ever help by returning empty.
+
+    So: credit whatever did come back, and skip unless the focus step itself was found. */
+export function skipOutcome(
+  focus: number, satisfied: readonly number[] | undefined,
+): { credit: number[]; skip: boolean } {
+  const hits = satisfied ?? [];
+  return { credit: [...hits], skip: !hits.includes(focus) };
+}
+
 /** Whether firing /observe can still tick anything. The conversational examiner only ticks
     NON-MANUAL steps, and the backend returns [] once none of those remain — so the round-trip
     (which, for intermediate/advanced cases, also costs an access-check DB read) is worth making

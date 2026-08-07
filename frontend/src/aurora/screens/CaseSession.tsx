@@ -20,7 +20,8 @@ import { StationBriefing } from "@/aurora/components/StationBriefing";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
-import { advance, gateIndex, currentStep, observeCanTick, performedOnly } from "@/aurora/lib/stationGate";
+import { advance, gateIndex, currentStep, observeCanTick, performedOnly, skipOutcome } from "@/aurora/lib/stationGate";
+import { appendChunk, hasMessage, patchMessage } from "@/aurora/lib/streamMessages";
 import { stationTurn, canSkip } from "@/aurora/lib/stationTurn";
 import { admit, chipOutcome, dualHalf, dualHint, panelOnlySteps, type DualKind } from "@/aurora/lib/dualStep";
 import { timerState, paceRead } from "@/aurora/lib/stationTimer";
@@ -45,7 +46,20 @@ interface StationData {
   examination_actions: ExamAction[];
 }
 type Channel = "patient" | "eyebot";
-interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel }
+/** `id` addresses a message that is still being written to (the streaming placeholder).
+    Positional addressing lost every chunk that arrived after an unrelated append — see
+    frontend/src/aurora/lib/streamMessages.ts. */
+interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel; id?: string }
+
+/** How many transcript messages a request may carry.
+
+    The server rejected anything over 100 with a 422 BEFORE the handler ran, and the client
+    posted the transcript unsliced — so a long station 422'd forever on a healthy service,
+    on a payload that only ever grows. /observe already sliced; /chat and /submit were
+    simply missed. The bound is now generous enough that no honest OSCE reaches it (median
+    case is 12 minutes) and the server truncates rather than rejecting, so no client version
+    can ever be locked out of its own station again. */
+const MAX_TRANSCRIPT = 400;
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
@@ -384,7 +398,13 @@ export function CaseSession() {
         }),
       });
       const data = res.ok ? ((await res.json()) as { newly_satisfied?: number[] }) : { newly_satisfied: [] };
-      if (data.newly_satisfied?.length) { addAuto(data.newly_satisfied); return; }
+      // Credit whatever the lenient re-read found, but only call the press HANDLED if it
+      // found THIS step. Returning on any non-empty reply froze the gate: `advance` ticks
+      // only an in-order run starting at the gate, so [6,7] at gate 5 ticked nothing and
+      // skipped nothing, and the button visibly did nothing however often it was pressed.
+      const { credit, skip } = skipOutcome(step, data.newly_satisfied);
+      if (credit.length) addAuto(credit);
+      if (!skip) return;
     } catch {
       /* fall through to the skip — the way out must never fail closed */
     } finally {
@@ -411,9 +431,14 @@ export function CaseSession() {
     setMessages(updated);
     if (textArg === undefined) setInput("");
     setSending(true);
+    // Identity for the reply we are about to stream into. Positional addressing dropped
+    // every chunk that landed after an unrelated append (an /action grade card), silently
+    // truncating the patient mid-sentence in the graded transcript.
+    const replyId = `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     try {
       // Only the patient conversation is sent as context — EyeBot exam chatter is excluded.
-      const patientHistory = toApi(updated.filter((m) => m.channel === "patient"));
+      // Sliced: the server caps the list, and an unsliced post 422'd the consult dead.
+      const patientHistory = toApi(updated.filter((m) => m.channel === "patient").slice(-MAX_TRANSCRIPT));
       // Abort the SSE stream on unmount (navigating away mid-reply) so it doesn't hold a
       // scarce worker concurrency slot to completion — mirrors the observe path.
       chatAbort.current?.abort();
@@ -431,7 +456,7 @@ export function CaseSession() {
       // indistinguishable from a crash and the consult looked broken. Name the cause.
       if (res.status === 429) throw new Error("rate");
       if (!res.ok || !res.body) throw new Error("down");
-      setMessages((prev) => [...prev, { role: "assistant", content: "", channel: "patient" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "", channel: "patient", id: replyId }]);
       setSending(false);
       setIsStreaming(true);
       const reader = res.body.getReader();
@@ -450,12 +475,7 @@ export function CaseSession() {
           try {
             const parsed = JSON.parse(data) as { text: string };
             if (parsed.text) {
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last && last.role === "assistant" && last.channel === "patient")
-                  return [...prev.slice(0, -1), { ...last, content: last.content + parsed.text }];
-                return prev;
-              });
+              setMessages((prev) => appendChunk(prev, replyId, parsed.text));
               endRef.current?.scrollIntoView({ behavior: "smooth" });
             }
           } catch { /* skip */ }
@@ -467,12 +487,9 @@ export function CaseSession() {
       const fb = (err as Error)?.message === "rate"
         ? "(You're sending faster than the patient can answer — give it a moment, then carry on.)"
         : "(I'm having trouble reaching the service right now.)";
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last && last.role === "assistant" && last.channel === "patient")
-          return [...prev.slice(0, -1), { ...last, content: fb }];
-        return [...prev, { role: "assistant", content: fb, channel: "patient" }];
-      });
+      setMessages((prev) => hasMessage(prev, replyId)
+        ? patchMessage(prev, replyId, () => fb)
+        : [...prev, { role: "assistant", content: fb, channel: "patient", id: replyId }]);
     } finally {
       setSending(false);
       setIsStreaming(false);
@@ -587,7 +604,7 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: performedOnly(ticked, skipped), skipped_steps: Array.from(skipped) }),
+        body: JSON.stringify({ messages: toApi(messages.slice(-MAX_TRANSCRIPT)), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: performedOnly(ticked, skipped), skipped_steps: Array.from(skipped) }),
       });
       if (!res.ok) { setSubmitError(submitErrorMessage(res.status)); return; }
       const data = (await res.json()) as { result: DomainResult; coaching?: Coaching; lumens_awarded?: number };

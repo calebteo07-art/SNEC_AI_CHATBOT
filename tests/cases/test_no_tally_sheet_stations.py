@@ -118,6 +118,66 @@ def test_is_tally_sheet_ignores_case_and_blanks():
     assert is_tally_sheet(None) is False
 
 
+# ── The runtime guard ──────────────────────────────────────────────────────────
+# `is_tally_sheet` existed for a year and was called by exactly one caller —
+# snapshot_checklists.py, which builds the TEST FIXTURE. The live station path never
+# consulted it, so all 15 backlog cases above were served, gated and graded against a
+# preceptor logbook: 40 of 100 marks riding on rows like "Obtain preceptor's Name and
+# Signature", every one of the 20 Dayward rows flagged critical, and a debrief that told
+# the student off for not collecting a signature. The impact concentrated into whole
+# student-selectable sets — OA "Pre & Post-Operative Care" is 5/5 affected, OT
+# "Orthoptics" 4/4 — so a student could pick a topic and meet nothing else.
+#
+# The backlog above is about AUTHORING (a real checklist needs clinical sign-off). This
+# is about SERVING: until that authoring lands, the station falls back to the case's own
+# rubric, which is at least derived from this case and describes this encounter.
+
+def _tally_row(name: str) -> dict:
+    return {"procedure_name": name, "steps": {"steps": [
+        {"step_number": 1, "action": "Record patient's Date, Age, Sex, Race",
+         "critical": True, "category": "documentation"},
+        {"step_number": 2, "action": "Obtain preceptor's Name and Signature",
+         "critical": True, "category": "documentation"},
+    ]}}
+
+
+def test_the_station_never_serves_a_tally_sheet_when_one_resolves():
+    from unittest.mock import patch
+    from tools.api.routers.cases import _station_checklist
+
+    case = json.loads((CASES_DIR / "case_oa_004_preop.json").read_text(encoding="utf-8"))
+    name = resolve_procedure_name(case)[0]
+    assert is_tally_sheet(name), "fixture drifted — this case no longer resolves to a tally sheet"
+
+    with patch("tools.api.routers.cases.get_checklist_by_name",
+               return_value=_tally_row(name)) as lookup:
+        out = _station_checklist(case)
+
+    assert lookup.call_count == 0, "a tally sheet must not even be fetched"
+    assert out["source"] == "rubric"
+    actions = " ".join(s["action"].lower() for s in out["steps"])
+    assert "preceptor" not in actions and "sex, race" not in actions
+
+
+def test_no_case_at_all_is_graded_against_a_tally_sheet():
+    """Sweep every case: the guard holds for the whole backlog, not just one fixture."""
+    from unittest.mock import patch
+    from tools.api.routers.cases import _station_checklist
+
+    served_tally = []
+    for f in CASE_FILES:
+        case = json.loads(f.read_text(encoding="utf-8"))
+        name = resolve_procedure_name(case)[0]
+        if not is_tally_sheet(name):
+            continue
+        with patch("tools.api.routers.cases.get_checklist_by_name",
+                   return_value=_tally_row(name)):
+            out = _station_checklist(case)
+        if is_tally_sheet(out["procedure_name"]) or out["source"] == "checklist":
+            served_tally.append(case["case_id"])
+    assert served_tally == []
+
+
 @pytest.mark.parametrize(
     "case_file",
     [p for p in CASE_FILES if p.stem not in PENDING_CLINICAL_REVIEW],

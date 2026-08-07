@@ -245,9 +245,17 @@ async def insert_case_result(
     checklist_detail: list | None = None,
 ) -> None:
     """Append a case completion record. The rich OSCE-grade columns are additive and
-    nullable (migrations 011 and 017); when any are supplied we try the full insert first
-    and, if those columns are absent (pre-migration), fall back to the base four columns so
-    the submit path stays green until the migration is applied.
+    nullable (migrations 011, 017 and 019); when any are supplied we try the full insert
+    first and, if a column is absent (pre-migration), shed one migration LAYER at a time —
+    newest first — so the submit path stays green until the migration is applied.
+
+    Shedding is incremental, not all-or-nothing, and that is load-bearing. 019 shipped to an
+    auto-deploying `main` before its ALTER was run; under the old collapse-to-base fallback
+    that one unknown column cost eight live ones (score_100, safe, both sub-scores,
+    missed_critical, coaching, checklist_coverage, grade_scale) on every single attempt,
+    silently — the exception was swallowed, the base insert succeeded, and a clean
+    `case_completed` audit event was still written. 017's ledger entry warned about this
+    in writing two days earlier. An unapplied migration must only ever cost its own columns.
 
     `grade_scale` records which maxima the sub-scores use, so the /50 era and the current
     /30 one stay legible side by side; NULL means the row predates the stamp. Both it and
@@ -285,12 +293,28 @@ async def insert_case_result(
     # still written as [] and stays distinguishable from a pre-019 row, which is NULL.
     if checklist_detail is not None:
         rich["checklist_detail"] = checklist_detail
-    try:
-        await client.table("case_progress").insert(rich).execute()
-    except Exception:
-        if len(rich) == len(base):  # nothing extra to shed → the error is real
-            raise
-        await client.table("case_progress").insert(base).execute()
+
+    # Newest migration first. Each retry drops exactly one layer, so a DB at 011 still
+    # persists the whole 011 grade and loses only 017's and 019's columns.
+    layers = (
+        ("checklist_detail",),                  # 019
+        ("checklist_coverage", "grade_scale"),  # 017
+    )
+    attempts = [rich]
+    for layer in layers:
+        leaner = {k: v for k, v in attempts[-1].items() if k not in layer}
+        if len(leaner) != len(attempts[-1]):  # only a payload that actually shrank is new
+            attempts.append(leaner)
+    if len(attempts[-1]) != len(base):
+        attempts.append(base)  # 011 absent too — the last honest thing we can store
+
+    for i, payload in enumerate(attempts):
+        try:
+            await client.table("case_progress").insert(payload).execute()
+            return
+        except Exception:
+            if i == len(attempts) - 1:  # nothing left to shed → the error is real
+                raise
 
 
 async def get_case_results(student_id: str) -> list[dict]:

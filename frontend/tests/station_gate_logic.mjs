@@ -7,7 +7,7 @@
    once every observable step is already ticked (the tail of a consult). It must NOT
    suppress while any observable step is still open, nor before the station has loaded. */
 import assert from "node:assert";
-import { observeCanTick, performedOnly } from "../src/aurora/lib/stationGate.ts";
+import { observeCanTick, performedOnly, skipOutcome } from "../src/aurora/lib/stationGate.ts";
 
 const S = (...xs) => new Set(xs);
 
@@ -35,5 +35,45 @@ assert.deepStrictEqual(performedOnly(S(1, 2), S(1, 2)), [], "everything skipped 
 assert.deepStrictEqual(performedOnly(S(), S(1)), [], "skip of an unticked step is harmless");
 // Ordered output — the payload must not reshuffle between submits of the same station.
 assert.deepStrictEqual(performedOnly(S(3, 1, 2), S()), [1, 2, 3], "output is in step order");
+
+// ── skipOutcome — the stuck-step escape valve must never silently do nothing.
+// The valve fires /observe once with focus_step set ("look again, leniently, at THIS
+// step") and skips only if that still finds nothing. It used to return early on ANY
+// non-empty reply — but `advance` ticks only an in-order run STARTING AT THE GATE, so a
+// reply of [6,7] while the gate sits at 5 ticked nothing AND skipped nothing. The student
+// pressed "unable to complete this checklist item", watched nothing happen, and the gate
+// froze with every later step and manual chip locked behind it. Their only exit was
+// submitting an incomplete handover and forfeiting the remaining marks.
+//
+// Not a rare shape: out-of-order examiner credits are never persisted (already_ticked
+// carries only the ticked set), so those same numbers come back on every pass. And when
+// the gate step is a MANUAL procedure — the exact case the button exists for — it is in
+// the request's exclude_steps, so the backend structurally cannot return it.
+{
+  // The focus step came back → credit it, do not skip. The student really did do it.
+  const found = skipOutcome(5, [5]);
+  assert.deepStrictEqual(found.credit, [5]);
+  assert.strictEqual(found.skip, false, "a step the examiner found must not be skipped");
+
+  // THE BUG: only unrelated, far-ahead steps came back.
+  const other = skipOutcome(5, [6, 7]);
+  assert.deepStrictEqual(other.credit, [6, 7], "incidental hits are still credited");
+  assert.strictEqual(other.skip, true, "the focus step was NOT found → the valve must skip");
+
+  // Nothing came back at all (the manual-step case: the backend cannot return it).
+  assert.strictEqual(skipOutcome(5, []).skip, true);
+  assert.strictEqual(skipOutcome(5, undefined).skip, true, "a failed request must still skip");
+
+  // Focus among several → credit all, skip nothing.
+  const mixed = skipOutcome(5, [5, 6]);
+  assert.deepStrictEqual(mixed.credit, [5, 6]);
+  assert.strictEqual(mixed.skip, false);
+
+  // The valve must never fail closed: every shape yields a decision, never a hang.
+  for (const sat of [undefined, [], [1], [5], [99, 100]]) {
+    const out = skipOutcome(5, sat);
+    assert.ok(Array.isArray(out.credit) && typeof out.skip === "boolean");
+  }
+}
 
 console.log("station_gate_logic: all assertions passed");
