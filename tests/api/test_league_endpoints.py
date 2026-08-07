@@ -253,20 +253,31 @@ def test_rollover_is_backgrounded_and_closes_the_PREVIOUS_week(mock_add):
     assert any(c.args[0] is bulk for c in mock_add.call_args_list)
 
 
-def test_daily_snapshot_records_every_division_once():
-    """Arrows need yesterday's rank for the WHOLE cohort, ranked per division — a student
-    in division 2 must be stamped with their division-2 rank, not a global one."""
+def test_daily_snapshot_records_the_cohort_on_one_scale():
+    """The snapshot must be on the SAME scale as the live rank it is subtracted from.
+
+    It used to stamp a per-division rank, which was right while the board was per-division.
+    Now that the live rank is cohort-wide, a per-division stamp would compare two numbering
+    systems: d2_eve is #1 in division 2 and #2 across the cohort, so she would render as
+    having DROPPED a place on a day she did nothing at all."""
     _, seal, bulk, _ = league_board()
     seal.assert_awaited_once_with(f"day:{WEEK.isoformat()}")
     bulk.assert_awaited_once()
     snapshot, day = bulk.await_args.args
     assert day == WEEK.isoformat()
     assert snapshot == {
-        "d3_ann": 1, "d3_bob": 2, "d3_cy": 3, "d3_dee": 4,   # division 3
-        "d2_eve": 1,                                          # alone in division 2
-        "d4_fay": 1,                                          # alone in division 4
+        "d4_fay": 1, "d2_eve": 2, "d3_ann": 3, "d3_bob": 4, "d3_cy": 5, "d3_dee": 6,
     }
     assert "d3_hid" not in snapshot   # hidden students are not ranked at all
+
+
+def test_a_role_filtered_read_never_stamps_the_snapshot():
+    """A `role` view renumbers from 1 within one role, so stamping from it would write ranks
+    that exist on no board — and burning the day's seal would stop the real snapshot from
+    ever running. The seal must not even be TAKEN on a filtered read."""
+    _, seal, bulk, _ = league_board(query="?role=OA")
+    seal.assert_not_awaited()
+    bulk.assert_not_awaited()
 
 
 def test_second_read_the_same_day_writes_no_snapshot():
