@@ -259,6 +259,13 @@ const measure = (p) => p.evaluate(() => {
   const inkProbe = [".tb-name", ".tb-league", ".chase-n", ".chase-l", ".pod-clock",
     ".tb-hook", ".pod-banner", ".lb-count", ".lg-role", ".lg-streak",
     ".lg-nm", ".lg-sub", ".lg-score", ".lg-rk",
+    /* THE LEAGUE CHIP (2026-08-08), and it is the reason this probe earns its keep. Its ink
+       is --pm-dim rather than the rung's bright base precisely BECAUSE the base fails here:
+       Prism aqua is ~1.7:1 as text on a light board and Volt ~3:1, so the two brightest
+       divisions would have shipped the two least readable chips. Sweeping it means a later
+       pass that "simplifies" the ink back to --pm fails instead of quietly regressing.
+       ⚠ Every rung is checked, not just the fixture's own: see the tier sweep in 5c. */
+    ".lg-league", ".chase-st",
     // The three words 2026-08-05 added, joining at the same time they ship. The first two are
     // the SMALLEST type on the page and both sit on saturated fills; the counter sits on its
     // own wash rather than on the strip, which is exactly where a 4.3:1 label hides.
