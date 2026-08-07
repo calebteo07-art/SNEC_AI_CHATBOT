@@ -130,6 +130,33 @@ export function splitPodium<T>(entries: T[], places = 3): { podium: T[]; rest: T
   return { podium: entries.slice(0, places), rest: entries.slice(places) };
 }
 
+/** Every entry sitting in `division`, mapped to its rank WITHIN that division (1-based).
+ *
+ *  The board lists the whole cohort (2026-08-08) but promotion is still decided inside a
+ *  division, so the head has to recover the viewer's own race from a mixed list.
+ *
+ *  A filter and a counter, deliberately NOT a sort. The cohort is ranked by `(-xp, name)` —
+ *  the same key the division ranking used — so the filtered order already IS the division
+ *  order. Re-sorting here would introduce a second implementation of the ladder's ordering
+ *  and invite the two to drift the first time either is retuned.
+ *
+ *  Keyed by the ENTRY OBJECT. Not by name: two students can share a display name, and this
+ *  is the map that decides who gets the promotion gold, so collapsing them would paint the
+ *  wrong row. Not by id either — the payload strips `student_id` before it leaves the
+ *  server. Callers must therefore pass the same array instances they render.
+ *
+ *  ⚠ Only meaningful on an UNFILTERED board. A `?role=` view carries one role's members, so
+ *  this would number a lens rather than a race; the screen withholds everything built on it
+ *  in that case. */
+export function leagueRanks<T extends { division: number }>(
+  entries: T[], division: number,
+): Map<T, number> {
+  const ranks = new Map<T, number>();
+  let n = 0;
+  for (const e of entries) if (e.division === division) ranks.set(e, ++n);
+  return ranks;
+}
+
 /** Index in the ranked list before which the cut is drawn, or null when drawing it would
  *  mislead.
  *

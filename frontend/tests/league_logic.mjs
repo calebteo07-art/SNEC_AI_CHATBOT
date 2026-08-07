@@ -12,7 +12,7 @@
 import assert from "node:assert";
 import {
   msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex, splitPodium,
-  nextDivisionName, nextRungPayoff, DIVISION_NAMES,
+  leagueRanks, nextDivisionName, nextRungPayoff, DIVISION_NAMES,
 } from "../src/aurora/leaderboard/league.ts";
 
 // ── the HOOK: what the next division pays, read off the server's own ladder ──
@@ -91,6 +91,52 @@ assert.deepStrictEqual(splitPodium(thirty, -1), { podium: [], rest: thirty });
 const frozen = [1, 2, 3, 4];
 splitPodium(frozen, 3);
 assert.deepStrictEqual(frozen, [1, 2, 3, 4]);
+
+// ── 1c) the league slice: the race, recovered from a cohort-ranked list ──
+/* The board lists the WHOLE cohort (2026-08-08) but promotion is still decided inside a
+   division, so the head has to recover the viewer's own race from a mixed list. This is a
+   filter and a counter, never a re-sort: the cohort is ranked by the same (-xp, name) key
+   the division ranking used, so the filtered order already IS the division order. */
+{
+  const cohort = [
+    { rank: 1, division: 2, xp: 900, name: "Bob", is_you: false },
+    { rank: 2, division: 1, xp: 520, name: "Nia", is_you: false },
+    { rank: 3, division: 1, xp: 474, name: "Rae", is_you: true },
+    { rank: 4, division: 2, xp: 300, name: "Ann", is_you: false },
+    { rank: 5, division: 1, xp: 50, name: "Wan", is_you: false },
+  ];
+  const ember = leagueRanks(cohort, 1);
+  assert.strictEqual(ember.size, 3);
+  assert.strictEqual(ember.get(cohort[1]), 1);         // Nia: #2 overall, #1 in Ember
+  assert.strictEqual(ember.get(cohort[2]), 2);         // Rae: #3 overall, #2 in Ember
+  assert.strictEqual(ember.get(cohort[4]), 3);         // Wan: #5 overall, #3 in Ember
+  assert.strictEqual(ember.get(cohort[0]), undefined); // Volt is not in this race
+  assert.strictEqual(leagueRanks(cohort, 2).get(cohort[3]), 2);
+  assert.strictEqual(leagueRanks(cohort, 5).size, 0);  // nobody at the summit yet
+  // Keyed by the ENTRY OBJECT: two students can share a display name, and student_id is
+  // deliberately stripped from the payload, so neither is available as a key.
+  const twins = [
+    { rank: 1, division: 1, xp: 90, name: "Sam Tan", is_you: false },
+    { rank: 2, division: 1, xp: 80, name: "Sam Tan", is_you: true },
+  ];
+  const byName = leagueRanks(twins, 1);
+  assert.strictEqual(byName.get(twins[0]), 1);
+  assert.strictEqual(byName.get(twins[1]), 2);         // NOT collapsed onto one another
+  // It must not mutate or reorder its input — the board re-derives on every read.
+  assert.deepStrictEqual(cohort.map((e) => e.rank), [1, 2, 3, 4, 5]);
+
+  /* The renumbered slice is what computeChase consumes, and its rank MUST be the league
+     rank. Fed cohort ranks it would compare "#3" against a promote count of 3 and tell a
+     student who leads their own division that they are outside the promotion zone. */
+  const slice = cohort.filter((e) => ember.has(e)).map((e) => ({ ...e, rank: ember.get(e) }));
+  assert.deepStrictEqual(slice.map((e) => e.rank), [1, 2, 3]);
+  const chase = computeChase(slice, 1, false);
+  assert.strictEqual(chase.kind, "promote");
+  assert.strictEqual(chase.value, 46);                 // Rae (#2 in Ember, 474) chases 520
+  // Proof the scale matters: the same viewer fed COHORT ranks is misread as promoting.
+  assert.strictEqual(computeChase(cohort, 1, false).kind, "promote");
+  assert.notStrictEqual(computeChase(cohort, 1, false).value, 46);
+}
 
 // ── 2) the promotion line ──
 /* THE SHIPPING CASE (2026-08-04): the podium holds ranks 1-3, so the list is 27 rows and the
