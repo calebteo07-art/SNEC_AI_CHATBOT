@@ -39,10 +39,17 @@ POOL_MAX = 30  # Duolingo's pool size; above this a division splits into balance
 # flashcards, tutor chat, the daily check-in and its streak bonus) now scales with it.
 #
 # Why this is safe to multiply, and where it would not have been:
-#   · A student is only ever ranked against their OWN division, and everyone in a division
-#     shares its multiplier — so the weekly race is untouched. It rewards the tier you have
-#     already reached; it cannot help you reach the next one.
-#   · Promotion is by RANK, never by score, so no amount of multiplier buys a promotion.
+#   · ⚠ AMENDED 2026-08-08. This used to read "a student is only ever ranked against their OWN
+#     division, and everyone in a division shares its multiplier — so the weekly race is
+#     untouched". The first half stopped being true when the board became cohort-wide: the
+#     LIST now mixes divisions, so a higher rung out-scores an equal effort on a lower one.
+#     What survives is the half that carries the safety argument — everyone in a division
+#     shares its multiplier, and the RACE is still ranked strictly within one.
+#   · Promotion is by RANK inside a division, never by score, so no amount of multiplier buys
+#     a promotion. That is the whole reason the cohort list can be allowed to mix rates: the
+#     ordering it shows decides nothing. The skew is disclosed by the league chip on every row
+#     and by the trophy road in the rules sheet — an accepted product call, not an oversight.
+#     See docs/superpowers/specs/2026-08-08-cohort-wide-league-board-design.md.
 #   · The staff console does not compare raw XP between students, so a multiplied Lumen
 #     never distorts a supervisor's read of who practised more. Check that again before
 #     any analytics work starts ranking on `xp`.

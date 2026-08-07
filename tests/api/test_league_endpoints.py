@@ -29,10 +29,16 @@ def _p(sid: str, division: int, xp_week: int, role: str = "OA", **extra) -> dict
             "xp_week": xp_week, "xp_week_start": WEEK.isoformat(), **extra}
 
 
-# Division 3 is the viewer's board; 2 and 4 exist only to prove scoping. d3_hid is hidden.
+# Division 3 is the viewer's RACE; 2 and 4 share the board with it and prove the list is not
+# scoped to a division. d3_hid is hidden.
+# ⚠ rank_prev is a COHORT rank (2026-08-08), because the live rank it is subtracted from is.
+# It held per-division numbers while the board was per-division; leaving them here would have
+# made this fixture assert deltas computed across two different numbering systems — the exact
+# bug the deploy's one-off `rank_prev = NULL` exists to flush out of production.
+# Cohort order is d4_fay 1, d2_eve 2, d3_ann 3, d3_bob 4, d3_cy 5, d3_dee 6.
 LEAGUE_PROFILES = [
-    _p("d3_ann", 3, 300, "OA", rank_prev=4),   # climbed 3 places since the snapshot
-    _p("d3_bob", 3, 200, "OT", rank_prev=1),   # slipped 1
+    _p("d3_ann", 3, 300, "OA", rank_prev=6),   # climbed 3 places since the snapshot (6 -> 3)
+    _p("d3_bob", 3, 200, "OT", rank_prev=3),   # slipped 1 (3 -> 4)
     _p("d3_cy", 3, 100, "OA"),                 # no snapshot yet -> delta None
     _p("d3_dee", 3, 50, "PSA"),
     _p("d3_hid", 3, 9000, "OA", leaderboard_hidden=True),
@@ -77,18 +83,41 @@ def league_board(*, profiles=None, consent=None, seal=True, sub="d3_ann", query=
 
 # ── Division scoping ──────────────────────────────────────────────────────────
 
-def test_board_is_scoped_to_the_viewers_division():
-    """A division-3 viewer sees the division-3 ladder and nothing else, labelled with the
-    league metadata the promotion UI needs."""
+def test_board_lists_the_whole_cohort():
+    """THE 2026-08-07 REGRESSION. The board used to rank only the viewer's own division, and
+    that is exactly how a batch of students who onboarded into Ember became invisible to
+    everyone already promoted out of it: two groups, two boards, neither able to see the
+    other. The list is the whole cohort now — every division, ranked together, in one order.
+
+    Each row still carries its OWN division, which is what the league chip renders; a flat
+    list with no league on it would read as one ladder whose promotion line lands nowhere."""
     r, _, _, _ = league_board()
     assert r.status_code == 200
     body = r.json()
-    assert [e["name"] for e in body["entries"]] == ["Ann Aa", "Bob Bb", "Cy Cc", "Dee Dd"]
-    assert all(e["division"] == 3 for e in body["entries"])   # no d2_eve, no d4_fay
+    assert [e["name"] for e in body["entries"]] == [
+        "Fay Ff", "Eve Ee", "Ann Aa", "Bob Bb", "Cy Cc", "Dee Dd",
+    ]
+    assert [e["division"] for e in body["entries"]] == [4, 2, 3, 3, 3, 3]
+    assert [e["rank"] for e in body["entries"]] == [1, 2, 3, 4, 5, 6]
+    assert "Hana Hh" not in [e["name"] for e in body["entries"]]   # hidden is still hidden
+
+
+def test_the_race_stays_inside_the_viewers_division():
+    """The LIST is the cohort; the RACE is not. pool_size/promote_count describe the viewer's
+    own division and nothing else — a cohort-sized pool would draw a promotion line the
+    rollover never awards, because close_week still ranks per division."""
+    body = league_board()[0].json()
     assert body["division"] == 3
     assert body["division_name"] == "Solar"
-    assert body["pool_size"] == 4          # 4 visible members of division 3
+    assert body["pool_size"] == 4          # 4 visible members of division 3, not 6
     assert body["promote_count"] == 3
+
+    # And it follows the viewer: the same cohort read from division 2 is a pool of one.
+    d2 = league_board(sub="d2_eve")[0].json()
+    assert len(d2["entries"]) == 6         # the same six people...
+    assert d2["division"] == 2             # ...a different race
+    assert d2["pool_size"] == 1
+    assert d2["promote_count"] == 0        # a pool of one has no race (promote_count(1) == 0)
 
 
 def test_rank_delta_reaches_the_client():
@@ -96,8 +125,8 @@ def test_rank_delta_reaches_the_client():
     a field — the arrows were invisible before that. Computed from rank_prev."""
     r, _, _, _ = league_board()
     by_name = {e["name"]: e for e in r.json()["entries"]}
-    assert by_name["Ann Aa"]["rank_delta"] == 3    # rank_prev 4 -> live 1
-    assert by_name["Bob Bb"]["rank_delta"] == -1   # rank_prev 1 -> live 2
+    assert by_name["Ann Aa"]["rank_delta"] == 3    # rank_prev 6 -> live 3
+    assert by_name["Bob Bb"]["rank_delta"] == -1   # rank_prev 3 -> live 4
     assert by_name["Cy Cc"]["rank_delta"] is None  # never snapshotted -> dash, not a fake 0
 
 
@@ -108,7 +137,8 @@ def test_role_filter_is_a_view_only_and_never_moves_the_promotion_line():
     unfiltered = league_board()[0].json()
     filtered = league_board(query="?role=OA")[0].json()
 
-    assert [e["name"] for e in filtered["entries"]] == ["Ann Aa", "Cy Cc"]  # the view narrows
+    # The view narrows to one role — across the whole cohort, so Eve (division 2) is in it.
+    assert [e["name"] for e in filtered["entries"]] == ["Eve Ee", "Ann Aa", "Cy Cc"]
     assert all(e["role"] == "OA" for e in filtered["entries"])
     # ...but the league facts describe the whole division, unchanged.
     assert filtered["pool_size"] == unfiltered["pool_size"] == 4
