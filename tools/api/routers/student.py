@@ -680,8 +680,15 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
 
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
     my_division = int(me.get("division") or 1) if league_ready else None
+    # THE LIST IS THE COHORT (2026-08-08). This passed `division=my_division`, and that is
+    # exactly how a batch of students who onboarded into Ember became invisible to everyone
+    # already promoted out of it — two groups on two boards, neither able to see the other,
+    # with nothing broken enough to notice. `division=None` ranks everyone together; each
+    # entry still carries its own `division`, so a row can wear its league chip and the head
+    # can still recover the viewer's own race from this list client-side.
+    # ⚠ `my_division` stays load-bearing below: the RACE is still scoped to it.
     entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
-                           today=today, week_start=week_start, division=my_division)
+                           today=today, week_start=week_start, division=None)
 
     # The pool is derived from the profiles, NOT from `entries`: the `role` filter is a
     # view, and letting it shrink the pool would quietly move the promotion line — a
