@@ -4,6 +4,31 @@ Ledger of Supabase migrations that have been run in production. One line per
 migration. Migrations are applied by pasting the file's SQL into the Supabase
 SQL editor (see the `/db-migrate` command); this file records that it's done.
 
+## ⚠ PENDING — 019_case_progress_checklist_detail.sql
+
+**Not applied.** Its code shipped to an auto-deploying `main` on 2026-08-06, one entry
+after 018. Until 2026-08-08 that meant every OSCE attempt lost NINE of thirteen columns,
+not one: `db.insert_case_result`'s fallback was all-or-nothing, so the unknown
+`checklist_detail` column made the rich insert fail and the retry wrote only
+`{student_id, case_id, total_score, passed}` — silently, because the exception was
+swallowed, the base insert succeeded, and a clean `case_completed` audit event was still
+written. Students saw a correct debrief on screen and the row stored a number roughly a
+third of it; `caseGrade.ts` then read the missing `grade_scale` as "this attempt predates
+OSCE sub-scores" on brand-new attempts, and `osce_analysis.mark_loss` counted the whole
+cohort as `excluded_legacy`.
+
+The shedding is now incremental (newest migration layer first), so the code is safe either
+way and today's cost is only `checklist_detail` — the per-step ledger the trainer dossier
+reads. Applying this migration restores it. **Attempts written between 2026-08-06 and
+2026-08-08 are not recoverable**: the sub-scores were never stored.
+
+To apply: paste the contents of `019_case_progress_checklist_detail.sql` into the Supabase
+SQL editor (never the file path), then verify with
+`select checklist_detail from case_progress limit 1;` and move the line below into the
+ledger with today's date.
+
+- [ ] 019_case_progress_checklist_detail.sql — PENDING (`checklist_detail JSONB`; per-step OSCE ledger)
+
 - [x] 006_avatar.sql — applied 2026-07-06
 - [x] 007_avatar_images.sql — applied 2026-07-06 (Selena 3D-portrait cache; public bucket `selena-avatars` also created)
 - [x] 008_leaderboard_visibility.sql — applied 2026-07-07 (D7 leaderboard live: `leaderboard_hidden` + `display_name`)

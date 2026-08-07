@@ -1135,7 +1135,9 @@ html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; 
    the patient you want. */
 .aurora-cases-search { position: relative; display: flex; align-items: center; margin: 2px 0 9px; }
 .aurora-cases-search-i { position: absolute; left: 12px; color: var(--ink-3); pointer-events: none; }
-.aurora-cases-search-in { width: 100%; padding: 9px 34px 9px 34px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink); font-family: inherit; font-size: 14px; outline: none; transition: border-color .15s, box-shadow .2s; }
+/* 16px font, not 14 — iOS Safari zooms the whole page on focus below 16px. min-height 46
+   clears the 44x44 tap-target floor the mobile audit enforces (it caught this at 42px). */
+.aurora-cases-search-in { width: 100%; min-height: 46px; padding: 11px 36px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink); font-family: inherit; font-size: 16px; outline: none; transition: border-color .15s, box-shadow .2s; }
 .aurora-cases-search-in::placeholder { color: var(--ink-3); }
 .aurora-cases-search-in:focus-visible { border-color: rgba(155,114,203,.55); box-shadow: 0 0 0 3px rgba(155,114,203,.15); }
 .aurora-cases-search-in::-webkit-search-cancel-button { display: none; }

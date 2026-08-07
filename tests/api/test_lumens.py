@@ -39,10 +39,12 @@ def test_station_forfeit_deducts_flat_penalty():
     async def _update_profile(_sid, **k):
         applied.append(k.get("xp_delta"))
 
+    # A REAL case id: forfeit is gated on the student's content pool like every other
+    # {case_id} route (tests/cases/test_gate_sweep.py), so a made-up id now 404s.
     client = TestClient(app)
     with patch("tools.profile.update_profile.update_profile", new=_update_profile):
         r = client.post(
-            "/api/cases/case_abandoned/forfeit",
+            "/api/cases/case_oa_001_history_triage/forfeit",
             cookies={"eyebot_token": create_access_token("stu_forfeit", "student", "OA")},
         )
     assert r.status_code == 200, r.text

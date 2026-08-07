@@ -522,6 +522,7 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
 
 async def _check_case_access(
     student_id: str, case: dict, role: str = "OA", account_role: str = "student",
+    *, tier: bool = True,
 ) -> None:
     """Raise 404 if this case is outside the student's role pool, 403 if it is theirs but
     not yet unlocked under the per-topic tier gate.
@@ -547,8 +548,12 @@ async def _check_case_access(
     if not case_visible(role, case.get("role", "any") or "any"):
         raise HTTPException(status_code=404, detail="Case not found")
 
+    # `tier=False` runs the POOL check only. The tier gate costs a Supabase progress read
+    # plus a census over every case, which is fine on a station route and wrong on the
+    # forfeit beacon — that one fires during page unload on the single prod worker, and a
+    # student quitting is not a moment to go and read the database.
     difficulty = case.get("difficulty", "beginner")
-    if difficulty not in ("intermediate", "advanced"):
+    if not tier or difficulty not in ("intermediate", "advanced"):
         return
 
     try:
@@ -578,7 +583,7 @@ async def _check_case_access(
 
 
 @router.get("/api/cases/{case_id}", response_model=CaseInfo)
-def get_case(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
+async def get_case(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return a single case stub from the in-memory cache or pre-stored files."""
     case = _case_cache.get(case_id)
     if case is None:
@@ -587,6 +592,11 @@ def get_case(case_id: str, current_user: CurrentUser = Depends(get_current_user)
             _case_cache[case["case_id"]] = case
         except (ValueError, FileNotFoundError):
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    # Gated like every other case route: this returns the title, topic and the patient's
+    # name and complaint, which is content, not metadata. Found by the route-table sweep
+    # in tests/cases/test_gate_sweep.py rather than by anyone remembering.
+    await _check_case_access(current_user["sub"], case,
+                             current_user["student_role"] or "OA", current_user["role"])
     return CaseInfo(
         case_id=case["case_id"],
         title=case["title"],
@@ -598,7 +608,7 @@ def get_case(case_id: str, current_user: CurrentUser = Depends(get_current_user)
 
 
 @router.get("/api/cases/{case_id}/checklist", response_model=ChecklistResponse)
-def get_case_checklist(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
+async def get_case_checklist(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return the procedure checklist for a given case."""
     from tools.kb.search import get_checklist_by_name as _get_cl
     case = _case_cache.get(case_id)
@@ -607,6 +617,10 @@ def get_case_checklist(case_id: str, current_user: CurrentUser = Depends(get_cur
             case = load_case(case_id)
         except (ValueError, FileNotFoundError):
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    # The only case-content route that carried no access check — the dedicated test file
+    # enumerated the other five and simply never listed this one.
+    await _check_case_access(current_user["sub"], case,
+                             current_user["student_role"] or "OA", current_user["role"])
 
     procedure_name = case.get("checklist_procedure") or case.get("topic", "")
     cl_data = _get_cl(procedure_name)
@@ -1128,7 +1142,16 @@ async def _persist_submit(
     the ~7 Supabase round-trips (session log + profile/XP + rich case grade) stay OFF
     the response critical path. Each write is isolated: one failing (e.g. an additive
     column still pending its migration) must never sink the others — the response has
-    already gone out regardless."""
+    already gone out regardless.
+
+    Every failure here is LOUD, even though it is non-fatal. These three `except` blocks
+    used to be bare `pass`, running after a response carrying `lumens_awarded` had already
+    been flushed — so a student could be told they scored 78 and earned 96 Lumens while
+    nothing at all was written, and the only trace was `.tmp/audit_log.jsonl`, whose own
+    docstring says it has no reader and which is per-worker ephemeral on Render. This is a
+    large part of why the feature "felt" buggy with nothing in the logs: the system could
+    not tell anyone what was wrong with it. `logger.exception` reaches the JSON stdout
+    handler installed in server.py (Render's log drain) and the Sentry hook beside it."""
     try:
         await log_session(
             student_id=student_id,
@@ -1138,7 +1161,8 @@ async def _persist_submit(
             model="mock" if MOCK_MODE else MODEL,
         )
     except Exception:
-        pass
+        logger.exception("osce persist: session log failed case_id=%s student=%s",
+                         case_id, student_id)
 
     try:
         from tools.profile.update_profile import update_profile
@@ -1147,7 +1171,9 @@ async def _persist_submit(
             new_missed_findings=missed, xp_delta=award, source="osce",
         )
     except Exception:
-        pass
+        # The sharpest one: the response already told the student what they earned.
+        logger.exception("osce persist: XP/Lumens NOT applied case_id=%s student=%s award=%s",
+                         case_id, student_id, award)
 
     # The additive DB columns (score sub-domains, safety verdict, missed-critical,
     # coaching block) degrade gracefully until migration 011 (see db.insert_case_result).
@@ -1168,7 +1194,8 @@ async def _persist_submit(
             checklist_detail=checklist_detail,
         )
     except Exception:
-        pass
+        logger.exception("osce persist: attempt row NOT written case_id=%s student=%s score=%s",
+                         case_id, student_id, score.get("score_100"))
 
 
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
@@ -1529,6 +1556,18 @@ async def forfeit_station(case_id: str, request: Request, current_user: CurrentU
     coins_earned counter untouched, so an earned badge is never lost. Called fire-and-forget
     from the client (sendBeacon on the way out), so it echoes only the penalty amount."""
     student_id = current_user["sub"]
+    # You cannot forfeit a station you were never allowed to open. Cheap insurance against
+    # a forged beacon draining Lumens against arbitrary case ids, and it keeps every
+    # {case_id} route on one contract (tests/cases/test_gate_sweep.py).
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    await _check_case_access(student_id, case,
+                             current_user["student_role"] or "OA", current_user["role"],
+                             tier=False)
     try:
         from tools.profile.update_profile import update_profile
         await update_profile(student_id, xp_delta=-FORFEIT_PENALTY)
