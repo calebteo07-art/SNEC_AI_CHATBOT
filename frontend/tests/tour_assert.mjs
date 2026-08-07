@@ -6,6 +6,7 @@
    walkthrough, then verifies the hand-off to the Studio and show-once persistence.
    Run against a warm standalone server: node frontend/tests/tour_assert.mjs http://127.0.0.1:3000 */
 import { chromium } from "playwright";
+import { activeSteps } from "../src/aurora/tour/tourSteps.ts";
 const base = process.argv[2] ?? "http://127.0.0.1:3000";
 const b = await chromium.launch();
 
@@ -59,22 +60,38 @@ check(((await page.locator(".tour-title").first().textContent()) ?? "").includes
 check((await page.locator('[data-testid="tour-next"]').textContent()) === "Next →", "advance CTA reads 'Next →' (not the finale label)");
 
 // 2) Walk the whole student walkthrough (no admin stop for a student).
-const steps = ["welcome", "modes", "streak", "badges", "account", "tutor", "cases", "flashcards", "leaderboard", "finish"];
-const routeOf = { tutor: "/chat", cases: "/cases", flashcards: "/flashcards", leaderboard: "/leaderboard", finish: "/homepage" };
-for (let i = 1; i < steps.length; i++) {
+// The order, the routes and the anchors all come from the tour model itself. This used to be
+// a hard-coded list of ids, which is a second copy of the truth and drifts the moment a stop
+// is added — a new step was simply never walked, and the harness stayed green saying so.
+const walk = activeSteps("student");
+check(walk.length > 6 && walk[0].id === "welcome" && walk.at(-1).id === "finish",
+  "the student walk is a whole tour (welcome … finish)");
+for (let i = 1; i < walk.length; i++) {
+  const step = walk[i];
+  // The provider pushes only when the route actually changes — same condition, same source.
+  const navigates = step.route !== walk[i - 1].route;
   await page.locator('[data-testid="tour-next"]').click();
   // For cross-route steps, wait for the client navigation to settle before asserting the URL
   // (data-step flips synchronously with setIndex while router.push resolves asynchronously).
-  if (routeOf[steps[i]]) {
-    await page.waitForURL((u) => new URL(u).pathname === routeOf[steps[i]], { timeout: 20000 }).catch(() => {});
+  if (navigates) {
+    await page.waitForURL((u) => new URL(u).pathname === step.route, { timeout: 20000 }).catch(() => {});
   }
   await page.waitForFunction(
     (s) => document.querySelector('[data-testid="tour"]')?.getAttribute("data-step") === s,
-    steps[i], { timeout: 20000 },
+    step.id, { timeout: 20000 },
   ).catch(() => {});
-  check(await stepAttr() === steps[i], `advances to the "${steps[i]}" step`);
-  if (routeOf[steps[i]]) {
-    check(new URL(page.url()).pathname === routeOf[steps[i]], `navigated to ${routeOf[steps[i]]} for the "${steps[i]}" step`);
+  check(await stepAttr() === step.id, `advances to the "${step.id}" step`);
+  if (navigates) {
+    check(new URL(page.url()).pathname === step.route, `navigated to ${step.route} for the "${step.id}" step`);
+  }
+  // THE ANCHOR RESOLVED. A step whose target never matches degrades to a centred card with
+  // no spotlight — it still advances, still reads as a step, and every id/route check above
+  // still passes. So the spotlight is the only thing that proves the selector is real in the
+  // running app, which is exactly what goes stale when a component is renamed.
+  if (step.target) {
+    await page.locator(".tour-spot").waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
+    check(await page.locator(".tour-spot").count() === 1,
+      `spotlights a real anchor for the "${step.id}" step (${step.target})`);
   }
 }
 

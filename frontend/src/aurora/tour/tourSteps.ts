@@ -27,12 +27,22 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "modes", route: "/homepage", target: '[data-testid="feature-carousel"]',
     title: "Your 3 ways to train \u{1F4AA}",
     body: "Tutor, Virtual Patients & Flashcards all live here — tap any card to dive straight in." },
+  // The deck's two CLAIMABLE controls, and the reason they get a stop each: a readout a
+  // student misreads costs nothing, but a button they never learn to press costs them the
+  // Lumens behind it. The status bar and the rank strip are readouts — the League stop
+  // already covers what the strip is telling them.
+  { id: "quests", route: "/homepage", target: '[data-testid="quest-board"]',
+    title: "Today's quests \u{1F3AF}",
+    body: "Three every day, picked for you — the first one goes after your weakest topic. Finish one and a Claim button appears; tap it to bank the Lumens. A fresh set lands tomorrow." },
+  { id: "chest", route: "/homepage", target: '[data-testid="chest-tile"]',
+    title: "Open the daily chest",
+    body: "One tap, once a day. It never pays Lumens directly — it drops a 2× earning boost on a short clock, or a streak freeze. Open it, then go and study while it runs." },
   { id: "streak", route: "/homepage", target: '[data-testid="streak-tile"]',
     title: "Keep the flame alive \u{1F525}",
-    body: "Show up daily to grow your streak — the calendar fills in as you go, and missing a day cools it. You'll light yours the moment this tour ends." },
+    body: "Check in daily to grow your streak — weekdays count, weekends are rest days. Miss a weekday and a banked freeze covers you; miss another and it resets." },
   { id: "badges", route: "/homepage", target: '[data-testid="lumen-ladder"]',
     title: "Collect every badge",
-    body: "Every Lumen you earn counts towards 20 collectible Eyecon badges — scroll the shelf and watch the locked ones light up as you climb." },
+    body: "Every Lumen you earn counts towards 20 collectible Eyecon badges — page through the shelf and watch the locked ones light up as you climb." },
   { id: "account", route: "/homepage", target: ".hm-eyeconmenu-btn",
     title: "That's you, up top",
     body: "Your Eyecon will live here once you've built it — along with your account, password, and logout." },
@@ -46,8 +56,8 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Spin up a deck ⚡",
     body: "Pick any topic for a 10-card round — instant scoring, a growing streak flame, and a model answer on every card." },
   { id: "leaderboard", route: "/leaderboard", target: '[data-testid="tier-band"]', fallback: '[data-testid="leaderboard-root"]',
-    title: "See where you stand \u{1F3C6}",
-    body: "Climb the ranks, chase the podium, and compare within your own cohort." },
+    title: "The League \u{1F3C6}",
+    body: "Five divisions, Ember up to Prism. This week's Lumens set your rank, and finishing high enough promotes you — each division above pays a bigger multiplier on everything you earn." },
   // .cs-shell, not the deleted .aurora-admin. A tour step whose target never matches
   // falls through to a centred card with no spotlight, which reads as a broken step
   // rather than an absent one.
