@@ -495,6 +495,67 @@ async def test_insert_case_result_falls_back_to_base_when_columns_absent():
 
 
 @pytest.mark.asyncio
+async def test_unapplied_newest_column_costs_only_that_column():
+    """An unapplied migration must cost its OWN columns and nothing else.
+
+    Migration 019 shipped to an auto-deploying `main` before the ALTER was run, and the
+    all-or-nothing fallback turned one unknown column into the loss of eight live ones —
+    score_100, safe, both sub-scores, missed_critical, coaching, checklist_coverage and
+    grade_scale — on every attempt, silently. 017's ledger entry documents that exact trap
+    in writing. So the retry sheds one migration LAYER at a time, newest first.
+    """
+    client = _make_client([])
+    resp = MagicMock(); resp.data = []
+    client.table.return_value.insert.return_value.execute = AsyncMock(
+        side_effect=[Exception('column "checklist_detail" does not exist'), resp]
+    )
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result(
+            "stu-001", "case_x", 32, True,
+            score_100=80, safe=True, consult_technique=24, judgement_safety=24,
+            missed_critical=["Measure IOP"], coaching={"focus": "escalate"},
+            checklist_coverage=32, grade_scale=2, checklist_detail=[{"step_number": 1}],
+        )
+    calls = client.table.return_value.insert.call_args_list
+    assert len(calls) == 2
+    retry = calls[1][0][0]
+    assert "checklist_detail" not in retry          # the 019 column is what failed
+    assert retry["score_100"] == 80                 # ...and everything older survives
+    assert retry["safe"] is True
+    assert retry["consult_technique"] == 24
+    assert retry["judgement_safety"] == 24
+    assert retry["missed_critical"] == ["Measure IOP"]
+    assert retry["coaching"] == {"focus": "escalate"}
+    assert retry["checklist_coverage"] == 32
+    assert retry["grade_scale"] == 2
+
+
+@pytest.mark.asyncio
+async def test_shedding_walks_back_one_migration_at_a_time():
+    """A DB missing 017 AND 019 still keeps the migration-011 grade columns."""
+    client = _make_client([])
+    resp = MagicMock(); resp.data = []
+    client.table.return_value.insert.return_value.execute = AsyncMock(
+        side_effect=[
+            Exception('column "checklist_detail" does not exist'),   # sheds 019
+            Exception('column "grade_scale" does not exist'),        # sheds 017
+            resp,                                                    # 011 payload lands
+        ]
+    )
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result(
+            "stu-001", "case_x", 32, True, score_100=80, safe=True,
+            checklist_coverage=32, grade_scale=2, checklist_detail=[],
+        )
+    calls = client.table.return_value.insert.call_args_list
+    assert len(calls) == 3
+    final = calls[2][0][0]
+    assert "checklist_detail" not in final and "grade_scale" not in final
+    assert "checklist_coverage" not in final
+    assert final["score_100"] == 80 and final["safe"] is True
+
+
+@pytest.mark.asyncio
 async def test_insert_case_result_writes_the_checklist_ledger():
     client = _make_client([])
     detail = [{"step_number": 1, "action": "Wash hands", "phase": "Preparation",

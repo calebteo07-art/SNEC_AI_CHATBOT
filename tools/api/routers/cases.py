@@ -1,6 +1,7 @@
 """Case simulation endpoints."""
 import asyncio
 import json
+import logging
 import os
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
@@ -9,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from tools.ai.guardrails.input_filter import filter_input
 from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENALTY, _client_ip
-from tools.cases.evaluate_response import evaluate_case, procedure_block
+from tools.cases.evaluate_response import GraderUnavailable, evaluate_case, procedure_block
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.log_case_completion import log_case_completion
@@ -21,7 +22,9 @@ from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.cases.topic_sets import resolve_set, sets_for, label_for, case_visible
 from tools.cases.tier_gate import build_census, evaluate
-from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
+from tools.cases.resolve_checklist import (
+    resolve_procedure_name, build_rubric_checklist, is_tally_sheet,
+)
 from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions, examiner_excluded_steps, has_manual_actions
 from tools.cases.station_score import compute_station_score
@@ -30,11 +33,20 @@ from tools.cases.observe_steps import observe
 from tools.cases.action_model_answer import grade_action
 from tools.kb.search import get_checklist_by_name
 
+logger = logging.getLogger("eyebot.cases")
+
 # Bound the best-effort coaching call so a slow/hung Gemini response can't keep the
 # student waiting after the station is already graded — the deterministic fallback
-# (_fallback_coaching) fills in on timeout. The GRADE call is intentionally NOT bounded
-# here: it is the assessment itself and carries its own fallback.
+# (_fallback_coaching) fills in on timeout.
 _COACH_TIMEOUT_S = float(os.getenv("OSCE_COACH_TIMEOUT_S", "30"))
+# The GRADE call is bounded too. It used to be deliberately unbounded on the belief that
+# it "carries its own fallback" — it does not: the fallback only covered an unparseable
+# reply, and a raise went straight out as a 500. It now raises GraderUnavailable (→503),
+# so it needs the same protection every other AI call in this router already has. Set
+# above GEMINI_TIMEOUT_MS (60s) so the transport timeout normally wins and this is only
+# the backstop. asyncio.to_thread is not cancellable, so the thread runs on until the
+# transport gives up — but the student's request is freed either way.
+_GRADE_TIMEOUT_S = float(os.getenv("OSCE_GRADE_TIMEOUT_S", "90"))
 
 # The action panel grades the typed technique against the case's crafted model answer
 # in REAL TIME and deterministically (grade_action) — never a hardcoded "good job"
@@ -171,14 +183,44 @@ class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
 
+
+# A transcript longer than this is TRUNCATED, never rejected.
+#
+# Both request models used to carry `Field(max_length=100)`, which pydantic enforces
+# BEFORE the handler runs — so message 101 was a 422 the student could never get past.
+# The client posted the transcript unsliced and the transcript only ever grows, so the
+# retry sent the same too-long payload and 422'd identically, forever, on a perfectly
+# healthy service: the consult died around the 51st patient question and submit died
+# once the combined thread passed 100. An OSCE history is exactly that — a long run of
+# short questions — and cases are authored at 10-20 minutes.
+#
+# Truncation keeps the OPENING and the RECENT: an OSCE is graded on the history-taking
+# at the start and the handover at the end, so dropping from the middle is the only
+# honest way to shed, and the elision is stated in-band rather than hidden.
+_MAX_MESSAGES = 400
+_KEEP_HEAD = 80
+
+
+def _bounded(messages: list[ChatMessage]) -> list[ChatMessage]:
+    if len(messages) <= _MAX_MESSAGES:
+        return messages
+    tail = _MAX_MESSAGES - _KEEP_HEAD - 1
+    dropped = len(messages) - _KEEP_HEAD - tail
+    marker = ChatMessage(
+        role="user",
+        content=f"[... {dropped} earlier messages omitted from this transcript ...]",
+    )
+    return messages[:_KEEP_HEAD] + [marker] + messages[-tail:]
+
+
 class CaseChatRequest(BaseModel):
-    messages: list[ChatMessage] = Field(max_length=100)
+    messages: list[ChatMessage]
 
 class CaseChatResponse(BaseModel):
     response: str
 
 class CaseSubmitRequest(BaseModel):
-    messages: list[ChatMessage] = Field(max_length=100)
+    messages: list[ChatMessage]
     # Allied-health (OA/OT/PSA) handover, not a doctor's diagnosis/treatment:
     # what the student found + what they recommend (triage/escalate/advise).
     findings: str
@@ -476,15 +518,33 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
     return CaseTopicsResponse(topics=topics)
 
 
-async def _check_case_access(student_id: str, case: dict, role: str = "OA") -> None:
-    """Raise HTTP 403 if the student has not unlocked this case under the per-topic gate.
+async def _check_case_access(
+    student_id: str, case: dict, role: str = "OA", account_role: str = "student",
+) -> None:
+    """Raise 404 if this case is outside the student's role pool, 403 if it is theirs but
+    not yet unlocked under the per-topic tier gate.
 
     Fail-closed mirror of `get_cases`' lock flags: Foundational (beginner) and unknown tiers
     are always accessible; Developing/Advanced are gated per topic-set by tier_gate.evaluate
     (see tools/cases/tier_gate.py). The 403 detail is the same actionable hint shown on the
     locked card. `role` is the student's OA/OT/PSA role (from the JWT) — it buckets cases
     into topic-sets exactly like the case list.
+
+    The POOL check has to come first, and before the beginner early-return. `case_visible`
+    was already imported here and applied to the list, the topic counts and the census loop
+    inside this very function — but never to the target case — so an OA/PSA student who
+    navigated to an OT case id got it served, graded, paid and persisted. 15 of the 54 OT
+    cases are beginner, so it needed no progress to reach.
+
+    404 rather than 403: a case outside the pool should not be enumerable. The tier gate's
+    403 is different in kind — a locked case IS theirs, just not yet.
     """
+    # Staff legitimately preview across pools; the /admin dossier is built on it.
+    if account_role in ("trainer", "admin"):
+        return
+    if not case_visible(role, case.get("role", "any") or "any"):
+        raise HTTPException(status_code=404, detail="Case not found")
+
     difficulty = case.get("difficulty", "beginner")
     if difficulty not in ("intermediate", "advanced"):
         return
@@ -603,6 +663,19 @@ def _per_phase_summary(steps: list[dict], performed: list[int]) -> list[dict]:
 def _station_checklist(case: dict) -> dict:
     """Resolve the case's checklist (real or rubric fallback) as a flat dict with steps."""
     name, how = resolve_procedure_name(case)
+    # A preceptor LOGBOOK TALLY SHEET is not a procedure — its rows are roster entries
+    # ("Record patient's Date, Age, Sex, Race", "Obtain preceptor's Name and Signature"),
+    # all flagged critical. Serving one put 40 of 100 marks on steps the student cannot
+    # perform in a simulator and produced a debrief blaming them for not collecting a
+    # signature. `is_tally_sheet` has always existed; until now nothing on the live path
+    # called it. See tests/cases/test_no_tally_sheet_stations.py for the 15-case backlog.
+    if name and is_tally_sheet(name):
+        print(
+            f"[station-tally-sheet] case={case.get('case_id')!r} resolved={name!r} how={how} "
+            f"— logbook tally sheet, not a procedure; serving the case's rubric instead",
+            flush=True,
+        )
+        return build_rubric_checklist(case)
     if name:
         cl = get_checklist_by_name(name)
         if cl:
@@ -658,7 +731,7 @@ async def get_case_station(case_id: str, current_user: CurrentUser = Depends(get
     case = _load_case_or_404(case_id)
     # Fail closed on a locked difficulty tier, matching chat/submit — the station serves
     # the full checklist + examination reveal_text, so it must honour the progression gate.
-    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA", current_user["role"])
     # async handler now, so keep the sync Supabase checklist fetch off the event loop.
     cl = await asyncio.to_thread(_station_checklist, case)
     steps = cl["steps"]
@@ -712,10 +785,10 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
                        current_user: CurrentUser = Depends(get_current_user)):
     """Live examiner: return checklist steps the transcript now satisfies."""
     case = _load_case_or_404(case_id)
-    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")  # fail closed on a locked case
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA", current_user["role"])  # fail closed on a locked case
     # _station_checklist hits the sync Supabase client; keep it off the event loop.
     cl = await asyncio.to_thread(_station_checklist, case)
-    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+    messages = [{"role": m.role, "content": m.content} for m in _bounded(body.messages)]
     # Hands-on procedures tick ONLY via the action panel — the conversational examiner must
     # never auto-tick them, so exclude every manual step number from what it may satisfy.
     # A DUAL-SOURCE step is the exception: its second half is the consult (see
@@ -738,7 +811,7 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
     'good job'. A grounded AI tip may refine the coaching line; any AI failure keeps the
     deterministic line. Never blocks the tick — the step already ticked client-side."""
     case = _load_case_or_404(case_id)
-    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")  # fail closed on a locked case
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA", current_user["role"])  # fail closed on a locked case
 
     # Resolve the same checklist the station showed so the model answer can fall back to
     # the exact step text when the rubric has no matching investigations point.
@@ -814,7 +887,7 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA", current_user["role"])
     # becky §4: the patient only needs what it must answer from. Drop `rubric` (~40% of
     # the file, pure grading meta) and `management` (answer-key) — the grader still sees
     # the full case on submit. `diagnosis` is KEPT so the model knows what NOT to reveal
@@ -823,7 +896,7 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
         ("patient", "history", "examination_findings", "investigations", "diagnosis")
         if k in case}
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(patient_view, separators=(",", ":")))
-    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+    messages = [{"role": m.role, "content": m.content} for m in _bounded(body.messages)]
 
     # Input filter — blocks prompt injection via the case chat interface, but allows
     # patient-identity questions (name, NRIC, DOB, address): confirming particulars is
@@ -1107,8 +1180,8 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    await _check_case_access(student_id, case, current_user["student_role"] or "OA")
-    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+    await _check_case_access(student_id, case, current_user["student_role"] or "OA", current_user["role"])
+    messages = [{"role": m.role, "content": m.content} for m in _bounded(body.messages)]
     messages.append({
         "role": "user",
         "content": f"Findings & impression: {body.findings}\nRecommendation & escalation: {body.recommendation}",
@@ -1163,10 +1236,30 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     # source of real, specific feedback (ricoe C7).
     consult_patient, consult_actions = _split_consult(messages[:-1])
     # The grade runs FIRST and alone — the coaching prompt below is built from its result.
-    raw_result = await asyncio.to_thread(
-        evaluate_case, case, messages, student_id, performed_list,
-        _cl_compare.get("steps", []),
-    )
+    # A grader that cannot grade is a 503, not a 500 and not an invented score: everything
+    # that persists this attempt (log_case_completion, log_session, update_profile) is a
+    # BackgroundTask scheduled BELOW, so returning here writes nothing and the student's
+    # resubmit is a real retry against the same station. See test_grader_unavailable.py.
+    try:
+        raw_result = await asyncio.wait_for(
+            asyncio.to_thread(
+                evaluate_case, case, messages, student_id, performed_list,
+                _cl_compare.get("steps", []),
+            ),
+            _GRADE_TIMEOUT_S,
+        )
+    except (GraderUnavailable, asyncio.TimeoutError) as exc:
+        audit_log("case_grade_unavailable", student_id=student_id, feature="cases",
+                  detail=f"case_id={case_id} reason={exc}")
+        # Durable, unlike the .tmp audit log: this is the one signal an operator can see
+        # when a station dies on a healthy-looking service.
+        logger.error("osce grade unavailable case_id=%s student=%s: %s",
+                     case_id, student_id, exc)
+        raise HTTPException(
+            status_code=503,
+            detail="The grader is unavailable right now, so your station was not graded "
+                   "or recorded. Your answers are still here — submit again in a moment.",
+        )
 
     # ── Station-100: the legible score, computed from the SAME steps the student
     #    saw tick (the station-resolved checklist) so Thoroughness reconciles.
