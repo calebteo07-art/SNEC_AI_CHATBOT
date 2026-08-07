@@ -77,10 +77,28 @@ KEYWORD_RULES: list[tuple[tuple[str, ...], str]] = [
     # SHEET (AS-OCT, fundus photography, DR grading) has no authored checklist yet — see
     # the "* Skills Observation" caveat in the module docstring.
     (("asoct", "as_oct", "anterior_segment_oct"), "Ophthalmic Investigations Skills Observation"),
-    (("history", "triage", "pain_assessment", "red_eye", "uveitis", "keratitis", "floaters",
-      "flashes", "retinal_detachment", "conjunctivitis", "subconjunctival", "foreign_body",
-      "chemical_injury", "penetrating", "hyphaema", "glaucoma_triage", "crao", "flash_burn",
-      "anticoagulant", "acute_angle_closure", "vision_loss", "counselling"), "History Taking"),
+    # "History Taking" is not a general history checklist — it is a 29-step RED EYE
+    # interview. Steps 5-8 are literally "Ask about patient complaints of red eye: how long
+    # has the eye been red?", 11/13/14 are itching and discharge colour, and step 28 is
+    # "Ensure patient is directed to waiting room."
+    #
+    # The rule used to open with the catch-alls "history" and "triage", which dragged in
+    # every history and triage case in the corpus regardless of presentation: CRAO (whose
+    # own case file says "Quiet, white eye (no redness)" and whose management says "do not
+    # leave the patient waiting" — so step 28 PAID the student for the one thing the case
+    # forbids), retinal detachment, flashes/floaters, diabetic and general-health history,
+    # and a TELEPHONE chemical-splash triage where the patient is not in the building and
+    # every physical step is untickable.
+    #
+    # Narrowed to presentations that genuinely involve a red eye. Trauma and angle-closure
+    # stay: those eyes ARE red. Everything dropped falls through to the case's own
+    # rubric — derived from that case, so at worst it is generic, never contradictory.
+    # A case whose topic slug doesn't say "red eye" but whose presentation does now names
+    # the checklist explicitly (`checklist_procedure`), which is the honest place for it.
+    # Pinned exactly by tests/cases/test_history_checklist_fit.py.
+    (("red_eye", "uveitis", "iritis", "keratitis", "conjunctivitis", "subconjunctival",
+      "dry_eye", "foreign_body", "chemical_injury", "glaucoma_triage", "flash_burn",
+      "acute_angle_closure", "pain_assessment"), "History Taking"),
 ]
 
 # Categories used for rubric-derived steps, by rubric domain.

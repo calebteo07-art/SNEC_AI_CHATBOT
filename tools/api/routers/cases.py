@@ -13,6 +13,8 @@ from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENAL
 from tools.cases.evaluate_response import GraderUnavailable, evaluate_case, procedure_block
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
+from tools.cases.patient_view import build_patient_view
+from tools.cases.reveal_findings import revealable_findings
 from tools.cases.log_case_completion import log_case_completion
 from tools.chatbot.log_session import log_session
 from tools.profile.get_profile import get_profile
@@ -719,7 +721,10 @@ def _case_actions(case: dict, steps: list[dict]) -> list[dict]:
     """build_actions for one case — ONE place, so /station and /observe can't classify the
     same case differently (the examiner's exclusion set is derived from this)."""
     return build_actions(
-        case.get("examination_findings", {}), steps,
+        # Not `examination_findings` alone: 15 stations author their headline measurement
+        # under `investigations` instead, and their chip revealed nothing at all. See
+        # tools/cases/reveal_findings.py for why widening the source cannot widen the leak.
+        revealable_findings(case), steps,
         allergy_record=str((case.get("history") or {}).get("allergies") or ""),
         identity_record=_identity_record(case),
     )
@@ -888,14 +893,13 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA", current_user["role"])
-    # becky §4: the patient only needs what it must answer from. Drop `rubric` (~40% of
-    # the file, pure grading meta) and `management` (answer-key) — the grader still sees
-    # the full case on submit. `diagnosis` is KEPT so the model knows what NOT to reveal
-    # (PATIENT_SYSTEM forbids revealing it). Compact-serialized (no indent).
-    patient_view = {k: case[k] for k in
-        ("patient", "history", "examination_findings", "investigations", "diagnosis")
-        if k in case}
-    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(patient_view, separators=(",", ":")))
+    # becky §4: the patient only needs what it must answer from. Drop `rubric` (~40% of the
+    # file, pure grading meta) and `management` (answer-key) — the grader still sees the
+    # full case on submit. `diagnosis` and the marking keys under `investigations` now go
+    # too; see tools/cases/patient_view.py for why "so it knows what not to reveal" was
+    # backwards. Compact-serialized (no indent).
+    patient_prompt = PATIENT_SYSTEM.format(
+        case_json=json.dumps(build_patient_view(case), separators=(",", ":")))
     messages = [{"role": m.role, "content": m.content} for m in _bounded(body.messages)]
 
     # Input filter — blocks prompt injection via the case chat interface, but allows

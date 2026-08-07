@@ -5,7 +5,6 @@
   "topic": "history_taking_general_health",
   "role": "PSA",
   "estimated_minutes": 15,
-  "checklist_procedure": "History Taking",
   "patient": {
     "name": "Mr Rajendran s/o Muniandy",
     "age": 60,
