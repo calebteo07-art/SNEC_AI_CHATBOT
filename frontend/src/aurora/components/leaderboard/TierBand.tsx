@@ -53,7 +53,7 @@ import { Crest, TIERS } from "./Tiers";
 const mult = (n: number) => `×${Number(n ?? 1).toFixed(2).replace(/\.?0+$/, "")}`;
 
 export function TierBand({
-  division, divisionName, multiplier, multipliers, chase, onRules, children,
+  division, divisionName, multiplier, multipliers, chase, standing = null, onRules, children,
 }: {
   division: number;
   divisionName: string;
@@ -66,6 +66,13 @@ export function TierBand({
    *  what the server actually pays. Empty from an older server: the rungs simply stay bare. */
   multipliers: number[];
   chase: Chase;
+  /** The viewer's standing in their OWN division — the race, which the list below no longer
+   *  shows now that it carries the whole cohort (2026-08-08). The two numbers a student sees
+   *  are deliberately different scales, so this one always names its own ("#2 of 6 in Volt");
+   *  an unqualified second rank beside a cohort list reads as a contradiction.
+   *  Null when there is no honest one: a role-filtered view (a lens is not a race) or a
+   *  hidden viewer, who has no row on any ladder to be located in. */
+  standing?: { rank: number; pool: number; name: string } | null;
   onRules: () => void;
   /** The band's LAST row, clipped by the card's own radius — the role lens today. Optional,
    *  and falsy on a single-role cohort, which is why nothing here special-cases its absence:
@@ -146,7 +153,16 @@ export function TierBand({
       {/* The readout strip: the one number worth acting on, what acting on it PAYS, and the
           deadline both run against. */}
       <div className="tb-readout">
+        {/* ⚠ THE STANDING IS THE CHASE LINE'S EYEBROW, not a third item in this strip. The
+            clock was moved out to the podium deck in 2026-08-04 precisely because the readout
+            had gained a third item, and re-adding one here would undo that. It belongs to the
+            chase in any case: the rank and the gap are one fact about one race. */}
         <p className="tb-chase" data-testid="chase" data-kind={chase.kind}>
+          {standing && (
+            <span className="chase-st" data-testid="league-standing">
+              #{standing.rank} of {standing.pool} in {standing.name}
+            </span>
+          )}
           {chase.value !== null && <span className="chase-n" ref={ref}>{display}</span>}
           <span className="chase-l">{chase.label}</span>
         </p>
