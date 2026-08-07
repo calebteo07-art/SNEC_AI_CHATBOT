@@ -17,7 +17,6 @@ import inspect
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
@@ -46,22 +45,41 @@ _BODIES: dict[str, dict] = {
 
 
 def _case_routes() -> list[tuple[str, str]]:
-    """(method, path) for every route parameterised by case_id, from the live app."""
+    """(method, path) for every route parameterised by case_id, from the live app.
+
+    Duck-typed on `path`/`methods` rather than `isinstance(r, APIRoute)`. The isinstance
+    form found 8 routes locally and ZERO on CI — a router's `route_class` is configurable,
+    and the class object a test imports is not guaranteed to be the one that built the
+    routes. A selector that can silently match nothing is exactly the failure mode this
+    file exists to prevent, which is why the tripwire below is not optional.
+    """
     out = []
     for r in app.routes:
-        if not isinstance(r, APIRoute):
+        path = getattr(r, "path", "")
+        methods = getattr(r, "methods", None)
+        if not methods or "{case_id}" not in path:
             continue
-        if "{case_id}" not in r.path:
-            continue
-        for method in sorted(r.methods - {"HEAD", "OPTIONS"}):
-            out.append((method, r.path))
+        for method in sorted(set(methods) - {"HEAD", "OPTIONS"}):
+            out.append((method, path))
     return sorted(set(out))
 
 
 def test_the_sweep_actually_found_the_routes():
-    """A selector that silently matches nothing would make every assertion below vacuous."""
+    """A selector that silently matches nothing would make every assertion below vacuous.
+
+    This has already fired once in anger: the first version filtered on
+    `isinstance(r, APIRoute)` and found 8 routes locally and 0 on CI. Without this tripwire
+    the parametrized sweep would simply have collected zero cases and reported green.
+
+    On failure, say what the app DOES contain — a bare `assert 0 >= 6` sent the last
+    diagnosis chasing the wrong theory.
+    """
     routes = _case_routes()
-    assert len(routes) >= 6, routes
+    if len(routes) < 6:
+        seen = [(type(r).__name__, getattr(r, "path", "?")) for r in app.routes][:40]
+        raise AssertionError(
+            f"the sweep found {len(routes)} case routes. app.routes holds "
+            f"{len(app.routes)} entries: {seen}")
     paths = {p for _, p in routes}
     for needle in ("station", "chat", "submit", "observe", "action"):
         assert any(needle in p for p in paths), f"{needle} route missing from the sweep"
@@ -101,13 +119,13 @@ def test_every_case_route_runs_the_gate():
     """
     ungated = []
     for r in app.routes:
-        if not isinstance(r, APIRoute) or "{case_id}" not in r.path:
+        if "{case_id}" not in getattr(r, "path", "") or not getattr(r, "methods", None):
             continue
         try:
             src = inspect.getsource(r.endpoint)
         except (OSError, TypeError):
             continue
         if "_check_case_access" not in src:
-            ungated.append(f"{sorted(r.methods - {'HEAD', 'OPTIONS'})} {r.path}")
+            ungated.append(f"{sorted(set(r.methods) - {'HEAD', 'OPTIONS'})} {r.path}")
     assert ungated == [], (
         "these case routes never call _check_case_access:\n  " + "\n  ".join(ungated))
