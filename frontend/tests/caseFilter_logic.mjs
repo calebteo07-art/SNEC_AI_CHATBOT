@@ -8,7 +8,7 @@
    fallback when /api/cases/topics is unavailable). */
 import assert from "node:assert";
 import {
-  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections,
+  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections, searchCases,
 } from "../src/aurora/lib/caseFilter.ts";
 
 // ── ONE lens at a time (the state invariant /ship-check guards) ───────────────
@@ -143,3 +143,52 @@ const mk = (case_id, difficulty, extra = {}) => ({ case_id, difficulty, ...extra
   assert.ok(!secs.some((s) => s.key === "completed"), "locked beats completed");
   assert.strictEqual(secs[0].items[0].case_id, "l");
 }
+
+
+// ── searchCases — the way in when there are 101 patients and 12 chips ─────────
+// The selection screen had no text input at all, and the command palette only filters
+// static nav destinations. An OA student's whole library was reachable only by an eye
+// plate and a chip strip that shows three or four of its twelve chips.
+{
+  const LIB = [
+    { case_id: "c1", title: "Splashed at the Workshop", topic: "chemical_injury_irrigation",
+      set_label: "Triage & Emergencies",
+      patient: { name: "Mr Rahim", presenting_complaint: "chemical splash to both eyes" } },
+    { case_id: "c2", title: "A Curtain Coming Down", topic: "retinal_detachment_symptoms",
+      set_label: "Triage & Emergencies",
+      patient: { name: "Mdm Goh", presenting_complaint: "shadow across the vision" } },
+    { case_id: "c3", title: "Sticky Red Eyes", topic: "red_eye_conjunctivitis",
+      set_label: "History Taking", patient: { name: "Mr Tan", presenting_complaint: "red, sticky eyes" } },
+  ];
+  const ids = (q) => searchCases(LIB, q).map((c) => c.case_id);
+
+  // A blank query is a NO-OP and returns the same reference, so a memoised caller is free
+  // to run it unconditionally.
+  assert.strictEqual(searchCases(LIB, ""), LIB);
+  assert.strictEqual(searchCases(LIB, "   "), LIB);
+
+  assert.deepStrictEqual(ids("curtain"), ["c2"], "title");
+  assert.deepStrictEqual(ids("Mdm Goh"), ["c2"], "patient name");
+  assert.deepStrictEqual(ids("splash"), ["c1"], "presenting complaint");
+  assert.deepStrictEqual(ids("history taking"), ["c3"], "set label");
+
+  // A topic SLUG is searchable in the words a student would actually type: underscores and
+  // hyphens are spaces, so "red eye" finds `red_eye_conjunctivitis`.
+  assert.deepStrictEqual(ids("red eye"), ["c3"], "underscores read as spaces");
+  assert.deepStrictEqual(ids("RED EYE"), ["c3"], "case-insensitive");
+
+  // Terms are ANDed — typing more must NARROW, never widen.
+  assert.deepStrictEqual(ids("triage"), ["c1", "c2"]);
+  assert.deepStrictEqual(ids("triage curtain"), ["c2"]);
+  assert.deepStrictEqual(ids("triage nonsense"), []);
+
+  // A miss is an empty list, not a crash or the whole library.
+  assert.deepStrictEqual(ids("zzzzz"), []);
+
+  // Missing optional fields must not throw — /api/cases omits `patient` on some payloads.
+  assert.deepStrictEqual(
+    searchCases([{ case_id: "x", title: "Bare", topic: "t" }], "bare").map((c) => c.case_id),
+    ["x"], "a case with no patient block is still searchable");
+}
+
+console.log("caseFilter_logic: search assertions passed");

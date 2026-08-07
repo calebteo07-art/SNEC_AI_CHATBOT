@@ -41,6 +41,35 @@ export function filterCases<T extends { set_key?: string; topic: string; title: 
   return cases.filter((c) => regionMatch(`${c.topic} ${c.title}`, lens.region));
 }
 
+/** Free-text search across the loaded patients.
+
+    An OA student sees 101 patients across 12 topic chips, and the only ways in were a
+    12-region eye plate and a chip strip that shows three or four of its twelve. There was
+    no text input on the screen at all, and the command palette only filters static nav
+    destinations — so "the patient with the chemical splash" meant scrolling.
+
+    Matches on every field a student would actually think in: the title, the presenting
+    complaint, the patient's name, the topic slug and the set label. Terms are ANDed, so
+    typing more words narrows rather than widens, and a hyphen/underscore in a topic slug
+    is treated as a space ("red_eye" is found by "red eye").
+
+    A blank query returns the input array UNCHANGED (same reference), so the caller can use
+    it unconditionally without churning memoised downstream work. */
+export function searchCases<T extends {
+  title: string; topic: string; set_label?: string;
+  patient?: { name?: string; presenting_complaint?: string };
+}>(cases: T[], query: string): T[] {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return cases;
+  return cases.filter((c) => {
+    const hay = [
+      c.title, c.topic, c.set_label ?? "",
+      c.patient?.name ?? "", c.patient?.presenting_complaint ?? "",
+    ].join(" ").toLowerCase().replace(/[_-]+/g, " ");
+    return terms.every((t) => hay.includes(t));
+  });
+}
+
 /** One section of the patient journey. */
 export type JourneySection<T> = { key: string; label: string; hint: string; items: T[]; done?: boolean };
 

@@ -6,6 +6,7 @@
 import { useEffect, useRef } from "react";
 import { ActionPalette, EXAM_PREFIX, GRADE_PREFIX, type ExamAction, type ActionGrade } from "@/aurora/components/ActionPalette";
 import { SkipStepButton } from "@/aurora/components/SkipStepButton";
+import { autogrow } from "@/aurora/lib/autogrow";
 
 const VERDICT_LABEL: Record<string, string> = {
   strong: "Strong technique", partial: "Partial", developing: "Developing",
@@ -119,7 +120,17 @@ export function EyeBotPanel({
         )}
       </div>
 
-      <div className="aurora-station-thread aurora-eyebot-thread" ref={threadRef}>
+      {/* role="log" + aria-live so the reading and the grade card are ANNOUNCED, not just
+          painted; tabIndex/role so the pane is reachable and scrollable by keyboard. The
+          Tutor's ChatThread already ships this; the station never got it. */}
+      <div
+        className="aurora-station-thread aurora-eyebot-thread"
+        ref={threadRef}
+        role="log"
+        aria-live="polite"
+        aria-label="EyeBot examiner panel"
+        tabIndex={0}
+      >
         {messages.length === 0 && (
           <p className="aurora-station-hint">Pick a procedure below, then describe your technique. EyeBot returns the reading and a quick tip.</p>
         )}
@@ -183,10 +194,12 @@ export function EyeBotPanel({
                 <textarea
                   className="aurora-station-composer-input aurora-station-proc-input"
                   value={procText}
-                  onChange={(e) => onProcText(e.target.value)}
+                  onChange={(e) => { onProcText(e.target.value); autogrow(e.target); }}
+                  ref={(el) => autogrow(el)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onConfirm(); } }}
                   placeholder={`How you perform ${activeProcedure.label.toLowerCase()} — key steps, what you tell the patient, safety checks…`}
                   rows={2}
+                  aria-label={`Describe your technique for ${activeProcedure.label}`}
                   autoFocus
                 />
                 <button

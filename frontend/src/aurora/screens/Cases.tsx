@@ -6,14 +6,14 @@
    learning path (Foundational → Developing → Advanced). Preserves the /api/cases fetch +
    the sessionStorage handoff into a case session, and the .aurora-atlas-plate / .aurora-pin
    / case-list hooks the smoke test relies on. */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtlasMap, caseInRegion, REGIONS } from "@/aurora/components/AtlasMap";
 import { HelpButton } from "@/aurora/components/HelpButton";
 import { ApiErrorNotice } from "@/aurora/components/ApiErrorNotice";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
 import {
-  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections,
+  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips, journeySections, searchCases,
   type Lens, type ApiTopic,
 } from "@/aurora/lib/caseFilter";
 import { PLATE } from "@/aurora/media";
@@ -54,8 +54,30 @@ export function Cases() {
     router.push(`/cases/${c.case_id}`);
   }, [router]);
 
+  // Free-text search across 100+ patients. Search is deliberately applied AFTER the lens,
+  // so it narrows what you are already looking at rather than silently jumping you out of
+  // the region or topic you chose.
+  const [query, setQuery] = useState("");
+
   const chips = useMemo(() => topicChips(topics, cases), [topics, cases]);
-  const filtered = useMemo(() => filterCases(cases, lens, caseInRegion), [cases, lens]);
+  const lensed = useMemo(() => filterCases(cases, lens, caseInRegion), [cases, lens]);
+  const filtered = useMemo(() => searchCases(lensed, query), [lensed, query]);
+
+  // The chip strip scrolls but hides its scrollbar, so it needs to SAY there is more to
+  // reach. Measured rather than assumed: the fade appears only while chips remain to the
+  // right, and clears once you get there.
+  const topicsRef = useRef<HTMLDivElement>(null);
+  const [topicsOverflow, setTopicsOverflow] = useState(false);
+  const measureTopics = useCallback(() => {
+    const el = topicsRef.current;
+    if (!el) return;
+    setTopicsOverflow(el.scrollWidth - el.clientWidth - el.scrollLeft > 8);
+  }, []);
+  useEffect(() => {
+    measureTopics();
+    window.addEventListener("resize", measureTopics);
+    return () => window.removeEventListener("resize", measureTopics);
+  }, [measureTopics, chips.length]);
 
   // Live patient count per region, from the full list — drives the pin badges so exploring
   // the eye feels rewarding and informative.
@@ -111,11 +133,42 @@ export function Cases() {
             )}
           </div>
 
+          {/* Find a patient by name, complaint, condition or topic. An OA student has 101
+              patients behind a 12-region plate and a chip strip that shows 3-4 of its 12,
+              and there was no text input anywhere on the screen. */}
+          <div className="aurora-cases-search">
+            <svg className="aurora-cases-search-i" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              type="search"
+              className="aurora-cases-search-in"
+              data-testid="case-search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search patients — name, complaint, condition…"
+              aria-label="Search patients by name, complaint, condition or topic"
+            />
+            {query && (
+              <button type="button" className="aurora-cases-search-x" onClick={() => setQuery("")}
+                      aria-label="Clear search">✕</button>
+            )}
+          </div>
+          {query && (
+            <p className="aurora-cases-search-n" role="status">
+              {filtered.length === 0
+                ? `No patient matches “${query}”${activeLabel ? ` in ${activeLabel}` : ""}.`
+                : `${filtered.length} patient${filtered.length === 1 ? "" : "s"} match “${query}”${activeLabel ? ` in ${activeLabel}` : ""}.`}
+            </p>
+          )}
+
           {/* Topic filter — a quiet horizontal chip strip. Reuses the card-chip / reset-pill
               visual language so it reads as one system with the rest of the page. Mutually
               exclusive with the eye plate: tapping a topic clears any active region. */}
           {chips.length > 0 && (
-            <div className="aurora-topics" data-testid="topic-filter" role="group" aria-label="Filter patients by topic">
+            <div className="aurora-topics-wrap" data-overflow={topicsOverflow || undefined}>
+            <div className="aurora-topics" ref={topicsRef} onScroll={measureTopics} data-testid="topic-filter" role="group" aria-label="Filter patients by topic">
               <button
                 type="button"
                 className="aurora-topic-chip"
@@ -140,6 +193,7 @@ export function Cases() {
                   {t.total != null && <i className="aurora-topic-chip-n">{t.total}</i>}
                 </button>
               ))}
+            </div>
             </div>
           )}
 

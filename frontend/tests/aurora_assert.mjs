@@ -361,15 +361,21 @@ if ((await doneCard.count()) !== 1) { console.error("FAIL: the completed case mu
 const doneTxt = await doneCard.locator('[data-testid="case-done"]').innerText();
 if (!/completed/i.test(doneTxt)) { console.error(`FAIL: a completed card must SAY it, got "${doneTxt}"`); process.exit(1); }
 if (await doneCard.isDisabled()) { console.error("FAIL: a completed case must stay replayable"); process.exit(1); }
-// Greyed — asserted on the SETTLED value, since opacity here is transition-adjacent.
+// Drained of colour — asserted on the SETTLED value, since this is transition-adjacent.
+// It used to be `opacity < 0.8`, which passed on a treatment (opacity:.62) that dragged the
+// chief complaint and duration to ~2.5-2.7:1, recoverable only on :hover — a gesture that
+// never fires on the iPads this runs on. "Done" must not mean "not worth reading", so the
+// criterion is now colour drain, not luminance.
 const greyed = await np.waitForFunction(
   () => {
     const el = document.querySelector('[data-testid="completed-section"] .aurora-case[data-done]');
-    return el && Number(getComputedStyle(el).opacity) < 0.8;
+    if (!el) return false;
+    const m = /saturate\(([\d.]+)\)/.exec(getComputedStyle(el).filter);
+    return !!m && Number(m[1]) <= 0.5 && Number(getComputedStyle(el).opacity) > 0.85;
   },
   null, { timeout: 4000 },
 ).catch(() => null);
-if (!greyed) { console.error("FAIL: a completed case must be greyed off"); process.exit(1); }
+if (!greyed) { console.error("FAIL: a completed case must be drained of colour but stay readable"); process.exit(1); }
 // …and it must NOT also still be sitting in its difficulty tier.
 const strays = await np.locator('.aurora-tier-group:not([data-done]) .aurora-case[data-done]').count();
 if (strays) { console.error(`FAIL: ${strays} completed card(s) left in a difficulty tier`); process.exit(1); }

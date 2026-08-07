@@ -4,6 +4,45 @@ const b = await chromium.launch();
 const ok = (m) => console.log("PASS:", m);
 const die = (m) => { console.error("FAIL:", m); process.exit(1); };
 
+/* Measured WCAG contrast for a selector's own text against what is actually painted behind
+   it — run inside the page, so it sees the composited result of ancestor opacity and filters
+   rather than the authored token.
+
+   This exists because the inactive-pane treatment used to be `opacity:.5` on the PANE. Opacity
+   is inherited and multiplies every descendant, so the scrollback the design promised would
+   "stay readable at a glance" measured ~1.9:1 on student bubbles. Nothing caught it, because
+   the assertion checked the opacity NUMBER — the mechanism — instead of the thing the number
+   was supposed to protect. Assert the outcome, and the mechanism is free to change. */
+const contrastOf = (page, selector) => page.evaluate((sel) => {
+  const el = document.querySelector(sel);
+  if (!el) return null;
+  const lum = ([r, g, b]) => {
+    const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const parse = (s) => (s.match(/[\d.]+/g) || []).map(Number);
+  // Effective alpha = the element's own alpha times every ancestor's opacity.
+  let alpha = 1;
+  for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+    alpha *= Number(getComputedStyle(n).opacity);
+  }
+  // The first opaque background painted behind this text. A GRADIENT has no single colour
+  // (backgroundColor reads transparent on it), so bail rather than measure against whatever
+  // sits further up — that produced a bogus 1.01:1 on the white-on-orange student bubble.
+  let bg = null;
+  for (let n = el; n; n = n.parentElement) {
+    if (getComputedStyle(n).backgroundImage !== "none") return null;
+    const c = parse(getComputedStyle(n).backgroundColor);
+    if (c.length >= 3 && (c[3] === undefined || c[3] > 0.85)) { bg = c.slice(0, 3); break; }
+  }
+  if (!bg) bg = [255, 255, 255];
+  const fg = parse(getComputedStyle(el).color).slice(0, 3);
+  // Composite the (possibly faded) text over its background before measuring.
+  const eff = fg.map((c, i) => c * alpha + bg[i] * (1 - alpha));
+  const [a, b2] = [lum(eff), lum(bg)].sort((x, y) => y - x);
+  return Math.round(((a + 0.05) / (b2 + 0.05)) * 100) / 100;
+}, selector);
+
 const user = { full_name: "Test Student", email: "student@snec.com.sg", student_id: "S001", role: "student", student_role: "OA", must_change: false };
 const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
 await ctx.addInitScript((u) => {
@@ -476,16 +515,40 @@ const badge = await p.locator('[data-testid="turn-badge"]').innerText();
 // is that it NAMES the pane — its casing is a styling decision, not a contract.
 if (!/eyebot/i.test(badge)) die(`turn badge must name the pane, got "${badge}"`);
 if (/\d/.test(badge)) die(`turn badge must not leak a step number: "${badge}"`);
-// waitForFunction, not a bare read: data-turn has just flipped, so opacity is mid-TRANSITION
-// and getComputedStyle returns the interpolating value (starting at 1). Asserting the settled
-// state is the real invariant; a one-shot read here fails on a working spotlight.
-// Threshold tracks the INTENSIFIED treatment (opacity .5) — a regression back to a polite
-// .72 should fail here, because "students can't tell where to act" was the whole complaint.
+// The inactive pane must RECEDE — "students can't tell where to act" was the whole
+// complaint — and must stay READABLE, which the original opacity:.5 treatment did not:
+// it measured ~1.9:1 on student bubbles, and on a dual-source step that pane's composer is
+// deliberately still live. Two assertions, because satisfying either one alone is a bug.
+//
+// waitForFunction, not a bare read: data-turn has just flipped, so the treatment is
+// mid-TRANSITION and getComputedStyle returns the interpolating value.
 await p.waitForFunction(
-  () => Number(getComputedStyle(document.querySelector(".aurora-patient")).opacity) <= 0.55,
+  () => {
+    const f = getComputedStyle(document.querySelector(".aurora-patient")).filter;
+    const m = /saturate\(([\d.]+)\)/.exec(f);
+    return m ? Number(m[1]) <= 0.3 : false;
+  },
   null,
   { timeout: 4000 },
-).catch(() => die("inactive pane never dimmed hard enough"));
+).catch(() => die("inactive pane never receded (colour not drained)"));
+// The ROOT CAUSE, asserted directly: no inherited opacity may fade this pane's contents.
+// Ancestor opacity multiplies every descendant, so it is the one mechanism that can never
+// be made accessible by tuning a colour token.
+const paneAlpha = await p.evaluate(() => {
+  let a = 1;
+  for (let n = document.querySelector(".aurora-patient"); n && n !== document.documentElement; n = n.parentElement) {
+    a *= Number(getComputedStyle(n).opacity);
+  }
+  return Math.round(a * 100) / 100;
+});
+if (paneAlpha < 0.99) die(`a recessed pane must not fade its contents (effective opacity ${paneAlpha})`);
+// ...and the measured ratio, where a solid background makes it measurable.
+for (const sel of [".aurora-patient .aurora-station-bubble.pt",
+                   ".aurora-patient .aurora-station-hint"]) {
+  const ratio = await contrastOf(p, sel);
+  if (ratio === null) continue;             // gradient-backed or not on screen — unmeasurable
+  if (ratio < 4.5) die(`recessed pane text must stay WCAG AA readable: ${sel} is ${ratio}:1`);
+}
 // ...and the live pane must actually carry the accent ring, not just be undimmed.
 const ring = await p.evaluate(() => getComputedStyle(document.querySelector(".aurora-eyebot")).boxShadow);
 if (!/rgba?\(\s*44,\s*107,\s*224/.test(ring)) die(`live pane missing its accent ring: ${ring.slice(0, 120)}`);
@@ -757,7 +820,7 @@ if (!movedTurn) {
   die(`the record half landing must move the spotlight to the patient, got "${got}"`);
 }
 await p.waitForFunction(
-  () => Number(getComputedStyle(document.querySelector(".aurora-eyebot")).opacity) < 0.95,
+  () => /saturate\(0?\.\d+\)/.test(getComputedStyle(document.querySelector(".aurora-eyebot")).filter),
   null, { timeout: 4000 },
 ).catch(() => die("the finished half's pane must recede once the spotlight moves"));
 ok("chip reveals the record, marks itself half-done, explains the missing half, and MOVES the spotlight");
