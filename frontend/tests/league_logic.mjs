@@ -2,16 +2,17 @@
    under Node's type stripping (mirrors leaderboard_logic.mjs):
      node --experimental-strip-types frontend/tests/league_logic.mjs
 
-   The three things worth testing here are the three that bit us in review:
+   The things worth testing here are the ones that bit us in review:
      1. the SGT week close (the backend closes on Monday 00:00 UTC+8; a viewer-local
         countdown drifts by up to 15h and lies to half the cohort),
-     2. where the cut falls — including the case the board actually ships (podiumCount 0,
-        every rank in one list) and the old split it replaced,
+     2. the LEAGUE SLICE — the board lists the whole cohort since 2026-08-08, so the race has
+        to be recovered from a mixed list, and feeding computeChase a cohort rank instead of a
+        league one tells a division leader they are outside the promotion zone,
      3. "no snapshot" vs "no change" — a new student must never be shown a fake zero.
 */
 import assert from "node:assert";
 import {
-  msToWeekClose, countdownLabel, computeChase, arrowFor, promotionLineIndex, splitPodium,
+  msToWeekClose, countdownLabel, computeChase, arrowFor, splitPodium,
   leagueRanks, nextDivisionName, nextRungPayoff, DIVISION_NAMES,
 } from "../src/aurora/leaderboard/league.ts";
 
@@ -138,27 +139,11 @@ assert.deepStrictEqual(frozen, [1, 2, 3, 4]);
   assert.notStrictEqual(computeChase(cohort, 1, false).value, 46);
 }
 
-// ── 2) the promotion line ──
-/* THE SHIPPING CASE (2026-08-04): the podium holds ranks 1-3, so the list is 27 rows and the
-   cut falls after 4 of them — ranks 4-7, with 1-3 promoted on the stage above. Off by one
-   here and the board promotes the wrong student, which is the most consequential pixel on
-   the page. */
-assert.strictEqual(promotionLineIndex(3, 27, 7), 4);
-// …and the podium-less form the role-filtered view and small cohorts still use.
-assert.strictEqual(promotionLineIndex(0, 30, 7), 7);
-assert.strictEqual(promotionLineIndex(0, 8, 7), 7);   // exactly one row below the cut
-assert.strictEqual(promotionLineIndex(0, 7, 7), null); // everyone visible promotes — don't draw
-assert.strictEqual(promotionLineIndex(0, 30, 0), null);
-// promote_count landing inside the podium → the line sits at the very top of the list.
-assert.strictEqual(promotionLineIndex(3, 9, 3), 0);
-assert.strictEqual(promotionLineIndex(3, 9, 1), 0);
-// Prism (no promotion at the top division) → no line at all.
-assert.strictEqual(promotionLineIndex(3, 27, 0), null);
-// A line past the end of the rendered rows would imply everyone visible promotes — don't draw.
-assert.strictEqual(promotionLineIndex(3, 2, 7), null);
-assert.strictEqual(promotionLineIndex(3, 4, 7), null);  // exactly at the end: nothing below it
-assert.strictEqual(promotionLineIndex(3, 5, 7), 4);     // one row below it — now it means something
-assert.strictEqual(promotionLineIndex(3, 4, 8), null);
+/* ⚠ SECTION 2 (the promotion line) WAS DELETED on 2026-08-08 with promotionLineIndex
+   itself. It positioned a contiguous gold region's cut, and the cohort board has no
+   contiguous promoted set to cut — see the tombstone in league.ts. The promotion state it
+   used to place is covered by section 1c above, which proves leagueRanks marks exactly the
+   viewer's own division-mates and nobody else's. */
 
 // ── 3) arrows: no snapshot is NOT no change ──
 assert.strictEqual(arrowFor(null).dir, "none");
@@ -220,4 +205,4 @@ assert.strictEqual(onLine.kind, "hold");
 assert.strictEqual(onLine.value, 300);           // your 5100 − F's 4800
 assert.match(onLine.label, /#6/);
 
-console.log("PASS: league countdown + promotion line + arrows + chase");
+console.log("PASS: league countdown + league slice + arrows + chase");

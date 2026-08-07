@@ -100,25 +100,12 @@ export const LeagueRow = forwardRef<HTMLLIElement, {
   );
 });
 
-/** The head of the promotion zone. States the mechanic once, in the one place it applies —
- *  which is why nothing above the board needs a sentence about it any more. */
-export function PromotionZone({ count, to }: { count: number; to: string | null }) {
-  return (
-    <li className="lg-zone" data-testid="promotion-zone">
-      <span className="lg-zone-ico" aria-hidden>▲</span>
-      {to ? `Promotion zone · top ${count} advance to ${to}` : `Promotion zone · top ${count}`}
-    </li>
-  );
-}
-
-/** The cut itself — a struck bar, no caption. The zone above it is already labelled, and a
- *  second sentence here would make the most consequential pixel on the board a caption rather
- *  than a line. `aria-hidden` is deliberately NOT set: a screen-reader user needs to know
- *  where the cut falls just as much as a sighted one. */
-export function PromotionLine() {
-  return (
-    <li className="lg-cut" data-testid="promotion-line">
-      <span className="lg-sr">End of the promotion zone</span>
-    </li>
-  );
-}
+/* ⚠ `PromotionZone` and `PromotionLine` WERE DELETED on 2026-08-08, when the board became the
+   whole cohort. Both described a contiguous run of promoting rows — a gold region headed by a
+   caption and ended by a struck bar — and on a mixed list your division's promoting members
+   are scattered among four other divisions', so there is no run to head and no single row to
+   cut after. Drawing either anyway would have marked the wrong students, which is the most
+   consequential thing this board can get wrong.
+   What replaced them: `data-promo` per row, fed from `leagueRanks` (league.ts), plus the
+   count and the destination stated in the head. Restoring these means restoring a contiguous
+   promoted set first — not just re-adding the components. */

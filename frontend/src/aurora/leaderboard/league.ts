@@ -157,22 +157,15 @@ export function leagueRanks<T extends { division: number }>(
   return ranks;
 }
 
-/** Index in the ranked list before which the cut is drawn, or null when drawing it would
- *  mislead.
- *
- *  `podiumCount` is how many top finishers the list does NOT contain — `splitPodium`'s
- *  `podium.length`, which is 0 whenever the podium is withheld.
- *
- *  Two null cases, both real: the top division promotes nobody, and a line at or past the
- *  end of the rendered rows would say "everyone here promotes" — which is false whenever
- *  the role filter has narrowed the view away from the real pool. */
-export function promotionLineIndex(
-  podiumCount: number, restCount: number, promoteCount: number,
-): number | null {
-  if (!promoteCount || promoteCount <= 0) return null;
-  const idx = Math.max(0, promoteCount - podiumCount);
-  return idx < restCount ? idx : null;
-}
+/* ⚠ `promotionLineIndex` WAS DELETED on 2026-08-08 with the cut it positioned. It answered
+   "how many rows down does the gold region end", which only has an answer when the promoted
+   set is a contiguous run from the top — true of a division board, false of a cohort one,
+   where your league's promoting members are scattered among four other leagues'. Its careful
+   null cases (the summit promotes nobody; a line past the last row would claim everyone
+   promotes) are not lost: the summit still sends promote_count 0, and the promotion state is
+   now a per-row flag derived from `leagueRanks` above, which cannot point at a wrong row
+   because it is keyed by the row itself. Do not restore it without restoring a contiguous
+   promoted set to draw. */
 
 /** How a row moved since the last daily snapshot.
  *
