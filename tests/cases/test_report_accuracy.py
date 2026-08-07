@@ -56,15 +56,53 @@ def test_a_missed_step_is_named_with_what_it_costs():
     assert STEPS[1]["notes"] in note
 
 
+# ── The safety-ordering rule needs a fixture that can FAIL ────────────────────
+# The rule: a missed CRITICAL step must lead the remark, because it is the reason for the
+# x0.6 safety cap on Judgement. `station_score` implements it with a stable sort on
+# `not critical`.
+#
+# Every fixture above puts the critical step at step_number 1 — FIRST in step order — so
+# the sort is a no-op on all of them and the two tests below passed with the sort deleted
+# entirely. (Mutation-proved: removing the sort, and replacing it with a sort by
+# step_number, both left the file green.) `note.index(x) < len(note)` was worse than
+# useless: `str.index` on a needle already asserted present ALWAYS returns < len.
+#
+# CRITICAL_LAST puts the critical step LAST in step order, so the assertion below fails
+# unless the sort actually runs.
+CRITICAL_LAST = [
+    {"step_number": 1, "action": "Wipe the occluder with an alcohol wipe",
+     "critical": False, "notes": "Shared occluders transmit adenoviral conjunctivitis."},
+    {"step_number": 2, "action": "Take three readings per eye and record the average",
+     "critical": False, "notes": "A single reading is not repeatable enough to act on."},
+    {"step_number": 3, "action": "Confirm patient identity before testing",
+     "critical": True, "notes": "Wrong-patient testing invalidates the whole record."},
+]
+
+
 def test_a_missed_critical_step_leads_the_remark():
-    note = _note([2, 3])       # step 1 (critical) missed
-    assert STEPS[0]["action"] in note
-    assert note.index(STEPS[0]["action"]) < len(note)
+    """The critical step is LAST in step order — only the safety sort can bring it first."""
+    note = _note([1, 2], steps=CRITICAL_LAST)      # only the critical step (3) missed... no:
+    # steps 1 and 2 performed, so step 3 (critical) is the sole miss.
+    assert CRITICAL_LAST[2]["action"] in note
 
 
 def test_criticals_lead_even_when_a_non_critical_was_missed_first():
-    note = _note([3])          # steps 1 (critical) and 2 both missed
-    assert note.index(STEPS[0]["action"]) < note.index(STEPS[1]["action"]), note
+    """The one that mutation-kills the sort: a non-critical is missed EARLIER in step order,
+    so document order and safety order disagree and only one of them can win."""
+    note = _note([2], steps=CRITICAL_LAST)         # steps 1 (non-critical) and 3 (critical) missed
+    crit = note.index(CRITICAL_LAST[2]["action"])
+    non_crit = note.index(CRITICAL_LAST[0]["action"])
+    assert crit < non_crit, (
+        f"the missed CRITICAL step must be named first — it is the reason for the safety "
+        f"cap — but the remark leads with the non-critical one:\n{note}"
+    )
+
+
+def test_relative_order_is_otherwise_preserved():
+    """The sort must be STABLE: among equally-critical steps, step order still holds, so
+    the remark reads in the order the student worked."""
+    note = _note([3], steps=CRITICAL_LAST)         # steps 1 and 2 missed, neither critical
+    assert note.index(CRITICAL_LAST[0]["action"]) < note.index(CRITICAL_LAST[1]["action"]), note
 
 
 def test_the_remark_does_not_run_away_with_every_missed_step():

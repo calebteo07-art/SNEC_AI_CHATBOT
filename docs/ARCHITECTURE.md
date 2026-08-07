@@ -81,8 +81,8 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | POST | `/api/auth/request-reset` · `/api/auth/reset-password` | public (rate-limited) |
 | POST | `/api/auth/change-password` · GET `/api/auth/me` | cookie |
 | POST | `/api/chat` (SSE) · `/api/end-session` | student |
-| GET  | `/api/cases` · `/api/cases/{id}` · `/api/cases/{id}/station` | student |
-| POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` | student |
+| GET  | `/api/cases` · `/api/cases/{id}` · `/{id}/station` · `/{id}/checklist` | student, own pool |
+| POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` · `/forfeit` | student, own pool |
 | GET/POST | `/api/checkin/*` · `/api/flashcards/*` · `/api/gamification/sync` | student |
 | GET  | `/api/progress` · `/api/leaderboard` · `/api/study-suggestion` | student |
 | GET | `/api/admin/*` reads (roster, students, activity, student detail, attempts, token-summary) | **staff** |
@@ -90,6 +90,18 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **staff** |
 | PATCH | `/api/profile/role` (content-pool toggle) | **staff** |
 | GET | `/health` (liveness) · `/health/ready` (readiness, 503 on dep down) | public |
+
+Every `/api/cases/{id}...` route runs `_check_case_access`, which enforces the student's
+**role pool** (404 — an out-of-pool case should not be enumerable) before the per-topic
+**tier gate** (403 — the case is theirs, just not unlocked yet). Staff bypass both, so a
+trainer can preview any station. `/forfeit` runs the pool half only: the tier census costs
+a Supabase read and that route is a `sendBeacon` fired during page unload. The contract is
+swept off `app.routes` in `tests/cases/test_gate_sweep.py`, so a new case endpoint is
+gated by default rather than by memory.
+
+`POST /api/cases/{id}/submit` returns **503** when the AI grader is unavailable, and
+persists nothing in that case — no attempt row, no XP, no session log — so the student's
+resubmit is a real retry. It never returns a degraded or invented score.
 
 Top-level roles are **`student` · `trainer` · `admin`** — the old `supervisor`
 role is removed (a lingering `supervisors.role == "supervisor"` is normalised to

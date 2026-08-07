@@ -75,6 +75,20 @@ def production_config_problems(env: Mapping[str, str] | None = None) -> list[str
             "(not '*' or empty); e.g. https://eyebot.yourschool.edu"
         )
 
+    # docs/SECURITY.md lists this under REQUIRED production secrets, but the guard never
+    # checked it — so a prod boot without it started green and served MOCK_MODE to real
+    # students: the "patient" answers with a grading rubric (_MOCK_RESPONSES["case"]),
+    # observe_steps returns [] so no checklist step can ever tick, and every submit returns
+    # the identical 7/7/8/7. /health publishes mock_mode: true, but the keep-alive cron only
+    # checks for HTTP 200, so nothing would have noticed. Failing closed is the whole point
+    # of this function.
+    if not env.get("GEMINI_API_KEY", "").strip():
+        problems.append(
+            "GEMINI_API_KEY is not set — the app would boot into MOCK_MODE and serve "
+            "canned tutor replies, unscored OSCE stations and a patient that recites the "
+            "grading rubric"
+        )
+
     return problems
 
 

@@ -19,6 +19,7 @@ _GOOD = {
     "SUPABASE_URL": "https://proj.supabase.co",
     "SUPABASE_SERVICE_ROLE_KEY": "service-role-key-value",
     "ALLOWED_ORIGINS": "https://eyebot.example.edu",
+    "GEMINI_API_KEY": "gemini-key-value",
 }
 
 
@@ -106,3 +107,36 @@ def test_super_admin_email_blank_when_unset_or_whitespace():
     `bool(SUPER_ADMIN_EMAIL) and ...` guard can never authorise a blank email."""
     assert super_admin_email({}) == ""
     assert super_admin_email({"SUPER_ADMIN_EMAIL": "   "}) == ""
+
+
+def test_a_missing_gemini_key_blocks_a_production_boot():
+    """docs/SECURITY.md lists GEMINI_API_KEY as REQUIRED, but the guard never checked it.
+
+    A prod boot without it started GREEN and served MOCK_MODE to real students: the
+    "patient" answers with a grading rubric, observe_steps returns [] so no checklist step
+    can ever tick, and every submit returns the identical 7/7/8/7. /health does publish
+    `mock_mode: true`, but the keep-alive cron only asserts HTTP 200 — so nothing on any
+    channel would have said a word.
+    """
+    env = {**_GOOD, "GEMINI_API_KEY": ""}
+    problems = production_config_problems(env)
+    assert any("GEMINI_API_KEY" in p for p in problems), problems
+    assert any("MOCK_MODE" in p for p in problems), "say WHAT goes wrong, not just which var"
+
+    with pytest.raises(RuntimeError):
+        assert_production_ready(env)
+
+
+def test_whitespace_is_not_a_gemini_key():
+    assert any("GEMINI_API_KEY" in p
+               for p in production_config_problems({**_GOOD, "GEMINI_API_KEY": "   "}))
+
+
+def test_a_missing_gemini_key_is_fine_outside_production():
+    """MOCK_MODE is how the whole test suite and every local harness run keyless, so the
+    guard must not fire off production. `production_config_problems` is the pure predicate
+    and reports the problem regardless of ENVIRONMENT — it is `assert_production_ready`
+    that gates on it, and that is what this asserts."""
+    dev = {**_GOOD, "ENVIRONMENT": "development", "GEMINI_API_KEY": ""}
+    assert any("GEMINI_API_KEY" in p for p in production_config_problems(dev))
+    assert_production_ready(dev)  # must NOT raise off production
