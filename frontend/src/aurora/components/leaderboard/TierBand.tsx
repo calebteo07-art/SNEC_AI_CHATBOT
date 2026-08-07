@@ -153,10 +153,11 @@ export function TierBand({
       {/* The readout strip: the one number worth acting on, what acting on it PAYS, and the
           deadline both run against. */}
       <div className="tb-readout">
-        {/* ⚠ THE STANDING IS THE CHASE LINE'S EYEBROW, not a third item in this strip. The
-            clock was moved out to the podium deck in 2026-08-04 precisely because the readout
-            had gained a third item, and re-adding one here would undo that. It belongs to the
-            chase in any case: the rank and the gap are one fact about one race. */}
+        {/* ⚠ THE STANDING RIDES THE CHASE LINE, and it rides it INLINE. Not a third item in
+            this strip — the clock was moved out to the podium deck in 2026-08-04 precisely
+            because the readout had gained one — and not a line of its own either, which cost
+            ~21px and took the board under its 8-legible-ranks floor. It belongs to the chase
+            in any case: the rank and the gap are one fact about one race. */}
         <p className="tb-chase" data-testid="chase" data-kind={chase.kind}>
           {standing && (
             <span className="chase-st" data-testid="league-standing">

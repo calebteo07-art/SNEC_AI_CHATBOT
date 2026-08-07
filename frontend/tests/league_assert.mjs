@@ -61,7 +61,24 @@ const bad = (m) => { console.error("FAIL:", m); failed++; };
    readable on it" checks below are computed rather than eyeballed. Gold is the trap that makes
    that a testable rule rather than a taste one — #F5C542 on white is 2.2:1, so gold may be a
    FILL but never text. */
-const rgb = (s) => (s ?? "").match(/[\d.]+/g)?.map(Number) ?? null;
+/* ⚠ TWO CHANNEL SCALES, not one (2026-08-08). `rgb()`/`rgba()` report 0-255, but `color-mix()`
+   computes to `color(srgb r g b)` with channels in 0-1 — and this read those as 0-255, so any
+   mixed surface resolved to near-BLACK. It surfaced on the league chip, whose pale wash
+   `color(srgb 1 0.889882 0.842588)` measured 3.03:1 against an ink that is really 5.6:1 on it.
+   That direction is benign (a false failure). The same bug the other way passes a genuinely
+   unreadable label, because a dark ink on a "black" backdrop scores as high contrast.
+   This is the same lesson as the --arena-glow probe a few hundred lines down: read the shipped
+   form, not just the authored one. */
+const rgb = (s) => {
+  const str = `${s ?? ""}`;
+  const n = str.match(/[\d.]+/g)?.map(Number);
+  if (!n) return null;
+  // The optional `/ a` lands in the 4th slot in both syntaxes, and alpha is already 0-1.
+  if (/^color\(\s*srgb/i.test(str)) {
+    return [n[0] * 255, n[1] * 255, n[2] * 255, ...(n[3] === undefined ? [] : [n[3]])];
+  }
+  return n;
+};
 const lum = (c) => {
   const [r, g, b] = c.slice(0, 3).map((v) => {
     const x = v / 255;
