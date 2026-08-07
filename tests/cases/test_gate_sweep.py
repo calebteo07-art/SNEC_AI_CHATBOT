@@ -44,17 +44,33 @@ _BODIES: dict[str, dict] = {
 }
 
 
+def _all_routes(routes=None):
+    """Every leaf route, flattening whatever nesting the installed FastAPI uses.
+
+    `app.routes` is NOT reliably a flat list. On this box (fastapi 0.136.1) `include_router`
+    splices the sub-routes into the parent, so the 8 case routes sit at the top level. On CI
+    — where requirements.txt pins only `fastapi>=0.111.0`, so pip resolves something newer —
+    it appends nine `_IncludedRouter` wrappers instead, and a flat scan finds ZERO case
+    routes. Both shapes have to work, and duck-typing on `.routes` covers any future one.
+    """
+    for r in (app.routes if routes is None else routes):
+        nested = getattr(r, "routes", None)
+        if nested:
+            yield from _all_routes(nested)
+            continue
+        yield r
+
+
 def _case_routes() -> list[tuple[str, str]]:
     """(method, path) for every route parameterised by case_id, from the live app.
 
-    Duck-typed on `path`/`methods` rather than `isinstance(r, APIRoute)`. The isinstance
-    form found 8 routes locally and ZERO on CI — a router's `route_class` is configurable,
-    and the class object a test imports is not guaranteed to be the one that built the
-    routes. A selector that can silently match nothing is exactly the failure mode this
-    file exists to prevent, which is why the tripwire below is not optional.
+    Duck-typed on `path`/`methods` rather than `isinstance(r, APIRoute)`: a router's
+    `route_class` is configurable, and the class object a test imports is not guaranteed to
+    be the one that built the routes. A selector that can silently match nothing is exactly
+    the failure mode this file exists to prevent — hence the tripwire below.
     """
     out = []
-    for r in app.routes:
+    for r in _all_routes():
         path = getattr(r, "path", "")
         methods = getattr(r, "methods", None)
         if not methods or "{case_id}" not in path:
@@ -76,10 +92,10 @@ def test_the_sweep_actually_found_the_routes():
     """
     routes = _case_routes()
     if len(routes) < 6:
-        seen = [(type(r).__name__, getattr(r, "path", "?")) for r in app.routes][:40]
+        seen = [(type(r).__name__, getattr(r, "path", "?")) for r in _all_routes()][:60]
         raise AssertionError(
-            f"the sweep found {len(routes)} case routes. app.routes holds "
-            f"{len(app.routes)} entries: {seen}")
+            f"the sweep found {len(routes)} case routes after flattening "
+            f"{len(app.routes)} top-level entries into {len(seen)} leaves: {seen}")
     paths = {p for _, p in routes}
     for needle in ("station", "chat", "submit", "observe", "action"):
         assert any(needle in p for p in paths), f"{needle} route missing from the sweep"
@@ -118,7 +134,7 @@ def test_every_case_route_runs_the_gate():
     404s for most gated cases while carrying no access check at all.
     """
     ungated = []
-    for r in app.routes:
+    for r in _all_routes():
         if "{case_id}" not in getattr(r, "path", "") or not getattr(r, "methods", None):
             continue
         try:
