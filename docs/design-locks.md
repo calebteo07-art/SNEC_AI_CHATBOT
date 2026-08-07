@@ -3276,8 +3276,38 @@ reduced-motion gated, via `@/fx/confetti`).
   warm-sand solid backs it while it loads. Rule for the next refine: the canvas is **abstract,
   back-sitting and in-palette — never a literal scene** (that is what read tacky). Reproduced by
   `tools/leaderboard/generate_board_art.py --only bg`. Everything else in this lock is preserved.
-- **Out of scope (still)**: promotion/relegation leagues, weekly *history*/standings archive,
-  rank-movement arrows (needs history).
+- **Criterion changed (2026-08-08) — "the board is your division" → "the board is the COHORT;
+  the RACE is your division".** Reported as new students missing from the leaderboard: a batch
+  onboarded on 2026-08-07 landed in Ember (migration 016's `DEFAULT 1`) while everyone else had
+  been promoted to Volt, and `rank_entries` was scoped to the viewer's own division — so the two
+  groups sat on boards neither could see. Verified read-only against production: nothing was
+  broken. All seven were approved, consented, un-hidden and correctly ranked; they were simply
+  ranked somewhere nobody else was looking. "The cohort is invisible to itself" is not a board.
+  The list ranks everyone together and **every row carries a league chip** in its own rung hue
+  (`.lg-league[data-tier]`, sharing `.tb-pip`'s five declarations — ink is `--pm-dim`, because
+  Prism and Volt fail as text on the light board). Three lock statements follow from the change:
+  - **the podium was the promotion set → it is the COHORT's top three.** The 2026-08-04 fusion
+    ("the ceremony and the mechanic are one object") is explicitly undone: these three come from
+    different leagues and generally do not all advance. Its banner states what the stage IS —
+    "Top 3 · this week · Every league" — and is gated *not* to claim a promotion. The summit
+    branch went with it; it was a special case of a promotion claim. Copy stays inside the same
+    360px caption budget the 08-04 and 08-06 passes measured.
+  - **the promotion zone was a filled contiguous region ended by a struck cut → a PER-ROW gold
+    state.** Your division's promoting members are scattered through four other divisions' rows,
+    so there is no band to paint and no single row to cut after; `promotionLineIndex`,
+    `PromotionZone`, `PromotionLine`, `.lg-zone` and `.lg-cut` are deleted, each with a tombstone
+    saying a contiguous promoted set would have to come back first.
+  - **the lens strip's "N in your division" → "N in the cohort"**, and the All chip counts the
+    cohort rather than `pool_size`.
+  The RACE is untouched: `close_week`, `run_rollover`, the multipliers, `pool_size`/`promote_count`
+  and the Monday ceremony all still describe one division. It is stated in the head instead, as
+  the chase line's eyebrow — "#2 of 6 in Volt". A student therefore sees two ranks, deliberately:
+  an overall position and a class position, each labelled with what it measures.
+  Unchanged: the STRUCK arcade material, the lip ladder, hue-is-identity (the canvas is still
+  tinted the VIEWER's own division), the >0.7 light-stage doctrine, and the ranks-visible budget.
+  Spec: `docs/superpowers/specs/2026-08-08-cohort-wide-league-board-design.md`.
+- **Out of scope (still)**: weekly *history*/standings archive. (Promotion leagues and
+  rank-movement arrows shipped — migration 016 and the daily `rank_prev` snapshot.)
 
 ## Staff Console (`/admin`) — LOCKED 2026-08-03 (supersedes the dark Analytics surface below)
 **Direction** (approved by the user, 2026-08-02): `/admin` is a **full-bleed light
