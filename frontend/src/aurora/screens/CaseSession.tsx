@@ -35,6 +35,10 @@ import { grantAchievements } from "@/aurora/rewards/achieve";
 import { displayName } from "@/aurora/lib/displayName";
 import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
 import { leaveGuard } from "@/aurora/lib/leaveGuard";
+import {
+  clearSnapshot, clearStation, hasProgress, markForfeited, readSnapshot, wasForfeited,
+  writeSnapshot,
+} from "@/aurora/lib/stationResume";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -132,16 +136,25 @@ export function CaseSession() {
   const [loadError, setLoadError] = useState<"missing" | "api" | null>(null);
   const [station, setStation] = useState<StationData | null>(null);
 
-  const [ticked, setTicked] = useState<Set<number>>(new Set());
-  const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
+  // ── Resume ───────────────────────────────────────────────────────────────────
+  // Read ONCE, at first render, before anything can overwrite it. A refresh or browser
+  // Back used to destroy the whole attempt — every piece of state lived here and the
+  // backend holds no session — while still charging the 30-Lumen forfeit, on a path that
+  // never warned. See lib/stationResume.ts.
+  const store = typeof window === "undefined" ? null : window.sessionStorage;
+  const resumed = useRef(readSnapshot(caseId, store)).current;
+  const [showResumed, setShowResumed] = useState(() => hasProgress(resumed));
+
+  const [ticked, setTicked] = useState<Set<number>>(() => new Set(resumed?.ticked ?? []));
+  const [autoSteps, setAutoSteps] = useState<Set<number>>(() => new Set(resumed?.autoSteps ?? []));
   // The two halves of a dual-source step (one checklist row, both the chart AND the patient
   // — see lib/dualStep): chartDone is recorded by the chip, askedDual is an examiner credit
   // waiting for the chart half. A step in both ticks; a step in one is half done.
-  const [chartDone, setChartDone] = useState<Set<number>>(new Set());
-  const [askedDual, setAskedDual] = useState<Set<number>>(new Set());
+  const [chartDone, setChartDone] = useState<Set<number>>(() => new Set(resumed?.chartDone ?? []));
+  const [askedDual, setAskedDual] = useState<Set<number>>(() => new Set(resumed?.askedDual ?? []));
   // Steps the student could not complete and skipped (see skipStep()). They pass the gate
   // so the session continues, but they are NEVER reported as performed.
-  const [skipped, setSkipped] = useState<Set<number>>(new Set());
+  const [skipped, setSkipped] = useState<Set<number>>(() => new Set(resumed?.skipped ?? []));
   // Tries on the current step since the gate last moved — a sent message, or a procedure
   // opened in the action panel. Past SKIP_AFTER with no tick ⇒ offer the way out.
   const [attempts, setAttempts] = useState(0);
@@ -149,10 +162,15 @@ export function CaseSession() {
   // The pre-flight briefing runs on EVERY station open (user, 2026-07-29) — no storage key,
   // no "seen" flag. `?` re-opens it mid-case, which is the only other way in.
   const [showBriefing, setShowBriefing] = useState(false);
-  const dismissBriefing = useCallback(() => setShowBriefing(false), []);
+  // The encounter starts when the student does, not when React mounted. Rebase once, on the
+  // first dismissal only — `?` re-opens the briefing mid-case and must not reset the clock.
+  const dismissBriefing = useCallback(() => {
+    if (!clockRebased.current) { clockRebased.current = true; startedAt.current = Date.now(); }
+    setShowBriefing(false);
+  }, []);
   const replayBriefing = useCallback(() => setShowBriefing(true), []);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => (resumed?.messages ?? []) as ChatMessage[]);
   const [input, setInput] = useState("");
   const [activeProcedure, setActiveProcedure] = useState<ExamAction | null>(null);
   const [procText, setProcText] = useState("");
@@ -180,7 +198,13 @@ export function CaseSession() {
   // Case clock (Branda: cases had no time limit). startedAt is a ref — a re-render must
   // never restart it; `nowMs` ticks once a second only while the station is live, so a
   // graded station stops costing renders.
-  const startedAt = useRef<number>(Date.now());
+  //
+  // A RESUMED station keeps its original start, so the elapsed time is the truth about the
+  // encounter rather than the truth about this browser tab. A fresh one is rebased when the
+  // briefing is dismissed (below): the clock used to start at mount and so charged the
+  // student for the /station fetch and however long they spent reading the briefing.
+  const startedAt = useRef<number>(resumed?.startedAt ?? Date.now());
+  const clockRebased = useRef(!!resumed);
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
 
   const endRef = useRef<HTMLDivElement>(null);
@@ -266,22 +290,66 @@ export function CaseSession() {
     return () => leaveGuard.disarm();
   }, [stationActive]);
 
+  // Persist the station on every change, so a reload resumes instead of destroying it.
+  // Cheap (a JSON write to sessionStorage) and it must run on the SAME state the student
+  // can see, so it is deliberately not debounced — a crash between a tick and a debounce
+  // window is exactly the case this exists for. Cleared the moment the station is graded.
+  useEffect(() => {
+    if (!caseId) return;
+    if (result) { clearStation(caseId, store); return; }
+    if (!station) return;  // nothing to resume before the station has loaded
+    writeSnapshot({
+      caseId,
+      messages,
+      ticked: [...ticked], skipped: [...skipped], autoSteps: [...autoSteps],
+      chartDone: [...chartDone], askedDual: [...askedDual],
+      startedAt: startedAt.current,
+    }, store);
+  }, [caseId, store, station, result, messages, ticked, skipped, autoSteps, chartDone, askedDual]);
+
+  // Ask before a real unload. There was no `beforeunload` anywhere in the app, so a refresh
+  // or a tab close took the station — and the Lumens — with no warning at all. The browser
+  // shows its own generic copy; the string only has to be non-empty.
+  useEffect(() => {
+    if (!stationActive) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [stationActive]);
+
   // Backstop for exits that can't route through the confirm dialog — a real unload (refresh /
   // tab-close, via pagehide) and browser Back (SPA unmount, via the effect cleanup). In-app
   // nav (the rail / ⌘K palette) is now intercepted above and charges through the confirm, so
   // by the time this fires for those routes guard.spend() has already been spent; spend()
   // dedupes every route against the others, so it stays one charge per station.
+  //
+  // guard.spend() lives in a per-mount closure and so cannot see across a reload: refreshing
+  // mid-station charged, and quitting after the reload charged AGAIN — N reloads cost N x 30.
+  // The sessionStorage mark is the half of the dedupe that survives the reload. It is NOT
+  // cleared on resume: that would let a student re-roll a bad station by refreshing, which
+  // is the behaviour the penalty exists to prevent.
   useEffect(() => {
-    const beacon = () => { if (guard.spend()) navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`); };
+    const beacon = () => {
+      if (!guard.spend()) return;
+      if (wasForfeited(caseId, store)) return;  // already charged, in an earlier life of this tab
+      markForfeited(caseId, store);
+      navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`);
+    };
     window.addEventListener("pagehide", beacon);
     return () => { window.removeEventListener("pagehide", beacon); beacon(); };
-  }, [guard, caseId]);
+  }, [guard, caseId, store]);
 
   // Controlled exit via the ← Patients button. sendBeacon (not fetch) so the −Lumens hit
   // survives the immediate navigation; spend() keeps it to a single charge; then nudge
   // [progress] so the balance reflects the hit on the next screen.
   const chargeForfeit = () => {
     if (!guard.spend()) return;
+    // A deliberate leave ENDS the station: drop the snapshot so it can't be resumed, and
+    // record the charge durably so the pagehide beacon can't bill it a second time.
+    const already = wasForfeited(caseId, store);
+    markForfeited(caseId, store);
+    clearSnapshot(caseId, store);
+    if (already) return;
     navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`);
     qc.invalidateQueries({ queryKey: ["progress"] });
   };
@@ -790,6 +858,19 @@ export function CaseSession() {
                 skipped={skipped}
                 current={gateStep}
               />
+            </div>
+          )}
+          {station && !result && showResumed && (
+            /* Say it out loud. A student who reloads mid-station has every reason to expect
+               they lost the encounter — that is exactly what used to happen. */
+            <div className="aurora-station-resumed" role="status" data-testid="station-resumed">
+              <p className="aurora-station-resumed-title">Picked up where you left off</p>
+              <p className="aurora-station-resumed-body">
+                Your consultation and checklist were restored, and the clock kept running from
+                when you started. Close the tab and it will still be here.
+              </p>
+              <button type="button" className="aurora-station-resumed-x"
+                      onClick={() => setShowResumed(false)}>Got it</button>
             </div>
           )}
           {station && !result && (

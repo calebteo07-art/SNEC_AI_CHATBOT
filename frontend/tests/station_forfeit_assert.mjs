@@ -174,6 +174,50 @@ await scenario("Hard nav away mid-station charges one forfeit (pagehide beacon)"
   assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
 });
 
+// 3b) A RELOAD must give the station back, not destroy it. Everything lived in React state
+//     and the backend holds no session, so a refresh — the single most ordinary thing a
+//     student does when something looks stuck — silently ended a 20-minute encounter and
+//     restarted it at step 1 with an empty transcript. There was no `beforeunload` anywhere
+//     in the app to warn them, and the same pagehide fired the 30-Lumen charge.
+await scenario("Reload mid-station restores the consultation", async (ctx, count) => {
+  const page = await enterStation(ctx);
+  // Say something, and wait for the patient's reply to land in the transcript.
+  await page.fill(".aurora-station-composer-input", "Good morning, when did the pain start?");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(
+    () => document.body.innerText.includes("Good morning."), null, { timeout: 10000 });
+
+  page.on("dialog", (d) => d.accept());          // the new beforeunload warning
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector('[data-testid="station"]', { timeout: 20000 });
+
+  const text = await page.locator('[data-testid="station"]').innerText();
+  assert.ok(text.includes("when did the pain start?"),
+    "the student's own question must survive a reload");
+  assert.ok(text.includes("Good morning."), "the patient's reply must survive a reload");
+  assert.ok(await page.locator('[data-testid="station-resumed"]').count(),
+    "the student must be TOLD their work was restored");
+});
+
+// 3c) The charge survives the reload as ONE charge. The dedupe flag lived in a per-mount
+//     closure, so it could not see across a reload: refreshing mid-station charged 30, and
+//     then quitting after the reload charged 30 AGAIN — N reloads cost N x 30 on a station
+//     the student never abandoned.
+await scenario("Reload then quit charges exactly one forfeit, not two", async (ctx, count) => {
+  const page = await enterStation(ctx);
+  page.on("dialog", (d) => d.accept());
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector('[data-testid="station"]', { timeout: 20000 });
+  await page.waitForSelector(".aurora-station-submit-toggle", { timeout: 20000 });
+  await page.waitForTimeout(350);
+
+  await page.goto(base + "/homepage");           // now actually leave
+  await waitForfeit(count);
+  await page.waitForTimeout(500);
+  assert.strictEqual(count(), 1,
+    `a reload + a quit is ONE abandoned station, saw ${count()} charges`);
+});
+
 // 4) Fairness contract: submitting the handover grades the station ⇒ leaving is then free.
 await scenario("Submit handover → leave charges zero forfeits", async (ctx, count) => {
   const page = await enterStation(ctx);
