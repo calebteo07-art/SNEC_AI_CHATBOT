@@ -635,7 +635,21 @@
      line on near-black is a highlight, not a bevel. */
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .1);
 }
-.tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 7px; }
+/* wrap + a 100% basis on .chase-st is what puts the standing on its OWN line: this is a flex
+   row, so a plain `display:block` child would just become a third item on the same baseline
+   and read as "#2 of 6 in Volt 120 Lumens to the promotion zone" — one sentence made of two
+   unrelated numbers. */
+.tb-chase { margin: 0; min-width: 0; flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; }
+/* WHERE YOU STAND IN YOUR OWN RACE (2026-08-08). The ladder below is the whole cohort and
+   carries a different, larger rank, so this states its scope in the line itself — "in Volt".
+   --con-ink because this strip is the dark console: it is 8.9:1 here and 1.9:1 on white, so
+   an ink chosen for the old white readout would ship a sub-AA label. */
+.chase-st {
+  flex: 0 0 100%;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .01em;
+  color: var(--con-ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 /* ⚠ THE LEADER RULE IS GONE with the white strip. It was a 2px groove with a lit return,
    spanning ~700px between the chase and the hook to tie them together — furniture invented to
    fill a void, and the third-longest hairline on a page whose recipe bans hairlines. On the
