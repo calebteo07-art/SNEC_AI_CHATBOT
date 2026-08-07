@@ -703,12 +703,17 @@ async def leaderboard(background: BackgroundTasks, role: str | None = None,
         background.add_task(run_rollover, profiles, monday - timedelta(days=7))
         # And stamp today's ranks exactly once per day: without the seal every read would
         # restamp rank_prev with the live rank and every arrow would read 0 forever.
-        if await db.take_seal(f"day:{today.isoformat()}"):
-            snapshot: dict[str, int] = {}
-            for d in sorted({int(p.get("division") or 1) for p in profiles}):
-                for e in rank_entries(profiles, names, viewer_id=student_id,
-                                      today=today, week_start=week_start, division=d):
-                    snapshot[e["student_id"]] = e["rank"]   # join by id: names collide
+        # ONE COHORT-WIDE PASS (2026-08-08). This looped per division, which was right while
+        # the board was per-division. Now that the live rank is cohort-wide the stamp has to
+        # be on the same scale, or every arrow subtracts two different numbering systems: a
+        # student who is #1 in their division and #2 overall would render as having dropped
+        # a place on a day they did nothing. `entries` IS that ranking already, so re-ranking
+        # here would be a second source of truth for the same number.
+        # ⚠ `role is None` FIRST, and it guards the seal as well as the write: a filtered read
+        # renumbers from 1 within one role, so it would stamp ranks that exist on no board —
+        # and taking the seal would stop the real snapshot from running at all that day.
+        if role is None and await db.take_seal(f"day:{today.isoformat()}"):
+            snapshot = {e["student_id"]: e["rank"] for e in entries}   # by id: names collide
             background.add_task(db.set_rank_prev_bulk, snapshot, today.isoformat())
 
     # A hidden viewer is off the ladder for everyone including themselves, so tell them
