@@ -36,11 +36,14 @@ import { Lumen } from "@/aurora/components/Lumen";
 import { Crown, PLACE_TIERS } from "./Tiers";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
-export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef }: {
+export function Podium({ places, promoSet, clock, onPeek, youRef }: {
   places: LeaderboardEntry[];
-  promoteCount: number;
-  /** The division these three are climbing into, or null at the summit. */
-  promoteTo: string | null;
+  /** Entries standing inside their OWN division's promotion zone, by object identity (see
+   *  league.ts::leagueRanks). It replaced a `promoteCount` compared against the rank, which
+   *  stopped being answerable on 2026-08-08: the stage mixes divisions now, so a student at
+   *  cohort #2 may be 5th in a crowded league and promoting nothing, while #3 from a quiet
+   *  one is. Whether a slot promotes is a fact about its own race, not about its place here. */
+  promoSet: Set<LeaderboardEntry>;
   /** "5d 3h", or null before the client's first tick. Owned by Leaderboard.tsx — see the
    *  DECK note below for why it is here rather than in the band. */
   clock: string | null;
@@ -75,53 +78,43 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
           on the phone's inline caption row and collapses at the head of its own line once
           each span becomes a flex item on the deck. A whitespace text node between them
           would have grown an anonymous third line box instead. */}
-      {/* THE SUMMIT HAS ITS OWN COPY (2026-08-06). Everything above is written for a division
-          with one above it, and Prism has neither a destination to name nor a promotion to
-          offer — `promoteTo` is null there and the server sends `promote_count: 0`
-          (student.py). Both defaults failed it in a different way: the middle line dropped out
-          and the card centred a hole where its one piece of display type belongs, and at the
-          real count of 0 the module did not render at all, leaving the deck's whole left flank
-          empty beside a 336px stage. The summit is a STATE, not the absence of one, so it says
-          what standing here means in the same three lines every other rung gets.
-          ⚠ `promoteTo === null` IS the summit and nothing else — it comes from
-          `nextDivisionName`, which clamps a null or out-of-range division to Ember and returns
-          null only at the top. `promoteCount === 0` cannot be used for this: a cohort of one
-          promotes nobody either, and that board is not at the summit.
-          ⚠ THE COPY IS BUDGETED, not chosen. On the phone these two spans are one nowrap row
-          sharing the caption line with the clock, and 360px is where that row is spent — the
-          same cell a 2026-08-04 pass already watched a nowrap pill overflow. The summit pill
-          measures 166.4px against the promotion pill's 167.2px there, so it costs the caption
-          row NOTHING and keeps the ~29px it has before the clock. A first pass at this copy
-          ("Top division / Hold the summit") measured 187.8px and left 8px. Anything longer than
-          what is here has to be measured at 360 before it ships. */}
-      {(promoteCount > 0 || promoteTo === null) && (
-        <p className="pod-banner" data-testid="podium-promo">
-          {promoteTo === null ? (
-            <>
-              <span className="pod-banner-do">
-                <span className="pod-banner-ico" aria-hidden>★</span>Summit
-              </span>
-              {/* What replaces the destination, because there isn't one — stated as the fact it
-                  is rather than as an instruction. Paired with "Nobody drops" below it, the two
-                  lines are the whole mechanic at the top of the ladder: the climb ends here and
-                  you cannot fall off it. */}
-              <span className="pod-banner-to">Nothing above</span>
-            </>
-          ) : (
-            <>
-              <span className="pod-banner-do">
-                <span className="pod-banner-ico" aria-hidden>▲</span>Top {promoteCount} promote
-              </span>
-              <span className="pod-banner-to"> to {promoteTo}</span>
-            </>
-          )}
-          {/* The half of the mechanic nothing outside the (?) sheet stated: this ladder only
-              goes UP. A weekly cut with no stated floor reads as a relegation risk, which is
-              the opposite of what it is — and on the deck it also gives the flank the third
-              line that lets it stand next to a 700px stage instead of hovering beside it. */}
-          <span className="pod-banner-sub">Nobody drops</span>
-        </p>
-      )}
+      {/* ⚠ THE SUMMIT BRANCH WAS DELETED on 2026-08-08. It existed because the banner made a
+          PROMOTION claim, and Prism has no destination to name — so the summit needed its own
+          three lines ("Summit / Nothing above / Nobody drops") to avoid centring a hole. This
+          banner no longer claims a promotion at all, so every division gets the same true
+          sentence and the special case has nothing left to special-case. The summit's promotion
+          state is unchanged and still correct: the server sends `promote_count: 0` there, so
+          `promoSet` is empty and no Prism slot is gilded.
+          ⚠ THE COPY BUDGET SURVIVES THE BRANCH, and it is the constraint to respect here: at
+          360px these spans are one nowrap row sharing the caption line with the clock. The
+          old promotion pill measured 167.2px and the deleted summit pill 166.4px, against a
+          rejected 187.8px that left only 8px of slack. Anything longer than what is here has
+          to be measured at 360 before it ships. */}
+      {/* WHAT THIS STAGE IS (2026-08-08). It read "Top N promote to <division>", and that was
+          true while the board was one division: the podium WAS the promotion set, one object
+          stating one mechanic, deliberately fused on 2026-08-04. The list is the cohort now,
+          so these three are the week's best across every league and generally do NOT all
+          promote — a Volt student can top the board while three Ember students promote below
+          them. The promotion claim moved to the head, where the race actually is; the stage
+          says what it is instead of what it no longer decides.
+          The summit branch went with it: it was a special case of a promotion claim, and
+          "Nobody drops" answered a relegation fear that a stage stating no cut cannot raise.
+          ⚠ COPY IS BUDGETED, not chosen — see the note at the top of this component. At 360px
+          these two spans are one nowrap row sharing the caption line with the clock, where the
+          old promotion pill measured 167.2px and a rejected alternative 187.8px left 8px.
+          "Top 3" + " this week" is shorter than both, so the caption row keeps its slack.
+          Unconditional: splitPodium already refuses an underfilled stage, so if this renders
+          there are exactly three finishers to describe. */}
+      <p className="pod-banner" data-testid="podium-promo">
+        <span className="pod-banner-do">
+          <span className="pod-banner-ico" aria-hidden>★</span>Top 3
+        </span>
+        <span className="pod-banner-to"> this week</span>
+        {/* The scope, and the reason the three blocks can wear different metals: this stage is
+            drawn from every league at once. Without it a mixed podium reads as one division
+            whose colours have gone wrong. */}
+        <span className="pod-banner-sub">Every league</span>
+      </p>
 
       <div className="pod">
       {/* The floor the blocks stand on. One element, behind all three, so the contact shadows
@@ -141,10 +134,13 @@ export function Podium({ places, promoteCount, promoteTo, clock, onPeek, youRef 
             data-place={place}
             data-tier={PLACE_TIERS[place]}
             data-you={e.is_you || undefined}
-            /* The stage sits INSIDE the promotion zone whenever the cut reaches it, and it has
-               to say so. Three students standing above a gold region that starts at rank 4,
-               wearing no promotion marking of their own, read as excluded from it. */
-            data-promo={e.rank <= promoteCount || undefined}
+            /* A finisher wears the promotion marking when THEIR OWN division is promoting
+               them — which on a mixed stage is per-student, not per-place. It used to be
+               `e.rank <= promoteCount`, i.e. a fact about where they stand here; that reading
+               would now gild a cohort leader whose own league is not promoting them, and
+               leave a third-place finisher from a quiet division looking excluded when they
+               are the one advancing. */
+            data-promo={promoSet.has(e) || undefined}
           >
             <button
               type="button"

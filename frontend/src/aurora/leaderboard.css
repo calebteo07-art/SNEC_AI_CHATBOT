@@ -37,7 +37,7 @@
      structural  5px lip / 2.5px outline   .lg-list  .tb  .pod-block
      medallion   3px lip / 2px outline     .pod-face  .lg-face  .lb-filter
      pill        2px lip / 2px outline     .lg-rk  .lg-score  .lg-mv[up]  .tb-help  .lg-you
-     flat        no lip, no outline        .lg-row  .lg-item  .lg-cut  .lg-zone
+     flat        no lip, no outline        .lg-row  .lg-item
 
    ⚠ THE PILL RUNG WAS 1.5px AND RENDERED AS 1px. Chrome snaps a used border-width to whole
    device pixels, so at DPR 1 every "1.5px" outline on this page WAS the hairline the recipe
@@ -739,9 +739,10 @@
   /* PHONE FIRST: one column, the two facts as a caption row beneath the stage. Three-across
      needs a viewport that can hold a 520px stage AND two flanks; forcing it earlier squeezes
      the blocks, which is the one thing that may not pay.
-     ⚠ That caption row is FUNDED, not free. The ladder's cut is withheld whenever the podium
-     holds the whole promoted set (see .lg-cut and Leaderboard.tsx) — ~28px back against the
-     ~24px this costs, on every tier. The stage never takes height it has not paid for. */
+     ⚠ That caption row was FUNDED by the ladder's cut, which was withheld whenever the
+     podium held the whole promoted set — ~28px back against the ~24px it costs. The cut was
+     deleted outright on 2026-08-08 (see .lg-item[data-promo]), so the row is now paid for
+     several times over and the trade no longer needs watching. */
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "stage stage" "banner clock";
@@ -1157,37 +1158,21 @@
 .lg-list .lg-item:nth-child(3) { animation-delay: .06s } .lg-list .lg-item:nth-child(4) { animation-delay: .08s }
 .lg-list .lg-item:nth-child(5) { animation-delay: .10s } .lg-list .lg-item:nth-child(n+6) { animation-delay: .12s }
 
-/* The promotion zone: a REGION with its own head. This is the whole mechanic, and it is why
-   nothing above the board needs a sentence about it. */
-.lg-zone {
-  display: flex; align-items: center; gap: 8px; padding: 0 13px; min-height: 26px;
-  font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--ink-on-gold);                 /* #3A2600 on the gold fill — 6.7:1 */
-  background-color: var(--gold-lo);          /* solid under the sweep, the DARKER stop */
-  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-hi) 38%,
-                                            var(--gold-mid) 38.01%, var(--gold-mid) 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(154, 106, 8, .5);
-}
-.lg-zone-ico { font-size: 9px; }
+/* ⚠ `.lg-zone`, `.lg-zone-ico` and `.lg-cut` WERE DELETED on 2026-08-08. They painted the
+   promotion zone as a REGION — a gold band with its own head, ended by a struck cut — which
+   requires the promoted set to be a contiguous run from the top of the ladder. The board
+   became the whole cohort, so the viewer's division-mates are scattered through four other
+   divisions' rows and there is no band to paint. The gold survives PER ROW below, which is
+   the same fact without the false geometry. */
 /* A SOLID tint, not a gradient wash: the probe can resolve it, and a gradient over white lets
-   an element claim white as its backdrop while rendering on something darker. */
+   an element claim white as its backdrop while rendering on something darker.
+   This is now the ONLY promotion marking on the ladder, so it carries the whole state: the
+   row is one of the ≤3 in the viewer's own division currently holding a promotion slot. */
 .lg-item[data-promo] { background-color: #FFF6E0; }
 .lg-item[data-promo]::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 1;
   background: linear-gradient(180deg, var(--gold-mid), var(--gold-lo));
   box-shadow: inset -1px 0 0 rgba(154, 106, 8, .5);
-}
-/* The cut. Struck, full bleed, no caption — the zone above is already labelled, and a second
-   sentence would turn the most consequential pixel on the board into a footnote. */
-.lg-cut {
-  position: relative; height: 6px;
-  background-color: var(--gold-lo);
-  background-image: linear-gradient(180deg, #FFE9A8 0%, #FFE9A8 40%,
-                                            var(--gold-mid) 40.01%, var(--gold-lo) 100%);
-  /* A HARD lip, not a blurred one. Rule 2 of this file's own recipe — "blur may describe
-     the ground; it may never describe an edge" — and it was broken on the single most
-     consequential pixel on the board. */
-  box-shadow: inset 0 -2px 0 rgba(122, 82, 6, .6), 0 3px 0 0 rgba(122, 82, 6, .45);
 }
 
 .lg-row {
@@ -1763,7 +1748,6 @@
   .pod-slot[data-place="2"] { --pl-h: 48px; --face: 40px; --num-sz: 24px; }
   .pod-slot[data-place="3"] { --pl-h: 38px; --face: 40px; --num-sz: 20px; }
   .lg-row { min-height: 46px; }
-  .lg-zone { min-height: 24px; }
   /* STACKED READOUT. In a ~296px column the chase and the clock cannot share a line: the
      label is the only elastic part, so it ellipsed to "Lumens to the pr…" — a sentence that
      stops before it says anything. It wraps here and the clock drops beneath it. Deliberately
@@ -2090,7 +2074,6 @@
   .pod-score { font-size: 15px; }
   .pod-fig { padding-bottom: 3px; }
   .lg-row { min-height: 56px; }
-  .lg-zone { min-height: 26px; }
 }
 /* ── THE FULL STAGE ────────────────────────────────────────────────────────────
    On a window tall enough to pay for it. Every value here was set by the ranks budget working
@@ -2192,7 +2175,6 @@
      trade. Row height is the ladder's own share of the budget, and the only lever that pays for
      the stage without touching a plinth. */
   .lg-row { min-height: 58px; }
-  .lg-zone { min-height: 30px; }
 }
 /* ── THE MAXIMISED MONITOR ─────────────────────────────────────────────────────
    The viewport the "white space at the sides" report actually came from, and the one the
