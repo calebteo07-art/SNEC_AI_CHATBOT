@@ -44,58 +44,48 @@ _BODIES: dict[str, dict] = {
 }
 
 
-def _all_routes(routes=None):
-    """Every leaf route, flattening whatever nesting the installed FastAPI uses.
-
-    `app.routes` is NOT reliably a flat list. On this box (fastapi 0.136.1) `include_router`
-    splices the sub-routes into the parent, so the 8 case routes sit at the top level. On CI
-    — where requirements.txt pins only `fastapi>=0.111.0`, so pip resolves something newer —
-    it appends nine `_IncludedRouter` wrappers instead, and a flat scan finds ZERO case
-    routes. Both shapes have to work, and duck-typing on `.routes` covers any future one.
-    """
-    for r in (app.routes if routes is None else routes):
-        nested = getattr(r, "routes", None)
-        if nested:
-            yield from _all_routes(nested)
-            continue
-        yield r
-
-
 def _case_routes() -> list[tuple[str, str]]:
-    """(method, path) for every route parameterised by case_id, from the live app.
+    """(method, path) for every route parameterised by case_id.
 
-    Duck-typed on `path`/`methods` rather than `isinstance(r, APIRoute)`: a router's
-    `route_class` is configurable, and the class object a test imports is not guaranteed to
-    be the one that built the routes. A selector that can silently match nothing is exactly
-    the failure mode this file exists to prevent — hence the tripwire below.
+    Read from `app.openapi()` — a PUBLIC, versioned contract — rather than by walking
+    `app.routes`. Two attempts at walking it failed on CI and neither failed here:
+
+      1. `isinstance(r, APIRoute)` — a router's `route_class` is configurable, so the class
+         a test imports need not be the one that built the routes.
+      2. Recursing on `.routes` — on CI, `include_router` appends nine `_IncludedRouter`
+         wrappers that expose the sub-routes under some other name entirely.
+
+    `requirements.txt` pins only `fastapi>=0.111.0`, so CI resolves a different version from
+    this box and `app.routes` has a different SHAPE there. Introspecting a library's
+    internals is the mistake; `openapi()` is FastAPI's own flattening, which is guaranteed
+    to keep working because it is the documented output.
+
+    The tripwire below is what caught both attempts. Keep it.
     """
+    spec = app.openapi()
+    verbs = {"get", "post", "put", "patch", "delete"}
     out = []
-    for r in _all_routes():
-        path = getattr(r, "path", "")
-        methods = getattr(r, "methods", None)
-        if not methods or "{case_id}" not in path:
+    for path, ops in spec.get("paths", {}).items():
+        if "{case_id}" not in path:
             continue
-        for method in sorted(set(methods) - {"HEAD", "OPTIONS"}):
-            out.append((method, path))
+        for method in ops:
+            if method.lower() in verbs:
+                out.append((method.upper(), path))
     return sorted(set(out))
 
 
 def test_the_sweep_actually_found_the_routes():
     """A selector that silently matches nothing would make every assertion below vacuous.
 
-    This has already fired once in anger: the first version filtered on
-    `isinstance(r, APIRoute)` and found 8 routes locally and 0 on CI. Without this tripwire
-    the parametrized sweep would simply have collected zero cases and reported green.
-
-    On failure, say what the app DOES contain — a bare `assert 0 >= 6` sent the last
-    diagnosis chasing the wrong theory.
+    This has now fired twice in anger, both times on CI only, and both times the sweep would
+    otherwise have collected ZERO parametrized cases and reported green.
     """
     routes = _case_routes()
     if len(routes) < 6:
-        seen = [(type(r).__name__, getattr(r, "path", "?")) for r in _all_routes()][:60]
+        seen = sorted(app.openapi().get("paths", {}))[:60]
         raise AssertionError(
-            f"the sweep found {len(routes)} case routes after flattening "
-            f"{len(app.routes)} top-level entries into {len(seen)} leaves: {seen}")
+            f"the sweep found {len(routes)} case routes. The schema advertises "
+            f"{len(seen)} paths: {seen}")
     paths = {p for _, p in routes}
     for needle in ("station", "chat", "submit", "observe", "action"):
         assert any(needle in p for p in paths), f"{needle} route missing from the sweep"
@@ -133,8 +123,9 @@ def test_every_case_route_runs_the_gate():
     behavioural sweep by accident — e.g. `/checklist`, which resolves by procedure name and
     404s for most gated cases while carrying no access check at all.
     """
+    from tools.api.routers.cases import router as cases_router
     ungated = []
-    for r in _all_routes():
+    for r in cases_router.routes:
         if "{case_id}" not in getattr(r, "path", "") or not getattr(r, "methods", None):
             continue
         try:
