@@ -5,7 +5,6 @@
   "topic": "diabetic_history_taking",
   "role": "OA",
   "estimated_minutes": 18,
-  "checklist_procedure": "History Taking",
   "patient": {
     "name": "Mr Krishnan s/o Subramaniam",
     "age": 59,

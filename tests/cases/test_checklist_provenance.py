@@ -63,14 +63,63 @@ def test_authored_checklists_registered():
         assert n in DB_NAMES
 
 
+# Cases with NO suitable checklist in the database — tracked, not accepted.
+#
+# These are triage/trauma, sudden-vision-loss and general-medical-history encounters. SNEC
+# has no step-by-step checklist for any of them; the corpus only has the 29-step RED EYE
+# interview, and until 2026-08-08 a catch-all "history"/"triage" keyword pointed all of
+# these at it. That was strictly worse than falling back, because the red-eye script asks
+# about itching and discharge colour and pays for directing the patient to the waiting
+# room — which `case_psa_035` (CRAO: "quiet, white eye (no redness)") explicitly forbids.
+# See tests/cases/test_history_checklist_fit.py.
+#
+# Falling back to the case's own rubric is a DEGRADED station and is not the destination.
+# The fix is to author triage/trauma, sudden-vision-loss and general-medical-history
+# checklists from the SNEC standard and seed them (tools/kb/seed_authored_checklists.py),
+# then re-point these cases. Asserted EXACTLY, so the list can only shrink deliberately —
+# same contract as PENDING_CLINICAL_REVIEW in tests/cases/test_no_tally_sheet_stations.py.
+AWAITING_AUTHORED_CHECKLIST = {
+    "case_oa_007_penetrating_eye_injury",
+    "case_oa_017_hyphaema_blunt_trauma",
+    "case_oa_018_retinal_detachment_symptoms",
+    "case_oa_019_diabetic_history_taking",
+    "case_oa_046_history_medication_anticoagulant_herbal",
+    "case_oa_047_history_flashes_floaters_myopia",
+    "case_psa_003_history_vi",
+    "case_psa_015_history_taking_general_health",
+    "case_psa_017_triage_floaters_flashes_retinal_history",
+    "case_psa_018_triage_chemical_splash_phone",
+    "case_psa_033_penetrating_eye_injury_shield",
+    "case_psa_034_hyphaema_blunt_trauma",
+    "case_psa_035_triage_sudden_painless_vision_loss_crao",
+    "case_psa_037_triage_postop_red_eye_urgent_flag",
+    "case_psa_044_history_ocular_presenting_blurring",
+    "case_psa_045_history_general_health_medication_allergy",
+}
+
+
+def test_the_backlog_names_real_cases():
+    """A stale id here would silently shrink the guard below to nothing."""
+    stems = {f.stem for f in CASE_FILES}
+    assert AWAITING_AUTHORED_CHECKLIST <= stems, (
+        f"unknown case ids in the backlog: {sorted(AWAITING_AUTHORED_CHECKLIST - stems)}")
+
+
 @pytest.mark.parametrize("case_file", CASE_FILES, ids=lambda p: p.stem)
 def test_case_resolves_to_real_db_checklist(case_file):
     case = json.loads(case_file.read_text(encoding="utf-8"))
     name, how = resolve_procedure_name(case)
+    if case_file.stem in AWAITING_AUTHORED_CHECKLIST:
+        assert not name, (
+            f"{case_file.name} now resolves to {name!r} — if a real checklist was authored "
+            f"for it, remove it from AWAITING_AUTHORED_CHECKLIST."
+        )
+        return
     assert name, (
         f"{case_file.name}: nothing resolved (how={how}) — the station would fall "
         f"back to the case's own rubric. Add a checklist_procedure (or keyword rule) "
-        f"pointing to a real database checklist."
+        f"pointing to a real database checklist, or add it to "
+        f"AWAITING_AUTHORED_CHECKLIST with a reason."
     )
     matched = _db_match(name)
     assert matched, (
