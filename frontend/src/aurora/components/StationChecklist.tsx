@@ -46,8 +46,30 @@ export function StationChecklist({
   // Keep the step you're on in view as the gate advances (ricoe C8). `block:"nearest"`
   // scrolls only the checklist's scroll container, minimally, and does nothing if the
   // current step is already visible — so no distracting jump on every auto-tick.
+  //
+  // ...but ONLY while the checklist actually has its own scroller. Under the <=880px rule
+  // the whole nested-scroll chain is unwound to `overflow: visible`, so "nearest" resolves
+  // to the APP SHELL's page scroller instead — and because the checklist <aside> stacks
+  // ABOVE the consult there, every /observe auto-tick hard-jumped the page up and away from
+  // the composer the student was typing in. Nothing scrolled back: the thread's
+  // counter-scroll keys on message count, which a tick does not change. A 768px portrait
+  // iPad sits below the 880px query and above the 600px rotate gate, so it lands exactly
+  // here. Ask the element whether it is scrollable rather than guessing from a breakpoint —
+  // that keeps this correct if the tier ever moves.
   const curRef = useRef<HTMLLIElement>(null);
-  useEffect(() => { curRef.current?.scrollIntoView({ block: "nearest" }); }, [current]);
+  useEffect(() => {
+    const el = curRef.current;
+    if (!el) return;
+    // Walk up to the element that would ACTUALLY scroll. If that turns out to be the page
+    // itself, do nothing — the checklist has no scroller of its own in this tier, and
+    // scrolling the page would drag the student away from the composer mid-sentence.
+    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      const overflow = getComputedStyle(n).overflowY;
+      if (overflow !== "auto" && overflow !== "scroll") continue;
+      if (n.scrollHeight > n.clientHeight + 1) el.scrollIntoView({ block: "nearest" });
+      return;
+    }
+  }, [current]);
 
   // Two counts, because a skipped step passes the gate WITHOUT being done: `passedCounts`
   // says where you are (so the phase rail keeps moving), `doneCounts` says what you actually

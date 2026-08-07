@@ -1116,8 +1116,32 @@ html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; 
    lens at a time (mutually exclusive with the eye plate); reuses the card-chip / reset-pill /
    pin-count tokens so it reads as one system with the rest of the page. Scrolls horizontally
    on overflow — a filmstrip, never a wrapping wall. */
+/* The strip scrolls, and it must SAY it scrolls. An OA student has ~12 chips (~2,400px)
+   in a ~650-700px column with the scrollbar hidden and no mask, gradient or arrow — so
+   two-thirds of the topics were invisible with nothing hinting they existed. A fade on the
+   trailing edge, drawn only while there is more to reach. (Playwright auto-scrolls elements
+   into view before clicking, which is why the harness never noticed.) */
+.aurora-topics-wrap { position: relative; }
+.aurora-topics-wrap::after {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 11px; width: 46px;
+  pointer-events: none; opacity: 0; transition: opacity .2s var(--st-ease, ease);
+  background: linear-gradient(90deg, transparent, var(--bg, #fff) 78%);
+}
+.aurora-topics-wrap[data-overflow="true"]::after { opacity: 1; }
 .aurora-topics { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding: 2px 1px 11px; margin-bottom: 3px; scrollbar-width: none; }
 .aurora-topics::-webkit-scrollbar { display: none; }
+
+/* Search — the way in when the eye plate and the chip strip are not how you think about
+   the patient you want. */
+.aurora-cases-search { position: relative; display: flex; align-items: center; margin: 2px 0 9px; }
+.aurora-cases-search-i { position: absolute; left: 12px; color: var(--ink-3); pointer-events: none; }
+.aurora-cases-search-in { width: 100%; padding: 9px 34px 9px 34px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink); font-family: inherit; font-size: 14px; outline: none; transition: border-color .15s, box-shadow .2s; }
+.aurora-cases-search-in::placeholder { color: var(--ink-3); }
+.aurora-cases-search-in:focus-visible { border-color: rgba(155,114,203,.55); box-shadow: 0 0 0 3px rgba(155,114,203,.15); }
+.aurora-cases-search-in::-webkit-search-cancel-button { display: none; }
+.aurora-cases-search-x { position: absolute; right: 9px; width: 22px; height: 22px; display: grid; place-items: center; border: none; border-radius: 999px; background: rgba(120,90,170,.12); color: var(--ink-2); font-size: 11px; cursor: pointer; }
+.aurora-cases-search-x:hover { background: rgba(120,90,170,.22); }
+.aurora-cases-search-n { margin: -4px 0 8px 2px; font-size: 12.8px; color: var(--ink-2); }
 .aurora-topic-chip { flex: 0 0 auto; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: 13.5px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.2s; }
 .aurora-topic-chip:hover { border-color: rgba(155, 114, 200, 0.5); color: var(--ink); }
 .aurora-topic-chip[data-active="true"] { border-color: transparent; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); box-shadow: inset 0 0 0 1px rgba(155, 114, 203, 0.42), 0 4px 14px -9px rgba(155, 114, 203, 0.6); }
@@ -1267,8 +1291,13 @@ html[data-motion="reduce"] .aurora-atlas-readout::before, html[data-motion="redu
    work. Greyed and desaturated, but never disabled — replaying one is good practice, it
    just stops paying Lumens. The tick is echoed in the avatar slot AND in words in the
    foot, so the state survives a greyscale screenshot and doesn't rely on colour alone. */
-.aurora-case[data-done] { opacity: 0.62; filter: saturate(0.35); }
-.aurora-case[data-done]:hover { opacity: 0.9; filter: saturate(0.7); }
+/* Same correction as the turn-spotlight: `opacity:.62` dragged the chief complaint and the
+   duration to ~2.5-2.7:1, and the only recovery was :hover — which never fires on the iPads
+   this is used on. Done reads as done through surface, drained colour and the tick (echoed
+   in the avatar slot and in words, so it survives a greyscale screenshot); the text itself
+   stays at full contrast, because "already completed" is not "not worth reading". */
+.aurora-case[data-done] { filter: saturate(0.3); background: var(--surface-2, rgba(246,246,249,.9)); box-shadow: none; }
+.aurora-case[data-done]:hover { filter: saturate(0.75); }
 .aurora-case[data-done] .aurora-case-avatar--live { background: var(--on-green, #2FA36B); font-weight: 800; }
 .aurora-case-done { margin-left: auto; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-green, #2FA36B); font-weight: 700; }
 
@@ -3419,9 +3448,22 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
    tiers. The drama is loaded onto the ACTIVE pane (a pulsing halo costs no legibility
    anywhere) rather than onto crushing the inactive one — that one is dimmed and drained of
    colour, but never blurred or hidden: its scrollback must stay readable at a glance. */
+/* RECEDE WITHOUT GOING UNREADABLE. This used to be `opacity:.5; filter:saturate(.15)` on
+   the pane — and opacity is inherited, so it multiplied every descendant: measured with the
+   saturate applied first, student bubbles fell to ~1.9:1 and patient bubbles to ~3.2:1 at
+   16px, against a 4.5:1 requirement. The comment three lines above states the criterion it
+   was breaking — "its scrollback must stay readable at a glance".
+   The WCAG inactive-component exemption does not rescue it either: on a DUAL-SOURCE step
+   stationTurn returns lockComposer:false with the comment "The composer stays LIVE", so
+   this is a fully typeable pane at 1.9:1 — and identify-patient is dual in 117 of 155 cases.
+   Recession now comes from surface, chrome and colour drain, none of which touch the
+   text/background ratio; the drama was always meant to sit on the ACTIVE pane anyway. */
 .aurora-station-grid[data-turn="patient"] .aurora-eyebot,
 .aurora-station-grid[data-turn="eyebot"] .aurora-patient {
-  opacity: .5; filter: saturate(.15);
+  filter: saturate(.2);
+  background: var(--surface-2, rgba(246, 246, 249, .82));
+  box-shadow: none;
+  border-color: var(--hairline);
 }
 /* Drain the inactive pane's warm/cool identity too — the colour split is the loudest
    signal on the screen, so muting it is most of what makes the live pane pop. */

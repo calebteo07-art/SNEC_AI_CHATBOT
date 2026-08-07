@@ -5,6 +5,7 @@
    auto-ticks them. Presentational — all state lives in CaseSession. */
 import { type KeyboardEvent, type RefObject } from "react";
 import { SkipStepButton } from "@/aurora/components/SkipStepButton";
+import { autogrow } from "@/aurora/lib/autogrow";
 
 interface PatientMessage { role: "user" | "assistant"; content: string }
 
@@ -73,7 +74,16 @@ export function PatientChat({
         )}
       </div>
 
-      <div className="aurora-station-thread">
+      {/* role="log" + aria-live so a screen reader hears the patient answer, and tabIndex/
+          role="region" so a keyboard user can reach and scroll the scrollback at all. The
+          Tutor's ChatThread already ships exactly this; the station simply never got it. */}
+      <div
+        className="aurora-station-thread"
+        role="log"
+        aria-live="polite"
+        aria-label={`Consultation with ${patientName}`}
+        tabIndex={0}
+      >
         {messages.length === 0 && !hasResult && (
           <p className="aurora-station-hint">Greet your patient and begin taking a history. Manual tests are done with EyeBot.</p>
         )}
@@ -86,7 +96,13 @@ export function PatientChat({
             </div>
           </div>
         ))}
-        {sending && <div className="aurora-station-bubble pt"><div className="aurora-typing">•••</div></div>}
+        {sending && (
+          <div className="aurora-station-bubble pt">
+            {/* The dots are decorative; the sr-only text is the actual announcement. */}
+            <div className="aurora-typing" aria-hidden="true">•••</div>
+            <span className="sr-only">{patientName} is replying…</span>
+          </div>
+        )}
         <div ref={endRef} />
       </div>
 
@@ -103,9 +119,11 @@ export function PatientChat({
           <textarea
             className="aurora-station-composer-input"
             value={input}
-            onChange={(e) => onInputChange(e.target.value)}
+            onChange={(e) => { onInputChange(e.target.value); autogrow(e.target); }}
+            ref={(el) => autogrow(el)}
             onKeyDown={onKeyDown}
             placeholder="Talk to your patient…"
+            aria-label="Message the patient"
             rows={1}
           />
           <button
