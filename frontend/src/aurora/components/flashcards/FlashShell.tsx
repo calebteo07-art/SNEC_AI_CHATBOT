@@ -37,7 +37,9 @@ export function FlashShell({
           <Icon.back size={16} /> {exitLabel}
         </button>
       )}
-      <CoBrand dark className="flash-cobrand" />
+      {/* Not `dark` since 2026-08-11 — the flashcards ground is light now, and the dark
+          variant paints the wordmark and the mono Logo glyph white (1.06:1 on cream). */}
+      <CoBrand className="flash-cobrand" />
 
       {engraved && (
         <button type="button" className="flash-mute" data-testid="flash-mute"

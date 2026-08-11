@@ -757,10 +757,13 @@ const advTxt = (await np.locator('[data-testid="flash-advance"]').innerText()).t
 if (/lap/.test(advTxt)) { console.error(`FAIL: advance button still races ('lap' in '${advTxt}')`); process.exit(1); }
 console.log("PASS: flashcards — advance label de-raced (no 'lap')");
 
-// ── Flashcards is a DARK ARCADE world (2026-07-12 — supersedes "Grand Prix"). The study
-// card is graphite on BOTH faces (front = where you answer, back = the payoff + Explanation),
-// so the glowing topic rim + neutral buttons pop. Assert both faces are a genuinely dark
-// surface (never a bright study card).
+// ── Flashcards is a LIGHT ARCADE world (2026-08-11 — user-directed, supersedes the
+// 2026-07-12 "Dark Arcade" graphite this assertion used to pin). The study card is a light
+// plate on BOTH faces (front = where you answer, back = the payoff + Explanation), so the
+// struck mat outline + hard lip do the ranking a glow used to do. The DIRECTION of this
+// assertion flipped; its job did not — both faces must be the SAME kind of surface, and
+// neither may drift back to a mid-tone that belongs to neither theme.
+// Depth/contrast for the whole world is gated in detail by flashcards_light_assert.mjs.
 const d2 = await np.evaluate(() => {
   const lum = (c) => { const m = /rgb\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ""); return m ? (+m[1] * 0.299 + +m[2] * 0.587 + +m[3] * 0.114) : null; };
   const front = document.querySelector(".flash-card .flash-face.is-front");
@@ -772,13 +775,13 @@ const d2 = await np.evaluate(() => {
     backLum: back ? lum(getComputedStyle(back).backgroundColor) : null,
   };
 });
-if (d2.frontLum === null || d2.frontLum > 90) {
-  console.error(`FAIL: study card front face must be a dark graphite (got '${d2.front}')`); process.exit(1);
+if (d2.frontLum === null || d2.frontLum < 225) {
+  console.error(`FAIL: study card front face must be a light plate (got '${d2.front}')`); process.exit(1);
 }
-if (d2.backLum === null || d2.backLum > 90) {
-  console.error(`FAIL: reveal back face must be a dark graphite (got '${d2.back}')`); process.exit(1);
+if (d2.backLum === null || d2.backLum < 225) {
+  console.error(`FAIL: reveal back face must be a light plate (got '${d2.back}')`); process.exit(1);
 }
-console.log("PASS: flashcards — dark arcade study card (front + reveal both graphite)");
+console.log("PASS: flashcards — light arcade study card (front + reveal both light plates)");
 
 await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 

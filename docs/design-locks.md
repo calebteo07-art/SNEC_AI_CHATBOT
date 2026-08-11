@@ -38,32 +38,65 @@ Kept verbatim from the original app (explicit user preference). Do not restyle.
 mark** (refreshed with the rest of the app) — still mono ink on the light card, no colour
 or brand chrome added, so "verbatim/minimal" holds. The photoreal Living-Eye hero is unchanged.
 
-## Flashcards — LOCKED 2026-06-30 · re-themed "Dark Arcade" 2026-07-12 (supersedes "Grand Prix") · topic-picker → 3D depth-banked COVERFLOW 2026-07-12 (readable at the full role syllabus, OA 26 / OT 31 topics)
-**Theme (2026-07-12 — user-directed, supersedes "Grand Prix"/Mario-Kart)**: the flashcards world
-is **one dark ARCADE world** — clinical active-recall as an addictive game, in **classic/arcade
+## Flashcards — LOCKED 2026-06-30 · re-themed "Light Arcade" 2026-08-11 (supersedes "Dark Arcade" 2026-07-12, which superseded "Grand Prix") · topic-picker → 3D depth-banked COVERFLOW 2026-07-12 (readable at the full role syllabus, OA 26 / OT 31 topics)
+**Theme (2026-08-11 — user-directed, supersedes "Dark Arcade")**: the flashcards world
+is **one light ARCADE world** — clinical active-recall as an addictive game, in **classic/arcade
 language** (no Mario/Grand-Prix/racing terms anywhere — copy, class names, or `--fc-*` tokens).
-**Selection, intro, study and results all share ONE dark graphite ground** (`#1b2636→#0a0d12`)
-with a **slow moving colour-bloom** (`@keyframes flash-drift` on `.flash-root::before`, topic-hue
-driven — beautiful, never distracting) so pick → play is one seamless scene (no bright-sky→dark
-jump). **Vibrant, high-saturation neon palette** as `--fc-*` on `.flash-root` (red #ff3b30, blue
-#22bcff, green #2ee85a, coin #ffd21e, peach #ff7ab8, purple #9b6bff). **Selection** is a **large 3D COVERFLOW** (a rotating depth carousel, one dominant front card) of topic cards
-(`CardFanCarousel`) over the dark ground — **no race numbers, no
-pagination dots**, neutral glass arrows only, a topic-hue glow pool under the cards. **Study/intro**
-is the **dark graphite card** (front #1b2029, back #14171d) with an **animated glowing topic-hue
-rim**; the study card **matches the intro card** — same dark surface + rim and a **dark question
-header with a glowing topic eyebrow** (NOT a coloured banner). A **persistent HUD** above the flip
+**Selection, intro, study and results all share ONE warm cream ground** (`--fc-plate-2 →
+--fc-ground → --fc-ground-2`) with a **slow moving colour-bloom** (`@keyframes flash-drift` on
+`.flash-root::before`, topic-hue driven — beautiful, never distracting) so pick → play is one
+seamless scene with **no jump**.
+
+> **Lock break, recorded.** This reverses the 2026-07-12 dark ground, which itself existed to
+> kill a bright-sky→dark jump. **The invariant that decision protected is preserved verbatim —
+> ONE ground across all four surfaces — only its value flipped.** Spec:
+> `docs/superpowers/specs/2026-08-11-flashcards-light-arcade-design.md`. Everything below that
+> is not about *colour* (coverflow depth/windowing, hover-pause geometry, sticker coplanarity,
+> the deck ladder, forfeit, scoring, copy) is **unchanged**.
+
+**Two rules carry the theme, and both are the inverse of what worked on graphite:**
+1. **GLOW → STRIKE.** Depth was ranked by glow (neon masked rims, blurred shadows,
+   `mix-blend-mode: screen`); none of that reads on cream. Objects are now **STRUCK** using the
+   recipe already locked for Home and The League (`home.css:45`): a `--fc-mat` (#2A1F3D) outline
+   plus a **zero-blur lip**. ⚠ An outline is **never 1px and never 1.5px** — Chrome snaps to the
+   banned hairline and `getComputedStyle` then misreports it as "1px".
+2. **BRIGHT NEON IS A FILL, NEVER INK.** The palette keeps its hues (red #ff3b30, blue #22bcff,
+   green #2ee85a, coin #ffd21e, peach, purple) but every one is **fill-only with dark ink on
+   top**. Type and borders use the **`--fc-*-ink`** counterparts (coin #7A5200, green #0B6B27,
+   red #B3160D, blue #0A6B9C, purple #5B33C4). Coin at #ffd21e is **1.4:1** on this ground and
+   was the title *and* score colour; green is 1.7:1. Reversing this is invisible in review and
+   unreadable in daylight.
+
+**Ground + ink come from Home's palette** (`home.css:10`), not a second light system, so the game
+hub and the game read as one world. **Small text takes `--fc-ink2` (4.95:1) as its floor;
+`--fc-ink3` is decoration only, never type.** The ground's darkest stop is capped at
+`--fc-ground-2` **because** `--fc-ink2` on `--fc-ground-3` lands at 4.46:1 — the ground's floor is
+set by the lightest ink that must survive on it.
+
+**Selection** is a **large 3D COVERFLOW** (a rotating depth carousel, one dominant front card) of
+topic cards (`CardFanCarousel`) over the light ground — **no race numbers, no pagination dots**,
+neutral **plate** arrows only (struck, not glass), a topic-hue pool under the cards. **Study/intro**
+is the **light plate card** (front `--fc-plate`, back `--fc-plate-2`) with an **animated topic-hue
+rim**; the study card **matches the intro card** — same plate + rim and a **light question header
+with a topic eyebrow** (NOT a coloured banner). The **topic photos are unchanged** — no
+regeneration; the opaque hue frame plus the new mat outline holds them off the ground.
+
+**Gate:** `frontend/tests/flashcards_light_assert.mjs` (auto-discovered into CI) asserts the ground
+is light on all four surfaces + the reveal, that they share ONE ground, and **sweeps every element
+carrying its own text for WCAG AA** — it proves its own contrast maths against published anchors
+first, and abstains (rather than guessing) on text over the topic photos. A **persistent HUD** above the flip
 carries `Q n / N` + segment pips (left) and **SCORE + STREAK ×N** (right); score ticks up on reveal,
 **no grid-position / overtake mechanic**. Tap an answer → the **power meter** fills (`ChargeBeat`
 transparent tap-through timer) → the card **rolls + flips** to the payoff (**PERFECT! / MISS** +
 score + combo + a streak callout) over the model answer (**"Explanation"**). **Answer buttons are
-dark NEUTRAL by default (never red)**; a correct lock is **✓ bright green**, a wrong lock is **✗
+light NEUTRAL by default (never red)**; a correct lock is **✓ bright green**, a wrong lock is **✗
 bright red** — card-verdict red is reserved for wrong answers (icon + colour, colour-blind-safe); a
 second, permitted red lives on the fixed top-left **Pause** control (control-chrome, not a verdict —
 see the Pause/Quit bullet below), so the two reds never collide in one glance. A correct reveal cycles
 a bright celebratory rim. The **reveal back face is fully CENTRED** and the **Next button sinks to
 the card's bottom**.
-**Acceptance criteria when refining**: selection + activity share ONE dark moving-gradient ground;
-topic cards are LARGE with no numbers/dots; study card = dark graphite on BOTH faces matching the
+**Acceptance criteria when refining**: selection + activity share ONE light moving-gradient ground;
+topic cards are LARGE with no numbers/dots; study card = light plate on BOTH faces matching the
 intro card; answer buttons neutral (green ✓ / red ✗ only on lock); reveal centred with Next at the
 bottom; **carousel motion (topic select) + real 3D flip (activity) are mandatory and never regress**;
 verdicts icon+colour; everything **freezes hard under reduced motion** (no drift, no roll, instant
@@ -131,7 +164,8 @@ flip, spinner slows); WCAG-legible.
   **252×328**; `getCardWidth`, the `.fan-card` centering margins and both `.fan-stage` height clamps move
   together so the bigger forward front card never clips). The lede's **top line** (`.flash-setup-title`,
   the rotating `flashTaunt` dare) is the addictive arcade **coin-gold** (`--fc-coin`) — enlarged to
-  `clamp(46,9.2vw,88)`, 900, with a topic-hue glow so it harmonizes with the moving bloom — so it
+  `clamp(46,9.2vw,88)`, 900, in `--fc-coin-ink` with a hard mat drop-lip (2026-08-11: the glow it
+  used to harmonize with the bloom by cannot make type legible on a light ground; an edge can) — so it
   **dominates**; the **sub** (`.flash-step-sub`) is **enlarged** to `clamp(16,3.2vw,23)` but keeps its
   original **neutral gray `#b9c2ce`** (user reverted the sub colour back 2026-07-12), so the gold title
   overpowers by colour + scale. **Criteria changed**: *card-face material* (glass → flat), *card size*
@@ -171,10 +205,10 @@ flip, spinner slows); WCAG-legible.
     live wiring + all three states are asserted in `aurora_assert.mjs`.
   Every other Selection invariant is preserved (coverflow depth/windowing, stage-resolved pick,
   flat card face, neutral glass arrows, hover-pause, reduced-motion freeze).
-- **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
-  a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
+- **Study**: instant-tap MCQ on the light plate — persistent HUD (**score + streak**) above the flip,
+  a **light question header** with a topic eyebrow, **neutral option buttons** (✓ green / ✗
   red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
-  fill is the charge, transparent tap-through `ChargeBeat`; 3D flip to the graphite back face, flash,
+  fill is the charge, transparent tap-through `ChargeBeat`; 3D flip to the light back face, flash,
   **PERFECT!/MISS** verdict + score + combo + streak callout, **centred**, Next at the bottom). The
   deck-load wait shows a **classic ring spinner** (`.flash-spinner`); the old `3·2·1·GO` start-lights
   (`GridLights`) are **removed**. Per-topic hue rim; green/red verdicts.
@@ -230,8 +264,11 @@ flip, spinner slows); WCAG-legible.
     the **identical** border with no ring on either. On touch, where `:hover` latches onto the
     last-tapped element, a *deselected* option kept reading as selected — Branda, 2026-08-03:
     "an option appears selected, but upon submission it is not recorded as selected."
-    Now: picked fills the **lamp** (fixed near-white chip, dark ✓ in place of the letter) and
-    lifts the tile; hover is wrapped in `@media (hover: hover)` and excludes `.is-picked`. The
+    Now: picked fills the **lamp** (fixed `--fc-mat` chip, near-white ✓ in place of the letter) and
+    lifts the tile; hover is wrapped in `@media (hover: hover)` and excludes `.is-picked`.
+    ⚠ **The chip's POLARITY inverted with the ground on 2026-08-11 and the reasoning did not**:
+    on the graphite tile it was a near-white chip with dark ink, on the light tile it is mat ink
+    with a near-white ✓. The rule is "a FIXED chip, not the hue" — mirror it, never drop it. The
     chip fill is deliberately **not** the topic hue — `--flash-topic-hue` spans 184–260°, and at
     88%/62% its luminance swings .16 (violet) → .59 (cyan), so a white ✓ reads ~5:1 on the violet
     topics and **~1.6:1 on the cyan ones**. A fixed chip is ~15:1 on every topic; topic identity
@@ -245,7 +282,8 @@ flip, spinner slows); WCAG-legible.
 - **Pause / Quit (Task 24)**: a **neon-red PAUSE control** replaces **Exit** once a game is under
   way — same fixed **top-left** position as the retired Exit, distinguished by the pause-bars icon
   + "Pause" label, red permitted here as control-chrome (see the reworded verdict-red note above).
-  Tapping it opens a dark-arcade `PauseMenu` (`data-testid="flash-pausemenu"`): **Resume** / **Switch
+  Tapping it opens a light-arcade `PauseMenu` (`data-testid="flash-pausemenu"`) on a **dark scrim**
+  — the scrim is not a surface, it is the absence of one: **Resume** / **Switch
   deck** / **Quit game**. Both **Switch deck** and **Quit** forfeit the round: each asks for a confirm,
   then deducts a flat **20 Lumens** (`POST /api/flashcards/forfeit`, server-owned amount). Quit routes
   home to `/homepage`; Switch deck re-rolls to the topic picker. The lifetime `coins_earned` counter
@@ -277,7 +315,7 @@ flip, spinner slows); WCAG-legible.
     the app `data-motion="reduce"` toggle). Keep motion opt-in and hero-only.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — a "Ready"
   kicker, the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N questions · mixed difficulty ·
-  instant scoring` meta and a "Press start" CTA — in the same dark arcade card language. Deck loads
+  instant scoring` meta and a "Press start" CTA — in the same light arcade card language. Deck loads
   in the background; tutor-handoff and `?mode=review` flows skip it.
   - **Criterion changed 2026-07-12 (was "intro top-left → Home/dashboard"):** the intro's top-left
     control now reads **"Topics"** and steps **back to the topic fan** (in-place selection reset), not
