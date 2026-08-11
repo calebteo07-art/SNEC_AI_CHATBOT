@@ -26,8 +26,12 @@ export function BrownianField({ className = "" }: { className?: string }) {
       const el = document.createElement("span");
       el.className = "flash-spot";
       el.style.width = el.style.height = `${r * 2}px`;
+      // Darkened for the light ground (2026-08-11). These were 66%-lightness blooms read
+      // through `mix-blend-mode: screen`, which brightens — over cream that composited to
+      // nothing at all. The CSS rule is `multiply` now, so the spot must be DARKER than
+      // the ground to register; a light spot under multiply is invisible either way.
       el.style.background =
-        `radial-gradient(circle, hsl(${h} 58% 66% / .18), hsl(${h} 54% 68% / .06) 52%, transparent 70%)`;
+        `radial-gradient(circle, hsl(${h} 46% 52% / .16), hsl(${h} 42% 56% / .06) 52%, transparent 70%)`;
       host.appendChild(el);
       const a = Math.random() * 6.28, sp = 0.6 + Math.random() * 0.9;
       return { el, r, x: Math.random() * W() - r, y: Math.random() * H() - r, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp };

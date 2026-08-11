@@ -1,6 +1,11 @@
 # Flashcards — "Light Arcade" re-theme (2026-08-11)
 
-**Status**: design approved (user, 2026-08-11) · implementation pending
+**Status**: design approved (user, 2026-08-11) · **SHIPPED 2026-08-11**
+
+**Outcome**: all acceptance criteria met and gated. The contrast sweep also surfaced
+pre-existing AA failures in the *dark* theme that had never been measured — worst was
+the gold `.flash-compare-label` at **1.13:1** against the green correct-wash — all of
+which are fixed by the same conversion.
 
 ## Why this exists
 

@@ -2504,46 +2504,91 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .console-dark .aurora-prog-chip { font-size: 14.6px; padding: 6px 13px; }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Flashcards — one dark ARCADE world. Clinical active-recall as an addictive game;
-   selection + activity share the same graphite ground with a slow moving colour-bloom
+   Flashcards — one LIGHT ARCADE world. Clinical active-recall as an addictive game;
+   selection + activity share the same warm cream ground with a slow moving colour-bloom
    (told apart by :has() on .flash-root only for layout, not colour):
-   • SELECTION — a large 3D COVERFLOW of topic cards (CardFanCarousel) over the dark
+   • SELECTION — a large 3D COVERFLOW of topic cards (CardFanCarousel) over the light
      ground; drift / flick / arrows, no numbers, no dots.
-   • ACTIVITY  — the dark study card with a glowing topic rim. Tap an answer → the power
+   • ACTIVITY  — the light study plate with a topic-hue rim. Tap an answer → the power
      meter charges (ChargeBeat) → the card rolls + FLIPS to the payoff + Explanation.
-   Per-topic hue (--flash-topic-hue, harness-read) drives every accent/glow; verdicts stay
+   Per-topic hue (--flash-topic-hue, harness-read) drives every accent; verdicts stay
    icon+colour (✓ green / ✗ red) for colour-blind safety; a correct reveal cycles a bright
-   celebratory rim. Everything freezes hard under reduced motion. Vibrant palette lives on
-   .flash-root as --fc-* tokens. */
+   celebratory rim. Everything freezes hard under reduced motion.
+
+   ── Re-themed "Light Arcade" 2026-08-11 (user-directed; supersedes "Dark Arcade") ──
+   The 2026-07-12 dark ground is gone, but the invariant it existed to protect is NOT:
+   selection, intro, study and results still share ONE ground, so pick → play is one
+   seamless scene with no jump. Only its value flipped. Gated by flashcards_light_assert.
+
+   TWO RULES CARRY THE WHOLE RE-THEME, and both are the opposite of what worked on dark:
+
+   1. GLOW → STRIKE. On graphite, objects were ranked by GLOW (neon masked rims, blurred
+      drop-shadows, mix-blend-mode:screen). None of those read on a light ground — screen
+      blends toward white and a blur just dirties cream. Depth is carried instead by the
+      STRUCK recipe already locked for Home and The League (home.css:45): a --fc-mat ink
+      outline plus a zero-blur colour lip. ⚠ An outline is NEVER 1px and never 1.5px —
+      Chrome snaps a used border-width to whole device pixels, so 1.5px RENDERS as the
+      banned hairline and getComputedStyle then reports "1px". Depth comes from lip
+      DEPTH, which is an offset and does not snap.
+
+   2. BRIGHT NEON IS A FILL, NEVER INK. --fc-coin #ffd21e is ~1.4:1 on this ground and
+      --fc-green #2ee85a ~1.7:1; both were type colours on graphite. Every neon token is
+      now fill-only and always carries dark ink on top; anything that is TYPE or a BORDER
+      uses the matching --fc-*-ink below. Reversing this is invisible in review and
+      unreadable in daylight, which is why flashcards_light_assert sweeps every element
+      that holds its own text rather than a few named probes. */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 @property --flash-score-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 
 .flash-root {
   position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
-  --f-hue-l: 72%;
-  /* Vibrant arcade palette — bright, high-saturation neon for an addictive feel. */
+  /* Hue accents must DARKEN on a light ground (was 72%, tuned for graphite). */
+  --f-hue-l: 42%;
+
+  /* Ground + ink — Home's struck palette (home.css:10), not a second light system, so
+     the game hub and the game read as one world and inherit its measured ratios. */
+  --fc-ground: #FBEFD9; --fc-ground-2: #F6E6CE; --fc-ground-3: #F1E3CF;
+  --fc-plate: #FFFCF6; --fc-plate-2: #FFF7EA;
+  --fc-ink: #2B2431;    /* 13.2:1 on the ground */
+  --fc-ink2: #6D6474;   /* 4.95:1 — the floor for SMALL text */
+  --fc-ink3: #A99FAB;   /* ~2.3:1 — decoration and rules ONLY, never type */
+  --fc-line: #EBDFCB;
+  --fc-mat: #2A1F3D; --mat-out: 2.5px; --mat-lip: 5px;
+
+  /* Arcade neon — FILLS. Dark ink always rides on top of these. */
   --fc-red: #ff3b30; --fc-red-d: #db1f15;
   --fc-blue: #22bcff; --fc-blue-d: #0e93d2;
   --fc-green: #2ee85a; --fc-green-d: #16b83f;
   --fc-coin: #ffd21e; --fc-coin-d: #e6a900;
   --fc-peach: #ff7ab8; --fc-purple: #9b6bff;
-  --fc-ink: #eff4fa;
+  /* …and their INK counterparts — same hues, dropped in lightness until they clear AA
+     on the ground (measured: coin 6.0:1, green 5.8:1, red 6.0:1). Use these for TYPE. */
+  --fc-coin-ink: #7A5200; --fc-green-ink: #0B6B27; --fc-red-ink: #B3160D;
+  --fc-blue-ink: #0A6B9C; --fc-purple-ink: #5B33C4;
+
   color: var(--fc-ink);
 }
-/* One dark ARCADE world — selection, intro, study and results share this graphite ground
-   with a slow moving colour-bloom, so pick → play is one seamless scene (no more bright
-   sky → dark jump). Topic hue drives the bloom; selection defaults to brand blue. */
+/* One LIGHT ARCADE world — selection, intro, study and results share this warm cream
+   ground with a slow moving colour-bloom, so pick → play is one seamless scene. Topic
+   hue drives the bloom; selection defaults to brand blue. */
 .flash-root:has(.flash-setup),
 .flash-root:not(:has(.flash-setup)) {
-  background: radial-gradient(130% 100% at 50% -12%, #1b2636 0%, #12161d 52%, #0a0d12 100%);
+  /* The darkest stop is --fc-ground-2, NOT --fc-ground-3: the HUD and the deck counter sit
+     on the ground in --fc-ink2, and against #F1E3CF that lands at 4.46:1 — under AA by a
+     rounding error. The ground's floor is therefore set by the lightest ink that has to
+     survive on it, not by taste. --fc-ground-3 stays for objects that carry no type. */
+  background: radial-gradient(130% 100% at 50% -12%, var(--fc-plate-2) 0%, var(--fc-ground) 52%, var(--fc-ground-2) 100%);
 }
+/* The bloom is re-derived, not re-tinted: at 88%/58% these stops were built to GLOW out
+   of graphite, and the same alphas over cream wash out to nothing. Deeper hue, lower
+   lightness, similar alpha — the drift reads as coloured light on paper. */
 .flash-root::before {
   content: ""; position: absolute; inset: -8%; z-index: 0; pointer-events: none; will-change: transform;
   background:
-    radial-gradient(42% 40% at 14% 8%, hsl(var(--flash-topic-hue) 88% 58% / .26), transparent 62%),
-    radial-gradient(40% 42% at 86% 4%, hsl(272 82% 64% / .22), transparent 62%),
-    radial-gradient(64% 52% at 50% 112%, hsl(var(--flash-topic-hue) 84% 52% / .24), transparent 64%);
+    radial-gradient(42% 40% at 14% 8%, hsl(var(--flash-topic-hue) 76% 52% / .20), transparent 62%),
+    radial-gradient(40% 42% at 86% 4%, hsl(272 62% 52% / .16), transparent 62%),
+    radial-gradient(64% 52% at 50% 112%, hsl(var(--flash-topic-hue) 70% 46% / .18), transparent 64%);
   animation: flash-drift 20s ease-in-out infinite alternate;
 }
 /* the bloom drifts slowly — beautiful, never distracting; frozen under reduced motion */
@@ -2565,70 +2610,88 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
    after a topic pick" (the intro/card paints fine, just off-screen). Keep them at z0,
    behind the z2 content. (Restored + re-themed for the dark canvas: 2026-07-11.) */
 .flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.flash-engraving { position: absolute; left: 0; top: 0; color: #e7ebf1; display: block; }
+/* The glyphs draw in currentColor at 7-12% alpha (set per-glyph in EngravingField). That
+   near-white was a light-on-dark etch; on cream it is invisible, so the ink inverts to
+   the struck mat colour and the same alphas read as a faint pressed texture. */
+.flash-engraving { position: absolute; left: 0; top: 0; color: var(--fc-mat); display: block; }
 .flash-engraving svg { width: 100%; height: 100%; display: block; }
 .flash-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+/* ⚠ multiply, NOT screen. `screen` blends toward white, so on a cream ground these spots
+   composited to nothing — the whole BrownianField silently stopped existing. `multiply`
+   is its light-ground mirror (darkens toward the spot hue). The spot colour itself is
+   darkened in BrownianField.tsx to match. */
 .flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
-  mix-blend-mode: screen; filter: blur(16px); opacity: .9; will-change: transform; }
+  mix-blend-mode: multiply; filter: blur(16px); opacity: .9; will-change: transform; }
 
 .flash-root .flash-exit, .flash-root .flash-mute, .flash-cobrand {
   position: absolute; z-index: 12; }
+/* Struck, not glassy: a backdrop-blurred translucent pill was a dark-ground device and
+   goes muddy on cream. Plate fill + mat outline + a hard lip — 2px, never a hairline. */
 .flash-root .flash-exit { top: 18px; left: 18px; display: inline-flex; align-items: center; gap: 6px;
-  font: 700 13px var(--font-sans); color: #fff; background: rgba(10,14,20,.5);
-  border: 1.5px solid rgba(255,255,255,.28); border-radius: 999px; padding: 9px 15px; cursor: pointer;
-  backdrop-filter: blur(6px); transition: background .2s, transform .12s; }
-.flash-root .flash-exit:hover { transform: translateY(-1px); background: var(--fc-red); color: #fff; border-color: transparent; }
+  font: 700 13px var(--font-sans); color: var(--fc-ink); background: var(--fc-plate);
+  border: 2px solid var(--fc-mat); border-radius: 999px; padding: 9px 15px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--fc-mat); transition: background .2s, transform .12s, color .2s; }
+/* --fc-red-d, not --fc-red: white on #ff3b30 is 3.0:1 and this is 13px type. */
+.flash-root .flash-exit:hover { transform: translateY(-1px); background: var(--fc-red-d); color: #fff; }
 /* Measured 91x36 at every phone viewport — a 36px-tall pill is under the fingertip
    guideline. Grow the BOX only: same pill, same border, same 13px type. */
 @media (pointer: coarse) { .flash-root .flash-exit { min-height: 44px; } }
 .flash-mute { top: 18px; right: 18px; width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: 50%; border: 1.5px solid rgba(255,255,255,.24); background: rgba(10,14,20,.5); color: #fff; cursor: pointer; }
+  border-radius: 50%; border: 2px solid var(--fc-mat); background: var(--fc-plate);
+  color: var(--fc-ink); cursor: pointer; box-shadow: 0 3px 0 var(--fc-mat); }
 .flash-cobrand { top: 16px; left: 50%; transform: translateX(-50%); opacity: .9; }
 
 /* Neon-red arcade PAUSE — chunky "toy button" tactility (mirrors .flash-advance):
    hard drop shadow that collapses on press, plus a red glow. */
+/* The fill DARKENED on the way to light. White on the old #ff6b62 top stop measured
+   2.17:1 — the glow around it was carrying the separation on graphite, and on cream
+   there is no glow to carry it. Both stops now clear AA against white type. */
 .flash-pause {
   position: absolute; top: 16px; left: 16px; z-index: 6;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 16px; border: none; border-radius: 999px;
   font: 800 0.8rem/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase;
   color: #fff; cursor: pointer;
-  background: linear-gradient(180deg, #ff6b62, var(--fc-red));
-  box-shadow: 0 5px 0 var(--fc-red-d), 0 12px 26px -8px rgba(255,59,48,.55);
+  background: linear-gradient(180deg, var(--fc-red-d), #a3160e);
+  box-shadow: 0 5px 0 #7d100a;
 }
-.flash-pause:active { box-shadow: 0 2px 0 var(--fc-red-d), 0 6px 14px -8px rgba(255,59,48,.5); }
+.flash-pause:active { box-shadow: 0 2px 0 #7d100a; }
 .flash-pause-bars { display: inline-flex; gap: 3px; }
 .flash-pause-bars i { width: 3px; height: 12px; border-radius: 1px; background: #fff; display: block; }
 
-/* PauseMenu — dark-arcade overlay (matches the CommandPalette dialog pattern, --fc- tokens). */
+/* PauseMenu — light-arcade overlay (matches the CommandPalette dialog pattern, --fc- tokens).
+   The SCRIM stays dark: it is not a surface, it is the absence of one, and dimming is how a
+   modal says "the world behind this is suspended" on any ground. */
 .flash-pausewrap {
   position: fixed; inset: 0; z-index: 240;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(6, 9, 14, .72); backdrop-filter: blur(6px);
+  background: rgba(42, 31, 61, .55); backdrop-filter: blur(6px);
   animation: rw-fade .18s ease-out;
 }
 .flash-pausecard {
   width: min(360px, 88vw); padding: 26px 22px;
   display: flex; flex-direction: column; gap: 12px; text-align: center;
-  background: linear-gradient(180deg, #1b2636, #0e131c);
-  border: 1px solid rgba(255,255,255,.10); border-radius: 22px;
-  box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
-  color: var(--fc-ink, #eff4fa);
+  background: var(--fc-plate);
+  border: var(--mat-out) solid var(--fc-mat); border-radius: 22px;
+  box-shadow: 0 var(--mat-lip) 0 var(--fc-mat);
+  color: var(--fc-ink);
 }
 .flash-pause-h { font: 900 1.5rem/1 var(--font-sans); letter-spacing: .04em; }
-.flash-pause-sub { font-size: .86rem; line-height: 1.5; color: rgba(239,244,250,.72); margin-bottom: 4px; }
+.flash-pause-sub { font-size: .86rem; line-height: 1.5; color: var(--fc-ink2); margin-bottom: 4px; }
 .flash-pausebtn {
-  padding: 13px 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
+  padding: 13px 16px; border: 2px solid var(--fc-mat); border-radius: 14px;
   font: 800 .92rem/1 var(--font-sans); letter-spacing: .02em; cursor: pointer;
-  color: var(--fc-ink, #eff4fa); background: rgba(255,255,255,.06);
+  color: var(--fc-ink); background: var(--fc-ground-2); box-shadow: 0 3px 0 var(--fc-mat);
 }
 .flash-pausebtn.is-go {
-  color: #06210f; border: none;
-  background: linear-gradient(180deg, #5cf07a, var(--fc-green)); box-shadow: 0 4px 0 var(--fc-green-d);
+  color: #06210f; border: 2px solid var(--fc-mat);
+  background: linear-gradient(180deg, #5cf07a, var(--fc-green)); box-shadow: 0 4px 0 var(--fc-mat);
 }
+/* Dark ink on the red, not white — #06210f-grade contrast is only available one way here,
+   and the pause menu's Quit is the one destructive control in the flow. */
 .flash-pausebtn.is-quit {
-  color: #fff; border: none;
-  background: linear-gradient(180deg, #ff6b62, var(--fc-red)); box-shadow: 0 4px 0 var(--fc-red-d);
+  color: #fff; border: 2px solid var(--fc-mat);
+  background: linear-gradient(180deg, var(--fc-red-d), #a3160e); box-shadow: 0 4px 0 var(--fc-mat);
 }
 .flash-pausebtn.is-go:active, .flash-pausebtn.is-quit:active { transform: translateY(2px); box-shadow: none; }
 @keyframes rw-fade { from { opacity: 0 } to { opacity: 1 } }
@@ -2646,17 +2709,17 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 .flash-step { width: 100%; animation: flash-rise .4s ease backwards; }
 .flash-step-body { display: flex; flex-direction: column; gap: 10px; }
 .flash-step-lede { position: relative; text-align: center; }
-/* The top line is the addictive arcade coin-gold (--fc-coin) — vivid, in-your-face on the graphite
-   ground, huge + glowing (a topic-hue glow harmonizes it with the live moving bloom) so it clearly
-   overpowers. The sub keeps its original neutral gray, just enlarged, so the gold title dominates
-   even harder by colour + scale (user, 2026-07-12). */
+/* The top line is still the arcade coin-gold and still overpowers by colour + scale
+   (user, 2026-07-12) — but it dominates by being STRUCK now, not by glowing. Bright
+   #ffd21e is 1.4:1 on cream, so the fill drops to the deep amber --fc-coin-ink (6.0:1)
+   and the arcade weight comes back as a hard mat drop-lip. A glow cannot make type
+   legible on a light ground; an edge can. */
 .flash-setup-title { font-family: var(--font-sans); font-weight: 900; font-style: italic;
   font-size: clamp(46px, 9.2vw, 88px); line-height: .92; letter-spacing: -.02em; margin: 0;
-  transform: skewX(-7deg); color: var(--fc-coin);
-  text-shadow: 0 3px 0 rgba(0,0,0,.34), 0 0 34px hsl(var(--flash-topic-hue) 92% 58% / .55),
-    0 0 15px rgba(255,210,30,.55); }
+  transform: skewX(-7deg); color: var(--fc-coin-ink);
+  text-shadow: 0 3px 0 var(--fc-mat); }
 .flash-step-sub { text-align: center; margin: 12px 0 0;
-  font: 700 clamp(16px,3.2vw,23px) var(--font-sans); color: #b9c2ce; }
+  font: 700 clamp(16px,3.2vw,23px) var(--font-sans); color: var(--fc-ink2); }
 
 .fan-section { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
 .fan-stage { position: relative; width: 100%; height: clamp(496px, 68dvh, 640px);
@@ -2695,10 +2758,12 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 html[data-motion="reduce"] .fan-stage { animation: none; }
 /* the grid rises into place on mount (whole 3D scene as a group, then settles) */
 @keyframes fan-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
-/* a soft glow pool under the cards (replaces the old asphalt track) */
+/* a soft colour pool under the cards (replaces the old asphalt track). Deepened for the
+   light ground — a 56%-lightness hue at .3 was a GLOW pooling out of graphite and simply
+   disappears into cream; the pool now reads as tinted shade beneath the coverflow. */
 .fan-stage::after { content: ""; position: absolute; left: 50%; bottom: 3%; width: 66%; height: 24%;
   transform: translateX(-50%); z-index: 0; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(ellipse at center, hsl(var(--flash-topic-hue) 82% 56% / .3), transparent 70%);
+  background: radial-gradient(ellipse at center, hsl(var(--flash-topic-hue) 62% 42% / .28), transparent 70%);
   filter: blur(26px); }
 
 /* .fan-layout is a flat, full-stage pointer catcher (it never transforms, so its hit-plane
@@ -2725,18 +2790,21 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
 @media (max-height: 480px) and (pointer: coarse) {
   .fan-card { width: 194px; height: 252px; margin: -126px 0 0 -97px; }
 }
-.fan-card:focus-visible { outline: 3px solid var(--fc-coin); outline-offset: 4px; border-radius: 22px; }
+.fan-card:focus-visible { outline: 3px solid var(--fc-mat); outline-offset: 4px; border-radius: 22px; }
 .fan-card.is-locked { cursor: not-allowed; }
-/* premium image card — subtle hue frame + a topic-hue halo (strongest on the centred card) */
+/* premium image card — vivid hue frame, now STRUCK rather than haloed. The wide hue halo
+   and the big blurred drop-shadow were how a card separated from graphite; over cream
+   they read as smudge. A mat outline plus a hard lip does the same job with an edge.
+   The thick fully-opaque hue frame is UNCHANGED in role — it is the topic's identity
+   (user, 2026-07-12) — only darkened enough to hold against a light ground. */
 .fan-card-media { position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
   background: hsl(var(--fan-hue, 210) 42% 24%);
-  /* FLAT, simple interior (user, 2026-07-12): no inner gloss or vignette — just the image inside a
-     thick, vivid, fully-opaque hue frame, a crisp outer ring + a wide hue halo. */
-  border: 4px solid hsl(var(--fan-hue, 210) 95% 64%);
+  /* FLAT, simple interior (user, 2026-07-12): no inner gloss or vignette — just the image
+     inside a thick, vivid, fully-opaque hue frame with a struck edge. */
+  border: 4px solid hsl(var(--fan-hue, 210) 78% 46%);
   box-shadow:
-    0 26px 50px -14px rgba(0,0,0,.62),
-    0 0 0 1.5px hsl(var(--fan-hue, 210) 96% 72% / .55),
-    0 0 46px -4px hsl(var(--fan-hue, 210) 94% 58% / .8); }
+    0 0 0 var(--mat-out) var(--fc-mat),
+    0 10px 0 var(--mat-out) var(--fc-mat); }
 .fan-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fan-card.is-placeholder .fan-card-media img { display: none; }
 .fan-card.is-placeholder .fan-card-media {
@@ -2745,8 +2813,9 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
   display: flex; flex-direction: column; gap: 2px;
   background: linear-gradient(180deg, transparent, rgba(6,10,16,.88) 62%); }
 .fan-card-label { font: 800 21px/1.14 var(--font-sans); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.65); }
+/* Still light type — this rides the dark scrim over the topic photo, not the page ground. */
 .fan-card-sub { font: 800 11px var(--font-sans); letter-spacing: .14em; text-transform: uppercase;
-  color: hsl(var(--fan-hue, 210) 92% 80%); }
+  color: hsl(var(--fan-hue, 210) 92% 86%); }
 .fan-card.is-locked .fan-card-cap::after { content: "coming soon"; font: 700 10px var(--font-sans);
   letter-spacing: .14em; text-transform: uppercase; color: #ffd9a6; margin-top: 3px; }
 .fan-card.is-locked { filter: grayscale(.55) brightness(.82); }
@@ -2765,38 +2834,43 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
 .fan-sticker { position: absolute; top: -16px; right: -16px; z-index: 3;
   width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center;
   transform: rotate(7deg);
-  /* the die-cut vinyl edge (outer ring) + the depth that lifts it off the photo */
-  box-shadow: 0 0 0 3.5px #f4f8fd, 0 12px 20px -8px rgba(0,0,0,.8);
+  /* The die-cut vinyl edge, then a mat ring: the near-white edge alone vanished where the
+     sticker OVERHANGS the card onto the cream ground, which is most of it. */
+  box-shadow: 0 0 0 3.5px #f4f8fd, 0 0 0 5.5px var(--fc-mat), 0 7px 0 0 var(--fc-mat);
   /* rim = cleared arc in --sticker-on, the rest a dim track; starts at 12 o'clock */
   background: conic-gradient(from -90deg,
     var(--sticker-on) calc(var(--sticker-pct, 0) * 360deg), var(--sticker-off) 0);
-  --sticker-on: hsl(var(--fan-hue, 210) 96% 62%);
-  --sticker-off: rgba(255,255,255,.16);
-  --sticker-ink: #eef4fb; }
-/* the dark body the numerals sit on, punched inside the rim */
+  --sticker-on: hsl(var(--fan-hue, 210) 88% 52%);
+  --sticker-off: rgba(42,31,61,.22);
+  --sticker-ink: #ffffff; }
+/* The body stays DARK on purpose. It is the one deliberately dark object left in the
+   world: it must carry two lines of tiny type at 18px/7px inside a 66px disc, and no
+   light fill gives 7px lettering a workable ratio at that size. */
 .fan-sticker-in { position: relative; width: calc(100% - 11px); height: calc(100% - 11px);
   border-radius: 50%; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 1px; background: linear-gradient(165deg, #212c3a, #0e131b);
+  justify-content: center; gap: 1px; background: linear-gradient(165deg, #2f2740, #1a1526);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
 .fan-sticker-num { font: 900 18px/1 var(--font-sans); color: var(--sticker-ink);
   letter-spacing: -.02em; }
+/* was rgba(...,.62) = 2.32:1 — a 7px cap has no margin for a faded ink */
 .fan-sticker-cap { font: 800 7px/1 var(--font-sans); letter-spacing: .16em;
-  text-transform: uppercase; color: rgba(238,244,251,.62); }
+  text-transform: uppercase; color: rgba(255,255,255,.92); }
 /* Untouched: no arc to draw, so the whole thing recedes — it advertises the ladder's
    size without pretending to be progress. */
-.fan-sticker.is-fresh { --sticker-ink: #b6c2d2; }
-/* Cleared: the arcade gold read (and the visual echo of the topic retiring from Lumens). */
+/* was #b6c2d2 = 2.87:1 on the body */
+.fan-sticker.is-fresh { --sticker-ink: #dcd5e8; }
+/* Cleared: the arcade gold read (and the visual echo of the topic retiring from Lumens).
+   Gold ink is legible HERE because the sticker body is dark — this is the one place the
+   bright coin token is still a type colour, and only for that reason. */
 .fan-sticker.is-cleared { --sticker-on: var(--fc-coin); --sticker-ink: var(--fc-coin);
-  box-shadow: 0 0 0 3.5px #f4f8fd, 0 12px 20px -8px rgba(0,0,0,.8),
-    0 0 26px -2px hsl(46 100% 58% / .75); }
+  box-shadow: 0 0 0 3.5px #f4f8fd, 0 0 0 5.5px var(--fc-mat), 0 7px 0 0 var(--fc-mat); }
 @media (max-width: 639px) {
   .fan-sticker { width: 52px; height: 52px; top: -12px; right: -12px;
-    box-shadow: 0 0 0 3px #f4f8fd, 0 10px 16px -8px rgba(0,0,0,.8); }
+    box-shadow: 0 0 0 3px #f4f8fd, 0 0 0 5px var(--fc-mat), 0 6px 0 0 var(--fc-mat); }
   .fan-sticker-in { width: calc(100% - 9px); height: calc(100% - 9px); }
   .fan-sticker-num { font-size: 15px; }
   .fan-sticker-cap { font-size: 6px; letter-spacing: .12em; }
-  .fan-sticker.is-cleared { box-shadow: 0 0 0 3px #f4f8fd, 0 10px 16px -8px rgba(0,0,0,.8),
-    0 0 22px -2px hsl(46 100% 58% / .75); }
+  .fan-sticker.is-cleared { box-shadow: 0 0 0 3px #f4f8fd, 0 0 0 5px var(--fc-mat), 0 6px 0 0 var(--fc-mat); }
 }
 @media (max-height: 480px) and (pointer: coarse) {
   .fan-sticker { width: 44px; height: 44px; top: -10px; right: -10px; }
@@ -2807,16 +2881,19 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
 /* Arrows FLANK the coverflow (user, 2026-07-12): absolutely pinned to the section's left/right
    edge and vertically centred on the stage, floating just outside the centre card — not a row
    underneath. z-index sits above the isolated stage so they never hide behind a banked card. */
+/* Neutral glass → neutral PLATE. The lock calls these "neutral glass arrows"; on cream
+   the neutrality is what matters and glass is not available, so they restrike as plate +
+   mat outline + lip. 2px, never a hairline. */
 .fan-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 6;
   width: 54px; height: 54px; border-radius: 50%; cursor: pointer; display: grid;
-  place-items: center; color: #eaf1f8; background: rgba(12,16,24,.64);
-  border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 8px 22px -8px rgba(0,0,0,.7);
-  backdrop-filter: blur(6px); transition: background .18s, border-color .18s, transform .12s, color .18s; }
+  place-items: center; color: var(--fc-ink); background: var(--fc-plate);
+  border: var(--mat-out) solid var(--fc-mat); box-shadow: 0 4px 0 var(--fc-mat);
+  transition: background .18s, transform .12s, color .18s; }
 .fan-arrow-prev { left: clamp(4px, 3vw, 42px); }
 .fan-arrow-next { right: clamp(4px, 3vw, 42px); }
-.fan-arrow:hover { background: rgba(22,28,40,.85); color: #fff; border-color: hsl(var(--flash-topic-hue) 90% 62% / .85); }
-.fan-arrow:active { transform: translateY(-50%) scale(.92); }
-.fan-arrow:focus-visible { outline: 3px solid var(--fc-coin); outline-offset: 3px; }
+.fan-arrow:hover { background: var(--fc-ground-2); }
+.fan-arrow:active { transform: translateY(-50%) scale(.92); box-shadow: 0 1px 0 var(--fc-mat); }
+.fan-arrow:focus-visible { outline: 3px solid var(--fc-mat); outline-offset: 3px; }
 @media (max-width: 639px) { .fan-arrow { width: 46px; height: 46px; } }
 html[data-motion="reduce"] .fan-card { transition: none; }
 
@@ -2825,7 +2902,7 @@ html[data-motion="reduce"] .fan-card { transition: none; }
    =================================================================== */
 .flash-stage { width: min(680px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
-.flash-msg { font: 700 20px var(--font-sans); color: #cfd6df; }
+.flash-msg { font: 700 20px var(--font-sans); color: var(--fc-ink2); }
 .flash-load { display: grid; place-items: center; }
 
 .flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
@@ -2839,34 +2916,36 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-face { grid-area: 1 / 1; display: flex; flex-direction: column;
   min-height: min(74vh, 700px); border-radius: 26px; padding: 0;
   overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  /* light-on-dark tokens shared by BOTH faces (the whole cockpit is graphite now) */
-  --f-ink: #f3f6fb; --f-ink2: #d6dbe4; --f-mono: #99a1ad;
-  --f-line: rgba(255,255,255,.14); --f-paper: rgba(255,255,255,.05); --f-hue-l: 72%; }
-/* FRONT — the racing dashboard where you read + answer. */
-.flash-face.is-front { transform: rotateY(0deg); background: #1b2029;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.08), inset 0 0 0 1px rgba(255,255,255,.05),
-    0 26px 60px -26px rgba(0,0,0,.7); }
+  /* dark-on-light tokens shared by BOTH faces (the whole cockpit is a plate now) */
+  --f-ink: var(--fc-ink); --f-ink2: var(--fc-ink2); --f-mono: var(--fc-ink2);
+  --f-line: var(--fc-line); --f-paper: var(--fc-ground-2); --f-hue-l: 42%; }
+/* FRONT — the dashboard where you read + answer. */
+.flash-face.is-front { transform: rotateY(0deg); background: var(--fc-plate);
+  box-shadow: 0 var(--mat-lip) 0 var(--fc-mat); }
 /* BACK — the payoff + Findings. */
-.flash-face.is-back { transform: rotateY(180deg); background: #14171d;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.06), 0 26px 60px -26px rgba(0,0,0,.7); }
-/* neon rim in the topic hue (masked border), riding the shared aurora-flow loop */
+.flash-face.is-back { transform: rotateY(180deg); background: var(--fc-plate-2);
+  box-shadow: 0 var(--mat-lip) 0 var(--fc-mat); }
+/* Rim in the topic hue (masked border), riding the shared aurora-flow loop. Kept — it is
+   the topic identity and the celebration mechanic — but DARKENED (was 92%/64%, tuned to
+   glow out of graphite) and the drop-shadow bloom dropped, since a glow on a white plate
+   is just a soft edge. The rim now works as an outline, which is what light grounds read. */
 .flash-face::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
   pointer-events: none; border-radius: inherit; padding: 2.5px;
-  background: linear-gradient(120deg, hsl(var(--flash-topic-hue) 92% 64%), var(--fc-purple), var(--fc-blue), hsl(var(--flash-topic-hue) 92% 64%));
+  background: linear-gradient(120deg, hsl(var(--flash-topic-hue) 72% 44%), var(--fc-purple-ink), var(--fc-blue-ink), hsl(var(--flash-topic-hue) 72% 44%));
   background-size: 240% 100%; animation: aurora-flow var(--aurora-anim) linear infinite;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-  filter: saturate(1.4) drop-shadow(0 0 9px hsl(var(--flash-topic-hue) 92% 58% / .6)); opacity: 1; }
-/* a windscreen sheen sweeps the dashboard on mount */
+  filter: saturate(1.2); opacity: 1; }
+/* the mount sheen sweeps DARK now — a white sheen over a white plate is nothing */
 .flash-face::after { content: ""; position: absolute; top: -60%; left: -40%; width: 45%; height: 220%; z-index: 1;
-  pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent);
+  pointer-events: none; background: linear-gradient(100deg, transparent, rgba(42,31,61,.07), transparent);
   transform: translateX(-60%) rotate(9deg); animation: aurora-checkin-sheen 1.15s var(--mo-ease) .2s both; }
 /* CORRECT reveal → the win: green wash + a bright celebratory cycling rim. */
 .flash-card.is-right .flash-face.is-back { background:
-  radial-gradient(130% 80% at 0% 0%, rgba(46,232,90,.22), transparent 58%), #14171d; }
+  radial-gradient(130% 80% at 0% 0%, rgba(46,232,90,.30), transparent 58%), var(--fc-plate-2); }
 .flash-card.is-right .flash-face.is-back::before {
-  background: linear-gradient(120deg, var(--fc-green), var(--fc-blue), var(--fc-coin), var(--fc-peach), var(--fc-green)); background-size: 300% 100%;
-  filter: saturate(1.5) drop-shadow(0 0 11px rgba(46,232,90,.7)); opacity: 1; }
+  background: linear-gradient(120deg, var(--fc-green-ink), var(--fc-blue-ink), var(--fc-coin-ink), #b8407e, var(--fc-green-ink)); background-size: 300% 100%;
+  filter: saturate(1.3); opacity: 1; }
 .flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
 /* Back face owns its own padding. Centered reveal (user, 2026-07-12): everything stacks
    down the middle and the Next button sinks to the bottom of the card. */
@@ -2887,14 +2966,20 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-hud { display: flex; align-items: center; justify-content: space-between; gap: 12px;
   flex-wrap: wrap; margin: 0 4px 12px; }
 .flash-hud-l, .flash-hud-r { display: inline-flex; align-items: center; gap: 16px; }
+/* The HUD rides the page GROUND, not a plate — these were muted greys picked against
+   graphite (--fc-ink3's light equivalent) and measured 1.82:1. Small type takes --fc-ink2
+   (4.95:1) and nothing lighter; --fc-ink3 is for rules and decoration only. */
 .flash-deckcount { font: 800 12px var(--font-sans); letter-spacing: .08em; text-transform: uppercase;
-  color: #aeb6c1; white-space: nowrap; }
+  color: var(--fc-ink2); white-space: nowrap; }
 .flash-stat { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+/* Full ink, not --fc-ink2: at 9px this is the smallest type in the app and the minimum
+   ratio is the wrong target for it. The hierarchy against the 21px value is carried by
+   size and tracking, which is where it should have been carried anyway. */
 .flash-stat-k { font: 800 9px var(--font-sans); letter-spacing: .16em; text-transform: uppercase;
-  color: #7c8792; margin-bottom: 4px; }
+  color: var(--fc-ink); margin-bottom: 4px; }
 .flash-stat-v { font: 900 21px var(--font-sans); letter-spacing: -.01em; font-variant-numeric: tabular-nums;
   display: inline-flex; align-items: center; gap: 5px; }
-.flash-stat-score { color: var(--fc-coin); text-shadow: 0 2px 12px rgba(255,210,30,.4); }
+.flash-stat-score { color: var(--fc-coin-ink); }
 
 /* ── Streak FIRE (user, 2026-07-12; layout+colour-ramp iter same day) — the HUD streak is a
    number 0–10 with a living flame to its LEFT (number on the right). The flame itself CHANGES
@@ -2910,9 +2995,12 @@ html[data-motion="reduce"] .fan-card { transition: none; }
   --wild: 1; --flame-speed: 900ms; --ember-speed: 1600ms;
   --flame-base: #ff5a1e; --flame-mid: #ff8a1e; --flame-hi: #ffc93e; --flame-tip: #ffe9a8;
   --flame-core: rgba(255,255,255,.92); }
+/* The FLAME keeps its full colour ramp below — a flame reads on any ground. The NUMERAL
+   does not: every tier's value was a pale gold/white chosen to glow out of graphite, and
+   all five land on the cream ground. The number now darkens through the same hues instead
+   of brightening through them, so the tier still escalates by colour. */
 .flash-fire-num { position: relative; z-index: 3; font: 900 22px var(--font-sans); line-height: 1;
-  font-variant-numeric: tabular-nums; color: #ffe7ab;
-  text-shadow: 0 0 10px rgba(255,150,30,.7), 0 1px 0 rgba(0,0,0,.55);
+  font-variant-numeric: tabular-nums; color: var(--fc-ink);
   animation: flash-fire-pop .42s cubic-bezier(.2,1.55,.4,1) both; }
 /* The flame lives in the reserved left gutter (adds NO row height). It's CENTRED on the streak
    number's vertical axis and sits right against it, so it reads as one "🔥 N" unit. Confident
@@ -2961,21 +3049,19 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-fire.is-lit { --wild: 1.1; --flame-speed: 780ms;
   --flame-base: #ff4d15; --flame-mid: #ff8a1e; --flame-hi: #ffd23a; --flame-tip: #fff2b0; }
 .flash-fire.is-lit .flash-embers { opacity: .85; --ember-speed: 1600ms; }
-.flash-fire.is-lit .flash-fire-num { color: #ffe0a0;
-  text-shadow: 0 0 12px rgba(255,140,20,.8), 0 1px 0 rgba(0,0,0,.55); }
+.flash-fire.is-lit .flash-fire-num { color: #A34A00; }
 .flash-fire.is-blaze { --wild: 1.35; --flame-speed: 700ms;
   --flame-base: #ff3d12; --flame-mid: #ff7a12; --flame-hi: #ffd23a; --flame-tip: #fff2b0; }
-.flash-fire.is-blaze .flash-fire-num { color: #ffd27a; text-shadow: 0 0 14px rgba(255,140,20,.85), 0 1px 0 rgba(0,0,0,.55); }
+.flash-fire.is-blaze .flash-fire-num { color: var(--fc-coin-ink); }
 .flash-fire.is-blaze .flash-embers { opacity: 1; --ember-speed: 1500ms; }
 .flash-fire.is-inferno { --wild: 1.8; --flame-speed: 560ms;
   --flame-base: #ff1408; --flame-mid: #ff5810; --flame-hi: #ffd257; --flame-tip: #ffffff; --flame-core: #fff; }
-.flash-fire.is-inferno .flash-fire-num { color: #fff0c0; text-shadow: 0 0 18px rgba(255,90,10,.95), 0 0 7px rgba(255,220,150,.9); }
+.flash-fire.is-inferno .flash-fire-num { color: var(--fc-red-ink); }
 .flash-fire.is-inferno .flash-embers { opacity: 1; --ember-speed: 1150ms; }
 .flash-fire.is-inferno .flash-flame-svg { filter: drop-shadow(0 1px 10px rgba(255,90,10,.85)); }
 .flash-fire.is-max { --wild: 2.3; --flame-speed: 460ms;
   --flame-base: #3b2bff; --flame-mid: #2f7bff; --flame-hi: #66d6ff; --flame-tip: #eafcff; --flame-core: #fff; }
-.flash-fire.is-max .flash-fire-num { color: #eafcff;
-  text-shadow: 0 0 22px rgba(80,150,255,1), 0 0 9px rgba(210,240,255,.95);
+.flash-fire.is-max .flash-fire-num { color: #1B3FA8;
   animation: flash-fire-pop .42s cubic-bezier(.2,1.55,.4,1) both, flash-fire-max 1.1s ease-in-out .42s infinite; }
 .flash-fire.is-max .flash-embers { opacity: 1; --ember-speed: 900ms; }
 .flash-fire.is-max .flash-flame-svg { filter: drop-shadow(0 1px 16px rgba(70,140,255,.95)); }
@@ -2983,63 +3069,69 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 @keyframes flame-halo { 0%, 100% { opacity: .4; transform: translate(-50%, -44%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -44%) scale(1.28); } }
 @keyframes flash-fire-max { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.13); } }
 
-/* ── Question header (front face) — dark, matching the card, with a glowing topic
-   eyebrow (replaces the old sky-blue banner so front + intro read as one card). ── */
-.flash-qhead { position: relative; padding: 26px 28px 18px; color: #fff;
-  background: transparent; border-bottom: 1px solid rgba(255,255,255,.08); }
+/* ── Question header (front face) — the plate, with a topic eyebrow (replaces the old
+   sky-blue banner so front + intro read as one card). ── */
+.flash-qhead { position: relative; padding: 26px 28px 18px; color: var(--fc-ink);
+  background: transparent; border-bottom: 2px solid var(--fc-line); }
+/* was 90%/74% = 2.13:1 even on graphite. A topic-hue eyebrow has to survive the WHOLE
+   184-260° span, and the cyan end is the one that fails, so the lightness is set for
+   cyan and the violets simply come out richer. */
 .flash-qtag { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px;
   font: 900 12px var(--font-sans); letter-spacing: .12em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 90% 74%); }
-.flash-qtag > span[aria-hidden] { font-size: 13px; color: hsl(var(--flash-topic-hue) 92% 64%);
-  text-shadow: 0 0 10px currentColor; }
+  color: hsl(var(--flash-topic-hue) 78% 30%); }
+.flash-qtag > span[aria-hidden] { font-size: 13px; color: hsl(var(--flash-topic-hue) 82% 38%); }
 
 /* ── Power meter — the front-face charge visual. Fills while the card is charging,
    then the card flips. ── */
 .flash-meter { margin-top: auto; padding: 12px 28px 20px; }
 .flash-meter-lab { display: flex; align-items: center; justify-content: space-between;
-  font: 900 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: #cfe0ea; margin-bottom: 6px; }
-.flash-meter-stat { color: var(--fc-coin); }
+  font: 900 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: var(--fc-ink2); margin-bottom: 6px; }
+.flash-meter-stat { color: var(--fc-coin-ink); }
+/* The GROOVE goes light and the FILL stays bright gold — nothing reads on it, so the
+   neon token is doing exactly the job it is still allowed to do. */
 .flash-meter-track { position: relative; height: 16px; border-radius: 999px; overflow: hidden;
-  background: #11141a; box-shadow: inset 0 2px 4px rgba(0,0,0,.6); }
+  background: var(--fc-ground-3); box-shadow: inset 0 0 0 2px var(--fc-mat); }
 .flash-meter-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; border-radius: 999px;
-  background: linear-gradient(90deg, var(--fc-coin-d), var(--fc-coin) 60%, #ffe98a); box-shadow: 0 0 16px rgba(255,196,0,.6); }
+  background: linear-gradient(90deg, var(--fc-coin-d), var(--fc-coin) 60%, #ffe98a); }
 .flash-meter.is-charging .flash-meter-fill { width: 100%; transition: width 1.6s cubic-bezier(.4,0,.5,1); }
 
 /* ── Streak callout on the payoff (back face). ── */
 .flash-callout { font: 900 15px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
 .flash-callout b { font-weight: 900; }
-.flash-callout.is-right { color: var(--fc-coin); }
-.flash-callout.is-wrong { color: #ffb3ab; }
+.flash-callout.is-right { color: var(--fc-coin-ink); }
+.flash-callout.is-wrong { color: var(--fc-red-ink); }
 
 /* Telemetry bar (topic tag + lap counter) */
 .flash-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+/* A hue FILL with dark ink on it — this one already followed the rule on graphite and
+   needs only its blurless lip restruck in mat. */
 .flash-tag { display: inline-flex; align-items: center; gap: 7px; font: 800 12px var(--font-sans);
   letter-spacing: .12em; text-transform: uppercase; color: #0d1117; padding: 6px 12px; border-radius: 8px;
   transform: skewX(-6deg); background: linear-gradient(180deg, hsl(var(--flash-topic-hue) 92% 66%), hsl(var(--flash-topic-hue) 88% 52%));
-  box-shadow: 0 3px 0 hsl(var(--flash-topic-hue) 60% 28%); }
+  box-shadow: 0 3px 0 var(--fc-mat); }
 .flash-tag > span[aria-hidden] { font-size: 9px; color: #0d1117; }
 .flash-track { display: flex; align-items: center; gap: 10px; }
 .flash-segs { display: flex; gap: 4px; }
-.flash-segs i { width: 16px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); }
-.flash-segs i.is-done { background: var(--fc-green); }
-.flash-segs i.is-now { background: var(--fc-coin); animation: flash-seg 1.8s ease-in-out infinite; }
-/* the current-lap pip breathes with a coin-gold glow so the eye lands on where you are */
+.flash-segs i { width: 16px; height: 4px; border-radius: 2px; background: rgba(42,31,61,.20); }
+.flash-segs i.is-done { background: var(--fc-green-ink); }
+.flash-segs i.is-now { background: var(--fc-coin-ink); animation: flash-seg 1.8s ease-in-out infinite; }
+/* the current-lap pip breathes so the eye lands on where you are (the gold glow it used
+   to breathe with does not exist on a light ground — opacity carries it alone now) */
 @keyframes flash-seg {
-  0%, 100% { opacity: .6; box-shadow: 0 0 0 0 rgba(255,196,0,0); }
-  50% { opacity: 1; box-shadow: 0 0 8px 1px rgba(255,196,0,.7); } }
-.flash-count { font: 800 12px var(--font-sans); color: #aeb6c1; letter-spacing: .08em; white-space: nowrap; }
+  0%, 100% { opacity: .45; }
+  50% { opacity: 1; } }
+.flash-count { font: 800 12px var(--font-sans); color: var(--fc-ink2); letter-spacing: .08em; white-space: nowrap; }
 .flash-rule { height: 3px; border-radius: 2px; margin: 0 0 16px;
-  background: linear-gradient(90deg, var(--fc-coin), hsl(var(--flash-topic-hue) 88% 55%) 55%, transparent);
-  box-shadow: 0 0 14px hsl(var(--flash-topic-hue) 88% 55% / .4); }
+  background: linear-gradient(90deg, var(--fc-coin-ink), hsl(var(--flash-topic-hue) 72% 44%) 55%, transparent); }
 .flash-kicker { font: 800 11px var(--font-sans); letter-spacing: .2em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 88% 70%); margin: 0 0 10px; }
+  color: hsl(var(--flash-topic-hue) 78% 30%); margin: 0 0 10px; }
 .flash-multi { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px; padding: 3px 10px;
   border-radius: 999px; font: 800 10px var(--font-sans); letter-spacing: .1em; text-transform: uppercase;
   vertical-align: middle; white-space: nowrap; color: #0d1117; background: var(--fc-coin); }
 .flash-multi > span[aria-hidden] { font-size: 11px; letter-spacing: -2px; }
-/* Question stem — white on the dark question header. */
+/* Question stem — ink on the light question header. */
 .flash-q { font-family: var(--font-sans); font-weight: 700; font-size: clamp(21px, 3.2vw, 29px);
-  line-height: 1.26; letter-spacing: -.01em; color: #fff; margin: 10px 0 0; max-width: 34ch; }
+  line-height: 1.26; letter-spacing: -.01em; color: var(--fc-ink); margin: 10px 0 0; max-width: 34ch; }
 
 /* Shared entry rise for the option buttons (.flash-option: base opacity:0 → forwards) and
    the setup step (.flash-step: backwards — no base opacity, so it needs no fill).
@@ -3050,20 +3142,23 @@ html[data-motion="reduce"] .fan-card { transition: none; }
    full motion (2026-07-11). Reduced motion overrides this to a static opacity:1 below. */
 @keyframes flash-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* Option buttons — dark NEUTRAL by default (never red); ✓ bright green / ✗ bright red on lock. */
+/* Option buttons — light NEUTRAL by default (never red); ✓ bright green / ✗ deep red on lock. */
 /* The list GROWS to fill the space between the question header and the power meter, and
    the options share that height equally (flex:1 per row) — big arcade answer tiles that
    leave no dead white space inside the card (user, 2026-07-12). */
 .flash-options { display: flex; flex-direction: column; flex: 1; gap: 12px; list-style: none; padding: 18px 26px 8px; margin: 0; }
 .flash-options > li { display: flex; flex: 1 1 0; min-height: 60px; }
+/* The tile sits ON the plate, so it takes the warmer ground tint to separate from it —
+   a white tile on a white plate has nothing left to distinguish it once the dark-ground
+   inner-gloss trick is gone. Border is 2px: 1.5px renders as the banned hairline. */
 .flash-option { display: flex; align-items: center; gap: 16px; width: 100%; flex: 1; text-align: left;
   padding: 16px 22px; border-radius: 16px; cursor: pointer; position: relative; overflow: hidden;
-  color: var(--fc-ink); background: #242c37; border: 1.5px solid rgba(255,255,255,.09);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 4px 0 #10141a, 0 8px 18px -8px rgba(0,0,0,.55);
+  color: var(--fc-ink); background: var(--fc-ground-2); border: 2px solid var(--fc-mat);
+  box-shadow: 0 4px 0 var(--fc-mat);
   opacity: 0; transform: translateY(10px); animation: flash-rise .5s ease forwards;
   transition: transform .1s ease, box-shadow .16s ease, filter .16s ease, background .16s ease, border-color .16s ease; }
 .flash-option::after { content: ""; position: absolute; left: 8px; right: 8px; top: 5px; height: 38%;
-  border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.08), transparent); pointer-events: none; }
+  border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.55), transparent); pointer-events: none; }
 .flash-option:nth-child(1) { animation-delay: .02s; } .flash-option:nth-child(2) { animation-delay: .08s; }
 .flash-option:nth-child(3) { animation-delay: .14s; } .flash-option:nth-child(4) { animation-delay: .20s; }
 .flash-option:nth-child(5) { animation-delay: .26s; } .flash-option:nth-child(6) { animation-delay: .32s; }
@@ -3080,48 +3175,54 @@ html[data-motion="reduce"] .fan-card { transition: none; }
    Pinned by frontend/tests/flashcards_option_state_logic.mjs — headless `:hover` is too
    non-deterministic to gate in a browser harness, so the cascade is gated at the source. */
 @media (hover: hover) {
-  .flash-option:hover:not(:disabled):not(.is-picked) { transform: translateY(-2px); background: #2b3542;
-    border-color: hsl(var(--flash-topic-hue) 85% 60% / .5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 0 #10141a, 0 12px 22px -8px rgba(0,0,0,.6); }
+  .flash-option:hover:not(:disabled):not(.is-picked) { transform: translateY(-2px); background: var(--fc-plate);
+    box-shadow: 0 6px 0 var(--fc-mat); }
 }
-.flash-option:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 #10141a; }
+.flash-option:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 var(--fc-mat); }
 .flash-option:disabled { cursor: default; }
 .flash-lamp { position: relative; flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px;
-  display: grid; place-items: center; font: 900 18px var(--font-sans); color: #eef3f9;
-  background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: all .18s ease; }
+  display: grid; place-items: center; font: 900 18px var(--font-sans); color: var(--fc-ink);
+  background: var(--fc-plate); box-shadow: inset 0 0 0 2px var(--fc-mat); transition: all .18s ease; }
 .flash-otext { font: 700 clamp(17px, 1.9vw, 20px)/1.35 var(--font-sans); color: var(--fc-ink); }
 /* PICKED — a multi-select card's only "I chose this" state (a single-select card locks on
    tap, so is-picked never renders for it). Selection used to be a hairline border and a
    ring, which is what made "which ones did I pick?" hard on a phone. The tile now lifts
    AND the lamp fills. */
-.flash-option.is-picked { transform: translateX(3px); background: #2f3a4a;
-  border-color: hsl(var(--flash-topic-hue) 88% 62%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 0 #10141a, 0 0 0 3px hsl(var(--flash-topic-hue) 88% 60% / .5); }
+.flash-option.is-picked { transform: translateX(3px); background: hsl(var(--flash-topic-hue) 64% 90%);
+  border-color: hsl(var(--flash-topic-hue) 72% 34%);
+  box-shadow: 0 4px 0 var(--fc-mat), 0 0 0 3px hsl(var(--flash-topic-hue) 72% 40% / .55); }
 /* The lamp is the signal hover can never impersonate — hover styles the TILE and never the
    chip — so a filled lamp is what keeps "selected" true under a sticky mobile hover. A ✓
    replaces the letter (McqCard): a checkbox that reads as checked at a glance.
    The FILL IS DELIBERATELY NOT THE TOPIC HUE. `--flash-topic-hue` spans 184–260° (cyan →
    violet) and at 88%/62% its luminance swings from .16 (violet) to .59 (cyan) — a white ✓
    is ~5:1 on the violet topics and ~1.6:1 on the cyan ones, i.e. invisible on a third of the
-   bank. A fixed near-white chip with dark ink is ~15:1 on every topic and hue-independent by
-   construction. Topic identity stays on the tile's border + ring, where nothing has to be
-   read against it. Do not "restore" the hue here without re-checking the cyan end. */
-.flash-option.is-picked .flash-lamp { background: #eef3f9; color: #101722;
-  box-shadow: inset 0 0 0 1px #fff, 0 0 12px hsl(var(--flash-topic-hue) 88% 60% / .55); }
-.flash-option.is-correct { color: #052611; background: linear-gradient(180deg, var(--fc-green), var(--fc-green-d)); border-color: transparent;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 5px 0 #0f8f34, 0 10px 24px -8px rgba(46,232,90,.65); }
-.flash-option.is-correct .flash-lamp { background: rgba(0,0,0,.24); color: #eafff0; }
+   bank. A fixed hue-independent chip is ~13:1 on every topic by construction. Topic identity
+   stays on the tile's border + ring, where nothing has to be read against it. Do not
+   "restore" the hue here without re-checking the cyan end.
+   ⚠ The POLARITY inverted with the ground (2026-08-11) and the reasoning did not: on the
+   graphite tile the fixed chip was near-white with dark ink; on the light tile it is the
+   mat ink with a near-white ✓. Same rule — a FIXED chip, not the hue — mirrored. Picked
+   still differs from resting in fill AND ink AND glyph, which is what
+   flashcards_multiselect_assert reads, and hover still never reaches this chip. */
+.flash-option.is-picked .flash-lamp { background: var(--fc-mat); color: #FFFCF6;
+  box-shadow: inset 0 0 0 2px var(--fc-mat); }
+.flash-option.is-correct { color: #052611; background: linear-gradient(180deg, var(--fc-green), var(--fc-green-d)); border-color: var(--fc-mat);
+  box-shadow: 0 5px 0 var(--fc-mat); }
+.flash-option.is-correct .flash-lamp { background: rgba(0,0,0,.34); color: #eafff0; box-shadow: none; }
 .flash-option.is-correct .flash-otext { color: #052611; }
 /* opacity:1 + transform:none are REQUIRED: is-wrong sets its own `animation` (the shake),
    which replaces the entry `flash-rise`; without holding them here the option reverts to
    its base opacity:0 and vanishes (a blank gap where the red ✗ should be). */
+/* Deeper red than the token: white on #ff3b30 is 3.0:1, which the option text sits right
+   on the edge of. The gradient now starts at --fc-red-d so both stops clear it. */
 .flash-option.is-wrong { color: #fff; opacity: 1; transform: none;
-  background: linear-gradient(180deg, var(--fc-red), var(--fc-red-d)); border-color: transparent;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.28), 0 5px 0 #a3160e, 0 10px 24px -8px rgba(255,59,48,.6); animation: flash-shake .32s; }
-.flash-option.is-wrong .flash-lamp { background: rgba(0,0,0,.26); color: #fff; }
+  background: linear-gradient(180deg, var(--fc-red-d), #a3160e); border-color: var(--fc-mat);
+  box-shadow: 0 5px 0 var(--fc-mat); animation: flash-shake .32s; }
+.flash-option.is-wrong .flash-lamp { background: rgba(0,0,0,.30); color: #fff; box-shadow: none; }
 .flash-option.is-wrong .flash-otext { color: #fff; }
 @keyframes flash-shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-3px); } }
-.flash-ignite { position: absolute; inset: -2px; border-radius: 10px; border: 2px solid #fff;
+.flash-ignite { position: absolute; inset: -2px; border-radius: 10px; border: 2px solid var(--fc-mat);
   animation: flash-ignite .6s ease-out forwards; pointer-events: none; }
 /* engine-ignition spark: flares bright on tap, then expands outward and fades */
 @keyframes flash-ignite {
@@ -3132,59 +3233,67 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 /* Foot: hint + multi-select lock reticle */
 .flash-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px;
   padding: 10px 28px 4px; min-height: 44px; }
-.flash-hint { font: 800 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: #8a93a0; }
+.flash-hint { font: 800 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: var(--fc-ink2); }
 .flash-lock { display: grid; place-items: center; flex: 0 0 auto; margin-left: auto; width: 48px; height: 48px; border-radius: 12px;
-  border: 0; color: #6b7480; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+  border: 2px solid var(--fc-ink3); color: var(--fc-ink2); background: var(--fc-ground-2);
   cursor: not-allowed; transition: all .18s ease; }
-.flash-lock.is-armed { color: #241900; background: linear-gradient(180deg, #ffe36b, var(--fc-coin));
-  box-shadow: 0 5px 0 var(--fc-coin-d); cursor: pointer; animation: flash-pulse 1.5s ease-in-out infinite; }
+.flash-lock.is-armed { color: #241900; border-color: var(--fc-mat);
+  background: linear-gradient(180deg, #ffe36b, var(--fc-coin));
+  box-shadow: 0 5px 0 var(--fc-mat); cursor: pointer; animation: flash-pulse 1.5s ease-in-out infinite; }
 .flash-lock.is-armed:hover { filter: brightness(1.06); }
-/* armed lock throbs with a gold halo — "ready to submit, tap me" (keeps the chunky toy shadow) */
+/* armed lock throbs — "ready to submit, tap me" (keeps the chunky toy lip). The gold halo
+   it used to throb with was a graphite device; scale alone carries it on a light ground. */
 @keyframes flash-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 5px 0 var(--fc-coin-d), 0 0 0 0 rgba(255,196,0,0); }
-  50% { transform: scale(1.05); box-shadow: 0 5px 0 var(--fc-coin-d), 0 0 16px 2px rgba(255,196,0,.55); } }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); } }
 
 /* Reflection card — reason first */
 .flash-reason { margin-top: 6px; padding: 8px 28px 4px; }
 .flash-verdict { display: flex; align-items: center; gap: 8px; font: 800 12px var(--font-sans);
   letter-spacing: .14em; text-transform: uppercase; margin: 0 0 10px; }
 .flash-verdict::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-.flash-verdict.is-right { color: var(--fc-green); }
-.flash-verdict.is-wrong { color: #ff5d5d; }
+.flash-verdict.is-right { color: var(--fc-green-ink); }
+.flash-verdict.is-wrong { color: var(--fc-red-ink); }
+/* ⚠ This one was the worst pair in the old theme: bright coin ink measured 1.13:1 against
+   the GREEN correct-wash behind it, because the wash was designed for graphite and the
+   label's own translucent gold pill vanished into it. An OPAQUE pill with ink type fixes
+   it independently of whatever wash is behind — do not make this background translucent
+   again without measuring it on the is-right back face specifically. */
 .flash-compare-label { font: 800 11px var(--font-sans); letter-spacing: .18em; text-transform: uppercase;
-  color: var(--fc-coin); margin: 0 0 6px; display: inline-flex; align-self: flex-start; align-items: center; gap: 7px;
-  padding: 4px 11px; border-radius: 8px; background: rgba(255,196,0,.14); box-shadow: inset 0 0 0 1px rgba(255,196,0,.4); }
+  color: var(--fc-coin-ink); margin: 0 0 6px; display: inline-flex; align-self: flex-start; align-items: center; gap: 7px;
+  padding: 4px 11px; border-radius: 8px; background: var(--fc-plate); box-shadow: inset 0 0 0 2px var(--fc-coin-d); }
 .flash-model { font: 500 15px/1.55 var(--font-sans); color: var(--f-ink2); margin: 0; max-width: 60ch; }
-.flash-reason-box { width: 100%; resize: none; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.16);
-  padding: 11px 13px; font: 500 15px var(--font-sans); color: #fff; background: rgba(255,255,255,.05); }
-.flash-reason-box:focus { outline: none; border-color: var(--fc-blue); box-shadow: 0 0 0 3px rgba(22,179,242,.22); }
+.flash-reason-box { width: 100%; resize: none; border-radius: 12px; border: 2px solid var(--fc-mat);
+  padding: 11px 13px; font: 500 15px var(--font-sans); color: var(--fc-ink); background: var(--fc-plate); }
+.flash-reason-box:focus { outline: none; border-color: var(--fc-blue-ink); box-shadow: 0 0 0 3px hsl(200 82% 40% / .25); }
 .flash-reason-note { font: 500 13px var(--font-sans); color: var(--f-mono); margin: 8px 0 0; }
 .flash-reveal-btn { align-self: flex-start; }
 
 /* Advance / self-mark — the green "GO" button. */
 .flash-advance { display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-top: 16px;
   align-self: center; font: 900 14px var(--font-sans); letter-spacing: .04em; text-transform: uppercase;
-  color: #062512; background: linear-gradient(180deg, #5cf07a, var(--fc-green)); border: none; border-radius: 14px;
-  padding: 14px 26px; cursor: pointer; box-shadow: 0 5px 0 var(--fc-green-d), 0 10px 20px -8px rgba(36,210,77,.5);
+  color: #062512; background: linear-gradient(180deg, #5cf07a, var(--fc-green)); border: 2px solid var(--fc-mat); border-radius: 14px;
+  padding: 14px 26px; cursor: pointer; box-shadow: 0 5px 0 var(--fc-mat);
   transition: transform .1s, filter .16s; }
 .flash-advance:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
-.flash-advance:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--fc-green-d); }
-.flash-advance:disabled { cursor: default; filter: grayscale(.5) brightness(.7); box-shadow: none; }
+.flash-advance:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--fc-mat); }
+.flash-advance:disabled { cursor: default; filter: grayscale(.5) brightness(.94); box-shadow: none; }
 
 /* Charge beat — a transparent full-card tap-catcher + timer. The suspense visual is now
    the FRONT-face power meter filling; tapping here skips straight to the flip. */
 .flash-beat { position: absolute; inset: 0; z-index: 6; cursor: pointer; touch-action: none; background: transparent; }
 .liq { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 84px; }
 .liq-bar { width: 11px; height: 100%; border-radius: 999px; transform: scaleY(.3); transform-origin: bottom;
-  will-change: transform; background: linear-gradient(180deg, var(--fc-coin) 0%, var(--fc-red) 55%, var(--fc-blue) 100%);
-  box-shadow: 0 0 14px rgba(255,196,0,.45); animation: liq-wave 1.15s ease-in-out infinite; }
+  will-change: transform; background: linear-gradient(180deg, var(--fc-coin-d) 0%, var(--fc-red-d) 55%, var(--fc-blue-d) 100%);
+  animation: liq-wave 1.15s ease-in-out infinite; }
 @keyframes liq-wave { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
 @media (prefers-reduced-motion: reduce) { .liq-bar { animation: none; transform: scaleY(.62); } }
 html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
 
-/* Boost flash — a white/gold pop over the whole card on a correct reveal. */
+/* Boost flash — a gold pop over the whole card on a correct reveal. The old white core
+   was invisible against a light plate; the gold now runs all the way to the centre. */
 .flash-boost { position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: 26px; opacity: 0;
-  background: radial-gradient(circle at 50% 45%, #fff, var(--fc-coin) 40%, transparent 72%); }
+  background: radial-gradient(circle at 50% 45%, var(--fc-coin), var(--fc-coin-d) 40%, transparent 72%); }
 .flash-boost.is-pop { animation: flash-boostpop .55s ease-out; }
 @keyframes flash-boostpop { 0% { opacity: 0; } 14% { opacity: .85; } 100% { opacity: 0; } }
 
@@ -3210,16 +3319,18 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
 .flash-payoff-verdict { display: inline-flex; align-items: center; gap: 12px; margin: 0; transform: skewX(-6deg);
   font-family: var(--font-sans); font-weight: 900; font-size: clamp(30px, 5vw, 44px); letter-spacing: -.01em; }
 .flash-payoff-badge { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px;
-  transform: skewX(6deg); font-size: 22px; color: #fff; }
-.flash-payoff.is-right .flash-payoff-verdict { color: #5ef08a; text-shadow: 0 2px 24px rgba(36,210,77,.55); }
-.flash-payoff.is-right .flash-payoff-badge { background: var(--fc-green); }
-.flash-payoff.is-wrong .flash-payoff-verdict { color: #ff5b52; text-shadow: 0 2px 22px rgba(255,59,48,.5); }
-.flash-payoff.is-wrong .flash-payoff-badge { background: var(--fc-red); }
+  transform: skewX(6deg); font-size: 22px; border: 2px solid var(--fc-mat); }
+/* Verdict type takes the ink tokens; the badge stays a bright FILL and carries whichever
+   ink actually reads on it — dark on the green, white on the deep red. */
+.flash-payoff.is-right .flash-payoff-verdict { color: var(--fc-green-ink); }
+.flash-payoff.is-right .flash-payoff-badge { background: var(--fc-green); color: #052611; }
+.flash-payoff.is-wrong .flash-payoff-verdict { color: var(--fc-red-ink); }
+.flash-payoff.is-wrong .flash-payoff-badge { background: var(--fc-red-d); color: #fff; }
 .flash-payoff-points { margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
-  font: 900 24px var(--font-sans); color: var(--fc-coin); text-shadow: 0 2px 12px rgba(255,210,30,.45); }
+  font: 900 24px var(--font-sans); color: var(--fc-coin-ink); }
 .flash-combo { display: inline-flex; align-items: center; padding: 5px 13px; border-radius: 999px;
   font: 900 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: #241900;
-  background: linear-gradient(180deg, #ffe36b, var(--fc-coin)); box-shadow: 0 3px 0 var(--fc-coin-d);
+  background: linear-gradient(180deg, #ffe36b, var(--fc-coin)); box-shadow: 0 3px 0 var(--fc-mat);
   animation: flash-combo-pop .5s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes flash-combo-pop { from { opacity: 0; transform: scale(.7) translateY(6px); } to { opacity: 1; transform: none; } }
 .flash-model-big { font-size: clamp(19px, 2.6vw, 26px); line-height: 1.5; font-weight: 600;
@@ -3229,21 +3340,20 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
 /* Self-mark (free-text recall) */
 .flash-selfmark { display: flex; gap: 12px; margin-top: 16px; }
 .flash-mark-got, .flash-mark-miss { flex: 1; font: 900 13px var(--font-sans); text-transform: uppercase;
-  letter-spacing: .05em; border-radius: 13px; padding: 14px; cursor: pointer; background: rgba(255,255,255,.06);
-  border: 1.5px solid transparent; }
+  letter-spacing: .05em; border-radius: 13px; padding: 14px; cursor: pointer; background: var(--fc-plate);
+  border: 2px solid var(--fc-mat); box-shadow: 0 3px 0 var(--fc-mat); }
 .flash-mark-got:disabled, .flash-mark-miss:disabled { opacity: .5; cursor: default; }
-.flash-mark-got { color: #5ef08a; border-color: rgba(36,210,77,.45); }
-.flash-mark-got:hover:not(:disabled) { background: rgba(36,210,77,.14); }
-.flash-mark-miss { color: #ff6b6b; border-color: rgba(255,93,93,.4); }
-.flash-mark-miss:hover:not(:disabled) { background: rgba(255,93,93,.1); }
+.flash-mark-got { color: var(--fc-green-ink); }
+.flash-mark-got:hover:not(:disabled) { background: hsl(140 70% 92%); }
+.flash-mark-miss { color: var(--fc-red-ink); }
+.flash-mark-miss:hover:not(:disabled) { background: hsl(4 80% 94%); }
 
 /* ===================================================================
    Loading spinner (classic ring) — shown while a deck loads
    =================================================================== */
 .flash-spinner { display: inline-block; width: 56px; height: 56px; border-radius: 50%;
-  border: 5px solid rgba(255,255,255,.14);
-  border-top-color: hsl(var(--flash-topic-hue) 90% 62%);
-  box-shadow: 0 0 26px hsl(var(--flash-topic-hue) 90% 55% / .3);
+  border: 5px solid rgba(42,31,61,.16);
+  border-top-color: hsl(var(--flash-topic-hue) 72% 42%);
   animation: flash-spin .8s linear infinite; }
 @keyframes flash-spin { to { transform: rotate(360deg); } }
 
@@ -3251,64 +3361,65 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
    INTRO (TopicIntro) + RESULTS + COMBO burst
    =================================================================== */
 .flash-intro { position: relative; width: 100%; border-radius: 26px; overflow: hidden; isolation: isolate;
-  padding: 44px 40px 38px; background: radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 70% 28% / .55), transparent 58%), #171b22;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.06), 0 30px 70px -30px rgba(0,0,0,.7);
+  /* .30 tinted the plate far enough toward the topic hue that the blurb (--fc-ink2) fell
+     to 4.13:1. The wash is decoration; the type is not. */
+  padding: 44px 40px 38px; background: radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 68% 62% / .18), transparent 58%), var(--fc-plate);
+  box-shadow: 0 var(--mat-lip) 0 var(--fc-mat);
   animation: flash-intro-in .5s cubic-bezier(.2,.7,.2,1) both; }
 .flash-intro::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
   pointer-events: none; border-radius: inherit; padding: 2.5px;
-  background: linear-gradient(120deg, hsl(var(--flash-topic-hue) 90% 60%), var(--fc-coin), hsl(var(--flash-topic-hue) 90% 60%));
+  background: linear-gradient(120deg, hsl(var(--flash-topic-hue) 72% 42%), var(--fc-coin-ink), hsl(var(--flash-topic-hue) 72% 42%));
   background-size: 220% 100%; animation: aurora-flow var(--aurora-anim) linear infinite;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-  filter: saturate(1.3) drop-shadow(0 0 7px hsl(var(--flash-topic-hue) 90% 55% / .5)); opacity: .95; }
+  filter: saturate(1.2); opacity: 1; }
 .flash-intro-in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; }
 .flash-intro-kicker { font: 800 11px var(--font-sans); letter-spacing: .22em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 88% 72%); margin: 0 0 12px; }
+  color: hsl(var(--flash-topic-hue) 78% 30%); margin: 0 0 12px; }
 .flash-intro-title { font-family: var(--font-sans); font-weight: 900; font-style: italic; transform: skewX(-6deg);
-  font-size: clamp(30px, 5vw, 48px); line-height: 1.02; margin: 0; color: #fff;
-  text-shadow: 0 2px 22px hsl(var(--flash-topic-hue) 88% 55% / .45); }
-.flash-intro-blurb { font: 500 clamp(15px, 2vw, 19px)/1.55 var(--font-sans); color: #c7cdd6; margin: 16px 0 0; max-width: 42ch; }
-.flash-intro-meta { font: 800 12px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: #8f97a2; margin: 18px 0 0; }
+  font-size: clamp(30px, 5vw, 48px); line-height: 1.02; margin: 0; color: var(--fc-ink); }
+.flash-intro-blurb { font: 500 clamp(15px, 2vw, 19px)/1.55 var(--font-sans); color: var(--fc-ink2); margin: 16px 0 0; max-width: 42ch; }
+.flash-intro-meta { font: 800 12px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--fc-ink2); margin: 18px 0 0; }
 /* Cleared-topic replay: the "no more Lumens" explainer + the 1-5 deck picker. */
-.flash-intro-note { font: 500 clamp(14px, 1.7vw, 16px)/1.5 var(--font-sans); color: #9aa3ae;
+.flash-intro-note { font: 500 clamp(14px, 1.7vw, 16px)/1.5 var(--font-sans); color: var(--fc-ink2);
   margin: 18px 0 0; max-width: 44ch; }
 .flash-intro-ladder { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
 .flash-intro-rung { min-width: 46px; padding: 10px 14px; border-radius: 12px; cursor: pointer;
-  font: 800 15px var(--font-sans); color: #c7cdd6; background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.14); transition: background .18s, color .18s, border-color .18s; }
-.flash-intro-rung:hover { background: rgba(255,255,255,.1); color: #fff; }
-.flash-intro-rung.is-on { color: #06090f; border-color: transparent;
+  font: 800 15px var(--font-sans); color: var(--fc-ink); background: var(--fc-ground-2);
+  border: 2px solid var(--fc-mat); transition: background .18s, color .18s, border-color .18s; }
+.flash-intro-rung:hover { background: var(--fc-ground-3); }
+.flash-intro-rung.is-on { color: #06090f; border-color: var(--fc-mat);
   background: hsl(var(--topic-hue, 210) 92% 72%); }
-.flash-intro-rung:focus-visible { outline: 2px solid hsl(var(--topic-hue, 210) 92% 78%); outline-offset: 2px; }
+.flash-intro-rung:focus-visible { outline: 2px solid var(--fc-mat); outline-offset: 2px; }
 .flash-intro-go { margin-top: 28px; align-self: stretch; }
 @keyframes flash-intro-in { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
 
 .flash-results { position: relative; width: 100%; max-width: 600px; text-align: center; isolation: isolate;
   overflow: hidden; border-radius: 24px; padding: 42px 38px; background:
-    radial-gradient(130% 80% at 0% 0%, rgba(22,179,242,.16), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(255,196,0,.12), transparent 58%), #14171d;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 30px 70px -30px rgba(0,0,0,.7); }
+    radial-gradient(130% 80% at 0% 0%, rgba(22,179,242,.18), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(255,196,0,.20), transparent 58%), var(--fc-plate);
+  box-shadow: 0 var(--mat-lip) 0 var(--fc-mat); }
 .flash-results::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box; pointer-events: none;
-  border-radius: inherit; padding: 2px; background: linear-gradient(100deg, var(--fc-blue), var(--fc-green), var(--fc-coin), var(--fc-red), var(--fc-blue));
+  border-radius: inherit; padding: 2.5px; background: linear-gradient(100deg, var(--fc-blue-ink), var(--fc-green-ink), var(--fc-coin-ink), var(--fc-red-ink), var(--fc-blue-ink));
   background-size: 220% 100%; animation: aurora-flow var(--aurora-anim) linear infinite;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: .8; }
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: 1; }
 .flash-results > * { position: relative; z-index: 2; }
-.flash-results-kicker { font: 800 11px var(--font-sans); letter-spacing: .2em; text-transform: uppercase; color: #9fd8f2; }
+.flash-results-kicker { font: 800 11px var(--font-sans); letter-spacing: .2em; text-transform: uppercase; color: var(--fc-blue-ink); }
 .flash-results-score { font-family: var(--font-sans); font-weight: 900; font-style: italic; transform: skewX(-6deg);
-  font-size: 64px; margin: 10px 0; color: var(--fc-coin); text-shadow: 0 3px 0 #a97f00, 0 0 30px rgba(255,196,0,.4); }
+  font-size: 64px; margin: 10px 0; color: var(--fc-coin-ink); text-shadow: 0 3px 0 var(--fc-mat); }
 .flash-results-score strong { font-weight: 900; }
-.flash-results-coach { font: 500 16px/1.5 var(--font-sans); color: #cfd6df; margin: 0 auto; max-width: 46ch; }
-.flash-results-weak { font: 500 14px var(--font-sans); color: #9aa3af; margin: 12px 0 0; }
-.flash-results-weak strong { color: #8fd7ff; font-weight: 700; }
-.flash-results-reason { font: 500 13px var(--font-sans); letter-spacing: .04em; color: #9aa3af; margin: 8px 0 0; }
+.flash-results-coach { font: 500 16px/1.5 var(--font-sans); color: var(--fc-ink2); margin: 0 auto; max-width: 46ch; }
+.flash-results-weak { font: 500 14px var(--font-sans); color: var(--fc-ink2); margin: 12px 0 0; }
+.flash-results-weak strong { color: var(--fc-blue-ink); font-weight: 700; }
+.flash-results-reason { font: 500 13px var(--font-sans); letter-spacing: .04em; color: var(--fc-ink2); margin: 8px 0 0; }
 .flash-results-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
-.flash-results-secondary { font: 700 13px var(--font-sans); color: #dde5ef; background: rgba(255,255,255,.06);
-  border: 1.5px solid rgba(255,255,255,.16); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
-.flash-results-secondary:hover { background: rgba(255,255,255,.12); color: #fff; }
+.flash-results-secondary { font: 700 13px var(--font-sans); color: var(--fc-ink); background: var(--fc-ground-2);
+  border: 2px solid var(--fc-mat); border-radius: 13px; padding: 14px 22px; cursor: pointer; box-shadow: 0 3px 0 var(--fc-mat); }
+.flash-results-secondary:hover { background: var(--fc-ground-3); }
 .flash-start { font: 900 13px var(--font-sans); text-transform: uppercase; letter-spacing: .04em; color: #241900;
-  background: linear-gradient(180deg, #ffe36b, var(--fc-coin)); border: 0; border-radius: 13px; padding: 14px 22px;
-  cursor: pointer; box-shadow: 0 5px 0 var(--fc-coin-d); }
+  background: linear-gradient(180deg, #ffe36b, var(--fc-coin)); border: 2px solid var(--fc-mat); border-radius: 13px; padding: 14px 22px;
+  cursor: pointer; box-shadow: 0 5px 0 var(--fc-mat); }
 .flash-start:hover { filter: brightness(1.05); }
 /* shared tactile press for the round arrows + result buttons */
 .flash-press { transition: transform .1s ease; }
@@ -3316,15 +3427,18 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
 
 .flash-burst { position: fixed; inset: 0; z-index: 44; display: flex; flex-direction: column;
   align-items: center; justify-content: center; pointer-events: none; animation: flash-burst-fade 1.25s ease-in forwards; }
+/* The combo slam fires over the LIVE page, so it lands on the cream ground — the white
+   word with a gold glow was legible only because everything behind it was graphite. */
 .flash-burst-ring { position: absolute; width: 220px; height: 220px; border-radius: 50%;
-  border: 3px solid var(--fc-coin); animation: flash-burst-ring 1.05s cubic-bezier(.15,.7,.3,1) forwards; }
-.flash-burst-ring.is-2 { width: 300px; height: 300px; border-color: rgba(22,179,242,.5); animation-delay: .08s; }
-.flash-burst-mult { font: 900 clamp(22px,4vw,34px) var(--font-sans); letter-spacing: .04em; color: var(--fc-coin);
+  border: 3px solid var(--fc-coin-ink); animation: flash-burst-ring 1.05s cubic-bezier(.15,.7,.3,1) forwards; }
+.flash-burst-ring.is-2 { width: 300px; height: 300px; border-color: hsl(200 82% 40% / .55); animation-delay: .08s; }
+.flash-burst-mult { font: 900 clamp(22px,4vw,34px) var(--font-sans); letter-spacing: .04em; color: var(--fc-coin-ink);
   animation: flash-burst-pop .5s cubic-bezier(.2,1.5,.35,1) both; }
 .flash-burst-word { font-family: var(--font-sans); font-weight: 900; font-style: italic; transform: skewX(-8deg);
-  font-size: clamp(46px, 9vw, 96px); color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,.4), 0 0 30px var(--fc-coin);
+  font-size: clamp(46px, 9vw, 96px); color: var(--fc-coin); text-shadow: 0 4px 0 var(--fc-mat),
+    2px 0 0 var(--fc-mat), -2px 0 0 var(--fc-mat), 0 -2px 0 var(--fc-mat);
   animation: flash-burst-slam .55s cubic-bezier(.2,1.5,.3,1) both; }
-.flash-burst-sub { font: 800 13px var(--font-sans); letter-spacing: .18em; text-transform: uppercase; color: #d6dbe4;
+.flash-burst-sub { font: 800 13px var(--font-sans); letter-spacing: .18em; text-transform: uppercase; color: var(--fc-ink);
   animation: flash-burst-pop .5s .08s cubic-bezier(.2,1.5,.35,1) both; }
 @keyframes flash-burst-slam { from { opacity: 0; transform: skewX(-8deg) scale(.5); } to { opacity: 1; transform: skewX(-8deg) scale(1); } }
 @keyframes flash-burst-pop { from { opacity: 0; transform: translateY(10px) scale(.8); } to { opacity: 1; transform: none; } }
