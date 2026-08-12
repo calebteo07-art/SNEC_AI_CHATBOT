@@ -1937,7 +1937,9 @@ html[data-motion="reduce"] .aurora-grade { animation: none !important; }
    before attachments existed. */
 .aurora-composer-wrap { display: flex; flex-direction: column; gap: 8px; }
 .aurora-composer-file { display: none; }
-.aurora-composer-clip { flex: none; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: none; border-radius: 999px; background: none; color: var(--mono-ink-2); cursor: pointer; transition: color .18s var(--mo-ease), background-color .18s var(--mo-ease); }
+/* 44x44, not 40 — the mobile audit's fingertip floor, and this is a phone-first control
+   (a snap of an OCT printout is taken on the phone that is attaching it). */
+.aurora-composer-clip { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: none; border-radius: 999px; background: none; color: var(--mono-ink-2); cursor: pointer; transition: color .18s var(--mo-ease), background-color .18s var(--mo-ease); }
 .aurora-composer-clip:hover:not(:disabled) { color: var(--elec); background-color: rgba(91, 91, 255, 0.09); }
 .aurora-composer-clip:disabled { opacity: 0.4; cursor: not-allowed; }
 /* The 18px left inset is for a bare textarea; a clip sits in that space itself. */
@@ -1945,9 +1947,15 @@ html[data-motion="reduce"] .aurora-grade { animation: none !important; }
 .aurora-composer[data-dragging] { border-color: rgba(91, 91, 255, 0.7); box-shadow: 0 0 0 3px rgba(91, 91, 255, 0.16); }
 
 .aurora-composer-shots { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 6px; }
-.aurora-shot { position: relative; flex: none; width: 68px; height: 68px; border-radius: 14px; overflow: hidden; border: 1px solid var(--mono-line); background: var(--mono-card); }
-.aurora-shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* The tile does NOT clip — the image rounds itself instead. overflow:hidden would clip
+   hit-testing too, and the remove control below needs to reach a fingertip target the
+   68px tile has no room for. */
+.aurora-shot { position: relative; flex: none; width: 68px; height: 68px; border-radius: 14px; border: 1px solid var(--mono-line); background: var(--mono-card); }
+.aurora-shot img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 13px; }
 .aurora-shot-x { position: absolute; top: 3px; right: 3px; display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: none; border-radius: 999px; background: rgba(17, 17, 17, 0.72); color: #fff; cursor: pointer; }
+/* 20px reads right on a 68px tile; 44px is what a fingertip needs. Expand the target,
+   not the dot. (The mobile audit cannot reach this — it never attaches an image.) */
+.aurora-shot-x::after { content: ""; position: absolute; inset: -12px; }
 .aurora-composer-hint { flex: 1; min-width: 190px; font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--mono-ink-3); }
 .aurora-composer-note { margin: 0; padding: 0 6px; font-family: var(--font-sans); font-size: 13.5px; line-height: 1.45; color: var(--elec); }
 
