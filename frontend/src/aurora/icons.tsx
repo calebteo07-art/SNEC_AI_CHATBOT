@@ -23,6 +23,8 @@ export const Icon = {
   menu: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><path d="M4 7h16M4 12h16M4 17h16" /></svg>),
   search: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>),
   attach: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><path d="M12 5v14M5 12h14" /></svg>),
+  // paperclip — attaching a FILE, distinct from `attach` (a plus, i.e. "add one more")
+  clip: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><path d="M20.4 11.6l-8.5 8.5a5 5 0 0 1-7.1-7.1l8.9-8.9a3.4 3.4 0 1 1 4.8 4.8l-8.6 8.6a1.8 1.8 0 0 1-2.5-2.5l7.9-7.9" /></svg>),
   // optics motif: aperture (used for Cases)
   aperture: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.2" /></svg>),
   // padlock — the flashcards "lock in" reticle for multi-select cards

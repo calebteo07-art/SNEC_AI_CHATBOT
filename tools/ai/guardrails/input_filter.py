@@ -52,7 +52,8 @@ _OPHTHO_KEYWORDS = {
 }
 
 
-async def filter_input(query: str, student_role: str = "", patient_context: bool = False) -> dict:
+async def filter_input(query: str, student_role: str = "", patient_context: bool = False,
+                       images_attached: bool = False) -> dict:
     """Return {"safe": bool, "reason": str}.
 
     Fast path for the common case — only invokes Gemini for long ambiguous queries.
@@ -62,6 +63,13 @@ async def filter_input(query: str, student_role: str = "", patient_context: bool
     ophthalmology-relevance gate is skipped — talking to a patient about their
     particulars, symptoms, and history is inherently on-topic, and the patient prompt
     governs what gets revealed. Prompt injection and off-topic abuse are still blocked.
+
+    images_attached=True skips the same relevance gate for a tutor message carrying an
+    image. The gate below judges the TEXT, and the text is exactly the part that is not
+    about eyes when the picture is doing the asking ("what am I looking at here?").
+    Stage 3 would hand that to a classifier that cannot see the attachment and sample a
+    yes/no, so an innocent student would be told to "ask a clinical question" for sending
+    a fundus photo. Abuse and PII still block — only relevance is waived.
     """
     # Stage 1: regex hard-block — prompt injection / impersonation / off-topic generation
     if _ABUSE_RE.search(query):
@@ -75,6 +83,10 @@ async def filter_input(query: str, student_role: str = "", patient_context: bool
     # General tutor: also hard-block PII extraction.
     if _PII_RE.search(query):
         return {"safe": False, "reason": "blocked_pattern"}
+
+    # A picture is the subject of the question; the relevance gate can only read the text.
+    if images_attached:
+        return {"safe": True, "reason": "images_attached"}
 
     lower = query.lower()
 

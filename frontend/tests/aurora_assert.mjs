@@ -465,6 +465,99 @@ if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-m
 }
 console.log("PASS: Tutor landing→thread transition + SSE stream + Eyecon mascot reply avatar");
 
+// Image attachment (2026-08-12): drive the REAL path — a real file into the real input,
+// the real canvas downscale, the real request body. The unit test pins the triage rules;
+// only this proves the picked file actually reaches /api/chat as an inline image, that an
+// image alone is sendable with no typed question, and that the thumbnail renders in the
+// student's own bubble. A 1x1 PNG in must come out as JPEG: that is the re-encode running.
+const PNG_1x1 = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64");
+let chatBody = null;
+await navCtx.unroute("**/api/chat");
+await navCtx.route("**/api/chat", (r) => {
+  try { chatBody = JSON.parse(r.request().postData() || "null"); } catch { chatBody = null; }
+  r.fulfill({
+    status: 200,
+    contentType: "text/event-stream",
+    body: 'data: {"text":"That is an optic disc."}\n\ndata: [DONE]\n\n',
+  });
+});
+await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
+// The file input is deliberately hidden (the paperclip is the affordance), so wait for it
+// to be ATTACHED — the default `visible` would never resolve.
+await np.waitForSelector(".aurora-composer-file", { state: "attached", timeout: 15000 });
+await np.locator(".aurora-composer-file").first()
+  .setInputFiles({ name: "disc.png", mimeType: "image/png", buffer: PNG_1x1 });
+await np.waitForSelector(".aurora-shot img", { timeout: 8000 });
+// The student is told what happens to the picture, at the moment they attach it.
+const hint = (await np.locator(".aurora-composer-hint").first().innerText().catch(() => "")) || "";
+if (!/not saved/i.test(hint) || !/patient/i.test(hint)) {
+  console.error(`FAIL: attachment hint must say the image is not saved and warn off patient data (got: ${hint})`);
+  process.exit(1);
+}
+// An image with no typed question must be sendable.
+if ((await np.locator(".aurora-composer-send").count()) < 1) {
+  console.error("FAIL: send must enable on an attached image with no typed text"); process.exit(1);
+}
+await np.locator(".aurora-composer-send").click();
+await np.waitForFunction(() => document.body.innerText.includes("That is an optic disc."), { timeout: 8000 });
+
+const sent = chatBody?.messages?.[chatBody.messages.length - 1];
+if (!sent?.images?.length) {
+  console.error(`FAIL: the attached image never reached /api/chat (body=${JSON.stringify(chatBody).slice(0, 200)})`);
+  process.exit(1);
+}
+if (sent.images[0].mime !== "image/jpeg") {
+  console.error(`FAIL: attachment was not re-encoded to JPEG (mime=${sent.images[0].mime})`); process.exit(1);
+}
+if (typeof sent.images[0].data !== "string" || sent.images[0].data.length < 100
+    || sent.images[0].data.startsWith("data:")) {
+  console.error("FAIL: attachment payload must be bare base64, not a data URL"); process.exit(1);
+}
+if (!/what can you tell me about this image/i.test(sent.content || "")) {
+  console.error(`FAIL: an image with no question must still ask one (content=${sent.content})`); process.exit(1);
+}
+if ((await np.locator(".aurora-msg.is-user .aurora-msg-shots img").count()) < 1) {
+  console.error("FAIL: the sent bubble does not show its attachment"); process.exit(1);
+}
+if ((await np.locator(".aurora-composer-shots .aurora-shot").count()) !== 0) {
+  console.error("FAIL: the composer strip must clear once the message is sent"); process.exit(1);
+}
+console.log("PASS: Tutor image attachment — picked file downscaled, sent inline, rendered, strip cleared");
+
+// Paste: a snip (Win+Shift+S) must attach, but a copy out of Word/Excel/Outlook puts a
+// bitmap on the clipboard ALONGSIDE the text — claiming that paste would destroy what the
+// student meant to paste. The discriminator is text/plain, and both directions are pinned
+// here because getting it wrong is silent either way.
+await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-composer-field", { timeout: 15000 });
+const paste = await np.evaluate((b64) => {
+  const ta = document.querySelector(".aurora-composer-field");
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+  const file = new File([bytes], "shot.png", { type: "image/png" });
+  const fire = (withText) => {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    if (withText) dt.setData("text/plain", "the anterior chamber angle");
+    const ev = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true });
+    ta.dispatchEvent(ev);
+    return ev.defaultPrevented;
+  };
+  return { mixed: fire(true), imageOnly: fire(false) };
+}, PNG_1x1.toString("base64"));
+if (paste.mixed !== false) {
+  console.error("FAIL: pasting text that also carries a bitmap must NOT be hijacked into an attachment");
+  process.exit(1);
+}
+if (paste.imageOnly !== true) {
+  console.error("FAIL: pasting a screenshot must attach it"); process.exit(1);
+}
+await np.waitForSelector(".aurora-shot img", { timeout: 8000 });
+console.log("PASS: Tutor paste — a screenshot attaches, a mixed text+bitmap clipboard still pastes text");
+
 // progress + summary were retired: /progress and /summary must 404 (no route).
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const gone of ["/progress", "/summary"]) {

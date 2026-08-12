@@ -1,8 +1,10 @@
 """Chat and session endpoints."""
 import asyncio
+import base64
+import binascii
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -18,7 +20,9 @@ from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
 from tools.shared import db
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL, get_or_create_context_cache
+from tools.shared.gemini_client import (
+    stream_ask, MOCK_MODE, MODEL, FLASH_MODEL, get_or_create_context_cache,
+)
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.supervisor.student_insight import TOPIC_SENTINEL
 
@@ -42,14 +46,64 @@ def _knowledge_base() -> str:
     return _KB_CACHE or ""
 
 
+# ── Attachments ────────────────────────────────────────────────────────────
+# A student can attach images to a tutor message. They are NEVER stored: they live in
+# the request body, go to the model, and are dropped. Nothing reaches Supabase or disk.
+#
+# Sizing: the client downscales to a 1024px longest edge, so three images land around
+# 850 KB of base64 — comfortably inside the 2 MB MAX_REQUEST_BYTES the size middleware
+# already enforces, which is why this rides the existing JSON POST with no upload
+# endpoint, no storage bucket and no retention policy to answer for.
+
+MAX_IMAGES = 3
+MAX_IMAGE_BYTES = 1_500_000   # decoded, per image
+_MAX_IMAGE_B64 = 2_100_000    # base64 is ~4/3 of the decoded size
+
+# Sniffed against the declared mime. A mismatch is a broken client or someone probing
+# the decoder; either way it is cheaper to refuse than to hand the bytes to Gemini.
+_MIME_MAGIC: dict[str, bytes] = {
+    "image/png":  b"\x89PNG\r\n\x1a\n",
+    "image/jpeg": b"\xff\xd8\xff",
+    "image/webp": b"RIFF",
+}
+
+IMAGE_ONLY_PROMPT = "What can you tell me about this image?"
+
+
 # ── Request / Response models ──────────────────────────────────────────────
+
+class ChatImage(BaseModel):
+    mime: Literal["image/png", "image/jpeg", "image/webp"]
+    data: str = Field(max_length=_MAX_IMAGE_B64)   # base64, no data: prefix
 
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
+    images: list[ChatImage] = Field(default_factory=list, max_length=MAX_IMAGES)
 
 class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(max_length=100)
+
+
+def decode_images(images: list[ChatImage]) -> list[tuple[str, bytes]]:
+    """Decode attachments to ``(mime, raw_bytes)``, or 422.
+
+    Pydantic has already bounded the count, the mime and the encoded length; what is left
+    is what only the bytes can tell us — that they decode at all, that they fit, and that
+    they are the type they claim to be.
+    """
+    out: list[tuple[str, bytes]] = []
+    for img in images:
+        try:
+            raw = base64.b64decode(img.data, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(status_code=422, detail="Attachment is not valid base64")
+        if not raw or len(raw) > MAX_IMAGE_BYTES:
+            raise HTTPException(status_code=422, detail="Attachment is too large")
+        if not raw.startswith(_MIME_MAGIC[img.mime]):
+            raise HTTPException(status_code=422, detail="Attachment does not match its declared type")
+        out.append((img.mime, raw))
+    return out
 
 class ChatResponse(BaseModel):
     content: str
@@ -97,8 +151,21 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     student_id = current_user["sub"]
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
+    # Attachments ride the FINAL user turn only, and this is where that is enforced —
+    # not the client. An image asks about the message it arrived with; carrying one
+    # forward would re-bill it every turn and let a stale picture answer a new question.
+    image_parts: list[tuple[str, bytes]] = []
+    if body.messages and body.messages[-1].role == "user":
+        image_parts = decode_images(body.messages[-1].images)
+    if image_parts:
+        if not messages[-1]["content"].strip():
+            # An attachment with no typed question still has to ask something — an empty
+            # string would sail past the guardrail and give the model nothing to answer.
+            messages[-1]["content"] = IMAGE_ONLY_PROMPT
+        messages[-1]["images"] = image_parts
+
     last_user_msg = next(
-        (m.content for m in reversed(body.messages) if m.role == "user"), ""
+        (m["content"] for m in reversed(messages) if m["role"] == "user"), ""
     )
     try:
         profile = await get_profile(student_id)
@@ -109,7 +176,8 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
 
     # ── Stage 1: Input filter (regex + keyword + optional LLM) ───────────────
     try:
-        guard = await filter_input(last_user_msg, student_role=role)
+        guard = await filter_input(last_user_msg, student_role=role,
+                                   images_attached=bool(image_parts))
         if not guard["safe"]:
             audit_log("input_blocked", student_id=student_id, feature="guardrail",
                       detail=f"reason={guard['reason']} query={last_user_msg[:80]!r}")
@@ -138,7 +206,11 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     # becky §3: cache the large STATIC prefix (persona + KB, ~6.1k tokens) once and reuse it
     # so it isn't re-prefilled on every message. SECURITY: the per-user student block is NOT
     # cached (the cache is shared across users) — on the cached path it rides in the user turn.
-    cache_name = await asyncio.to_thread(get_or_create_context_cache, static_system, key=f"tutor:{role or 'default'}")
+    # An image turn cannot use the cache at all: a cached_content is bound to the model
+    # that created it (flash-lite), and vision needs FLASH_MODEL. Skip straight to the
+    # inline path — the text path below is untouched.
+    cache_name = None if image_parts else await asyncio.to_thread(
+        get_or_create_context_cache, static_system, key=f"tutor:{role or 'default'}")
     cached_messages = messages
     if cache_name and ctx_block:
         cached_messages = [dict(m) for m in messages]
@@ -171,8 +243,17 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
 
         for chunk in stream_ask(
             system_prompt=inline_system, messages=messages,
-            # Tutor replies are short by design — 1024 is a generous ceiling.
-            max_tokens=1024, feature="chatbot", model=MODEL,
+            # Tutor replies are short by design — 1024 is a generous ceiling. But an
+            # image turn runs on FLASH_MODEL, which reasons before answering by default,
+            # and those thinking tokens are billed against this same cap (live-proved in
+            # tools/flashcards/rank_card_difficulty.py, where 8192 truncated mid-JSON).
+            # Spend the budget on thoughts and the stream yields no text at all — no
+            # error, just an empty bubble. The cap is a ceiling, not a target, so the
+            # headroom costs nothing; flash-lite defaults to thinking-off and keeps 1024.
+            max_tokens=8192 if image_parts else 1024,
+            # An image turn needs a vision-capable model; flash-lite carries the text.
+            feature="image" if image_parts else "chatbot",
+            model=FLASH_MODEL if image_parts else MODEL,
             # becky §2: conversational tutoring doesn't need a thinking budget — MINIMAL.
             thinking_level="MINIMAL",
         ):

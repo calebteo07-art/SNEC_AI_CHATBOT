@@ -4,7 +4,9 @@
    frontend/tests/tutor_sessions_assert.mjs). Keyed per student; tolerant of corrupt
    or absent storage (always degrades to []). */
 
-export interface StoredMessage { type: "ai" | "user"; id: string; text: string }
+/* `imageCount` is the only trace an attachment leaves: images are never stored, so a
+   reopened thread can say how many rode with a question but can never show them again. */
+export interface StoredMessage { type: "ai" | "user"; id: string; text: string; imageCount?: number }
 export interface StoredSession {
   id: string;
   startedAt: number;

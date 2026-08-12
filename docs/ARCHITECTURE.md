@@ -80,7 +80,7 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | POST | `/api/auth/login` · `/api/auth/logout` · `/api/onboard` | public / cookie |
 | POST | `/api/auth/request-reset` · `/api/auth/reset-password` | public (rate-limited) |
 | POST | `/api/auth/change-password` · GET `/api/auth/me` | cookie |
-| POST | `/api/chat` (SSE) · `/api/end-session` | student |
+| POST | `/api/chat` (SSE, optional image attachments) · `/api/end-session` | student |
 | GET  | `/api/cases` · `/api/cases/{id}` · `/{id}/station` · `/{id}/checklist` | student, own pool |
 | POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` · `/forfeit` | student, own pool |
 | GET/POST | `/api/checkin/*` · `/api/flashcards/*` · `/api/gamification/sync` | student |
@@ -90,6 +90,15 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **staff** |
 | PATCH | `/api/profile/role` (content-pool toggle) | **staff** |
 | GET | `/health` (liveness) · `/health/ready` (readiness, 503 on dep down) | public |
+
+`POST /api/chat` accepts up to 3 images on the **final** user turn (`messages[-1].images`,
+base64 png/jpeg/webp, magic-byte checked, ≤1.5 MB each — and the whole body still bounded by
+`MAX_REQUEST_BYTES`). The client downscales to a 1024px JPEG first, which is what keeps three
+of them inside that ceiling with no upload endpoint and no storage bucket. Images are **never
+stored** — not in Supabase, on disk, in the audit trail, or in `chat_sessions`; only a count
+survives in the browser's own thread. An image turn leaves the flash-lite context cache (a
+cache is bound to its creating model) and runs inline on `FLASH_MODEL`; text turns are
+unchanged.
 
 Every `/api/cases/{id}...` route runs `_check_case_access`, which enforces the student's
 **role pool** (404 — an out-of-pool case should not be enumerable) before the per-topic
