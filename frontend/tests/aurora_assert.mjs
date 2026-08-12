@@ -532,30 +532,50 @@ console.log("PASS: Tutor image attachment — picked file downscaled, sent inlin
 // here because getting it wrong is silent either way.
 await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
 await np.waitForSelector(".aurora-composer-field", { timeout: 15000 });
-const paste = await np.evaluate((b64) => {
+// The wait for the thumbnail happens IN the page, and reports what it found — a bare
+// waitForSelector here just times out and names the selector, which says nothing about
+// whether the clipboard carried the file, whether the handler claimed it, or whether the
+// decode failed. Each of those needs a different fix.
+const paste = await np.evaluate(async (b64) => {
   const ta = document.querySelector(".aurora-composer-field");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
-  const file = new File([bytes], "shot.png", { type: "image/png" });
   const fire = (withText) => {
     const dt = new DataTransfer();
-    dt.items.add(file);
+    // A fresh File per event: a DataTransfer is read-only once dispatched, and reusing
+    // the object across two events is the kind of thing that differs between builds.
+    dt.items.add(new File([bytes], "shot.png", { type: "image/png" }));
     if (withText) dt.setData("text/plain", "the anterior chamber angle");
     const ev = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true });
     ta.dispatchEvent(ev);
-    return ev.defaultPrevented;
+    return { prevented: ev.defaultPrevented, files: ev.clipboardData.files.length };
   };
-  return { mixed: fire(true), imageOnly: fire(false) };
+  const mixed = fire(true);
+  const imageOnly = fire(false);
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline && !document.querySelector(".aurora-shot img")) {
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return {
+    mixed, imageOnly,
+    attached: document.querySelectorAll(".aurora-shot img").length,
+    notice: (document.querySelector(".aurora-composer-note")?.textContent ?? "").trim(),
+  };
 }, PNG_1x1.toString("base64"));
-if (paste.mixed !== false) {
+if (paste.mixed.prevented !== false) {
   console.error("FAIL: pasting text that also carries a bitmap must NOT be hijacked into an attachment");
   process.exit(1);
 }
-if (paste.imageOnly !== true) {
-  console.error("FAIL: pasting a screenshot must attach it"); process.exit(1);
+if (paste.imageOnly.prevented !== true) {
+  console.error(`FAIL: pasting a screenshot must attach it (clipboard files=${paste.imageOnly.files})`);
+  process.exit(1);
 }
-await np.waitForSelector(".aurora-shot img", { timeout: 8000 });
+if (paste.attached < 1) {
+  console.error(`FAIL: the pasted screenshot never became a thumbnail `
+    + `(clipboard files=${paste.imageOnly.files}, notice=${JSON.stringify(paste.notice)})`);
+  process.exit(1);
+}
 console.log("PASS: Tutor paste — a screenshot attaches, a mixed text+bitmap clipboard still pastes text");
 
 // progress + summary were retired: /progress and /summary must 404 (no route).
