@@ -1155,6 +1155,22 @@ student's customised avatar (ricoe A3).
   is the user's** message. Greeting + chatbox enlarged; recent cards shrunk. *Pending
   Workstream B*: the landing mascot becomes a brand-new **dancing-Iris Veo loop** (`iris.png`
   stays the poster/fallback), superseding the waving-Selena treatment in the Branding lock.
+- **Image attachments (2026-08-12)**: this refines the **composer input-modality criterion
+  only** — text-only → **text + up to 3 images**. Everything else in this lock (Manrope,
+  `#5B5BFF`, the constellation canvas, the greeting landing, the reply-avatar rule, the
+  pill's geometry) is unchanged. A **paperclip** in `Composer` (drag-drop and **paste** too —
+  paste is how a screenshot actually arrives), a thumbnail strip with per-item `×`, and one
+  line of helper text. Both the landing and the thread get it: they share **one** `Composer`
+  and **one** selection, so attaching on the landing carries into the thread. All attachment
+  props are **optional** — omit them and the component renders the old text-only composer, so
+  `.aurora-composer`'s locked metrics don't move at rest; the strip and hint mount **outside**
+  the pill and only when something is attached. Send enables on text **or** an image; an image
+  with no typed question sends `IMAGE_ONLY_PROMPT` (client and server substitute the same
+  string). **Nothing is stored** — the client downscales to a 1024px JPEG, the bytes go
+  browser → `/api/chat` → Gemini and are dropped; a reopened thread shows *"N images attached
+  — not saved"* rather than a dead frame, because only `imageCount` persists. Gated by
+  `frontend/tests/tutor_images_assert.mjs` (triage rules) and by `aurora_assert.mjs`, which
+  drives a real file through the real canvas and asserts the actual request body.
 
 ## Virtual Patients / OSCE Station — LOCKED 2026-06-25
 Living Eye selection plate (photoreal cross-section + fundus inset, calibrated pins).

@@ -1931,6 +1931,32 @@ html[data-motion="reduce"] .aurora-grade { animation: none !important; }
 .aurora-composer-send:disabled::after { animation: none; }
 @keyframes chat-send-pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 91, 255, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(91, 91, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 91, 255, 0); } }
 
+/* Image attachments (2026-08-12) — refines the Tutor Chat lock's composer criterion only
+   (text-only input -> text + up to 3 images). The wrap is a plain column and the strip only
+   mounts when something is attached, so an empty composer keeps the exact geometry it had
+   before attachments existed. */
+.aurora-composer-wrap { display: flex; flex-direction: column; gap: 8px; }
+.aurora-composer-file { display: none; }
+.aurora-composer-clip { flex: none; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: none; border-radius: 999px; background: none; color: var(--mono-ink-2); cursor: pointer; transition: color .18s var(--mo-ease), background-color .18s var(--mo-ease); }
+.aurora-composer-clip:hover:not(:disabled) { color: var(--elec); background-color: rgba(91, 91, 255, 0.09); }
+.aurora-composer-clip:disabled { opacity: 0.4; cursor: not-allowed; }
+/* The 18px left inset is for a bare textarea; a clip sits in that space itself. */
+.aurora-composer:has(.aurora-composer-clip) { padding-left: 8px; }
+.aurora-composer[data-dragging] { border-color: rgba(91, 91, 255, 0.7); box-shadow: 0 0 0 3px rgba(91, 91, 255, 0.16); }
+
+.aurora-composer-shots { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 6px; }
+.aurora-shot { position: relative; flex: none; width: 68px; height: 68px; border-radius: 14px; overflow: hidden; border: 1px solid var(--mono-line); background: var(--mono-card); }
+.aurora-shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.aurora-shot-x { position: absolute; top: 3px; right: 3px; display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: none; border-radius: 999px; background: rgba(17, 17, 17, 0.72); color: #fff; cursor: pointer; }
+.aurora-composer-hint { flex: 1; min-width: 190px; font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--mono-ink-3); }
+.aurora-composer-note { margin: 0; padding: 0 6px; font-family: var(--font-sans); font-size: 13.5px; line-height: 1.45; color: var(--elec); }
+
+/* Sent thumbnails ride inside the student's own bubble. A reopened thread has no bytes
+   left to show, so it gets the count line instead. */
+.aurora-msg-shots { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.aurora-msg-shots img { display: block; width: 132px; max-width: 46vw; border-radius: 12px; }
+.aurora-msg-shots-gone { display: block; margin-bottom: 6px; font-size: 13px; opacity: 0.82; }
+
 /* Reduced motion — freeze every chat motion graphic, keep the final state */
 html[data-motion="reduce"] .aurora-chat::before,
 html[data-motion="reduce"] .aurora-chat-eye-orb img,
@@ -2013,6 +2039,10 @@ html[data-motion="reduce"] .tl-hello em { animation: none; background-position: 
 .tl-prompt { width: min(760px, 100%); margin: 30px auto 0; }
 .tl-prompt .aurora-composer { border-radius: 24px; padding: 12px 12px 12px 22px; min-height: 70px; align-items: center;
   box-shadow: 0 18px 44px -22px rgba(60, 60, 120, 0.4); }
+/* The generic clip compensation is (0,2,0) and so LOSES the tie to the rule above, which
+   is also (0,2,0) and later — leaving the landing's paperclip inset 22px against its own
+   12px Send inset. Re-state it scoped, at (0,3,0). */
+.tl-prompt .aurora-composer:has(.aurora-composer-clip) { padding-left: 12px; }
 .tl-prompt .aurora-composer-field { font-size: 18px; }
 .tl-prompt .aurora-composer:focus-within { border-color: rgba(91, 91, 255, 0.7);
   box-shadow: 0 0 0 3px rgba(123, 92, 246, 0.18), 0 18px 44px -20px rgba(60, 60, 120, 0.45); }

@@ -26,10 +26,47 @@ import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { firstNameOf } from "@/aurora/lib/displayName";
 import { apiErrorMessage } from "@/aurora/lib/apiError";
+import {
+  MAX_IMAGES, imageOnlyText, prepareImage, rejectionMessage, triageFiles,
+  type PreparedImage,
+} from "@/aurora/lib/tutorImages";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
-interface UserMessage { type: "user"; id: string; text: string; }
+/* `images` are the live previews — they exist only for as long as this thread is on
+   screen. `imageCount` is the part that persists: attachments are never stored, so a
+   reopened conversation says how many there were rather than showing a dead frame. */
+interface UserMessage { type: "user"; id: string; text: string; images?: PreparedImage[]; imageCount?: number; }
 type Message = AIMessage | UserMessage;
+
+/* A sent message renders its thumbnails inside the bubble. On a REOPENED thread the
+   bytes are gone — attachments are never stored — so the count stands in for them
+   rather than leaving the question hanging with nothing to look at. */
+function userBubble(m: UserMessage) {
+  const n = m.imageCount ?? 0;
+  if (!n) return m.text;
+  return (
+    <>
+      {m.images?.length ? (
+        <span className="aurora-msg-shots">
+          {m.images.map((img) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img key={img.id} src={img.preview} alt={img.name || "Attached image"} />
+          ))}
+        </span>
+      ) : (
+        <span className="aurora-msg-shots-gone">
+          {n} image{n > 1 ? "s" : ""} attached — not saved
+        </span>
+      )}
+      {m.text}
+    </>
+  );
+}
+
+const toStored = (m: Message): StoredMessage =>
+  m.type === "ai"
+    ? { type: "ai", id: m.id, text: m.content }
+    : { type: "user", id: m.id, text: m.text, imageCount: m.imageCount };
 
 // The thread is persisted before this renders, so a reload keeps the conversation.
 const FALLBACK_CONTENT = apiErrorMessage("I'm having trouble reaching the service right now");
@@ -44,6 +81,8 @@ const SUGGESTIONS = [
 export function Tutor() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [shots, setShots] = useState<PreparedImage[]>([]);
+  const [notice, setNotice] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
@@ -63,8 +102,7 @@ export function Tutor() {
   // Persist the full thread (normalized) to localStorage under `sid`, upserting to the front.
   const persistThread = (thread: Message[], sid: string) => {
     if (typeof window === "undefined") return;
-    const stored: StoredMessage[] = thread.map((m) =>
-      m.type === "ai" ? { type: "ai", id: m.id, text: m.content } : { type: "user", id: m.id, text: m.text });
+    const stored: StoredMessage[] = thread.map(toStored);
     const now = Date.now();
     const existing = loadSessions(userId, window.localStorage);
     const prior = existing.find((s) => s.id === sid);
@@ -97,8 +135,7 @@ export function Tutor() {
   // `keepalive` lets the browser finish sending the request even if the page is already
   // unloading, shrinking (not closing — see the effect comment below) the tab-close loss window.
   const endTutorSession = () => {
-    const stored: StoredMessage[] = messagesRef.current.map((m) =>
-      m.type === "ai" ? { type: "ai", id: m.id, text: m.content } : { type: "user", id: m.id, text: m.text });
+    const stored: StoredMessage[] = messagesRef.current.map(toStored);
     const payload = endSessionPayload(stored, endSentRef.current, resumeBaselineRef.current);
     if (!payload) return;
     endSentRef.current = true;
@@ -155,7 +192,44 @@ export function Tutor() {
     try { localStorage.setItem("eyebot_tutor_greet", JSON.stringify({ o, s })); } catch { /* ignore */ }
   }, []);
   const enterChat = () => { setPhase("leaving"); window.setTimeout(() => setPhase("chat"), 460); };
-  const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
+  const startFromLanding = () => {
+    if ((!input.trim() && shots.length === 0) || preparing > 0 || isTyping || streamingId) return;
+    enterChat();
+    void sendMessage();
+  };
+
+  /* Attach: refuse what can't be sent and SAY why, then downscale the rest.
+     Slot accounting is a REF, not `shots.length`. `prepareImage` decodes and re-encodes
+     the source file, which is 100ms+ for a phone photo, and nothing sets state before it
+     — so a second paste inside that window would read the same pre-attach count, both
+     calls would think all three slots were free, and the surplus image would be dropped
+     by the cap with nothing to explain it. Reserving synchronously is what lets the
+     second call see the truth and report an honest "up to 3" instead of silence. */
+  const reservedRef = useRef(0);
+  const [preparing, setPreparing] = useState(0);
+  const addFiles = async (files: File[]) => {
+    const { accepted, rejected } = triageFiles(reservedRef.current, files);
+    reservedRef.current += accepted.length;
+    let why = rejectionMessage(rejected);
+    if (!accepted.length) { if (why) setNotice(why); return; }
+    setPreparing((n) => n + 1);   // before the first await — this is what gates send
+    const prepared: PreparedImage[] = [];
+    for (const file of accepted) {
+      try { prepared.push(await prepareImage(file)); }
+      catch { reservedRef.current = Math.max(0, reservedRef.current - 1); }
+    }
+    if (prepared.length < accepted.length) why = `${why} Some images could not be read.`.trim();
+    // Never clear with an empty string: a concurrent call may have just written a real one.
+    if (why) setNotice(why);
+    if (prepared.length) setShots((prev) => [...prev, ...prepared].slice(0, MAX_IMAGES));
+    setPreparing((n) => n - 1);
+  };
+  const removeImage = (id: string) => {
+    setShots((prev) => prev.filter((i) => i.id !== id));
+    reservedRef.current = Math.max(0, reservedRef.current - 1);
+    setNotice("");
+  };
+
   const resumeSession = (s: StoredSession) => {
     // Starting a different conversation counts as ending whatever was live (design doc
     // §6.2a) — log it before it's overwritten. The baseline is this resumed thread's OWN
@@ -164,7 +238,9 @@ export function Tutor() {
     // without a baseline every re-read would write a duplicate row.
     switchConversation(s.messages.length);
     const restored: Message[] = s.messages.map((m) =>
-      m.type === "ai" ? { type: "ai", id: m.id, content: m.text } : { type: "user", id: m.id, text: m.text });
+      m.type === "ai"
+        ? { type: "ai", id: m.id, content: m.text }
+        : { type: "user", id: m.id, text: m.text, imageCount: m.imageCount });
     setMessages(restored);
     setActiveSessionId(s.id);
     setPhase("chat");
@@ -191,13 +267,27 @@ export function Tutor() {
   /* SSE streaming send. Accepts an optional override (resume / quick-start from the
      landing) so it doesn't depend on the async `input` state having flushed. */
   const sendMessage = async (override?: string) => {
-    const text = (override ?? input).trim();
-    if (!text || isTyping || streamingId) return;
+    const raw = (override ?? input).trim();
+    const attached = shots;
+    // `preparing` blocks the window where an image is still being decoded: sending now
+    // would snapshot the pre-attach `shots` and ask about a picture that never rode along.
+    // Enter reaches here even when Composer is `disabled`, so the guard has to live here.
+    if ((!raw && attached.length === 0) || preparing > 0 || isTyping || streamingId) return;
+    // An attachment sent with no typed question still has to ask something — the server
+    // substitutes the same default, so the thread and the model see one question.
+    const text = attached.length ? imageOnlyText(raw) : raw;
     const sid = activeSessionId ?? `sess-${Date.now()}`;
     if (!activeSessionId) setActiveSessionId(sid);
-    const userMsg: UserMessage = { type: "user", id: Date.now().toString(), text };
+    const userMsg: UserMessage = {
+      type: "user", id: Date.now().toString(), text,
+      images: attached.length ? attached : undefined,
+      imageCount: attached.length || undefined,
+    };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setShots([]);
+    reservedRef.current = 0;
+    setNotice("");
     setIsTyping(true);
     // Persist immediately so the session appears even if the user leaves before a reply.
     persistThread(messages.concat(userMsg), sid);
@@ -211,8 +301,20 @@ export function Tutor() {
     }
     grantAchievements(user?.studentId ?? "", ["first_chat"]).forEach(enqueue);
 
-    const apiMessages = messages.concat(userMsg).map((m) =>
-      m.type === "user" ? { role: "user", content: m.text } : { role: "assistant", content: m.content },
+    // Attachments ride the FINAL turn only — they ask about the message they arrived
+    // with, and re-sending them every turn would re-bill them. The server enforces the
+    // same rule; this just avoids sending what would be discarded.
+    const thread = messages.concat(userMsg);
+    const apiMessages = thread.map((m, i) =>
+      m.type === "user"
+        ? {
+            role: "user",
+            content: m.text,
+            ...(i === thread.length - 1 && attached.length
+              ? { images: attached.map(({ mime, data }) => ({ mime, data })) }
+              : {}),
+          }
+        : { role: "assistant", content: m.content },
     );
 
     const aiMsgId = `ai-${Date.now() + 1}`;
@@ -286,6 +388,10 @@ export function Tutor() {
           disabled={isTyping || streamingId !== null}
           sessions={recent}
           onResume={resumeSession}
+          images={shots}
+          onAddFiles={(f) => void addFiles(f)}
+          onRemoveImage={removeImage}
+          notice={preparing > 0 ? "Preparing your image…" : notice}
           openerSeed={openerSeed}
           subSeed={subSeed}
           leaving={phase === "leaving"}
@@ -326,7 +432,7 @@ export function Tutor() {
                 role={m.type === "ai" ? "eyebot" : "user"}
                 streaming={streamingId === m.id}
               >
-                {m.type === "ai" ? m.content : m.text}
+                {m.type === "ai" ? m.content : userBubble(m)}
               </MessageBubble>
             ))}
             {isTyping && (
@@ -348,6 +454,10 @@ export function Tutor() {
                 onChange={setInput}
                 onSend={() => void sendMessage()}
                 disabled={isTyping || streamingId !== null}
+                images={shots}
+                onAddFiles={(f) => void addFiles(f)}
+                onRemoveImage={removeImage}
+                notice={preparing > 0 ? "Preparing your image…" : notice}
               />
             </div>
           </footer>

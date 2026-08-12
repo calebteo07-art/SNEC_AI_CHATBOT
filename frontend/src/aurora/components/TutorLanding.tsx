@@ -7,6 +7,7 @@
 import { useEffect, useRef } from "react";
 import { pickTutorGreeting } from "@/aurora/lib/tutorGreeting";
 import type { StoredSession } from "@/aurora/lib/tutorSessions";
+import type { PreparedImage } from "@/aurora/lib/tutorImages";
 import Link from "next/link";
 import { Icon } from "@/aurora/icons";
 import { Composer } from "@/aurora/components/Composer";
@@ -28,6 +29,7 @@ function ago(ts: number): string {
 
 export function TutorLanding({
   firstName, input, onChange, onSend, disabled, sessions, onResume, openerSeed, subSeed, leaving = false,
+  images, onAddFiles, onRemoveImage, notice,
 }: {
   firstName: string;
   input: string;
@@ -39,6 +41,12 @@ export function TutorLanding({
   openerSeed: number;
   subSeed: number;
   leaving?: boolean;
+  // Attachments are the parent's state — the landing and the thread share one Composer
+  // and one selection, so attaching here and asking carries straight into the thread.
+  images?: PreparedImage[];
+  onAddFiles?: (files: File[]) => void;
+  onRemoveImage?: (id: string) => void;
+  notice?: string;
 }) {
   // Hello opener + cheeky sub both come from the pure engine, chosen by seeds the parent
   // (Tutor) rotates per visit with no immediate repeats. 0/0 on first render is stable.
@@ -81,7 +89,8 @@ export function TutorLanding({
         <p className="tl-sub">{greeting.sub}</p>
         <div className="tl-prompt">
           <Composer value={input} onChange={onChange} onSend={onSend} disabled={disabled}
-            placeholder="Ask EyeBot anything…" />
+            placeholder="Ask EyeBot anything…"
+            images={images} onAddFiles={onAddFiles} onRemoveImage={onRemoveImage} notice={notice} />
         </div>
       </div>
 

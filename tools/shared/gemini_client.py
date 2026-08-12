@@ -161,13 +161,27 @@ def _to_gemini_history(messages: list[dict]) -> tuple[list[dict], str]:
 
 
 def _build_contents(messages: list[dict]) -> tuple[list[dict], str]:
-    """Build Gemini REST contents list from Anthropic-format messages."""
+    """Build Gemini REST contents list from Anthropic-format messages.
+
+    A message may carry an optional ``images`` list of ``(mime_type, raw_bytes)`` — the
+    tutor's attachments. Only the LAST turn's images are sent: an attachment is a question
+    about the message it rides on, and re-sending it every turn would re-bill it. History
+    turns stay text-only, exactly as before.
+    """
     history, last_message = _to_gemini_history(messages)
     contents = [
         {"role": h["role"], "parts": [{"text": p} if isinstance(p, str) else p for p in h["parts"]]}
         for h in history
     ]
-    contents.append({"role": "user", "parts": [{"text": last_message}]})
+    last_parts: list = [{"text": last_message}]
+    images = messages[-1].get("images") if messages else None
+    if images:
+        # Image before text — the ordering tools/kb/ocr.py already uses live.
+        from google.genai import types
+        last_parts = [
+            types.Part.from_bytes(data=raw, mime_type=mime) for mime, raw in images
+        ] + last_parts
+    contents.append({"role": "user", "parts": last_parts})
     return contents, last_message
 
 
