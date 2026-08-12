@@ -11,10 +11,21 @@ Designed to be called before any LLM invocation.
 import asyncio
 import re
 
+# Prompt injection: "<verb> <qualifier>+ <target>". Each part is an alternation because
+# the attack is written a hundred ways and a single-word gap between the verb and the
+# noun missed "ignore ALL PREVIOUS instructions" — the most common phrasing of all.
+# At least one qualifier is required, which is what keeps the clinically ordinary
+# "patients often ignore instructions during visual field testing" out of the net.
+_INJECT_VERB = r"(?:ignore|disregard|forget|override|discard)"
+_INJECT_QUALIFIER = (r"(?:all|any|every|the|your|these|those|previous|above|prior|earlier"
+                     r"|preceding|foregoing|initial|original|first|system)")
+_INJECT_TARGET = r"(?:instruction|prompt|rule|direction|directive|guideline|command)s?"
+
 # Prompt injection, impersonation, and clearly off-topic generation. Always blocked,
 # in every context — tutor and virtual-patient case chat alike.
 _ABUSE_PATTERNS = [
-    r"ignore\s+(previous|above|all|prior)\s+instructions",      # prompt injection
+    rf"\b{_INJECT_VERB}\s+(?:{_INJECT_QUALIFIER}\s+){{1,3}}{_INJECT_TARGET}\b",
+    rf"\b{_INJECT_VERB}\s+everything\s+(?:above|before|prior|previous|earlier|said)",
     r"(you are now|pretend to be|act as)\s+(a\s+)?(different|another|evil)",
     r"(write|generate|create|compose)\s+a\s+(poem|story|song|rap|code|script|email\s+to)",
     r"\b(weather|sports|recipe|stock\s*price|cryptocurrency|betting|gambling|lottery)\b",
