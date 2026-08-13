@@ -70,7 +70,7 @@ only JSON/SSE.**
 | Data     | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
 | Auth     | Custom JWT in an **HttpOnly** cookie `eyebot_token`; bcrypt(cost 12); OTP reset. |
 | Async    | Celery + Redis workers (`tools/workers/`). |
-| Deploy   | Render, auto-deploys `main` + keep-alive cron. The live service builds the **`Dockerfile`**; `render.yaml` declares a drifted native-Python path too — keep both working. |
+| Deploy   | Render, auto-deploys `main` + keep-alive cron. `render.yaml` (`runtime: docker`) and the live service both build the **`Dockerfile`** — never delete it. |
 
 Endpoint map: `docs/ARCHITECTURE.md`. Security model: `docs/SECURITY.md`.
 
