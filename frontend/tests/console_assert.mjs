@@ -532,6 +532,56 @@ async function badgeContrast(page, where) {
   await ctx.close();
 }
 
+/* ───────── the reads that must FAIL LOUD, not fail open ─────────
+   Each of these once degraded to an empty SUCCESS, which is the worst way a clinical or
+   compliance board can break: an outage rendered as reassuring news. Asserted in a real
+   browser because all three are render-path defects — the endpoints were already
+   returning what they should. */
+{
+  const ctx = await seededContext(browser, BASE, admin, { width: 1440, height: 1000 });
+  // Registered AFTER seededContext so they win: Playwright matches the newest route first.
+  const dead = (r) => r.fulfill({
+    status: 503, contentType: "application/json",
+    body: JSON.stringify({ detail: "Unavailable. Please try again." }),
+  });
+  await ctx.route("**/api/supervisor/at-risk", dead);
+  await ctx.route("**/api/admin/audit*", dead);
+  const page = await ctx.newPage();
+  try {
+    // The stat VALUE was already routed through figure(); the DETAIL line beneath it
+    // printed a confident coral "0 students flagged" for a read that never landed.
+    await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("[data-testid=admin-at-risk] [role=alert]", { timeout: 15000 });
+    const stat = '.cs-stat:has-text("Needs attention")';
+    const flaggedVal = (await page.locator(`${stat} [data-testid=cs-stat-value]`).innerText()).trim();
+    check(flaggedVal === "—", `"Needs attention" value = "${flaggedVal}", expected an em dash`);
+    const flaggedDetail = (await page.locator(`${stat} .cs-statd`).innerText()).trim();
+    check(!/\d/.test(flaggedDetail),
+      `a failed at-risk read rendered "${flaggedDetail}" — a digit there is a measurement`);
+
+    // The roster: the coral markers come from the SAME read, and losing them silently
+    // says "nobody is at risk" on the screen whose whole job is to say otherwise.
+    await page.goto(`${BASE}/admin/students`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("[data-testid=admin-roster]", { timeout: 15000 });
+    await page.waitForSelector("[role=alert]", { timeout: 15000 });
+    await page.locator('.cs-toolbar .cs-chip:text-is("At risk")').click();
+    await page.waitForTimeout(300);
+    check((await page.locator("[data-testid=admin-roster]").count()) === 0,
+      'the "At risk" filter still rendered a table on a failed at-risk read');
+    check((await page.locator("text=No students found.").count()) === 0,
+      'a failed at-risk read rendered "No students found." — an outage as good news');
+
+    // The audit trail, read during a security review.
+    await page.goto(`${BASE}/admin/audit`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("[role=alert]", { timeout: 15000 });
+    check((await page.locator("[data-testid=admin-audit]").count()) === 0,
+      "the audit page rendered its table on a 503 — an empty security log reads as a clean one");
+    check((await page.locator("text=No audit events recorded yet").count()) === 0,
+      'a 503 audit read rendered "No audit events recorded yet" during a security review');
+  } catch (e) { fails.push(`fail-loud: threw — ${String(e.message).split("\n")[0]}`); }
+  await ctx.close();
+}
+
 await browser.close();
 
 if (fails.length) {

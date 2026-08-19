@@ -37,7 +37,13 @@ export function AdminRoster() {
   // A failed at-risk read is NOT "nobody is flagged". With no rows the coral markers
   // simply vanish from a roster that still renders perfectly, and the "At risk" filter
   // answers an outage with a clean "No students found."
+  //
+  // `isSuccess`, not `!isError`: React Query retries a 503 with backoff, so for several
+  // seconds the query is neither successful nor failed — and an empty at-risk list during
+  // that window renders exactly the same reassuring lie, just time-boxed. The filter may
+  // only show a table once the read it filters on has actually landed.
   const atRiskFailed = atRiskQ.isError;
+  const atRiskReady = atRiskQ.isSuccess;
   const atRisk = (atRiskQ.data ?? []).map((r) => r.student_id);
 
   const filtered = students.filter((s) => {
@@ -89,8 +95,10 @@ export function AdminRoster() {
         <CsSkeleton rows={6} />
       ) : roster.isError ? (
         <CsError onRetry={() => roster.refetch()} label="Couldn’t load the roster." />
-      ) : filter === "at-risk" && atRiskFailed ? (
-        <CsError onRetry={() => atRiskQ.refetch()} label="Couldn’t load the at-risk flags." />
+      ) : filter === "at-risk" && !atRiskReady ? (
+        atRiskFailed
+          ? <CsError onRetry={() => atRiskQ.refetch()} label="Couldn’t load the at-risk flags." />
+          : <CsSkeleton rows={6} />
       ) : (
         <DataTable<RosterRow>
           testId="admin-roster"
