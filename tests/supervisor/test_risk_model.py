@@ -80,14 +80,23 @@ def test_absent_signal_is_dropped_from_the_denominator():
 def test_zero_filling_a_missing_signal_would_be_visible_here():
     # Same student, now WITH a perfect OSCE record. The score must fall, proving the
     # renormalised denominator actually grew rather than the deficit being summed raw.
-    # Pinned exact: only inactivity/streak_broken/weak_breadth carry deficit now, over
-    # a denominator that also includes the two zero-deficit OSCE signals:
-    # (0.18+0.06+0.06) / (0.18+0.06+0.06+0.30+0.22) = 0.30/0.82 -> 37.
     perfect_osce = score_student(**_signals(
         days_inactive=14, streak=0, weak_count=5,
         osce={"pass_rate": 1.0, "graded_n": 20, "safety_fail_rate": 0.0, "safety_gradable_n": 20},
     ))
-    assert perfect_osce["risk_score"] == 37
+    only_inactive = score_student(**_signals(days_inactive=14, streak=0, weak_count=5))
+    assert perfect_osce["risk_score"] < only_inactive["risk_score"]
+    # Pinned exact. 20 graded attempts shrink to 20/25, so 1/5 of the OSCE and safety
+    # weight is UN-EVIDENCED. That remainder is not proof of safety, so it does not sit
+    # at zero deficit — it is redistributed across the profile facts, which are all at
+    # full deficit here:
+    #   unevidenced = (0.30 + 0.22) * 0.2                       = 0.104
+    #   facts       = 0.18 + 0.06 + 0.06                        = 0.30
+    #   score       = 0.30 * (1 + 0.104/0.30) / 0.82            -> 49
+    # Under the pre-monotonicity model that remainder counted as "this student is fine"
+    # and the same student scored 37 — the same arithmetic that let a FAILED attempt
+    # lower a score (see the monotonicity block below).
+    assert perfect_osce["risk_score"] == 49
 
 
 def test_osce_pass_rate_with_null_graded_n_drops_the_signal():
@@ -127,6 +136,58 @@ def test_profile_facts_are_not_shrunk():
     # uses n=0, giving a shrink factor of 0/(0+5) = 0, which would drop this to 25.
     out = score_student(**_signals(days_inactive=14, streak=None, weak_count=5))
     assert out["risk_score"] == 100
+
+
+# ── Monotonicity: evidence of failure can only raise risk ────────────────────
+#
+# The three tests above hold the signal SET constant and vary only n, so none of them
+# exercises ADDING a signal. Renormalising over the full rubric weight while shrinking
+# only the contribution meant a thin sampled signal absorbed its whole weight and gave
+# almost none of it back — so attaching a failed station to an otherwise-identical
+# student LOWERED their score, and could drop them out of the two bands `at_risk.py`
+# returns. That is the exact inversion this model was built to end.
+
+_ENGAGEMENT = [
+    pytest.param(dict(days_inactive=7, streak=3, weak_count=2), id="quiet-7d"),
+    pytest.param(dict(days_inactive=14, streak=0, weak_count=5), id="gone-14d"),
+    pytest.param(dict(days_inactive=0, streak=9, weak_count=0), id="engaged-daily"),
+    pytest.param(dict(days_inactive=3, streak=0, weak_count=1), id="slipping"),
+]
+
+
+@pytest.mark.parametrize("engagement", _ENGAGEMENT)
+def test_a_failed_attempt_never_lowers_risk(engagement):
+    before = score_student(**_signals(**engagement))["risk_score"]
+    after = score_student(**_signals(**engagement, osce={
+        "pass_rate": 0.0, "graded_n": 1, "safety_fail_rate": None, "safety_gradable_n": 0,
+    }))["risk_score"]
+    assert after >= before, f"failing a station dropped risk {before} -> {after}"
+
+
+@pytest.mark.parametrize("engagement", _ENGAGEMENT)
+def test_an_unsafe_failed_attempt_never_lowers_risk(engagement):
+    # Strictly more evidence than the test above: the same failed attempt, plus a
+    # safety fail on it. A student cannot become safer by being unsafe.
+    failed = score_student(**_signals(**engagement, osce={
+        "pass_rate": 0.0, "graded_n": 1, "safety_fail_rate": None, "safety_gradable_n": 0,
+    }))["risk_score"]
+    unsafe = score_student(**_signals(**engagement, osce={
+        "pass_rate": 0.0, "graded_n": 1, "safety_fail_rate": 1.0, "safety_gradable_n": 1,
+    }))["risk_score"]
+    assert unsafe >= failed, f"an unsafe fail dropped risk {failed} -> {unsafe}"
+
+
+@pytest.mark.parametrize("engagement", _ENGAGEMENT)
+def test_a_failed_attempt_never_demotes_a_band(engagement):
+    # The score is ranked, but the BAND is what `at_risk.py` filters on — it returns
+    # only high/medium, so a demotion here does not reorder the panel, it empties a row
+    # off it. Pinned separately because a sub-threshold score move is invisible.
+    order = {"low": 0, "medium": 1, "high": 2}
+    before = score_student(**_signals(**engagement))["band"]
+    after = score_student(**_signals(**engagement, osce={
+        "pass_rate": 0.0, "graded_n": 1, "safety_fail_rate": 1.0, "safety_gradable_n": 1,
+    }))["band"]
+    assert order[after] >= order[before], f"band fell {before} -> {after}"
 
 
 # ── Scale normalisation ──────────────────────────────────────────────────────

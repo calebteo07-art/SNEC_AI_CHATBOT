@@ -221,11 +221,31 @@ def score_student(
 
     weights = RISK_RUBRIC["weights"]
     total_w = sum(weights[name] for name in comps)
+    # A sampled signal is worth only the evidence behind it: n/(n+K) of its weight. The
+    # REMAINDER used to sit in the denominator at zero deficit, which made the model
+    # non-monotonic — attaching a failed station to an otherwise identical student
+    # handed 5/6 of a 0.30 weight to "this student is fine" and LOWERED their score,
+    # dropping them out of the two bands `at_risk.py` returns. The un-evidenced mass now
+    # behaves like the evidence that does exist: it is redistributed across the profile
+    # facts, which is where that prior comes from. Attributing it to the facts rather
+    # than back to the thin signal keeps `reasons` honest — a student who PASSED their
+    # single station must never see "Failed 0 of 1" listed as a reason they are at risk.
+    # With no profile facts present there is no prior, the mass stays at zero, and the
+    # single-signal calibration above (1 attempt -> 17, 20 -> 80) is unchanged.
+    fact_w = sum(weights[name] for name in comps if name not in _SAMPLED)
+    unevidenced = sum(
+        weights[name] * (1.0 - c["n"] / (c["n"] + SHRINKAGE_K))
+        for name, c in comps.items() if name in _SAMPLED
+    )
+    fact_boost = 1.0 + unevidenced / fact_w if fact_w else 1.0
     reasons: list[dict] = []
     score = 0.0
     for name, c in comps.items():
-        shrink = c["n"] / (c["n"] + SHRINKAGE_K) if name in _SAMPLED else 1.0
-        contribution = (weights[name] / total_w) * c["deficit"] * shrink
+        if name in _SAMPLED:
+            effective_w = weights[name] * (c["n"] / (c["n"] + SHRINKAGE_K))
+        else:
+            effective_w = weights[name] * fact_boost
+        contribution = (effective_w / total_w) * c["deficit"]
         score += contribution
         # Zero-deficit signals (e.g. a 9-day streak, 0 weak topics) are present for the
         # renormalised denominator but are not a REASON — a trainer should not read
