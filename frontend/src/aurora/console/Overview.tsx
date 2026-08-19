@@ -74,8 +74,12 @@ export function Overview() {
     hue: r.weak ? "coral" : "blue",
   }));
 
+  /* Keyed on topic_group, NOT on the row label. weakestPanel decorates the label with
+     "· limited data", and this looked the topic up by that decorated string — so the
+     "Topic ↗" button was silently inert on every low-confidence row, which at SNEC
+     volume is most of them. No modal, no error, nothing. */
   const openRow: TopicGroupRow | null =
-    openTopic === null ? null : topics.find((t) => t.label === openTopic) ?? null;
+    openTopic === null ? null : topics.find((t) => t.topic_group === openTopic) ?? null;
 
   return (
     <>
@@ -101,10 +105,15 @@ export function Overview() {
       {insight.data && <p className="cs-note" data-testid="cs-insight">“{insight.data}”</p>}
 
       <div className="cs-strip">
+        {/* Staff-free now, matching "students in scope" on the hero — this used to count
+            a promoted trainer as a student while the pill six inches away did not. The
+            exclusion is stated, because a headcount that quietly drops between releases
+            reads as lost students rather than as a corrected denominator. */}
         <StatCard
           hue="blue" label="Students" mark={<AllDisciplines />}
           value={figure(cohort, cohort.data?.total ?? 0)}
-          detail={`${figure(cohort, cohort.data?.active_this_week ?? 0)} active this week`}
+          detail={`${figure(cohort, cohort.data?.active_this_week ?? 0)} active in the last 7 days`
+            + (cohort.data?.staff_excluded ? ` · ${cohort.data.staff_excluded} staff excluded` : "")}
         />
         {/* The detail line goes through figure() like the value above it: on a failed read
             it used to print a confident coral "0 students flagged" — the one measurement a
@@ -207,11 +216,12 @@ export function Overview() {
               >{weakest.summary}</p>
               {weakest.rows.length > 0 && (
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-                  {weakest.rows.map((r) => (
+                  {weakest.rows.map((r, i) => (
                     <button
-                      key={r.label} type="button" className="cs-btn-ghost"
+                      key={weakest.keys[i] ?? r.label} type="button" className="cs-btn-ghost"
                       style={{ fontSize: 11, padding: "0 11px" }}
-                      onClick={() => setOpenTopic(r.label)}
+                      data-testid="cs-weakest-drill"
+                      onClick={() => setOpenTopic(weakest.keys[i] ?? null)}
                     >{r.label} ↗</button>
                   ))}
                 </div>

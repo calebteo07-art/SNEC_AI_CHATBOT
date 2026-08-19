@@ -16,7 +16,14 @@ async function getJSON<T>(url: string): Promise<T> {
 
 export interface WeakTopic { topic: string; count: number }
 export interface Cohort {
+  // STAFF-FREE, by supervisors membership — the same population as at_risk_count and as
+  // cohort-analytics' "students in scope". It was not, and the console printed two
+  // different student counts on one screen.
   total: number; active_this_week: number; at_risk_count: number;
+  // How many accounts were subtracted as staff. Optional so a response persisted under
+  // the previous shape (admin queries live in IndexedDB for 24h) reads as unknown rather
+  // than as a confident zero.
+  staff_excluded?: number;
   weakest_topics: WeakTopic[]; inactive_7_plus_days: { student_id: string; days_inactive: number }[];
 }
 export function useCohort() {

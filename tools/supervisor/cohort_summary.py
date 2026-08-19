@@ -27,7 +27,14 @@ async def cohort_summary() -> dict:
     # Failures propagate: supervisor.py:74-75 turns them into a 500. The old
     # all-zeros return made that guard unreachable and rendered an outage as a
     # perfectly healthy cohort of 0 students.
-    profiles = await db.get_active_profiles()
+    #
+    # STAFF-FREE, by membership. This read get_active_profiles(), which filters on
+    # approved_students alone with no supervisors check, so a promoted trainer and the
+    # SUPER_ADMIN_EMAIL account were counted as students indefinitely — while
+    # `at_risk_count` directly below, and the console's own "students in scope" pill,
+    # were already staff-free. The console therefore printed two different student
+    # populations side by side, one of them wrong.
+    profiles, staff_excluded = await db.get_active_student_profiles()
 
     # SGT, not date.today(): last_active is written in SGT, so a UTC host can read an
     # evening check-in as tomorrow and report days_inactive == -1.
@@ -57,6 +64,10 @@ async def cohort_summary() -> dict:
 
     return {
         "total": len(profiles),
+        # How many accounts were subtracted as staff. Rendered on the card, because a
+        # headcount that silently drops by two between one release and the next reads as
+        # lost students rather than as a corrected denominator.
+        "staff_excluded": staff_excluded,
         "active_this_week": active_this_week,
         "inactive_7_plus_days": inactive_7_plus,
         "weakest_topics": [
@@ -68,10 +79,8 @@ async def cohort_summary() -> dict:
         # supervisor_insights feeds both into a single AI prompt.
         #
         # Counted over the STAFF-FREE population (get_at_risk reads
-        # get_active_student_profiles), while `total` above is staff-inclusive. A
-        # promoted trainer keeps their approved_students row, so they stay in `total`
-        # and drop out of this count — deliberate, since flagging a colleague at risk
-        # and emailing it to trainers is the defect D10 exists to prevent.
+        # get_active_student_profiles) — the same population `total` above now uses, so
+        # the two figures on the card finally describe the same set of people.
         #
         # Costs two whole-table scans, deduplicated per worker by get_at_risk's 45s
         # cache and its single-flight lock — the console polls /cohort and /at-risk

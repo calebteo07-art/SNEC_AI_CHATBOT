@@ -294,3 +294,42 @@ def test_safety_fail_rate_is_over_raw_attempts_not_best_attempts():
     assert g["safety_fail_rate"] == 0.5
     assert g["avg_score"] == 90.0
     assert g["scored_n"] == 1
+
+
+# ── the safety denominator counts only checklists that CAN fail ──────────────
+
+def test_a_checklist_with_no_critical_step_is_not_safety_gradable():
+    """16 of the 155 cases have no explicit checklist_procedure and no keyword match, so
+    they fall through to build_rubric_checklist — which flags NO step critical and emits
+    critical_count: 0. Every attempt on them is `safe=True` by construction. Counting
+    those as passes pulled the cohort rate toward zero on exactly the stations that
+    matter most: the fallback set is penetrating eye injury, hyphaema, retinal
+    detachment and chemical-splash triage."""
+    index = {
+        **INDEX,
+        "case_oa_003": {"pool": "CLINICAL", "set_key": "tonometry_iop",
+                        "label": "Intraocular Pressure", "difficulty": "beginner",
+                        "has_critical": False},
+    }
+    rows = [
+        _row("s1", "case_oa_001", safe=False),          # a real, gradable failure
+        _row("s2", "case_oa_003", safe=True),           # cannot fail, by construction
+        _row("s2", "case_oa_003", safe=True),
+    ]
+    g = osce_by_group(rows, index, POOLS)["tonometry_iop"]
+
+    assert g["attempts"] == 3, "the attempts still happened"
+    assert g["safety_gradable_n"] == 1, "only the checklist that CAN fail is gradable"
+    assert g["safety_fail_rate"] == 1.0, "1 of 1 — not 1 of 3, which reads as 33%"
+
+
+def test_an_index_without_the_flag_still_counts_the_attempt():
+    """Absent means unknown, and only a checklist PROVEN unable to fail is excluded. A
+    per-worker index built before this field existed must not silently empty the
+    denominator and render every group's safety as an em-dash."""
+    legacy = {"case_oa_001": {"pool": "CLINICAL", "set_key": "tonometry_iop",
+                              "label": "Intraocular Pressure", "difficulty": "beginner"}}
+    g = osce_by_group([_row("s1", "case_oa_001", safe=False)], legacy, POOLS)["tonometry_iop"]
+
+    assert g["safety_gradable_n"] == 1
+    assert g["safety_fail_rate"] == 1.0

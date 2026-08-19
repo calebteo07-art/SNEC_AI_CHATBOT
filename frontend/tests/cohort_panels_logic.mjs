@@ -135,10 +135,31 @@ assert.strictEqual(wp.rows[1].weak, false, "a limited-data group must not wear t
 assert.strictEqual(wp.rows[1].segments[0].tone, "purple");
 assert.strictEqual(wp.max, 1, "weakness_score is already normalised 0-1");
 assert.ok(wp.summary.includes("Worst"));
-assert.ok(wp.summary.includes("9 OSCE attempt"));
+assert.ok(wp.summary.includes("9 station attempt"));
 assert.ok(wp.summary.includes("1 group(s) marked"));
 assert.ok(wp.summary.includes("1 group(s) have no performance signal"));
 assert.ok(!wp.rows.some((r) => r.label.startsWith("Silent")), "a null score is unranked, not ranked at zero");
+
+// The drill-down key is topic_group, NOT the display label — weakestPanel decorates
+// low-confidence labels with "· limited data", and keying on that string made the
+// "Topic ↗" button silently inert on exactly those rows.
+assert.deepStrictEqual(wp.keys, ["worst", "thin"], "keys align positionally with rows");
+assert.notStrictEqual(wp.keys[1], wp.rows[1].label, "the decorated label is not an identity");
+
+// A knowledge_* group has no station at all, so its weakness index is entirely
+// flashcard-derived. Printing the OSCE attempt count beside it rendered "44 (0)" and a
+// tooltip reading "from 0 OSCE attempt(s) by 0 student(s)" next to a confident number.
+const wpKnowledge = weakestPanel([
+  g("Optics", {
+    weakness_score: 0.44, low_confidence: false, signals_present: ["flashcard"],
+    flashcard: { accuracy: 56, n: 31, students: 7 },
+  }),
+]);
+assert.strictEqual(wpKnowledge.rows[0].readout, "44 (31)",
+  "the denominator is the evidence that PRODUCED the score, not an OSCE count of zero");
+assert.ok(wpKnowledge.summary.includes("31 flashcard answer(s) by 7 student(s)"), wpKnowledge.summary);
+assert.ok(!wpKnowledge.summary.includes("0 station attempt"),
+  "a group with no station must not report a station denominator at all");
 
 const wpEmpty = weakestPanel([g("Silent"), g("Also silent")]);
 assert.deepStrictEqual(wpEmpty.rows, []);
