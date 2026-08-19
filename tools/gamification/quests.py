@@ -23,7 +23,8 @@ Exactly one quest of each kind per day, so the board never shows three of the sa
 import hashlib
 from dataclasses import dataclass
 
-from tools.flashcards.flashcard_sets import DIFFICULTIES, label_for, topics_for
+from tools.flashcards.flashcard_sets import label_for
+from tools.shared.role_scope import bare_key as _bare_key, in_scope as _in_scope
 
 QUEST_KINDS = ("adaptive", "breadth", "stretch")
 
@@ -58,29 +59,6 @@ def _seed(student_id: str, day) -> int:
     """
     raw = f"{student_id}:{day.isoformat()}".encode()
     return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
-def _bare_key(stored: str) -> str:
-    """The flashcard topic a retention entry refers to, with any difficulty suffix removed.
-
-    Both forms reach retention_scores — a plain topic key and a "<topic>__<difficulty>" set
-    key (flashcard_sets.make_set_key) — so both have to normalise to the same thing before
-    they can be matched against a role's pools. Only a KNOWN difficulty is stripped: a bare
-    `rpartition("__")` would blank every unsuffixed tag. Same rule as
-    topic_crosswalk._strip_difficulty, which exists for the same reason.
-    """
-    key = (stored or "").strip().lower()
-    head, sep, tail = key.rpartition("__")
-    return head if (sep and head and tail in DIFFICULTIES) else key
-
-
-def _in_scope(weak_topics: list[str], role: str) -> list[str]:
-    """The weak topics this role actually studies, in the order given.
-
-    Returns the STORED keys, not normalised ones — see the metric note in daily_quests.
-    """
-    allowed = {key for key, _ in topics_for(role)}
-    return [t for t in weak_topics if _bare_key(t) in allowed]
 
 
 def daily_quests(student_id: str, day, weak_topics: list[str], role: str,

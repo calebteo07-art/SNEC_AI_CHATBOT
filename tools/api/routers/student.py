@@ -28,29 +28,12 @@ from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, require_staff, CurrentUser
+from tools.shared.role_scope import in_scope, role_focus
 from tools.shared.static_pools import pick_next_unseen
 from tools.shared import db
 from tools.supervisor.topic_crosswalk import is_known_tag
 
 router = APIRouter()
-
-_ROLE_TUTOR_CONTEXT = {
-    "OA": (
-        "STUDENT ROLE: Ophthalmic Assistant (OA). "
-        "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
-        "pre-operative and post-operative care, patient education and counselling."
-    ),
-    "OT": (
-        "STUDENT ROLE: Ophthalmic Technician (OT). "
-        "Focus teaching on: A-scan biometry, Humphrey Visual Field testing, OCT imaging, "
-        "corneal topography, endothelial cell count, equipment calibration and quality checks."
-    ),
-    "PSA": (
-        "STUDENT ROLE: Patient Service Associate (PSA). "
-        "Focus teaching on: history taking, LogMAR visual acuity testing, non-contact tonometry (NCT), "
-        "eye drop instillation, pupil dilation, PFAER and fall risk assessment."
-    ),
-}
 
 
 # ── Models ─────────────────────────────────────────────────────────────────
@@ -836,12 +819,17 @@ async def study_suggestion(request: Request, current_user: CurrentUser = Depends
     focus: str | None = None
     try:
         profile = await get_profile(student_id)
-        weak = profile.get("weak_topics", []) or []
+        role = profile.get("role", "") or ""
+        # Scope BEFORE anything reads it. weak_topics inherits retention_scores' two
+        # namespaces — pooled flashcard topics AND raw OSCE case topics written by
+        # cases.py — so unscoped it can coach an OT on a CLINICAL deck they do not own,
+        # or hand either role a raw case slug as their focus. Same guard quests uses.
+        weak = in_scope(profile.get("weak_topics", []) or [], role)
         streak = int(profile.get("streak") or 0)
         session_count = int(profile.get("session_count") or 0)
         velocity = profile.get("learning_velocity", "stable")
         focus = weak[0] if weak else None
-        role_line = _ROLE_TUTOR_CONTEXT.get(profile.get("role", "").upper(), "")
+        role_line = role_focus(role)
         context = (
             f"Weak topics: {', '.join(weak) if weak else 'none identified yet'}\n"
             f"Study streak: {streak} days\n"

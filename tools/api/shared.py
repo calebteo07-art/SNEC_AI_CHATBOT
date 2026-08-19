@@ -4,6 +4,7 @@ import os
 from slowapi import Limiter, _rate_limit_exceeded_handler
 
 from tools.shared.config import is_production, super_admin_email
+from tools.shared.role_scope import role_focus
 
 
 def _client_ip(request) -> str:
@@ -147,28 +148,15 @@ HARD RULES:
 The ophthalmology knowledge base below is your reference. Draw on it naturally, not exhaustively.
 """
 
-_ROLE_TUTOR_CONTEXT = {
-    "OA": (
-        "STUDENT ROLE: Ophthalmic Assistant (OA). "
-        "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
-        "pre-operative and post-operative care, patient education and counselling."
-    ),
-    "OT": (
-        "STUDENT ROLE: Ophthalmic Technician (OT). "
-        "Focus teaching on: A-scan biometry, Humphrey Visual Field testing, OCT imaging, "
-        "corneal topography, endothelial cell count, equipment calibration and quality checks."
-    ),
-    "PSA": (
-        "STUDENT ROLE: Patient Service Associate (PSA). "
-        "Focus teaching on: history taking, LogMAR visual acuity testing, non-contact tonometry (NCT), "
-        "eye drop instillation, pupil dilation, PFAER and fall risk assessment."
-    ),
-}
-
-
 def tutor_system(role: str) -> str:
-    """Return tutor system prompt enriched with the student's role context."""
-    role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
+    """Return tutor system prompt enriched with the student's role context.
+
+    The role block is DERIVED from the flashcard pools (tools/shared/role_scope.py),
+    not written here. It used to be a hand-written dict copied into this module and
+    student.py, and the copies had drifted into giving OA and PSA different emphasis
+    over an identical syllabus.
+    """
+    role_line = role_focus(role)
     if role_line:
         return _TUTOR_BASE + f"\n{role_line}\n"
     return _TUTOR_BASE
