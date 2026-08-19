@@ -179,6 +179,8 @@ async def test_unclassifiable_case_excluded():
         "pool": "CLINICAL", "set_key": "tonometry_iop",
         "label": "Intraocular Pressure", "difficulty": "intermediate",
         "topic": "tonometry_goldmann",
+        # Keyword-matched to a real checklist, so its attempts can carry a safety fail.
+        "has_critical": True,
     }
     # Fail closed. `resolve_set` never says "no match" — it would file this unrelated case
     # into History Taking and move that group's cohort score.

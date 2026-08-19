@@ -36,9 +36,10 @@ _CASES = [{"student_id": "osce1", "case_id": f"c{i}", "score_100": 10,
 
 @contextlib.contextmanager
 def _patched():
-    """Every read BOTH functions make. cohort_summary reads get_active_profiles for its
-    own total/active_this_week KPIs while get_at_risk reads the staff-free population —
-    leaving either unstubbed scans and WRITES live production Supabase."""
+    """Every read BOTH functions make. Both cohort_summary and get_at_risk now read the
+    STAFF-FREE population, so the card's headcount and the at-risk count beside it finally
+    describe one set of people — leaving either unstubbed scans live production Supabase.
+    The get_active_profiles stub stays because other reads still route through it."""
     with patch("tools.shared.db.get_active_profiles",
                new=AsyncMock(return_value=_POPULATION)), \
          patch("tools.shared.db.get_active_student_profiles",
@@ -152,7 +153,7 @@ async def test_cohort_summary_active_count():
         _profile("s2", ["retina"], "2026-05-03"),
         _profile("s3", [], "2026-05-10"),
     ]
-    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=profiles)), \
+    with patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=(profiles, 0))), \
          patch.object(cohort_summary_mod, "get_at_risk", new=AsyncMock(return_value=[])), \
          patch.object(cohort_summary_mod, "app_today", return_value=date(2026, 5, 10)):
         result = await cohort_summary()
@@ -167,8 +168,29 @@ async def test_cohort_summary_weakest_topics():
         _profile("s2", ["glaucoma"], "2026-05-10"),
         _profile("s3", ["cornea"], "2026-05-10"),
     ]
-    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=profiles)), \
+    with patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=(profiles, 0))), \
          patch.object(cohort_summary_mod, "get_at_risk", new=AsyncMock(return_value=[])), \
          patch.object(cohort_summary_mod, "app_today", return_value=date(2026, 5, 10)):
         result = await cohort_summary()
     assert result["weakest_topics"][0] == {"topic": "glaucoma", "count": 2}  # in 2 profiles
+
+
+@pytest.mark.asyncio
+async def test_the_headcount_is_staff_free_and_says_how_many_it_dropped():
+    """The console printed TWO student populations side by side: this `total`, built on
+    get_active_profiles (approved_students membership only, no supervisors check), and
+    the hero's "students in scope", built on the staff-free read. A promoted trainer
+    keeps their approved_students row and a genuine "OA" role, so they were counted as a
+    student indefinitely — and the at_risk_count directly beneath was already excluding
+    them, so the two figures on one card disagreed by construction."""
+    profiles = [_profile("s1", [], "2026-05-10"), _profile("s2", [], "2026-05-10")]
+    with patch("tools.shared.db.get_active_student_profiles",
+               new=AsyncMock(return_value=(profiles, 2))), \
+         patch.object(cohort_summary_mod, "get_at_risk", new=AsyncMock(return_value=[])), \
+         patch.object(cohort_summary_mod, "app_today", return_value=date(2026, 5, 10)):
+        result = await cohort_summary()
+
+    assert result["total"] == 2, "staff must not be counted as students"
+    # Rendered on the card: a headcount that silently drops between releases reads as
+    # lost students rather than as a corrected denominator.
+    assert result["staff_excluded"] == 2

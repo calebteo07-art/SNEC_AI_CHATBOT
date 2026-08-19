@@ -30,6 +30,13 @@ export interface BarPanel {
   /** The prose the aria-hidden bars are paired with (D3) — and the only place the
       numbers appear spelled out with their denominators. */
   summary: string;
+  /** `topic_group` per row, positionally aligned with `rows` — the STABLE identity a
+      drill-down opens on. `row.label` is a DISPLAY string: weakestPanel decorates it
+      with "· limited data", so looking a topic up by it silently failed on every
+      low-confidence row, which at SNEC volume is most of them. Carried beside the rows
+      rather than on BarRow itself, because that type lives in the frozen
+      components/charts module. Empty for panels whose rows are not topics. */
+  keys: string[];
 }
 
 export interface SafetyPanel {
@@ -118,6 +125,30 @@ export function driftNote(data: CohortAnalytics): string | null {
     + `a renamed topic or a stale app build shows up here first.`;
 }
 
+/** The number of observations actually behind a group's weakness index.
+
+    The index blends OSCE score, pass rate, safety and flashcard recall, and for every
+    `knowledge_*` group it is 100% flashcard-derived — those groups have no station at
+    all. Printing `osce.attempts` beside it therefore rendered a confident index over a
+    denominator of `0`. This counts the OSCE attempts and the flashcard answers that fed
+    it, which is what "how much evidence is this?" means for a blended score. */
+function evidenceN(t: TopicGroupRow): number {
+  return t.osce.attempts + (t.flashcard?.n ?? 0);
+}
+
+/** The same denominator, spelled out for the tooltip and never collapsed to one noun —
+    "12 station attempts" and "12 flashcard answers" are not interchangeable evidence. */
+function evidenceNote(t: TopicGroupRow): string {
+  const parts: string[] = [];
+  if (t.osce.attempts > 0) {
+    parts.push(`${t.osce.attempts} station attempt(s) by ${t.osce.students} student(s)`);
+  }
+  if (t.flashcard && t.flashcard.n > 0) {
+    parts.push(`${t.flashcard.n} flashcard answer(s) by ${t.flashcard.students} student(s)`);
+  }
+  return parts.join(" + ") || "no recorded evidence";
+}
+
 export function weakestPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
   const ranked = rankTopics(topics);
   const scored = ranked.filter(
@@ -132,17 +163,24 @@ export function weakestPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
       // the bar too, not just in the label, because the label truncates at 11rem.
       tone: t.low_confidence ? "purple" : "rose",
       title: `${t.label}: weakness index ${weaknessIndex(t.weakness_score)} from `
-        + `${t.osce.attempts} OSCE attempt(s) by ${t.osce.students} student(s) · signals: `
-        + `${t.signals_present.join(", ") || "none"}`,
+        + `${evidenceNote(t)} · signals: ${t.signals_present.join(", ") || "none"}`,
     }],
-    readout: `${weaknessIndex(t.weakness_score)} (${t.osce.attempts})`,
+    // The denominator of the signals that PRODUCED the score, not the OSCE attempt
+    // count. For every knowledge_* group the index is entirely flashcard-derived, so
+    // this printed "44 (0)" and the tooltip read "from 0 OSCE attempt(s) by 0
+    // student(s)" beside a confident number.
+    readout: `${weaknessIndex(t.weakness_score)} (${evidenceN(t)})`,
     weak: !t.low_confidence,
   }));
+
+  // Positionally aligned with `rows`, from the SAME slice — the drill-down key.
+  const keys = scored.slice(0, limit).map((t) => t.topic_group);
 
   if (rows.length === 0) {
     return {
       rows,
       max: 1,
+      keys,
       summary: `No topic group has enough performance data to rank yet — `
         + `${ranked.length} group(s) tracked, none with a scored attempt.`,
     };
@@ -153,10 +191,10 @@ export function weakestPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
   const none = ranked.length - scored.length;
   const summary = `Weakness index 0-100 (higher = weaker), limited-data groups last. `
     + `Highest: ${lead.label} at ${weaknessIndex(lead.weakness_score)}, from `
-    + `${lead.osce.attempts} OSCE attempt(s) by ${lead.osce.students} student(s).`
+    + `${evidenceNote(lead)}.`
     + (low ? ` ${low} group(s) marked “limited data” — under the 3-student / 5-attempt confidence floor.` : "")
     + (none ? ` ${none} group(s) have no performance signal yet and are not ranked.` : "");
-  return { rows, max: 1, summary };
+  return { rows, max: 1, keys, summary };
 }
 
 /** Two BarSeries rows per group — BarSeries stacks every segment into ONE flex
@@ -201,6 +239,7 @@ export function comparisonPanel(topics: TopicGroupRow[], hasFlashcards: boolean,
     return {
       rows,
       max: 1,
+      keys: [],
       summary: "No topic group has a graded OSCE attempt or a flashcard answer in this window yet.",
     };
   }
@@ -210,7 +249,9 @@ export function comparisonPanel(topics: TopicGroupRow[], hasFlashcards: boolean,
       ? ""
       : ` No flashcard data yet — answers are only recorded from the writer fix onward, `
         + `so this shows OSCE alone rather than an empty topic at zero.`);
-  return { rows, max: 1, summary };
+  // Two rows per group, so a positional key would not align — this panel has no
+  // drill-down and does not claim one.
+  return { rows, max: 1, keys: [], summary };
 }
 
 /** Cohort safety rate, POOLED: sum of fails over sum of gradable attempts. The mean
@@ -274,11 +315,13 @@ export function missedPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
   }));
 
   if (top.length === 0) {
-    return { rows, max: 1, summary: "No critical step has been missed by 2 or more students in this window." };
+    return { rows, max: 1, keys: [], summary: "No critical step has been missed by 2 or more students in this window." };
   }
   return {
     rows,
     max: top[0].count,
+    // Rows are steps, not topic groups — no drill-down.
+    keys: [],
     summary: `Most-missed critical step: “${top[0].step}” — ${top[0].students} of ${top[0].cohort} `
       + `students who attempted ${top[0].group}. Bar length is the raw miss count; the readout is students affected.`,
   };

@@ -118,12 +118,21 @@ def osce_by_group(
     `safe` NULL, so `avg_score` would span a wider population than `safety_fail_rate`
     over the very same rows. An honest `scored_n` beats a larger fabricated one.
 
-    Safety denominator caveat (§5.3): `safe = not missed_critical`, and
-    `missed_critical` only fills for steps flagged critical, so an attempt on a
-    checklist with NO critical step scores `safe=True` while carrying no safety
-    signal. The index has no `has_critical` flag, so this falls back to
-    `safe IS NOT NULL` — `safety_fail_rate` is therefore diluted downward on groups
-    whose checklists lack critical steps. The rubric block must state this.
+    Safety denominator (§5.3): `safe = not missed_critical`, and `missed_critical` only
+    fills for steps flagged critical, so an attempt on a checklist with NO critical step
+    scores `safe=True` while carrying no safety signal. `safety_gradable_n` therefore
+    counts an attempt only when its case's checklist can carry one, via the index's
+    `has_critical` — False for the 16 of 155 cases that resolve to the rubric fallback,
+    which `build_rubric_checklist` emits with `critical: False` on every step and
+    `critical_count: 0`. Before this gate those attempts sat in the denominator as
+    guaranteed passes and pulled every affected group's rate toward zero.
+
+    The remaining hole is a CONTENT one, not an arithmetic one, and it is the more
+    serious of the two: those 16 cases include the highest-acuity stations on the
+    platform (penetrating eye injury, hyphaema, retinal detachment, chemical-splash
+    triage). They are now honestly reported as carrying no safety signal rather than as
+    passing one — but they still need critical steps authored before the safety figure
+    covers the cases where safety matters most. The rubric block states this.
     """
     acc: dict[str, dict] = {}
     for r in rows:
@@ -157,7 +166,12 @@ def osce_by_group(
             g["by_difficulty"][difficulty] += 1
 
         safe = r.get("safe")
-        if safe is not None:
+        # `has_critical` False means the case resolved to the rubric fallback, whose steps
+        # are ALL critical=False — such an attempt is `safe` by construction and carries no
+        # safety signal, so counting it here could only dilute the rate toward zero. An
+        # ABSENT flag counts as True: only a checklist PROVEN unable to fail is excluded,
+        # so an index built before this field cannot silently empty the denominator.
+        if safe is not None and meta.get("has_critical", True):
             g["safety_gradable_n"] += 1
             if not safe:
                 g["safety_fails"] += 1
@@ -237,10 +251,11 @@ WEIGHT_RUBRIC: dict = {
     "caveats": {
         "safety": (
             "safe = not missed_critical, and missed_critical only fills for steps "
-            "flagged critical — so an attempt on a checklist with NO critical step "
-            "counts as safe while carrying no safety signal. safety_fail_rate is "
-            "therefore diluted downward on those groups; read it with "
-            "safety_gradable_n."
+            "flagged critical. Attempts on the 16 of 155 cases whose checklist has NO "
+            "critical step are excluded from safety_gradable_n rather than counted as "
+            "passes, so the rate is no longer diluted toward zero — but those cases "
+            "carry no safety signal at all, and they include the highest-acuity "
+            "stations. Read this rate with safety_gradable_n."
         ),
     },
 }

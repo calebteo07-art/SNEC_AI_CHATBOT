@@ -38,6 +38,7 @@ import asyncio
 import logging
 
 from tools.cases.load_case import list_available_cases, load_case
+from tools.cases.resolve_checklist import resolve_procedure_name
 from tools.cases.topic_sets import case_pool, label_for, resolve_set_strict, sets_for
 
 _log = logging.getLogger("eyebot.case_index")
@@ -83,6 +84,13 @@ def classify_case(case: dict) -> dict | None:
         # map joins stations against flashcard topic_tags ("tonometry", "visual fields"),
         # and the set label ("Diagnostics & imaging") never matches one.
         "topic": str(case.get("topic") or ""),
+        # Whether this case's checklist can carry a safety fail AT ALL. With no explicit
+        # `checklist_procedure` and no keyword match, the case falls through to
+        # build_rubric_checklist, which emits `critical: False` on every step and
+        # `critical_count: 0` — so `safe` is True for every attempt on it, by
+        # construction. 16 of the 155 cases resolve that way. Counting them as
+        # safety-gradable could only ever dilute the cohort rate toward zero.
+        "has_critical": resolve_procedure_name(case)[1] != "rubric_fallback",
     }
 
 
