@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 from tools.api.server import app
 from tools.shared.clock import app_today
 from tools.shared.jwt_utils import create_access_token
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT
 
 client = TestClient(app)
 
@@ -30,9 +31,11 @@ def _cookies(role: str = "trainer") -> dict:
     return {"eyebot_token": create_access_token("user_001", role, "OA")}
 
 
-def _row(student_id, when, score=80.0, passed=True, safe=True):
+def _row(student_id, when, score=80.0, passed=True, safe=True, scale=GRADE_SCALE_CURRENT):
+    # `grade_scale` defaults to the CURRENT era: score_100 is not comparable across the
+    # 2026-08-04 rescale, so an unstamped row is legacy and enters no mean.
     return {"student_id": student_id, "completed_at": when, "case_id": "C001",
-            "score_100": score, "passed": passed, "safe": safe}
+            "score_100": score, "passed": passed, "safe": safe, "grade_scale": scale}
 
 
 def _serve(rows, profiles=None, complete=True):

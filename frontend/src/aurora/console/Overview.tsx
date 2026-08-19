@@ -16,7 +16,7 @@ import {
 } from "@/hooks/useAdmin";
 import { safetyPanel, weakestPanel } from "@/aurora/components/admin/cohortAnalyticsView";
 import { riskRows } from "@/aurora/components/admin/riskRowView";
-import { latestReading, deltaNote } from "@/aurora/components/admin/performanceTrendView";
+import { windowBasis, windowDelta, windowPct } from "@/aurora/components/admin/performanceTrendView";
 import { fmtTokens } from "@/screens/adminShared";
 import { useDiscipline, AllDisciplines } from "@/aurora/console/disciplineContext";
 import { HeroMetric, StatCard, Panel } from "@/aurora/console/Panel";
@@ -48,23 +48,26 @@ export function Overview() {
   const points = trend.data?.points ?? [];
 
   /* SCALES DIFFER BY ENDPOINT — do not "tidy" these into one convention:
-       TrendPoint.avg_score / pass_rate / safety_fail_rate  → already 0-100
-         (performanceTrendView: "All three metrics share one 0-100 frame"; pct() emits
-          `${v}%` with NO multiply). Multiplying here renders 6800%.
+       PerformanceTrend.window.* and TrendPoint.*  → already 0-100
+         (performanceTrendView: "All three metrics share one 0-100 frame"; windowPct()
+          rounds and appends % with NO multiply). Multiplying here renders 6800%.
        TopicGroupRow.osce.pass_rate / safety_fail_rate / weakness_score → 0-1,
          so safetyPanel().rate below IS multiplied.
-     Every reading is null at a zero denominator, NEVER 0 (D13). */
-  const mastery = latestReading(points, "avg_score");
-  const passRate = latestReading(points, "pass_rate");
-  // Already a full sentence ("up 4.2 points across the window"), not a bare number, and
-  // null on fewer than two real readings — one dot is a measurement, not a trend.
-  const masteryDelta = deltaNote(points, "avg_score");
+     Every reading is null at a zero denominator OR below the cohort_analytics confidence
+     floor, NEVER 0 (D13) — windowPct() renders both as the em-dash. */
+  /* The POOLED window figures, NOT points[last]: latestReading returns the newest
+     non-null BUCKET, and at DAYS=90 a bucket is one WEEK, so these captions used to name
+     a 90-day window over a single week's rows. `points` stays the Sparkline's input. */
+  const mastery = windowPct(trend.data, "avg_score");
+  const passRate = windowPct(trend.data, "pass_rate");
+  // A full sentence carrying its own n, and undefined below the 4-score minimum — one
+  // dot is a measurement, not a trend.
+  const masteryDelta = windowDelta(trend.data);
 
   const heroValue =
     analytics.isLoading || trend.isLoading ? "…"
     : analytics.isError || trend.isError ? "—"
-    : mastery === null ? "—"
-    : `${Math.round(mastery)}%`;
+    : mastery;
 
   // weakestPanel returns BarPanel rows (label/segments/readout/weak) measured against
   // its own `max`. Sum the segments and pass `max` straight through — never rescale.
@@ -81,10 +84,15 @@ export function Overview() {
   return (
     <>
       <HeroMetric
-        eyebrow={`Cohort mastery · ${DAYS} days`}
+        eyebrow={`Cohort mastery · ${DAYS}-day average`}
         value={heroValue}
-        delta={masteryDelta ?? undefined}
+        delta={masteryDelta}
         pills={[
+          /* Every figure states its OWN n. The hero's denominator is not the cohort's
+             attempt count — ungraded and pre-rescale attempts are in one and not the
+             other. Spread rather than a placeholder string: two pills both reading "…"
+             would collide on HeroMetric's key={p}. */
+          ...(trend.isLoading || trend.isError ? [] : [windowBasis(trend.data, "avg_score")]),
           `${figure(analytics, totals?.students_in_pool ?? 0)} students in scope`,
           `${figure(analytics, totals?.osce_attempts ?? 0)} station attempts`,
         ]}
@@ -110,11 +118,16 @@ export function Overview() {
           value={figure(atRisk, risks.length)} detailHue="coral"
           detail={`${figure(atRisk, risks.length)} ${risks.length === 1 ? "student" : "students"} flagged`}
         />
-        {/* passRate is 0-100 (trend endpoint) — NOT multiplied. */}
+        {/* window.pass_rate is 0-100 (trend endpoint) — NOT multiplied, and null below
+            the confidence floor rather than a rate off one graded row. The detail is the
+            denominator: with the figure suppressed server-side it is the only thing
+            separating "not enough evidence yet" from "the read failed". */}
         <StatCard
           hue="teal" label="OSCE pass rate"
-          value={trend.isLoading ? "…" : trend.isError ? "—" : passRate === null ? "—" : `${Math.round(passRate)}%`}
-          detail={`Last ${DAYS} days`}
+          value={trend.isLoading ? "…" : trend.isError ? "—" : passRate}
+          detail={trend.isLoading ? `Last ${DAYS} days`
+            : trend.isError ? "Couldn’t read the window"
+            : `${DAYS} days · ${windowBasis(trend.data, "pass_rate")}`}
         />
         {/* safety.rate is 0-1 (cohort-analytics domain) — IS multiplied. A failed read
             must never render 0% here: on a clinical board that is the most dangerous

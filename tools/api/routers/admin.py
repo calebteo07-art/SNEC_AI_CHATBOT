@@ -4,7 +4,7 @@ import csv
 import io
 import re
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
@@ -34,7 +34,7 @@ from tools.supervisor.cohort_reads import get_cohort_reads
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
 from tools.supervisor.mastery import mastery_block, retention_mastery
 from tools.supervisor.student_insight import build_student_insight
-from tools.supervisor.trend import build_points, period_for, window_start_utc
+from tools.supervisor.trend import build_points, build_window, period_for, sgt_day, window_start_utc
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 
 router = APIRouter()
@@ -357,6 +357,11 @@ async def admin_performance_trend(request: Request, days: int = 30, discipline: 
         "discipline": discipline,
         "period": period,
         "points": build_points(rows, days=days, today=today, period=period),
+        # The window-level reading, pooled over the SAME filtered rows. `points` is for
+        # the CHART; the console's hero and pass-rate card read this, because points[-1]
+        # is one bucket — one WEEK at days=90 — and not the 90-day figure their captions
+        # claim. Built here rather than client-side so the two can never disagree.
+        "window": build_window(rows, days=days, today=today),
         # A truncated window would redraw the chart's own shape, so say so rather than
         # letting a partial read pass as the record.
         "complete": complete,
@@ -484,15 +489,23 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
     # should 500 without paying for it.
     case_index = await get_case_index()
 
-    since = ""
+    since: date | None = None
     if window_days is not None:
         # SGT day boundary (tools.shared.clock) — the product defines a day in SGT and
         # completed_at is written that way; a UTC edge shifts the window by 8 hours.
-        since = (app_today() - timedelta(days=window_days - 1)).isoformat()
+        since = app_today() - timedelta(days=window_days - 1)
 
     def _in_window(row: dict, ts_key: str) -> bool:
-        # ISO-8601 dates order correctly as plain strings; [:10] is the date part.
-        return not since or str(row.get(ts_key) or "")[:10] >= since
+        # The SGT calendar day, via the SAME resolver /performance-trend buckets with.
+        # This compared `str(ts)[:10]` — the UTC date — against an SGT date string, so a
+        # 16:00-23:59 UTC attempt read as the day BEFORE the SGT day it belongs to and the
+        # two endpoints sliced different rows under identical "90 days" captions. Junk
+        # still drops out: sgt_day() returns None for it, exactly as "" never cleared the
+        # old bound.
+        if since is None:
+            return True
+        day = sgt_day(row.get(ts_key))
+        return day is not None and day >= since
 
     case_rows = [r for r in case_rows if _in_window(r, "completed_at")]
     fc_rows = [r for r in fc_rows if _in_window(r, "ts")]

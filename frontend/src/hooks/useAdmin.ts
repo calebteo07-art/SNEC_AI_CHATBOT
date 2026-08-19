@@ -276,11 +276,45 @@ export interface TrendPoint {
   pass_rate: number | null;
   safety_fail_rate: number | null;
 }
+/** The WINDOW-level reading — pooled over every row in the window, server-side
+    (tools/supervisor/trend.py::build_window). NOT derivable from `points`: a mean of the
+    bucket means lets a week with one attempt weigh as much as a week with forty. */
+export interface TrendWindow {
+  // Null at a zero denominator AND below the confidence floor cohort_analytics enforces
+  // (min_attempts on the metric's own n, min_students on the window's students), never 0.
+  // A headline percentage off two attempts is a figure a trainer would act on.
+  avg_score: number | null;
+  pass_rate: number | null;
+  // Each figure's OWN denominator — scored_n and graded_n are genuinely different
+  // numbers, and `students` is the window-wide distinct count (the upper bound).
+  attempts: number;
+  students: number;
+  scored_n: number;
+  graded_n: number;
+  // Attempts written before the 2026-08-04 rescale (migration 017). They count in
+  // `attempts` — they happened — but score_100 came off a different instrument, so they
+  // are in no mean. Surfaced so a clipped graded window is stated, not inferred.
+  legacy_excluded: number;
+  min_students: number;
+  min_attempts: number;
+  // Pooled first half vs second half of the SCORED rows (osce_analysis.trajectory, dead
+  // band 5.0). NOT the first and last chart buckets — those are single-bucket means.
+  trajectory: {
+    band: "improving" | "steady" | "declining" | "insufficient";
+    delta: number | null;
+    n: number;
+    needed: number;
+  };
+}
 export interface PerformanceTrend {
   discipline: Discipline;
   // "week" above a 31-day window — 90 daily points in a 320px chart is 3.5px each.
   period: "day" | "week";
   points: TrendPoint[];
+  // What the hero and the pass-rate card render. `points` is for the CHART; reading
+  // points[last] as "the 90-day figure" is the defect this replaces — at days=90 a
+  // bucket is one WEEK.
+  window: TrendWindow;
   // False when the server's paged read hit its cap, i.e. the OLDEST buckets are missing.
   // A trend is read for its shape, so a silently truncated window is worse than a
   // missing one; the panel says so rather than letting a partial read pass as the record.

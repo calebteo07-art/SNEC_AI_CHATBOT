@@ -86,6 +86,60 @@ export function trendSummary(data: PerformanceTrend): string {
   return `${head} Latest average ${pct(latest)}${dir ? `, ${dir}` : ""}.`;
 }
 
+/* ── the WINDOW figures (hero + pass-rate card) ─────────────────────────────────
+   Everything above describes the CHART, one bucket at a time. Everything below is the
+   single reading a card claims for the whole window, and the two are different numbers:
+   latestReading walks back to the newest non-null BUCKET, and at days=90 a bucket is one
+   WEEK. The server pools the raw rows; these only project. */
+
+export type WindowKey = "avg_score" | "pass_rate";
+
+const NOUN: Record<WindowKey, string> = { avg_score: "scored", pass_rate: "graded" };
+
+/** The window figure, rounded. Already 0-100 — no multiply. Em-dash when the server
+    nulled it, which covers BOTH "no denominator" and "below the confidence floor". */
+export function windowPct(data: PerformanceTrend | undefined, key: WindowKey): string {
+  const v = data?.window?.[key];
+  return v === undefined || v === null ? NO_DATA : `${Math.round(v)}%`;
+}
+
+/** The denominator line that has to sit beside every window figure. With the figure
+    nulled server-side this is the ONLY thing separating "not enough evidence yet" from
+    "the read failed" — an unexplained em-dash reads as a broken panel. Never emits a
+    percentage, so it can never become the 0% this pass exists to stop rendering. */
+export function windowBasis(data: PerformanceTrend | undefined, key: WindowKey): string {
+  if (!data?.window) return "";
+  const w = data.window;
+  const n = key === "avg_score" ? w.scored_n : w.graded_n;
+  const noun = NOUN[key];
+  if (n === 0) return `No ${noun} attempts in the window`;
+  const head = `${n} ${noun} attempt${n === 1 ? "" : "s"}`;
+  if (w[key] === null) {
+    return `${head} from ${w.students} student${w.students === 1 ? "" : "s"}`
+      + ` — below the ${w.min_attempts}/${w.min_students} floor`;
+  }
+  // The 2026-08-04 rescale clips the graded window below the caption. Saying nothing
+  // would read as "nobody was graded for eleven weeks".
+  const clipped = w.legacy_excluded > 0
+    ? ` · ${w.legacy_excluded} pre-rescale attempt${w.legacy_excluded === 1 ? "" : "s"} excluded`
+    : "";
+  return `${head} · ${w.students} student${w.students === 1 ? "" : "s"}${clipped}`;
+}
+
+/** The direction printed under the hero. Pooled halves of the scored rows, computed
+    server-side — deltaNote() above compares the first and last chart BUCKETS, which is
+    right when describing the drawn line and wrong as a headline claim, because those are
+    single-bucket means and routinely n=1. undefined below the 4-score minimum: one dot is
+    a measurement, not a trend. */
+export function windowDelta(data: PerformanceTrend | undefined): string | undefined {
+  const t = data?.window?.trajectory;
+  if (!t || t.band === "insufficient" || t.delta === null) return undefined;
+  const basis = `${t.n} scored attempts`;
+  if (t.band === "steady") return `steady across the window (${basis})`;
+  return `${t.delta > 0 ? "up" : "down"} ${Math.abs(t.delta)} points,`
+    + ` first half to second (${basis})`;
+}
+
 /** Non-null only when the server's paged read was truncated. */
 export function truncationNote(data: PerformanceTrend): string | null {
   if (data.complete) return null;

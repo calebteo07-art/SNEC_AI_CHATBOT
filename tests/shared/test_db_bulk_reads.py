@@ -195,13 +195,17 @@ async def test_the_window_is_applied_on_every_page_not_just_the_first():
 async def test_the_windowed_read_projects_only_what_the_trend_reads():
     """A sibling of get_case_progress_since, not a widening of it: that read's two-column
     projection exists so activity-trend never pulls the full table onto the one prod
-    worker. This one adds the grade columns and NOTHING else — no coaching JSONB."""
+    worker. This one adds the grade columns and NOTHING else — no coaching JSONB.
+
+    `grade_scale` is load-bearing, not incidental: without the era stamp the trend cannot
+    tell an x50 score from a 40/30/30 one and averages both as a single series."""
     fake = FakeClient({"case_progress": _cases(2, "2026-07-30")})
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=fake)):
         await db.get_case_scores_since("2026-07-01")
 
     selects = [c for c in fake.log if c[0] == "select"]
     assert selects[0] == (
-        "select", "student_id, completed_at, case_id, score_100, safe, passed"
+        "select",
+        "student_id, completed_at, case_id, score_100, safe, passed, grade_scale"
     )
     assert ("order", "id", False) in fake.log, "paging needs the primary key for a stable order"

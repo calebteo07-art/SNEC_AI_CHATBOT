@@ -298,6 +298,16 @@ export async function mockApis(ctx, user) {
       { date: "2026-07-30", n: 0, avg_score: null, pass_rate: null, safety_fail_rate: null },
       { date: "2026-07-31", n: 5, avg_score: 74.2, pass_rate: 80, safety_fail_rate: 20 },
     ],
+    // The pooled window, deliberately NOT reproducible from `points`: 69.4 is
+    // (3*61.5 + 5*74.2)/8, while the newest bucket is 74.2 and the mean of the two
+    // bucket means is 67.9. A hero rendering 74% or 68% is reading the chart instead of
+    // the window — the defect this fixture exists to catch in a browser.
+    window: {
+      attempts: 8, students: 5, avg_score: 69.4, scored_n: 8,
+      pass_rate: 75, graded_n: 8, legacy_excluded: 0,
+      min_students: 3, min_attempts: 5,
+      trajectory: { band: "improving", delta: 12.7, n: 8, needed: 4 },
+    },
   })));
   // P2 cohort aggregation. Trailing `*` — the hook always sends ?discipline=&days=, and a
   // route without it never matches a query string. This is the static `all` slice of the
