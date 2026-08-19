@@ -718,10 +718,16 @@ async def get_case_scores_since(since_iso: str) -> tuple[list[dict], bool]:
 
     Grade columns stay NULL on pre-Tier-2 rows; passed through untouched so the caller can
     hold each metric to its own denominator rather than averaging invented zeros.
+
+    `grade_scale` (migration 017) rides along because score_100 is NOT comparable across
+    the 2026-08-04 rescale: 2 is the 40/30/30 era, NULL the retired x50 one. Without the
+    stamp a 90-day window averages two different instruments as one series and draws the
+    rescale as a cohort trend. One SMALLINT per row — the projection stays a projection,
+    and the CALLER decides what to do with the stamp.
     """
     return await _fetch_all(
         "case_progress",
-        "student_id, completed_at, case_id, score_100, safe, passed",
+        "student_id, completed_at, case_id, score_100, safe, passed, grade_scale",
         order_by="id",
         gte=("completed_at", since_iso),
     )

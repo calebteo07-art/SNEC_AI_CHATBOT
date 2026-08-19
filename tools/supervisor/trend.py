@@ -15,13 +15,22 @@ empty, never 0.0 (D13) — a zero draws a cliff to the floor and reads as a coho
 
 **Each metric holds its own denominator.** Grade columns stay NULL on pre-Tier-2 rows
 (over half of production today). Such a row is still an attempt and counts in `n`, but it
-must not drag an average it has no opinion about.
+must not drag an average it has no opinion about. A pre-2026-08-04 row reads the same way
+(`_current_scale`): its score came off a different instrument, so it counts in `n` and in
+no mean.
+
+**A bucket is not the window.** `build_points` is for the CHART. The console's hero and
+pass-rate card read `build_window`, which pools the raw rows once — reading `points[-1]`
+under a "90 days" caption reports one WEEK, and averaging the bucket means instead lets a
+week with one attempt weigh as much as a week with forty.
 """
 from __future__ import annotations
 
 from datetime import date, datetime, time, timedelta, timezone
 
 from tools.shared.clock import SGT
+from tools.supervisor.cohort_analytics import MIN_ATTEMPTS, MIN_STUDENTS
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT, trajectory
 
 # A daily point below this many days, a weekly rollup above it. 90 daily points in a
 # 320px-wide chart is 3.5px each — the line becomes noise and the axis labels collide.
@@ -81,6 +90,22 @@ def _rate(hits: int, total: int) -> float | None:
     return round(100.0 * hits / total, 1) if total else None
 
 
+def _current_scale(row: dict) -> bool:
+    """True when the row was graded on the CURRENT scale (migration 017's stamp).
+
+    NULL is the retired x50 era, read exactly as `osce_analysis.mark_loss` reads it.
+    score_100 is nominally 0-100 in BOTH eras, which is why this survived review: what
+    changed on 2026-08-04 is the INSTRUMENT (two AI schemes x50 -> checklist 40 /
+    consult 30 / judgement 30), so a mean spanning the boundary compares two different
+    measurements and prints the rescale as a trend.
+
+    A legacy row is treated exactly like an ungraded one: it counts in `n` — it is an
+    attempt — and contributes to no score. `safe` is untouched by the rescale (it comes
+    from missed_critical, migration 011), so the safety series keeps every row.
+    """
+    return row.get("grade_scale") == GRADE_SCALE_CURRENT
+
+
 def build_points(rows: list[dict], *, days: int, today: date, period: str) -> list[dict]:
     """One point per bucket across the whole window, oldest first.
 
@@ -119,8 +144,9 @@ def build_points(rows: list[dict], *, days: int, today: date, period: str) -> li
     points = []
     for key in sorted(buckets):
         group = buckets[key]
-        scores = [float(r["score_100"]) for r in group if r.get("score_100") is not None]
-        graded = [r for r in group if r.get("passed") is not None]
+        scores = [float(r["score_100"]) for r in group
+                  if _current_scale(r) and r.get("score_100") is not None]
+        graded = [r for r in group if _current_scale(r) and r.get("passed") is not None]
         judged = [r for r in group if r.get("safe") is not None]
         points.append({
             "date": key.isoformat(),
@@ -132,3 +158,62 @@ def build_points(rows: list[dict], *, days: int, today: date, period: str) -> li
             "safety_fail_rate": _rate(sum(1 for r in judged if not r["safe"]), len(judged)),
         })
     return points
+
+
+def build_window(rows: list[dict], *, days: int, today: date) -> dict:
+    """The WINDOW-level reading, pooled over every row — the figure the hero renders.
+
+    `points[-1]` is not this number and never was: the console's `latestReading` walks
+    back to the newest non-null BUCKET, and past `_MAX_DAILY_SPAN` a bucket is one WEEK,
+    so a hero captioned "90 days" showed the most recent week that happened to carry a
+    grade. An unweighted mean of the bucket means is the same error one layer up, so this
+    pools the raw rows and divides once.
+
+    Below the confidence floor `cohort_analytics` already enforces, the figure is None and
+    never a number: a headline percentage off two attempts is a claim the data cannot
+    support, and the console's em-dash path exists for exactly this. Every denominator
+    rides along so the card can say WHY rather than just look broken.
+    """
+    start = today - timedelta(days=days - 1)
+    kept = [r for r in rows
+            if (d := sgt_day(r.get("completed_at"))) is not None and start <= d <= today]
+
+    # Distinct students across the WHOLE window — the upper bound on any one metric's
+    # student count, the same simplification cohort_analytics makes. The attempt floor is
+    # the tight one; this keeps the student floor honest without carrying three sets.
+    students = len({str(r.get("student_id") or "") for r in kept})
+    # Sorted, because trajectory() refuses to sort and says so: rows arrive ordered by
+    # case_progress.id, which a backfill or an import reorders against completed_at, and
+    # an unordered list would invert the direction printed under the hero.
+    current = sorted((r for r in kept if _current_scale(r)),
+                     key=lambda r: str(r.get("completed_at") or ""))
+    scores = [float(r["score_100"]) for r in current if r.get("score_100") is not None]
+    graded = [r for r in current if r.get("passed") is not None]
+
+    def _floored(value: float | None, n: int) -> float | None:
+        return value if students >= MIN_STUDENTS and n >= MIN_ATTEMPTS else None
+
+    traj = trajectory(scores)
+    return {
+        "attempts": len(kept),
+        "students": students,
+        "avg_score": _floored(round(sum(scores) / len(scores), 1) if scores else None,
+                              len(scores)),
+        "scored_n": len(scores),
+        "pass_rate": _floored(_rate(sum(1 for r in graded if r["passed"]), len(graded)),
+                              len(graded)),
+        "graded_n": len(graded),
+        # Attempts written before the 2026-08-04 rescale. They happened, so they count in
+        # `attempts`; their score came off a different instrument, so they are in no mean.
+        # Stated on the wire because a silently shorter graded window reads as "nobody was
+        # graded for eleven weeks" — the same lie in the other direction.
+        "legacy_excluded": sum(1 for r in kept if not _current_scale(r)),
+        # Echoed rather than restated in the UI: one place to change the floor.
+        "min_students": MIN_STUDENTS,
+        "min_attempts": MIN_ATTEMPTS,
+        # First half vs second half of the SCORED rows, pooled (dead band 5.0, minimum 4).
+        # NOT points[0] vs points[-1]: those are single-bucket means, routinely n=1, and
+        # "up 12 points" off two thin buckets is the hero's own defect wearing a sentence.
+        "trajectory": {"band": traj.band, "delta": traj.delta,
+                       "n": traj.n, "needed": traj.needed},
+    }

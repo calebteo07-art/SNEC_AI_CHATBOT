@@ -9,10 +9,18 @@ read for its SHAPE, so a systematic half-day shear is worse than a missing point
 
 **Zero is not "no data".** A day nobody attempted a case has no average score. Rendering
 0.0 draws a cliff to the floor and reads as a cohort collapse (D13).
+
+**A score is only comparable within its own era.** `grade_scale` (migration 017) stamps
+the 40/30/30 rubric; NULL is the retired x50 one. A mean spanning 2026-08-04 compares two
+instruments and draws the rescale as a trend, so `_row` stamps the CURRENT era by default
+and the legacy case is pinned explicitly.
 """
 from datetime import date
 
-from tools.supervisor.trend import build_points, period_for, sgt_day, window_start_utc
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT
+from tools.supervisor.trend import (
+    build_points, build_window, period_for, sgt_day, window_start_utc,
+)
 
 
 # ── the SGT day boundary ─────────────────────────────────────────────────────
@@ -44,9 +52,9 @@ def test_an_unparseable_timestamp_is_dropped_not_bucketed_as_today():
 
 # ── bucketing ────────────────────────────────────────────────────────────────
 
-def _row(ts, score=80.0, passed=True, safe=True, sid="s1"):
+def _row(ts, score=80.0, passed=True, safe=True, sid="s1", scale=GRADE_SCALE_CURRENT):
     return {"student_id": sid, "completed_at": ts, "case_id": "C001",
-            "score_100": score, "passed": passed, "safe": safe}
+            "score_100": score, "passed": passed, "safe": safe, "grade_scale": scale}
 
 
 def test_a_day_with_no_attempts_is_null_not_zero():
@@ -175,3 +183,78 @@ def test_an_early_morning_attempt_on_the_oldest_day_is_inside_the_window():
     start = window_start_utc(date(2026, 7, 31), 7)
     assert "2026-07-24T17:00:00+00:00" >= start
     assert "2026-07-24T17:00:00+00:00" < "2026-07-25"
+
+
+# ── the 2026-08-04 rescale ───────────────────────────────────────────────────
+
+def test_a_legacy_score_counts_as_an_attempt_but_not_in_any_mean():
+    # score_100 is nominally 0-100 in BOTH eras, which is why this went unnoticed: what
+    # changed is the INSTRUMENT. Averaging across the boundary draws the rescale as a
+    # cohort trend. A legacy row reads exactly like an ungraded one.
+    rows = [
+        _row("2026-08-10T02:00:00Z", score=90.0, passed=True, safe=True),
+        _row("2026-08-10T03:00:00Z", score=40.0, passed=False, safe=True, scale=None),
+    ]
+    p = build_points(rows, days=1, today=date(2026, 8, 10), period="day")[0]
+
+    assert p["n"] == 2, "a legacy attempt is still an attempt"
+    assert p["avg_score"] == 90.0, "the x50-era score must not enter the mean"
+    assert p["pass_rate"] == 100.0, "nor its pass/fail"
+
+
+def test_safety_keeps_every_era():
+    # `safe` comes from missed_critical (migration 011) and is untouched by the rescale,
+    # so excluding legacy rows from the SAFETY series would discard real safety failures.
+    rows = [
+        _row("2026-08-10T02:00:00Z", safe=True),
+        _row("2026-08-10T03:00:00Z", safe=False, scale=None),
+    ]
+    p = build_points(rows, days=1, today=date(2026, 8, 10), period="day")[0]
+    assert p["safety_fail_rate"] == 50.0
+
+
+# ── build_window: the figure the hero renders ────────────────────────────────
+
+def _window_rows(n, *, score, sid_of=lambda i: f"s{i}", scale=GRADE_SCALE_CURRENT):
+    return [_row(f"2026-08-1{i % 10}T02:00:00Z", score=score, passed=score >= 60,
+                 safe=True, sid=sid_of(i), scale=scale) for i in range(n)]
+
+
+def test_the_window_pools_rows_it_does_not_average_the_buckets():
+    """The defect this function exists for. One busy week at 50 and one quiet day at 90
+    is not "70": an unweighted mean of bucket means lets a week with one attempt weigh as
+    much as a week with forty."""
+    rows = ([_row("2026-08-03T02:00:00Z", score=50.0, sid=f"s{i}") for i in range(9)]
+            + [_row("2026-08-17T02:00:00Z", score=90.0, sid="s9")])
+    w = build_window(rows, days=30, today=date(2026, 8, 19))
+
+    assert w["scored_n"] == 10
+    assert w["avg_score"] == 54.0        # (9*50 + 90) / 10, NOT (50 + 90) / 2
+    assert w["students"] == 10
+
+
+def test_the_window_is_none_below_the_confidence_floor_never_a_number():
+    # Four scored attempts across two students. A headline "72%" off this is a claim the
+    # data cannot support, and the console's em-dash path already exists for it.
+    rows = _window_rows(4, score=72.0, sid_of=lambda i: f"s{i % 2}")
+    w = build_window(rows, days=30, today=date(2026, 8, 19))
+
+    assert w["avg_score"] is None
+    assert w["pass_rate"] is None
+    # The denominators still ride along, so the card can say WHY rather than look broken.
+    assert w["scored_n"] == 4
+    assert w["students"] == 2
+    assert (w["min_students"], w["min_attempts"]) == (3, 5)
+
+
+def test_the_window_states_how_many_attempts_the_rescale_excluded():
+    # A silently shorter graded window reads as "nobody was graded for eleven weeks" —
+    # the same lie in the other direction, so the count is on the wire.
+    rows = (_window_rows(5, score=80.0)
+            + _window_rows(3, score=20.0, sid_of=lambda i: f"old{i}", scale=None))
+    w = build_window(rows, days=30, today=date(2026, 8, 19))
+
+    assert w["attempts"] == 8, "a legacy attempt still happened"
+    assert w["legacy_excluded"] == 3
+    assert w["scored_n"] == 5
+    assert w["avg_score"] == 80.0

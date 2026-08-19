@@ -16,6 +16,7 @@
 import assert from "node:assert";
 import {
   METRICS, NO_DATA, deltaNote, latestReading, pct, trendSeries, trendSummary, truncationNote,
+  windowBasis, windowDelta, windowPct,
 } from "../src/aurora/components/admin/performanceTrendView.ts";
 
 const P = (over = {}) => ({
@@ -79,5 +80,51 @@ assert.ok(trendSummary(T([P({ n: 1, avg_score: 50 })], { period: "week" })).incl
 assert.strictEqual(truncationNote(T([])), null, "a complete read is silent");
 assert.ok(truncationNote(T([], { complete: false })).includes("OLDEST days"));
 assert.ok(truncationNote(T([], { complete: false, period: "week" })).includes("OLDEST weeks"));
+
+// ── 5. the WINDOW figures are not the chart ──────────────────────────────────
+//   The hero and the pass-rate card claim a 90-day window. They used to render
+//   latestReading(), i.e. the newest non-null BUCKET — one WEEK at days=90. These pin
+//   that the card reads `window` and never re-derives a headline from `points`.
+const W = (over = {}) => ({
+  attempts: 8, students: 5, avg_score: 69.4, scored_n: 8, pass_rate: 75, graded_n: 8,
+  legacy_excluded: 0, min_students: 3, min_attempts: 5,
+  trajectory: { band: "improving", delta: 12.7, n: 8, needed: 4 }, ...over,
+});
+const TW = (over = {}, pts = [P({ n: 5, avg_score: 74.2, pass_rate: 80 })]) =>
+  T(pts, { window: W(over) });
+
+// The fixture's newest bucket is 74.2 and the window is 69.4 — a hero showing 74% is
+// reading the chart. This is the whole defect, in one assertion.
+assert.strictEqual(windowPct(TW(), "avg_score"), "69%", "the hero reads the WINDOW, not points[last]");
+assert.strictEqual(windowPct(TW(), "pass_rate"), "75%");
+assert.strictEqual(windowPct(undefined, "avg_score"), NO_DATA, "no data is an em-dash, never 0%");
+assert.strictEqual(windowPct(TW({ avg_score: null }), "avg_score"), NO_DATA,
+  "below the confidence floor the server nulls it, and null renders as an em-dash");
+
+// The basis line is what stops a suppressed figure reading as a broken panel.
+assert.ok(windowBasis(TW(), "avg_score").includes("8 scored attempts"));
+assert.ok(windowBasis(TW(), "avg_score").includes("5 students"));
+assert.ok(windowBasis(TW({ avg_score: null, scored_n: 4, students: 2 }), "avg_score")
+  .includes("below the 5/3 floor"), "a suppressed figure says WHY it is suppressed");
+assert.strictEqual(windowBasis(TW({ scored_n: 0 }), "avg_score"), "No scored attempts in the window");
+assert.ok(windowBasis(TW({ legacy_excluded: 3 }), "avg_score").includes("3 pre-rescale attempts excluded"),
+  "a graded window clipped by the 2026-08-04 rescale says so, or it reads as a silent gap");
+assert.ok(!windowBasis(TW({ scored_n: 0 }), "avg_score").includes("%"),
+  "the basis line never emits a percentage — it cannot become the 0% we are removing");
+assert.strictEqual(windowBasis(TW({ scored_n: 1 }), "avg_score").split(" ")[1], "scored");
+assert.ok(windowBasis(TW({ scored_n: 1 }), "avg_score").startsWith("1 scored attempt ·"),
+  "singular reads as English");
+
+// The delta is pooled halves, carrying its own n — not the first and last buckets.
+assert.ok(windowDelta(TW()).includes("up 12.7 points"));
+assert.ok(windowDelta(TW()).includes("8 scored attempts"), "the direction states its own basis");
+assert.ok(windowDelta(TW({ trajectory: { band: "declining", delta: -8.2, n: 9, needed: 4 } }))
+  .includes("down 8.2 points"));
+assert.ok(windowDelta(TW({ trajectory: { band: "steady", delta: 1.1, n: 9, needed: 4 } }))
+  .startsWith("steady"), "movement inside the dead band is not a direction");
+assert.strictEqual(
+  windowDelta(TW({ trajectory: { band: "insufficient", delta: null, n: 2, needed: 4 } })), undefined,
+  "two scores is not a trend, and the hero shows no pill at all rather than a claim");
+assert.strictEqual(windowDelta(undefined), undefined);
 
 console.log("performance_trend_logic: all assertions passed");
