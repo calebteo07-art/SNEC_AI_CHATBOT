@@ -14,6 +14,7 @@ from tools.cases.topic_sets import SET_LABELS
 from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
 from tools.profile.get_profile import get_profile
 from tools.shared import db
+from tools.gamification.streak import resolve_streak
 from tools.shared.audit_log import log as audit_log
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.clock import app_today
@@ -177,6 +178,9 @@ async def admin_all_students(current_user: CurrentUser = Depends(require_staff))
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     approved_emails = {r.get("email", "").strip().lower() for r in approved_rows if r.get("email", "").strip()}
     consent_map = {r["student_id"]: r for r in consent}
+    # SGT: the streak resolver decides whether a streak has lapsed against the product's
+    # own day boundary, not the host's.
+    today = app_today()
     result = []
     for p in profiles:
         sid = str(p.get("student_id", ""))
@@ -191,7 +195,15 @@ async def admin_all_students(current_user: CurrentUser = Depends(require_staff))
             "email": email,
             "role": p.get("role", ""),
             "session_count": int(p.get("session_count") or 0),
-            "streak": int(p.get("streak") or 0),
+            # RESOLVED, not the raw column. update_profile only ever increments `streak`,
+            # so the stored value never decays: the roster showed "14" beside a Last-active
+            # of three weeks ago, while the student's own Home and the League — which both
+            # resolve — showed 0. Same call the student app makes, so staff and student see
+            # one number.
+            "streak": resolve_streak(
+                p.get("streak"), p.get("streak_freezes"),
+                list(p.get("checkin_history") or []), today,
+            )["current"],
             "last_active": str(p.get("last_active") or ""),
             "weak_topics": p.get("weak_topics", []) or [],
             "learning_velocity": p.get("learning_velocity", "stable"),
@@ -672,6 +684,13 @@ async def admin_audit(request: Request, action: str | None = None, limit: int = 
     return {"events": events}
 
 
+# Reviews a topic needs before it can be NAMED as a student's weakest. One wrong answer
+# is otherwise a 0% topic, and the findings sentence is fed verbatim to the AI narrative.
+# Mirrored by MIN_REVIEWS_FOR_WEAK in AdminStudentDetail.tsx so the sentence and the bar
+# that sits above it flag the same set of topics.
+_MIN_REVIEWS_FOR_WEAK = 5
+
+
 def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dict],
                             flashcard_acc: dict, flashcard_ok: bool = True) -> list[dict]:
     """Deterministic, per-feature findings across ALL THREE learning features — real
@@ -703,28 +722,63 @@ def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dic
         total = sum(int(a.get("total", 0)) for a in flashcard_acc.values())
         correct = sum(int(a.get("correct", 0)) for a in flashcard_acc.values())
         pct = round(100 * correct / total) if total else 0
-        weak = sorted(t for t, a in flashcard_acc.items() if float(a.get("pct", 100)) < 65)
+        # REVIEWS, not cards. One card answered six times is six rows here, and SM-2
+        # deliberately re-serves the ones a student got wrong, so this denominator grows
+        # fastest for the students who study most. Calling it "cards" invited a lecturer
+        # to read it as syllabus coverage.
+        #
+        # A topic is named weakest only once enough reviews sit behind it. Below the
+        # floor one wrong answer is a 0% topic, and this sentence is handed verbatim to
+        # the AI narrative, which would then advise remediating a topic seen twice.
+        weak = sorted(
+            t for t, a in flashcard_acc.items()
+            if float(a.get("pct", 100)) < 65 and int(a.get("total", 0)) >= _MIN_REVIEWS_FOR_WEAK
+        )
         weak_txt = ", ".join(w.replace("_", " ") for w in weak[:3]) or "none standing out"
-        findings.append({"feature": "Flashcards",
-                         "text": f"{pct}% accuracy over {total} card(s); weakest: {weak_txt}."})
+        findings.append({
+            "feature": "Flashcards",
+            "text": f"{pct}% accuracy over {total} review(s), all time; weakest: {weak_txt}.",
+        })
     else:
         findings.append({"feature": "Flashcards",
                          "text": "No flashcard attempts logged — assign spaced-repetition decks to surface gaps."})
 
     if cases:
+        # ONE OSCE definition on this page. This line used to count ATTEMPTS while calling
+        # them "station(s)" and average every retake, while the OSCE-attainment scale
+        # inches away used best-attempt-per-station (D9) — so a student who scored
+        # 41/55/62/84 on a single case read "4 station(s), 2 passed, avg 61/100" beside an
+        # attainment of 84. Attempts and stations are both reported, each under its own
+        # name, and the mean is the same best-per-station one the scale uses.
+        best: dict[str, dict] = {}
+        for c in cases:
+            key = str(c.get("case_id") or "")
+            cur = best.get(key)
+            if cur is None or int(c.get("score_100") or -1) > int(cur.get("score_100") or -1):
+                best[key] = c
         attempts = len(cases)
-        passed = sum(1 for c in cases if c.get("passed"))
+        stations = len(best)
+        # A station counts as passed if ANY attempt on it passed — the same high-water
+        # rule as the score, and what "completed" means everywhere else in the product.
+        passed = sum(1 for k in best if any(c.get("passed") for c in cases
+                                            if str(c.get("case_id") or "") == k))
+        scores = [int(b["score_100"]) for b in best.values() if b.get("score_100") is not None]
+        avg = f", best-attempt mean {round(sum(scores) / len(scores))}/100" if scores else ""
+        # Safety stays over RAW attempts: an unsafe encounter is an event, not an
+        # attainment level, and collapsing to the best attempt erases every critical miss
+        # a student later recovered from.
         unsafe = [c for c in cases if c.get("safe") is False]
-        scores = [int(c["score_100"]) for c in cases if c.get("score_100") is not None]
-        avg = f", avg {round(sum(scores) / len(scores))}/100" if scores else ""
         missed: list[str] = []
         for c in unsafe:
             missed += [str(m) for m in (c.get("missed_critical") or [])]
         extra = ""
         if unsafe:
             extra = f"; {len(unsafe)} unsafe run(s)" + (f" (e.g. missed: {missed[0]})" if missed else "")
-        findings.append({"feature": "Virtual Patients",
-                         "text": f"{attempts} station(s), {passed} passed{avg}{extra}."})
+        findings.append({
+            "feature": "Virtual Patients",
+            "text": f"{attempts} attempt(s) across {stations} station(s), "
+                    f"{passed} station(s) passed{avg}{extra}.",
+        })
     else:
         findings.append({"feature": "Virtual Patients",
                          "text": "No virtual-patient stations attempted yet — start them on beginner cases."})
@@ -1013,7 +1067,12 @@ async def admin_student_detail(student_id: str, request: Request,
         "email": (consent.get("email") or "").strip(),
         "role": profile.get("role", ""),
         "session_count": int(profile.get("session_count") or 0),
-        "streak": int(profile.get("streak") or 0),
+        # RESOLVED, matching the roster and the student's own Home — the raw column only
+        # ever increments, so it never lapses.
+        "streak": resolve_streak(
+            profile.get("streak"), profile.get("streak_freezes"),
+            list(profile.get("checkin_history") or []), app_today(),
+        )["current"],
         "last_active": str(profile.get("last_active") or ""),
         "learning_velocity": profile.get("learning_velocity", "stable"),
         "weak_topics": profile.get("weak_topics") or [],
