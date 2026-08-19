@@ -358,7 +358,9 @@ export async function mockApis(ctx, user) {
       caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
     },
   })));
-  await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, complete: true, by_student: [{ student_id: "S001", tokens: 48213 }] })));
+  // No token-summary route: the three surfaces that read it are gone, because nothing in
+  // the product ever wrote a non-zero chat_sessions.token_count. A mock fabricating
+  // 48,213 tokens is exactly what hid that — every test saw a number production never had.
 }
 
 export async function seededContext(browser, base, user, viewport, extra = {}) {

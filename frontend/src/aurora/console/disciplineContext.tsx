@@ -2,8 +2,8 @@
 /* Console-global discipline state.
 
    ONLY useCohortAnalytics and usePerformanceTrend accept the parameter — useCohort,
-   useAtRisk, useTokenSummary, useRoster and useAudit are cohort-wide and cannot be
-   re-scoped without backend work the spec excludes.
+   useAtRisk, useRoster and useAudit are cohort-wide and cannot be re-scoped without
+   backend work the spec excludes.
 
    Decision D11 rejected a console-global control for exactly that reason: it would
    silently leave those figures unmoved while looking like it had re-scoped the board.

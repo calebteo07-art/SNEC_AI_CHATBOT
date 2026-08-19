@@ -1078,6 +1078,21 @@ async def admin_student_attempts(student_id: str, request: Request,
 @router.get("/api/admin/token-summary")
 @limiter.limit("30/minute")
 async def admin_token_summary(request: Request, current_user: CurrentUser = Depends(require_staff)):
+    """Per-student token totals. KEPT DELIBERATELY WITH NO UI CONSUMER (2026-08-19).
+
+    Every writer of chat_sessions.token_count passes a literal 0 — the OSCE station
+    hardcodes it and the tutor forwards a client field whose only caller sends 0 — so the
+    three surfaces that rendered this (the Overview card, the roster column and the
+    drawer stat) could only ever show a permanent zero, on a board shown to SNEC
+    leadership. They are deleted; only mocks and tests ever fabricated a non-zero row,
+    which is why it survived review.
+
+    This endpoint stays because it is the seam a REAL usage ledger is rebuilt on:
+    capture `response.usage_metadata` at the ask/stream_ask seam in
+    tools/shared/gemini_client.py, per model and per feature, into its own table.
+    token_count on chat_sessions structurally cannot represent either. Do not delete this
+    or its tests to tidy up an unused route.
+    """
     try:
         # Paginated two-column read. The old get_all_sessions() defaulted to limit=500,
         # so this KPI silently under-reported past 500 sessions.
