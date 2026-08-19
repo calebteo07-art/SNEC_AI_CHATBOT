@@ -3,7 +3,8 @@
 The audit write paths (admin privilege, auth surface, guardrail blocks) are live once
 migration 014 is applied; this endpoint is the read half. Audit data is sensitive
 (actors, IPs, failed logins, privilege changes), so it is admin-only (not trainers), and
-degrades to an empty list rather than 500 if the table is somehow unavailable.
+a failed read surfaces as a 503 rather than an empty list — "no events" and "the log is
+unreadable" must never render alike on a compliance surface.
 """
 from unittest.mock import AsyncMock, patch
 
@@ -56,9 +57,15 @@ def test_audit_read_clamps_excessive_limit():
     assert mock_get.call_args.kwargs["limit"] <= 500   # never scan unbounded
 
 
-def test_audit_read_degrades_to_empty_on_error():
+def test_audit_read_fails_loud_when_the_table_is_unavailable():
+    """A 200 + [] here renders "No audit events recorded yet" — the same sentence a
+    genuinely quiet log produces, during the one review that would notice. The read must
+    fail loud: useAdmin's getJSON throws on a non-ok status, so a 503 is what makes
+    AdminAudit render CsError instead of an empty state."""
     with patch("tools.shared.db.get_recent_audit_events",
                new=AsyncMock(side_effect=Exception("no table"))):
         r = client.get("/api/admin/audit", cookies=_cookie("admin"))
-    assert r.status_code == 200
-    assert r.json()["events"] == []
+    assert r.status_code == 503, r.text
+    # Not merely "events is empty" — an empty list must not exist on the failure path at
+    # all, or a future caller reads it as a measurement.
+    assert "events" not in r.json()

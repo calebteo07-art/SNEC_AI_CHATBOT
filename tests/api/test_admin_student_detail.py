@@ -286,6 +286,19 @@ def test_the_retention_value_matches_the_retention_panel_on_the_same_page():
     assert body["mastery"]["retention_mastery"]["value"] == 20.0
 
 
+def test_detail_findings_say_the_flashcard_read_failed():
+    """The detail page's findings are the same sentences /insights feeds the model, so a
+    swallowed read must not surface here as "no attempts" either."""
+    extra = [patch("tools.shared.db.get_flashcard_attempts",
+                   new=AsyncMock(side_effect=Exception("no table")))]
+    r = _get(extra=extra)
+    assert r.status_code == 200
+    text = next(f["text"] for f in r.json()["insights"]["findings"]
+                if f["feature"] == "Flashcards")
+    assert "could not be read" in text.lower(), text
+    assert "No flashcard attempts logged" not in text
+
+
 def test_the_student_is_not_counted_among_their_own_peers():
     # s1 is in the cohort profiles, so they must gate IN — but their cached row must not
     # reach the peer average. Peers are s2 (60) and s3 (30); s1's own 90 must not appear.

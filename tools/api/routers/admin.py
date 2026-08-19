@@ -647,17 +647,20 @@ async def admin_audit(request: Request, action: str | None = None, limit: int = 
     """Recent security/privilege audit events (audit_events, migration 014), newest first.
     ADMIN-ONLY — this is sensitive data (actors, IPs, failed logins, privilege changes), so
     trainers are excluded. Optional ?action= filter; ?limit= is clamped to [1, 500].
-    Degrades to an empty list (never 500) if the table is unavailable."""
+
+    A failed read is a 503, NEVER an empty list: "No audit events recorded yet" is what a
+    genuinely quiet log renders too, so degrading to [] hands a security review a clean
+    bill of health for an unreadable table."""
     limit = max(1, min(limit, 500))
     try:
         events = await db.get_recent_audit_events(limit=limit, action=action)
     except Exception:
-        return {"events": []}
+        raise HTTPException(status_code=503, detail="Audit trail unavailable. Please try again.")
     return {"events": events}
 
 
 def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dict],
-                            flashcard_acc: dict) -> list[dict]:
+                            flashcard_acc: dict, flashcard_ok: bool = True) -> list[dict]:
     """Deterministic, per-feature findings across ALL THREE learning features — real
     insight, not a plain history list (ricoe: "give actual findings so lecturers can
     improve teaching"). Free + always available; the AI narrative refines these."""
@@ -675,7 +678,15 @@ def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dic
         findings.append({"feature": "AI Tutor",
                          "text": "No AI-tutor use yet — encourage Socratic questioning to build reasoning."})
 
-    if flashcard_acc:
+    if not flashcard_ok:
+        # The read FAILED, which is a different fact from "no attempts" — and these
+        # sentences are handed VERBATIM to the AI narrative below, so the outage would
+        # become the model's premise and a lecturer would be told to remediate a gap that
+        # does not exist. Same asymmetry cohort_reads.py already threads for the cohort.
+        findings.append({"feature": "Flashcards",
+                         "text": "Flashcard data could not be read — this student's card "
+                                 "activity is UNKNOWN, not zero."})
+    elif flashcard_acc:
         total = sum(int(a.get("total", 0)) for a in flashcard_acc.values())
         correct = sum(int(a.get("correct", 0)) for a in flashcard_acc.values())
         pct = round(100 * correct / total) if total else 0
@@ -765,11 +776,14 @@ async def admin_student_insights(student_id: str, request: Request, current_user
         case_rows = await db.get_case_results(student_id)
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+    flashcard_ok = True
     try:
         flashcard_acc = await db.get_topic_accuracy(student_id)
     except Exception:
-        flashcard_acc = {}
-    findings = _build_student_findings(profile, sessions, case_rows, flashcard_acc)
+        # Degrade, don't silence — the flag is the only thing keeping "unavailable"
+        # distinguishable from "empty" once the findings reach the model.
+        flashcard_acc, flashcard_ok = {}, False
+    findings = _build_student_findings(profile, sessions, case_rows, flashcard_acc, flashcard_ok)
     narrative = await _ai_insight_narrative(profile.get("full_name", "the student"), findings)
     return {"findings": findings, "narrative": narrative}
 
@@ -813,12 +827,14 @@ async def admin_student_detail(student_id: str, request: Request,
     # The RAW attempts, not get_topic_accuracy: that helper calls this same function and
     # throws away the timestamps, which the flashcard trajectory needs. Per-topic accuracy is
     # derived from these rows in topic_map.flashcard_cells, so this is one read, not two.
+    flashcard_ok = True
     try:
         card_rows = await db.get_flashcard_attempts(student_id)
     except Exception:
         # Raises by design pre-migration-010 (db.py:566) — the normal state before the
-        # flashcard log existed. Degrade to no cards, exactly as before.
-        card_rows = []
+        # flashcard log existed. Degrade to no cards, exactly as before, but REMEMBER it:
+        # the findings must not report a failed read as "no attempts logged".
+        card_rows, flashcard_ok = [], False
     flashcard_acc = _accuracy_from_rows(card_rows)
 
     # Mastery vs cohort (P2b, §6.2). Best-effort: this is an ADDITION to a page that
@@ -953,7 +969,7 @@ async def admin_student_detail(student_id: str, request: Request,
     total_tokens = sum(s["token_count"] for s in sessions)
 
     # Cross-feature findings (deterministic, free) — the AI narrative is fetched separately.
-    findings = _build_student_findings(profile, all_sessions, case_rows, flashcard_acc)
+    findings = _build_student_findings(profile, all_sessions, case_rows, flashcard_acc, flashcard_ok)
 
     # Best-effort, exactly like the mastery block above it: this is an ADDITION to a page that
     # already works, so a failure here emits `insight: None` and leaves the sessions, cases

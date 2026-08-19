@@ -102,10 +102,13 @@ export function Overview() {
           value={figure(cohort, cohort.data?.total ?? 0)}
           detail={`${figure(cohort, cohort.data?.active_this_week ?? 0)} active this week`}
         />
+        {/* The detail line goes through figure() like the value above it: on a failed read
+            it used to print a confident coral "0 students flagged" — the one measurement a
+            dead read is least entitled to make. */}
         <StatCard
           hue="coral" label="Needs attention" mark={<AllDisciplines />}
           value={figure(atRisk, risks.length)} detailHue="coral"
-          detail={risks.length === 1 ? "1 student flagged" : `${risks.length} students flagged`}
+          detail={`${figure(atRisk, risks.length)} ${risks.length === 1 ? "student" : "students"} flagged`}
         />
         {/* passRate is 0-100 (trend endpoint) — NOT multiplied. */}
         <StatCard
