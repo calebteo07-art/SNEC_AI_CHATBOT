@@ -6,18 +6,16 @@
    requires naming the decision it changes (spec §11.3).
 
    Discipline scoping is stated on the face of every figure (spec §4): the hero and the
-   two OSCE stats FOLLOW the segment; Students, Needs attention and AI tokens are
-   cohort-wide and wear <AllDisciplines />. No figure is left ambiguous. */
+   two OSCE stats FOLLOW the segment; Students and Needs attention are cohort-wide and
+   wear <AllDisciplines />. No figure is left ambiguous. */
 import { useState } from "react";
-import { useAuth } from "@/screens/AuthContext";
 import {
   useCohort, useAtRisk, useCohortAnalytics, usePerformanceTrend,
-  useTokenSummary, useCohortInsight, type TopicGroupRow,
+  useCohortInsight, type TopicGroupRow,
 } from "@/hooks/useAdmin";
 import { safetyPanel, weakestPanel } from "@/aurora/components/admin/cohortAnalyticsView";
 import { riskRows } from "@/aurora/components/admin/riskRowView";
 import { windowBasis, windowDelta, windowPct } from "@/aurora/components/admin/performanceTrendView";
-import { fmtTokens } from "@/screens/adminShared";
 import { useDiscipline, AllDisciplines } from "@/aurora/console/disciplineContext";
 import { HeroMetric, StatCard, Panel } from "@/aurora/console/Panel";
 import { Sparkline } from "@/aurora/console/Sparkline";
@@ -30,13 +28,11 @@ import { TopicDetail } from "@/aurora/console/TopicDetail";
 const DAYS = 90;
 
 export function Overview() {
-  const { user } = useAuth();
   const { discipline } = useDiscipline();
   const cohort = useCohort();
   const atRisk = useAtRisk();
   const analytics = useCohortAnalytics(discipline, DAYS);
   const trend = usePerformanceTrend(DAYS, discipline);
-  const tokens = useTokenSummary();
   const insight = useCohortInsight();
   const [openTopic, setOpenTopic] = useState<string | null>(null);
 
@@ -137,13 +133,6 @@ export function Overview() {
           value={analytics.isLoading ? "…" : analytics.isError ? "—" : safety.rate === null ? "—" : `${Math.round(safety.rate * 100)}%`}
           detail={safety.summary}
         />
-        {user?.role === "admin" && (
-          <StatCard
-            hue="amber" label="AI tokens" mark={<AllDisciplines />}
-            value={figure(tokens, `${tokens.data?.complete === false ? "≥ " : ""}${fmtTokens(tokens.data?.total_tokens ?? 0)}`)}
-            detail={tokens.data?.complete === false ? "A floor — the read hit its page cap" : "Across every session"}
-          />
-        )}
       </div>
 
       <div className="cs-two">

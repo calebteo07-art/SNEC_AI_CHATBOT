@@ -5,10 +5,6 @@ export interface ApprovedStudent {
 }
 export interface Credential { full_name: string; email: string; password: string; }
 
-export function fmtTokens(n: number) {
-  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
-}
-
 export function getInitials(name: string) {
   return name.split(" ").filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase();
 }

@@ -6,10 +6,9 @@
    Re-skinned onto .cs — the filtering and paging arithmetic is byte-identical to the
    .aurora-admin version; only the markup moved. */
 import { useState } from "react";
-import { fmtTokens } from "@/screens/adminShared";
 import { AdminStudentDetail } from "@/aurora/screens/AdminStudentDetail";
 import { displayName } from "@/aurora/lib/displayName";
-import { useRoster, useAtRisk, useTokenSummary, useStaff, type RosterRow, type StaffRow } from "@/hooks/useAdmin";
+import { useRoster, useAtRisk, useStaff, type RosterRow, type StaffRow } from "@/hooks/useAdmin";
 import { DataTable } from "@/aurora/console/DataTable";
 import { Badge, Panel, type Hue } from "@/aurora/console/Panel";
 import { CsSkeleton, CsError } from "@/aurora/console/states";
@@ -27,7 +26,6 @@ function roleHue(role: string): Hue | undefined {
 export function AdminRoster() {
   const roster = useRoster();
   const atRiskQ = useAtRisk();
-  const tokensQ = useTokenSummary();
   const staffQ = useStaff();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -41,8 +39,6 @@ export function AdminRoster() {
   // answers an outage with a clean "No students found."
   const atRiskFailed = atRiskQ.isError;
   const atRisk = (atRiskQ.data ?? []).map((r) => r.student_id);
-  const tokensByStudent: Record<string, number> = {};
-  for (const t of tokensQ.data?.by_student ?? []) tokensByStudent[t.student_id] = t.tokens;
 
   const filtered = students.filter((s) => {
     const q = search.toLowerCase();
@@ -121,7 +117,6 @@ export function AdminRoster() {
             { key: "role", head: "Role", width: "84px", cell: (s) => <Badge hue={roleHue(s.role)}>{s.role}</Badge> },
             { key: "sessions", head: "Sessions", width: "92px", cell: (s) => <span className="cs-num">{s.session_count}</span> },
             { key: "streak", head: "Streak", width: "78px", cell: (s) => <span className="cs-num">{s.streak}</span> },
-            { key: "tokens", head: "Tokens", width: "92px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-blue)" }}>{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span> },
             { key: "last", head: "Last active", width: "112px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-ink-3)" }}>{s.last_active?.slice(0, 10) || "—"}</span> },
           ]}
         />

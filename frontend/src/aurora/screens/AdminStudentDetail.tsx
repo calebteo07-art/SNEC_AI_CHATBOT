@@ -8,7 +8,6 @@
    30s poll clobbering a mid-edit note, the AI narrative staying behind an explicit
    button (it is a paid call), and the `mastery.length > 0` omission guard. */
 import { useEffect, useRef, useState } from "react";
-import { fmtTokens } from "@/screens/adminShared";
 import { useStudentDetail, type StudentDetail } from "@/hooks/useAdmin";
 import { Icon } from "@/aurora/icons";
 import { EngagementBlock } from "@/aurora/components/EngagementBlock";
@@ -279,14 +278,13 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
 
         {data && (
           <>
-            {/* A tighter track than the Overview strip: five cells, and the default
-                168px minimum orphans the fifth onto a row of its own. */}
+            {/* A tighter track than the Overview strip: these cells hold short figures and
+                the default 168px minimum stretches them across the dialog. */}
             <div className="cs-strip" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(126px, 1fr))" }}>
               {[
                 { label: "Sessions", val: String(data.session_count) },
                 { label: "Streak", val: `${data.streak}d` },
                 { label: "Cases", val: String(data.cases.length) },
-                { label: "Tokens", val: fmtTokens(data.total_tokens) },
                 { label: "Last active", val: data.last_active?.slice(0, 10) || "—" },
               ].map((s) => <MiniStat key={s.label} label={s.label} value={s.val} />)}
             </div>
@@ -366,7 +364,6 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                 columns={[
                   { key: "date", head: "Date", width: "104px", primary: true, cell: (s) => <span className="cs-num">{s.timestamp?.slice(0, 10) || "—"}</span> },
                   { key: "topic", head: "Topic", width: "1fr", cell: (s) => s.topic || "—" },
-                  { key: "tokens", head: "Tokens", width: "78px", cell: (s) => <span className="cs-num" style={{ color: "var(--cs-blue)" }}>{s.token_count.toLocaleString()}</span> },
                   { key: "model", head: "Model", width: "78px", cell: (s) => <span style={{ color: "var(--cs-ink-3)" }}>{s.model || "—"}</span> },
                 ]}
               />

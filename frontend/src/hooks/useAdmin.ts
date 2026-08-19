@@ -200,28 +200,16 @@ export function useActivityTrend(days = 21) {
   });
 }
 
-export interface TokenSummary {
-  total_tokens: number;
-  by_student: { student_id: string; tokens: number }[];
-  // False when the server's paginated read hit its page cap — total_tokens is then a
-  // FLOOR, not a total. Optional so a response persisted under the previous shape
-  // (admin queries live in IndexedDB for 24h) reads as "unknown", never as "incomplete";
-  // that is also why this needs no PERSIST_SCHEMA_VERSION bump.
-  complete?: boolean;
-}
-/** Token totals scan every chat_sessions row (paginated server-side), making this the
-    most expensive read on the board — so it is deliberately OFF the 30s poll that LIVE
-    applies to everything else. Usage totals move slowly, and a 30s poll from every open
-    staff tab multiplied that full scan on the single prod worker. Fresh on focus plus a
-    5-min stale window; the manual Refresh still invalidates ["admin"] and refetches it. */
-export function useTokenSummary() {
-  return useQuery<TokenSummary>({
-    queryKey: ["admin", "token-summary"],
-    queryFn: () => getJSON<TokenSummary>("/api/admin/token-summary"),
-    refetchOnWindowFocus: true,
-    staleTime: 5 * 60_000,
-  });
-}
+/* The token-summary hook and its type are GONE (2026-08-19), along with the three
+   surfaces that read them. Nothing in the product ever wrote a non-zero
+   chat_sessions.token_count — the OSCE station passes the literal 0 and the tutor
+   forwards a client field whose only caller hardcodes 0 — so all three rendered a
+   permanent zero on a board shown to SNEC leadership. Only the mocks and tests ever
+   fabricated a non-zero row, which is why it survived review for so long.
+
+   GET /api/admin/token-summary is deliberately KEPT with no caller: it is the seam a
+   real usage ledger gets rebuilt on, reading response.usage_metadata at the ask seam in
+   tools/shared/gemini_client.py per model and per feature. See the endpoint docstring. */
 
 export type Discipline = "oa_psa" | "ot" | "all";
 export interface TopicGroupRow {
