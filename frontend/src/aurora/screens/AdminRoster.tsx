@@ -36,6 +36,10 @@ export function AdminRoster() {
 
   const students = roster.data ?? [];
   const staff = staffQ.data ?? [];
+  // A failed at-risk read is NOT "nobody is flagged". With no rows the coral markers
+  // simply vanish from a roster that still renders perfectly, and the "At risk" filter
+  // answers an outage with a clean "No students found."
+  const atRiskFailed = atRiskQ.isError;
   const atRisk = (atRiskQ.data ?? []).map((r) => r.student_id);
   const tokensByStudent: Record<string, number> = {};
   for (const t of tokensQ.data?.by_student ?? []) tokensByStudent[t.student_id] = t.tokens;
@@ -76,10 +80,21 @@ export function AdminRoster() {
         </div>
       </div>
 
+      {/* The roster read succeeded, so the table below still renders — but the markers on
+          it did not, and an unmarked row is indistinguishable from a safe one. */}
+      {atRiskFailed && filter !== "at-risk" && (
+        <CsError
+          onRetry={() => atRiskQ.refetch()}
+          label="Couldn’t load the at-risk flags — no student is marked below."
+        />
+      )}
+
       {roster.isLoading ? (
         <CsSkeleton rows={6} />
       ) : roster.isError ? (
         <CsError onRetry={() => roster.refetch()} label="Couldn’t load the roster." />
+      ) : filter === "at-risk" && atRiskFailed ? (
+        <CsError onRetry={() => atRiskQ.refetch()} label="Couldn’t load the at-risk flags." />
       ) : (
         <DataTable<RosterRow>
           testId="admin-roster"
