@@ -47,6 +47,11 @@ const list = (v: unknown): Record<string, unknown>[] =>
 // this whole payload exists to keep.
 const BANDS = ["thin", "weak", "developing", "strong", "absent"];
 
+/** Reviews a topic needs before its accuracy bar earns the coral alarm tone. Mirrors
+    _MIN_REVIEWS_FOR_WEAK in tools/api/routers/admin.py, which gates the same threshold on
+    the findings sentence rendered under these bars. */
+const MIN_REVIEWS_FOR_WEAK = 5;
+
 function toCell(v: unknown): Cell {
   const c = (v ?? {}) as Record<string, unknown>;
   const band = String(c.band ?? "");
@@ -251,11 +256,16 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     readout: `${Math.round(score * 100)}%`,
     hue: score < 0.65 ? "coral" : "blue",
   }));
+  /* The alarm tone needs a denominator behind it. `total` counts REVIEWS, not cards, and
+     SM-2 re-serves a missed card preferentially — so one wrong answer on a barely-touched
+     topic painted a confident coral bar at 0%, next to a well-practised topic in blue.
+     Mirrors _MIN_REVIEWS_FOR_WEAK in tools/api/routers/admin.py so this bar and the
+     findings sentence below it flag the same topics. */
   const flashcardBars: CsBarRow[] = Object.entries(data?.flashcard_accuracy ?? {}).map(([topic, a]) => ({
     label: topic.replace(/_/g, " "),
     value: Math.max(0, Math.min(100, a.pct)),   // pct already 0-100
     readout: `${a.correct}/${a.total}`,
-    hue: a.pct < 65 ? "coral" : "blue",
+    hue: a.pct < 65 && a.total >= MIN_REVIEWS_FOR_WEAK ? "coral" : "blue",
   }));
 
   return (
@@ -284,7 +294,10 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
               {[
                 { label: "Sessions", val: String(data.session_count) },
                 { label: "Streak", val: `${data.streak}d` },
-                { label: "Cases", val: String(data.cases.length) },
+                // ATTEMPTS, under its own name. Labelled "Cases" it read as the number of
+                // distinct stations, which is a different — and smaller — number whenever
+                // anyone retakes one.
+                { label: "Attempts", val: String(data.cases.length) },
                 { label: "Last active", val: data.last_active?.slice(0, 10) || "—" },
               ].map((s) => <MiniStat key={s.label} label={s.label} value={s.val} />)}
             </div>
@@ -415,6 +428,15 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                   <div>
                     <p className="cs-eyebrow" style={{ marginBottom: 4 }}>Flashcard accuracy (per topic)</p>
                     <BarList rows={flashcardBars} max={100} />
+                    {/* The readout is correct/reviews, not correct/cards. Spaced repetition
+                        re-serves a missed card preferentially, so this denominator grows
+                        fastest for the students who study MOST — a low figure here is not
+                        the same claim as "has not learned it". */}
+                    <p className="cs-note" style={{ marginTop: 6, marginBottom: 0 }}>
+                      All-time, counted per review rather than per card — a card answered
+                      again after being missed appears each time. Topics under {MIN_REVIEWS_FOR_WEAK} reviews
+                      are not flagged.
+                    </p>
                   </div>
                 )}
                 {data.missed_findings.length > 0 && (
