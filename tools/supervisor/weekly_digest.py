@@ -249,5 +249,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python tools/supervisor/weekly_digest.py supervisor@example.com")
         sys.exit(1)
-    send_weekly_digest(sys.argv[1])
+    asyncio.run(send_weekly_digest(sys.argv[1]))
     print("Digest sent to " + sys.argv[1])
