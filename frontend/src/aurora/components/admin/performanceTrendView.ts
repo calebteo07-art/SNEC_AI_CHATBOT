@@ -112,7 +112,22 @@ export function windowBasis(data: PerformanceTrend | undefined, key: WindowKey):
   const w = data.window;
   const n = key === "avg_score" ? w.scored_n : w.graded_n;
   const noun = NOUN[key];
-  if (n === 0) return `No ${noun} attempts in the window`;
+  if (n === 0) {
+    // The 2026-08-04 rescale is the FIRST thing to say here, not the last. This used to
+    // return before mentioning it at all — so a 90-day window whose attempts all predate
+    // the rescale reported "No graded attempts in the window" while the hero beside it
+    // read "12 station attempts" and the safety card read "1 of 11 graded attempt(s)".
+    // Three figures on one screen, contradicting each other, because the one number that
+    // reconciled them was computed, sent, and then dropped on the floor.
+    if (w.legacy_excluded > 0) {
+      const s = w.legacy_excluded === 1 ? "" : "s";
+      const all = w.legacy_excluded >= w.attempts;
+      return all
+        ? `All ${w.legacy_excluded} attempt${s} predate the 4 Aug rescale — not comparable`
+        : `No ${noun} attempts yet · ${w.legacy_excluded} pre-rescale attempt${s} excluded`;
+    }
+    return `No ${noun} attempts in the window`;
+  }
   const head = `${n} ${noun} attempt${n === 1 ? "" : "s"}`;
   if (w[key] === null) {
     return `${head} from ${w.students} student${w.students === 1 ? "" : "s"}`

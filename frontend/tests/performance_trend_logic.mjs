@@ -106,9 +106,29 @@ assert.ok(windowBasis(TW(), "avg_score").includes("8 scored attempts"));
 assert.ok(windowBasis(TW(), "avg_score").includes("5 students"));
 assert.ok(windowBasis(TW({ avg_score: null, scored_n: 4, students: 2 }), "avg_score")
   .includes("below the 5/3 floor"), "a suppressed figure says WHY it is suppressed");
-assert.strictEqual(windowBasis(TW({ scored_n: 0 }), "avg_score"), "No scored attempts in the window");
+assert.strictEqual(windowBasis(TW({ scored_n: 0, attempts: 0, legacy_excluded: 0 }), "avg_score"),
+  "No scored attempts in the window");
 assert.ok(windowBasis(TW({ legacy_excluded: 3 }), "avg_score").includes("3 pre-rescale attempts excluded"),
   "a graded window clipped by the 2026-08-04 rescale says so, or it reads as a silent gap");
+
+// The case the console actually hit in production on 2026-08-20, and the one the early
+// return above used to swallow: EVERY attempt in the window predates the rescale, so the
+// figure is suppressed and the only explanation available is the one this line carries.
+// Saying "No graded attempts in the window" beside a hero reading "12 station attempts"
+// and a safety card reading "1 of 11 graded attempt(s)" is three figures contradicting
+// each other on one screen.
+const allLegacy = windowBasis(
+  TW({ scored_n: 0, graded_n: 0, attempts: 12, legacy_excluded: 12, students: 13 }), "pass_rate");
+assert.ok(allLegacy.includes("12"), allLegacy);
+assert.ok(/rescale/i.test(allLegacy), `must name the rescale as the reason: "${allLegacy}"`);
+assert.ok(!/^No graded attempts in the window$/.test(allLegacy),
+  "a window whose attempts were ALL excluded must not read as a window with no attempts");
+
+// Partial: some attempts are pre-rescale, the rest simply carry no grade yet.
+const partial = windowBasis(
+  TW({ scored_n: 0, graded_n: 0, attempts: 10, legacy_excluded: 4 }), "avg_score");
+assert.ok(partial.includes("4"), partial);
+assert.ok(/rescale/i.test(partial), partial);
 assert.ok(!windowBasis(TW({ scored_n: 0 }), "avg_score").includes("%"),
   "the basis line never emits a percentage — it cannot become the 0% we are removing");
 assert.strictEqual(windowBasis(TW({ scored_n: 1 }), "avg_score").split(" ")[1], "scored");
