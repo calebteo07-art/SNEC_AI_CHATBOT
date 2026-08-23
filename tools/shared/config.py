@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping
+from urllib.parse import urlsplit
 
 # JWT secrets that must never reach production — the in-code fallback and the
 # .env.template placeholder.
@@ -43,6 +44,44 @@ def super_admin_email(env: Mapping[str, str] | None = None) -> str:
     """
     env = os.environ if env is None else env
     return env.get("SUPER_ADMIN_EMAIL", "").strip().lower()
+
+
+# Hostnames that only resolve on the machine doing the resolving. A link built on one
+# is useless the moment it leaves this process — in an email it points at the
+# *recipient's* laptop.
+_LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+
+# Where the app runs on a developer box (Next.js dev server), used only when the
+# environment names no origin at all.
+_LOCAL_APP_BASE = "http://localhost:3000"
+
+
+def _is_loopback(origin: str) -> bool:
+    host = (urlsplit(origin).hostname or "").lower()
+    return host in _LOOPBACK_HOSTS
+
+
+def app_base_url(env: Mapping[str, str] | None = None) -> str:
+    """The public origin of the web app, for links that leave this process (email).
+
+    Derived from ALLOWED_ORIGINS instead of its own variable: that is the one public
+    URL every deployment already has to configure, and ``production_config_problems``
+    refuses to boot production without an explicit, non-wildcard value — so a new
+    deploy mails a working link with no extra dashboard setting to forget.
+
+    The first NON-loopback entry wins, because listing the dev origins alongside the
+    real one is normal and a mailed ``localhost`` link resolves on the reader's own
+    machine. Loopback is the last resort and only reachable off production, where it
+    is the right answer for a manual run. No trailing slash, so callers append paths.
+    """
+    env = os.environ if env is None else env
+    raw = env.get("ALLOWED_ORIGINS", "").strip()
+    if raw == "*":
+        return _LOCAL_APP_BASE
+    origins = [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+    if not origins:
+        return _LOCAL_APP_BASE
+    return next((o for o in origins if not _is_loopback(o)), origins[0])
 
 
 def production_config_problems(env: Mapping[str, str] | None = None) -> list[str]:
