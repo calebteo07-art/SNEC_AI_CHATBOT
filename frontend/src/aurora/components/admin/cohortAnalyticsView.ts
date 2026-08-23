@@ -278,7 +278,12 @@ export function safetyPanel(topics: TopicGroupRow[]): SafetyPanel {
   }
   return {
     rate: fails / gradable,
-    summary: `${fails} of ${gradable} graded attempt(s) missed a critical safety step.`,
+    // "safety-graded", not "graded". The pass-rate card beside this one uses "graded" to
+    // mean carrying a pass/fail on the CURRENT rubric, and the two denominators are
+    // genuinely different sets — safety keeps every era, since the 2026-08-04 rescale did
+    // not touch `safe`. One word meaning two things put "1 of 11 graded attempt(s)" next
+    // to "No graded attempts in the window" and made the board look broken.
+    summary: `${fails} of ${gradable} safety-graded attempt(s) missed a critical safety step.`,
   };
 }
 

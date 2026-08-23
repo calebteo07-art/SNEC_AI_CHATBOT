@@ -246,7 +246,11 @@ const sp = safetyPanel([
   g("C", {}, { safety_fail_rate: null, safety_gradable_n: 0 }),
 ]);
 assert.strictEqual(sp.rate, 3 / 22);
-assert.strictEqual(sp.summary, "3 of 22 graded attempt(s) missed a critical safety step.");
+// "safety-graded", not "graded": the pass-rate card uses "graded" for pass/fail on the
+// CURRENT rubric, and these are different sets — safety spans every era because the
+// 2026-08-04 rescale did not touch `safe`. Sharing the word rendered "1 of 11 graded
+// attempt(s)" beside "No graded attempts in the window" on the same strip.
+assert.strictEqual(sp.summary, "3 of 22 safety-graded attempt(s) missed a critical safety step.");
 assert.ok(Math.abs(sp.rate - 0.3) > 0.1, "the mean of per-group rates would read 30% — 2x the pooled truth");
 
 const spNone = safetyPanel([g("A"), g("B")]);
