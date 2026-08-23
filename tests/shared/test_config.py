@@ -6,6 +6,7 @@ rather than silently running on forgeable tokens or a missing database.
 import pytest
 
 from tools.shared.config import (
+    app_base_url,
     production_config_problems,
     assert_production_ready,
     is_production,
@@ -140,3 +141,49 @@ def test_a_missing_gemini_key_is_fine_outside_production():
     dev = {**_GOOD, "ENVIRONMENT": "development", "GEMINI_API_KEY": ""}
     assert any("GEMINI_API_KEY" in p for p in production_config_problems(dev))
     assert_production_ready(dev)  # must NOT raise off production
+
+
+# ── app_base_url ───────────────────────────────────────────────────────────────
+# The public origin of the web app, needed by anything that mails a link (the
+# supervisor weekly digest is the first caller). Derived from ALLOWED_ORIGINS rather
+# than a new env var: it is the one public URL every deployment already has to set,
+# and `production_config_problems` above already refuses to boot production without an
+# explicit, non-wildcard value — so there is no prod state where this reads nothing.
+
+def test_the_configured_origin_is_the_app_base():
+    assert app_base_url(_GOOD) == "https://eyebot.example.edu"
+
+
+def test_a_trailing_slash_never_doubles_up_in_the_built_link():
+    env = {**_GOOD, "ALLOWED_ORIGINS": "https://eyebot.example.edu/"}
+    assert app_base_url(env) + "/admin" == "https://eyebot.example.edu/admin"
+
+
+def test_the_public_origin_wins_over_the_dev_entries_beside_it():
+    """A deployment that lists its dev origins alongside the real one is normal; a mailed
+    link has to reach the host the recipient's machine can resolve, not their own."""
+    env = {**_GOOD, "ALLOWED_ORIGINS":
+           "http://localhost:3000,http://127.0.0.1:3000,https://eyebot.example.edu"}
+    assert app_base_url(env) == "https://eyebot.example.edu"
+
+
+def test_a_production_environment_can_never_resolve_to_loopback():
+    """The guard above makes ALLOWED_ORIGINS explicit and non-wildcard in production, so
+    the loopback fallback below is unreachable there. This is the assertion that keeps
+    the two facts tied together."""
+    assert "localhost" not in app_base_url(_GOOD)
+    assert "127.0.0.1" not in app_base_url(_GOOD)
+
+
+def test_an_unset_or_wildcard_origin_falls_back_to_the_local_dev_server():
+    """Only reachable off production — a manual `python tools/supervisor/weekly_digest.py`
+    run should still build a link that works on the machine running it."""
+    assert app_base_url({}) == "http://localhost:3000"
+    assert app_base_url({"ALLOWED_ORIGINS": "*"}) == "http://localhost:3000"
+    assert app_base_url({"ALLOWED_ORIGINS": "   "}) == "http://localhost:3000"
+
+
+def test_a_loopback_only_list_is_honoured_as_written():
+    """Last resort, not a rewrite: if localhost is all the environment offers, use the
+    port it actually named rather than guessing a different one."""
+    assert app_base_url({"ALLOWED_ORIGINS": "http://localhost:4321"}) == "http://localhost:4321"

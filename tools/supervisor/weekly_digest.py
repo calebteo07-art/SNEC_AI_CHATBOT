@@ -19,6 +19,7 @@ from tools.supervisor.cohort_summary import cohort_summary
 from tools.supervisor.at_risk import get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
 from tools.shared.gmail_sender import send_email
+from tools.shared.config import app_base_url
 
 # ── colour palette (matches EyeBot brand) ──────────────────────────────────────
 C_BG     = "#FBF8F1"
@@ -146,12 +147,18 @@ async def build_digest_html(supervisor_email: str) -> str:
 
     at_risk_color = C_RED if summary["at_risk_count"] > 0 else C_GREEN
 
+    # Read per render, not at import: the origin is deployment config, and a module-level
+    # capture would bake whichever env the worker happened to import under.
+    # `/admin` is the staff console (frontend/src/app/(console)/admin) — the old
+    # `/supervisor` was never a page, only the `/api/supervisor/*` endpoints it reads.
+    console_url = app_base_url() + "/admin"
+
     body_content = (
         _weak_topics_section(summary["weakest_topics"])
         + _risk_section(at_risk)
         + _bench_section(benchmarks)
         + '<div style="text-align:center;padding-top:8px">'
-          '<a href="http://localhost:5173/supervisor"'
+          '<a href="' + console_url + '"'
           ' style="display:inline-block;padding:14px 32px;background:' + C_DARK + ';'
           'color:#FBF8F1;text-decoration:none;border-radius:40px;'
           'font-size:14px;font-weight:500;letter-spacing:0.02em">'
