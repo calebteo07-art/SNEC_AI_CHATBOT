@@ -10,6 +10,11 @@
     The reason sort below is different: that one IS load-bearing, because this module
     truncates. */
 import type { AtRiskRow, RiskReason } from "@/hooks/useAdmin";
+/* A VALUE import, so it must be relative-with-extension: the `@/` alias is a tsconfig
+   path that Node's type-stripping does not resolve, and this module's whole point is
+   that the harness can import it. Same resolver every other name surface uses — the
+   "an address is never a person" rule lives in exactly one place. */
+import { displayName } from "../../lib/displayName.ts";
 
 export const BAND_ORDER = ["high", "medium", "low", "no_data"] as const;
 
@@ -19,6 +24,11 @@ const MAX_REASONS = 3;
 
 export interface RiskRowView {
   studentId: string;
+  /** Who to go and talk to. The panel shipped with `idLabel` as its ONLY label, so
+   *  every row read "6393d988-0b6…" — a trainer could see that thirteen students
+   *  needed attention and not one name to act on. Falls back to the id rather than
+   *  blank: an unnamed row must stay traceable. */
+  nameLabel: string;
   idLabel: string;
   band: string;
   /** null risk_score renders "—", never "0" — a 0 reads as "lowest risk in the cohort". */
@@ -35,11 +45,16 @@ export function riskRows(rows: AtRiskRow[] | null | undefined): RiskRowView[] {
     .map((r) => {
       const score = typeof r.risk_score === "number" ? r.risk_score : null;
       const id = String(r.student_id ?? "");
+      // Ellipsis only when something was actually cut. Production ids are often
+      // short ("S001"), and "S001…" claims a truncation that did not happen.
+      const idLabel = id.length > 12 ? `${id.slice(0, 12)}…` : id;
       return {
         studentId: id,
-        // Ellipsis only when something was actually cut. Production ids are often
-        // short ("S001"), and "S001…" claims a truncation that did not happen.
-        idLabel: id.length > 12 ? `${id.slice(0, 12)}…` : id,
+        // The id is the FALLBACK, not the label. displayName() also guards the case
+        // that put an address here in the first place: staff and un-consented accounts
+        // seed student_name from the email, so "@" reaches this panel as a real value.
+        nameLabel: displayName(r.full_name, idLabel),
+        idLabel,
         band: String(r.band ?? ""),
         scoreLabel: score === null ? "—" : String(score),
         sortScore: Math.max(0, Math.min(100, score ?? 0)),
@@ -57,7 +72,13 @@ export function riskRows(rows: AtRiskRow[] | null | undefined): RiskRowView[] {
     })
     .sort((a, b) => {
       const band = bandRank(a.band) - bandRank(b.band);
-      return band !== 0 ? band : b.sortScore - a.sortScore;
+      if (band !== 0) return band;
+      const byScore = b.sortScore - a.sortScore;
+      // Name breaks the tie, because on a DORMANT cohort the score is not a tiebreak at
+      // all: an inactive student with no performance rows renormalises to 80/100 by
+      // arithmetic, so every row carries the same number and the visible order fell
+      // through to raw UUID. Thirteen identical scores in id order is not a ranking.
+      return byScore !== 0 ? byScore : a.nameLabel.localeCompare(b.nameLabel);
     });
 }
 

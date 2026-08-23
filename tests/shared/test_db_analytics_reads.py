@@ -154,7 +154,11 @@ async def test_get_all_case_scores_excludes_coaching_blob():
     assert set(calls["tables"]) == {"case_progress"}
     projection = calls["columns"][0]
     assert projection == ("student_id, case_id, completed_at, score_100, safe, passed, "
-                          "total_score, missed_critical")
+                          "total_score, missed_critical, grade_scale")
+    # Migration 017's stamp. Without it every row reads as the retired x50 era, so the
+    # attainment filter in cohort_analytics.osce_by_group / osce_by_student cannot be
+    # written at all — which is exactly why those two pooled both instruments until now.
+    assert "grade_scale" in projection
     # The one column with no fallback: osce_by_group's missed_top is built from it and
     # nothing else, so dropping it silently empties the most-missed panel forever.
     assert "missed_critical" in projection

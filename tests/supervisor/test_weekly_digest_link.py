@@ -49,9 +49,17 @@ def _stub_cohort_reads(monkeypatch):
     async def _benchmarks():
         return [{"topic": "tonometry", "avg_score": 0.62, "student_count": 8}]
 
+    async def _names():
+        # A FOURTH read, added when the at-risk table stopped identifying students by
+        # truncated UUID. It reaches student_consent like the three above, so it needs
+        # the same stub — without it `_forbid_real_supabase` fails these tests on the
+        # way out, which is the guard working, not a flake.
+        return {"s1234567890ab": "Caleb Teo"}
+
     monkeypatch.setattr(weekly_digest, "cohort_summary", _summary)
     monkeypatch.setattr(weekly_digest, "get_at_risk", _at_risk)
     monkeypatch.setattr(weekly_digest, "get_cohort_benchmarks", _benchmarks)
+    monkeypatch.setattr(weekly_digest, "resolve_names", _names)
 
 
 @pytest.mark.asyncio

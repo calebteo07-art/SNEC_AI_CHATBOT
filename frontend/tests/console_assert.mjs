@@ -320,6 +320,17 @@ async function badgeContrast(page, where) {
       `"Needs attention" reads ${flagged} but the list beneath it has ${riskRows} rows`);
     check(flagged === "2", `"Needs attention" = ${flagged}, expected the payload's 2`);
 
+    // WHO. Reported from production: every row rendered a truncated UUID, so a trainer
+    // could see thirteen flagged students and name none of them. The fixture's first row
+    // carries a full_name and the second does not, which is the real wire shape — the
+    // name read degrades rather than failing the panel — so this pins BOTH branches:
+    // a name where there is one, and a traceable id, never a blank, where there is not.
+    const riskNames = await page.locator("[data-testid=risk-name]").allInnerTexts();
+    check(riskNames.some((n) => n.trim() === "Priya Nair"),
+      `the at-risk panel does not name the student it flagged (got ${JSON.stringify(riskNames)})`);
+    check(riskNames.length === riskRows && riskNames.every((n) => n.trim().length > 0),
+      `an at-risk row rendered no identity at all (got ${JSON.stringify(riskNames)})`);
+
     // D7: the row must say WHY. A coloured band with no explanation is the old binary
     // flag wearing a pill.
     const reasons = await page.locator("[data-testid=risk-reason]").allInnerTexts();

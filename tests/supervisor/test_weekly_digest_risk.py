@@ -78,3 +78,47 @@ def test_an_empty_flagged_list_renders_the_all_clear_not_an_empty_table():
 
     assert "No students flagged at risk this week" in html
     assert "<table" not in html, "an empty table under a heading reads as a broken render"
+
+
+# ── WHO the row is about ─────────────────────────────────────────────────────
+# Reported from production against the console's at-risk panel, which had the same
+# defect: the flagged list identified students only by a truncated UUID. It is worse
+# here. This table is MAILED, and as the module docstring says, it is the one surface
+# with no drill-down — a supervisor reading "6393d988-0b6…" cannot look anyone up.
+
+def _flagged(**over):
+    row = {"student_id": "6393d988-0b6f-4a11-9e2c-1d7a55c30011", "risk_score": 80,
+           "band": "high", "reasons": [{"factor": "inactivity", "weight": 60.0,
+                                        "detail": "No activity for 83 days"}],
+           "days_inactive": 83, "weak_topics": []}
+    row.update(over)
+    return row
+
+
+def test_the_row_names_the_student():
+    html = _risk_section([_flagged(full_name="Caleb Teo")])
+
+    assert "Caleb Teo" in html
+    assert "6393d988-0b6" not in html, "the id must not sit beside the name in an email"
+
+
+def test_a_row_with_no_name_still_carries_a_traceable_id():
+    """resolve_names() degrades to {}, so an unnamed row is a real wire state. It must
+    fall back, never render an empty cell — a blank identity is worse than a raw id."""
+    html = _risk_section([_flagged(full_name="")])
+
+    assert "6393d988-0b6" in html
+
+
+def test_a_name_is_escaped_before_it_reaches_the_email():
+    """student_name is person-supplied and now interpolated into HTML that gets mailed."""
+    html = _risk_section([_flagged(full_name='<script>alert(1)</script>')])
+
+    assert "<script>" not in html
+    assert "&lt;script&gt;" in html
+
+
+def test_the_column_header_says_student_not_id():
+    html = _risk_section([_flagged(full_name="Caleb Teo")])
+
+    assert ">Student</th>" in html

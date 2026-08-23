@@ -176,13 +176,30 @@ export function weakestPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
   // Positionally aligned with `rows`, from the SAME slice — the drill-down key.
   const keys = scored.slice(0, limit).map((t) => t.topic_group);
 
+  // Attempts held off every attainment figure by the 2026-08-04 rescale. Summed across
+  // groups, because this sentence describes the RANKING, not one row.
+  const legacy = ranked.reduce((s, t) => s + (t.osce.legacy_excluded ?? 0), 0);
+  const legacyNote = legacy > 0
+    ? ` ${legacy} attempt(s) predate the 4 Aug rescale and are on no score.`
+    : "";
+
   if (rows.length === 0) {
+    // Lead with the rescale when the rescale is the reason — the same fix the hero
+    // needed. Unexplained, this panel printed "none with a scored attempt" beside a
+    // hero reading "All 12 attempts predate the 4 Aug rescale": one screen, one cause,
+    // two sentences that look like they disagree. "No data" and "data we may not
+    // compare" are different answers and must not share a sentence.
+    const allLegacy = legacy > 0 && rows.length === 0 && scored.length === 0;
     return {
       rows,
       max: 1,
       keys,
-      summary: `No topic group has enough performance data to rank yet — `
-        + `${ranked.length} group(s) tracked, none with a scored attempt.`,
+      summary: allLegacy
+        ? `No topic group can be ranked yet: all ${legacy} attempt(s) in this window `
+          + `predate the 4 Aug rescale, so their scores are not comparable with today’s. `
+          + `${ranked.length} group(s) tracked.`
+        : `No topic group has enough performance data to rank yet — `
+          + `${ranked.length} group(s) tracked, none with a scored attempt.`,
     };
   }
 
@@ -193,7 +210,10 @@ export function weakestPanel(topics: TopicGroupRow[], limit = 6): BarPanel {
     + `Highest: ${lead.label} at ${weaknessIndex(lead.weakness_score)}, from `
     + `${evidenceNote(lead)}.`
     + (low ? ` ${low} group(s) marked “limited data” — under the 3-student / 5-attempt confidence floor.` : "")
-    + (none ? ` ${none} group(s) have no performance signal yet and are not ranked.` : "");
+    + (none ? ` ${none} group(s) have no performance signal yet and are not ranked.` : "")
+    // Declared even on a ranked panel: without it the ranking silently rests on a
+    // fraction of the attempts the trainer can see counted on the hero above it.
+    + legacyNote;
   return { rows, max: 1, keys, summary };
 }
 

@@ -165,6 +165,46 @@ const wpEmpty = weakestPanel([g("Silent"), g("Also silent")]);
 assert.deepStrictEqual(wpEmpty.rows, []);
 assert.ok(wpEmpty.summary.startsWith("No topic group has enough performance data"));
 
+/* THE RESCALE, in the panel that ranks teaching priorities.
+
+   cohort_analytics now holds attainment to migration 017's scale, so a group whose only
+   attempts predate 2026-08-04 drops out of the ranking entirely. On production today that
+   is EVERY group: the 90-day window contains 12 attempts and all 12 are pre-rescale.
+
+   Unexplained, this panel renders "none with a scored attempt" beside a hero that says
+   "All 12 attempts predate the 4 Aug rescale" — the same contradiction, one panel over,
+   and the same fix: lead with the reason when the reason is the rescale. */
+const wpLegacyOnly = weakestPanel([
+  g("Cornea", {}, { attempts: 7, students: 4, legacy_excluded: 7 }),
+  g("Glaucoma", {}, { attempts: 5, students: 3, legacy_excluded: 5 }),
+]);
+assert.deepStrictEqual(wpLegacyOnly.rows, []);
+assert.ok(wpLegacyOnly.summary.includes("rescale"),
+  `an all-pre-rescale panel must say so: ${wpLegacyOnly.summary}`);
+assert.ok(wpLegacyOnly.summary.includes("12"),
+  `it must carry the excluded count, not just the word: ${wpLegacyOnly.summary}`);
+// "No data" and "data we may not compare" are different answers, so they must not
+// render the same sentence.
+assert.notStrictEqual(wpLegacyOnly.summary, wpEmpty.summary);
+
+/* A RANKED panel whose window also clipped some attempts still has to declare it —
+   otherwise the ranking silently rests on a fraction of the evidence a trainer can see
+   in the attempt count above it. */
+const wpRankedClipped = weakestPanel([
+  g("Uvea", { weakness_score: 61, low_confidence: false, signals_present: ["osce_score"] },
+    { attempts: 20, students: 6, scored_n: 12, avg_score: 55, legacy_excluded: 8 }),
+]);
+assert.strictEqual(wpRankedClipped.rows.length, 1);
+assert.ok(wpRankedClipped.summary.includes("8"),
+  `a ranked panel must still report its excluded attempts: ${wpRankedClipped.summary}`);
+// A clean window must NOT grow a caveat it has no basis for.
+const wpClean = weakestPanel([
+  g("Retina", { weakness_score: 44, low_confidence: false, signals_present: ["osce_score"] },
+    { attempts: 12, students: 5, scored_n: 12, avg_score: 70 }),
+]);
+assert.ok(!wpClean.summary.includes("rescale"),
+  `a fully current-era panel must not mention the rescale: ${wpClean.summary}`);
+
 // ── 4) OSCE vs flashcards: two rows per group, both normalised to 0-1 ──────────
 // Uvea clears both confidence floors (15 scored attempts by 6 students); Glaucoma
 // clears neither (4 by 2) and the endpoint marks it low-confidence accordingly. The

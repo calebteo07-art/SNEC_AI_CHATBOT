@@ -8,11 +8,13 @@ from pydantic import BaseModel
 
 from tools.api.shared import limiter
 from tools.shared import db
+from tools.shared.identity import resolve_names
 from tools.shared.jwt_utils import require_staff, CurrentUser
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks as _get_benchmarks
 from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
 from tools.supervisor.generate_report import generate_student_report as _generate_report
+from tools.supervisor.insight_context import INSIGHT_SYSTEM, build_insight_context
 from tools.supervisor.weekly_digest import send_weekly_digest as _send_digest
 
 router = APIRouter()
@@ -76,13 +78,43 @@ async def supervisor_cohort(current_user: CurrentUser = Depends(require_staff)):
     return CohortSummaryResponse(**result)
 
 
+async def _with_names(rows: list[dict]) -> list[dict]:
+    """Decorate flagged rows with `full_name` from student_consent.
+
+    The panel shipped identifying students by truncated UUID — every row read
+    "6393d988-0b6…", so a trainer could see that thirteen students needed attention and
+    not tell which thirteen. A flag nobody can act on is decoration.
+
+    Resolved HERE rather than in `at_risk.py` for three reasons: it is presentation, and
+    `admin_activity` already resolves names from this same table; `at_risk`'s rows are
+    also consumed by `weekly_digest`, which indexes them directly, so adding a key at the
+    boundary is a superset while moving the read is not; and `student_consent` is not one
+    of the three tables `cohort_reads` caches, where it would inherit that module's
+    FAIL-CLOSED contract.
+
+    `resolve_names()` degrades to {} rather than raising, which is the point: a missing
+    NAME must never blank a panel whose job is to say someone is in trouble. Note where
+    that degrade sits — around the CONSENT read only. Widen it to cover `_get_at_risk()`
+    and the caller's 500 becomes dead code, rendering a failed population read as a
+    healthy cohort with nobody flagged.
+
+    Returns NEW dicts. `at_risk._fresh()` hands out a shallow list copy over SHARED row
+    dicts, so writing `full_name` in place would poison the cache for every later reader
+    of those rows — including the digest.
+    """
+    if not rows:
+        return rows
+    names = await resolve_names()
+    return [{**r, "full_name": names.get(str(r.get("student_id")), "")} for r in rows]
+
+
 @router.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
 async def supervisor_at_risk(current_user: CurrentUser = Depends(require_staff)):
     try:
         students = await _get_at_risk()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch at-risk data")
-    return AtRiskResponse(students=students)
+    return AtRiskResponse(students=await _with_names(students))
 
 
 @router.get("/api/supervisor/student/{student_id}", response_model=StudentProfileResponse)
@@ -227,23 +259,18 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch cohort insights")
 
-    context = (
-        f"Cohort size: {cohort.get('total', 0)} students\n"
-        f"Active this week: {cohort.get('active_this_week', 0)}\n"
-        f"At-risk count: {cohort.get('at_risk_count', 0)}\n"
-        f"Weakest topics: {', '.join(t['topic'] for t in cohort.get('weakest_topics', [])) or 'none recorded'}\n"
-        f"At-risk students: {len(at_risk)}"
-    )
+    # Built deterministically and asserted in tests/supervisor/test_insight_context.py.
+    # The five-line f-string this replaces left the topic list OPEN, carried no
+    # performance data AND no statement that there was none, and was paired with a system
+    # prompt demanding "the single most important action" — so the console printed a
+    # "systemic failure in foundational optics and clinical triage" over a brief naming
+    # Ocular Anatomy and Microbiology, beside a card correctly reading "—".
+    context = build_insight_context(cohort, at_risk)
     from tools.shared.gemini_client import ask, MODEL
-    system = (
-        "You are an AI assistant for an ophthalmology education supervisor. "
-        "Write 2-3 sentences summarising the cohort's current state and the single most important action the supervisor should take today. "
-        "Be specific and direct. No preamble."
-    )
     try:
         narrative = await asyncio.to_thread(
             ask,
-            system_prompt=system,
+            system_prompt=INSIGHT_SYSTEM,
             messages=[{"role": "user", "content": context}],
             max_tokens=256,
             feature="supervisor",

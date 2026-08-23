@@ -19,6 +19,7 @@ Four things this pins, each a way the panel could confidently lie:
    mis-grouping §4.1 exists to prevent.
 """
 from tools.supervisor.cohort_analytics import osce_by_group
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT
 
 # case_id -> {"pool", "set_key", "label", "difficulty"} — the shape get_case_index()
 # returns. Two CLINICAL cases in ONE set_key at different tiers, one OT case.
@@ -44,8 +45,14 @@ LONG_STEP = ("Confirm the patient's identity against the appointment record and 
 def _row(student_id: str, case_id: str, **kw) -> dict:
     """A case_progress row. Grade columns are supplied per-test: a pre-Tier-2 row
     genuinely has no score_100/safe key at all."""
+    # grade_scale defaults to the CURRENT stamp (migration 017) — unlike the grade
+    # columns, this one is NOT "supplied per-test". osce_by_group holds attainment to one
+    # instrument, so an unstamped row is a retired-x50 attempt with no score, and every
+    # retake and denominator test in this file would pass over an empty set. The era rule
+    # itself lives in tests/supervisor/test_cohort_analytics_grade_scale.py.
     row = {"student_id": student_id, "case_id": case_id,
-           "completed_at": "2026-07-20T10:00:00Z"}
+           "completed_at": "2026-07-20T10:00:00Z",
+           "grade_scale": GRADE_SCALE_CURRENT}
     row.update(kw)
     return row
 

@@ -10,6 +10,7 @@ Or trigger via the API endpoint POST /api/supervisor/send-digest.
 import asyncio
 import sys
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -20,6 +21,7 @@ from tools.supervisor.at_risk import get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
 from tools.shared.gmail_sender import send_email
 from tools.shared.config import app_base_url
+from tools.shared.identity import resolve_names
 
 # ── colour palette (matches EyeBot brand) ──────────────────────────────────────
 C_BG     = "#FBF8F1"
@@ -71,14 +73,26 @@ def _top_reason(row: dict) -> str:
     return ", ".join(weak[:3]).replace("_", " ")
 
 
+def _who(row: dict) -> str:
+    """The student's name, falling back to a traceable id fragment.
+
+    Same defect the console's at-risk panel had, on the surface where it hurts most:
+    this table went out by EMAIL as a column of truncated UUIDs, and — as _top_reason
+    notes — this is "the one surface with no drill-down". A supervisor reading it could
+    not look anyone up. Escaped, because it is now person-supplied text in an HTML email.
+    """
+    name = str(row.get("full_name") or "").strip()
+    return escape(name) if name else escape(str(row.get("student_id", ""))[:12] + "…")
+
+
 def _risk_section(at_risk: list[dict]) -> str:
     if not at_risk:
         return '<p style="color:' + C_GREEN + ';margin-bottom:32px">✓ No students flagged at risk this week.</p>'
     rows = "".join(
         '<tr>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
-        'font-family:monospace;font-size:12px;color:' + C_DARK + '">'
-        + s["student_id"][:12] + '…</td>'
+        'font-size:13px;color:' + C_DARK + '">'
+        + _who(s) + '</td>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
         # C_GOLD, not C_MUTED, for medium: muted on C_BG is 2.6:1 — below WCAG AA, and
         # the same colour as the de-emphasised reason column and the headers, so the
@@ -104,7 +118,7 @@ def _risk_section(at_risk: list[dict]) -> str:
         '· Students needing attention</h3>'
         '<table style="width:100%;border-collapse:collapse;margin-bottom:32px">'
         '<thead><tr>'
-        '<th style="' + header_style + '">ID</th>'
+        '<th style="' + header_style + '">Student</th>'
         # Relabelled with the columns: this row is now "score · band" and the top
         # scored reason, not "Nd inactive" and a weak-topic list.
         '<th style="' + header_style + '">Risk</th>'
@@ -143,6 +157,12 @@ async def build_digest_html(supervisor_email: str) -> str:
     summary    = await cohort_summary()
     at_risk    = await get_at_risk()
     benchmarks = await get_cohort_benchmarks()
+    # Decorated here, not inside get_at_risk: those rows are cached and SHARED with the
+    # /at-risk endpoint, so this builds new dicts rather than writing through them.
+    # resolve_names() degrades to {} — a dead consent table costs the names, not the
+    # digest.
+    names = await resolve_names()
+    at_risk = [{**r, "full_name": names.get(str(r.get("student_id")), "")} for r in at_risk]
     date_str   = datetime.now(timezone.utc).strftime("%d %b %Y")
 
     at_risk_color = C_RED if summary["at_risk_count"] > 0 else C_GREEN

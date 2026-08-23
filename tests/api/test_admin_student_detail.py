@@ -36,10 +36,15 @@ _PROFILES = [
     # exact thing mastery_block's docstring forbids, and with s1-s4 alone it was invisible.
     {"student_id": "s5", "role": "OA"},
 ]
+# `grade_scale: 2` is migration 017's CURRENT stamp, and it is required, not decorative:
+# cohort_analytics holds attainment to one instrument now, so an unstamped fixture row is
+# a retired-x50 attempt by definition and carries no score. These fixtures are testing
+# retakes, denominators and peer means — all era-independent — so they are current-era
+# rows, stated rather than defaulted.
 _CASES = [
-    {"student_id": "s1", "case_id": "c1", "score_100": 90, "passed": True, "safe": True},
-    {"student_id": "s2", "case_id": "c1", "score_100": 60, "passed": True, "safe": True},
-    {"student_id": "s3", "case_id": "c1", "score_100": 30, "passed": False, "safe": False},
+    {"student_id": "s1", "case_id": "c1", "score_100": 90, "passed": True, "safe": True, "grade_scale": 2},
+    {"student_id": "s2", "case_id": "c1", "score_100": 60, "passed": True, "safe": True, "grade_scale": 2},
+    {"student_id": "s3", "case_id": "c1", "score_100": 30, "passed": False, "safe": False, "grade_scale": 2},
 ]
 _CARDS = [{"student_id": "s2", "topic_tag": "red_eye", "correct": True}]
 
@@ -78,7 +83,7 @@ def _detail_patches():
         # assertion below is unchanged by the re-sourcing.
         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[
             {"student_id": "s1", "case_id": "c1", "score_100": 90,
-             "passed": True, "safe": True},
+             "passed": True, "safe": True, "grade_scale": 2},
         ])),
         # The RAW attempts: the handler aggregates accuracy in-process now, because
         # get_topic_accuracy discarded the `ts` the flashcard trajectory needs.
@@ -246,8 +251,8 @@ def test_a_new_attempt_moves_the_cases_list_and_the_mastery_value_together():
     since gained a 40. Both panels must reflect the 40.
     """
     extra = [patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[
-        {"student_id": "s1", "case_id": "c1", "score_100": 90, "passed": True, "safe": True},
-        {"student_id": "s1", "case_id": "c2", "score_100": 40, "passed": False, "safe": True},
+        {"student_id": "s1", "case_id": "c1", "score_100": 90, "passed": True, "safe": True, "grade_scale": 2},
+        {"student_id": "s1", "case_id": "c2", "score_100": 40, "passed": False, "safe": True, "grade_scale": 2},
     ]))]
     body = _get(extra=extra).json()
     assert [c["case_id"] for c in body["cases"]] == ["c1", "c2"]

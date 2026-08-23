@@ -90,13 +90,13 @@ _CASE_INDEX = {
 
 _CASE_ROWS = [
     {"student_id": "s_oa", "case_id": "case_oa_iop_01", "completed_at": _ts(2),
-     "score_100": 78, "safe": True, "passed": True, "total_score": 31},
+     "score_100": 78, "safe": True, "passed": True, "grade_scale": 2, "total_score": 31},
     {"student_id": "s_oa", "case_id": "case_oa_iop_02", "completed_at": _ts(3),
-     "score_100": 64, "safe": False, "passed": False, "total_score": 25},
+     "score_100": 64, "safe": False, "passed": False, "grade_scale": 2, "total_score": 25},
     {"student_id": "s_psa", "case_id": "case_oa_iop_01", "completed_at": _ts(4),
-     "score_100": 55, "safe": True, "passed": False, "total_score": 22},
+     "score_100": 55, "safe": True, "passed": False, "grade_scale": 2, "total_score": 22},
     {"student_id": "s_ot", "case_id": "case_ot_oct_01", "completed_at": _ts(5),
-     "score_100": 90, "safe": True, "passed": True, "total_score": 36},
+     "score_100": 90, "safe": True, "passed": True, "grade_scale": 2, "total_score": 36},
 ]
 
 # anatomy_physiology is a FOUNDATIONS topic, which §4.2 routes to a knowledge_* pseudo-group
@@ -185,6 +185,10 @@ def test_cohort_analytics_returns_topic_rows_per_pool():
     assert set(row["osce"]) == {
         "attempts", "students", "avg_score", "scored_n", "pass_rate", "graded_n",
         "safety_fail_rate", "safety_gradable_n", "missed_top", "by_difficulty",
+        # Attempts on the retired x50 instrument: counted in `attempts`, on no
+        # attainment figure. Shipped rather than dropped so the panel can say WHY a
+        # denominator is short — a silently shrunken one reads as "nobody was graded".
+        "legacy_excluded",
     }
     assert set(row) == {
         "topic_group", "label", "pool", "osce", "flashcard",
@@ -260,11 +264,11 @@ def test_cohort_analytics_discipline_filter():
 _RANK_PROFILES = [{"student_id": f"s_c{i}", "role": "OA"} for i in range(1, 6)]
 _RANK_ROWS = (
     [{"student_id": f"s_c{i}", "case_id": "case_oa_iop_01", "completed_at": _ts(1),
-      "score_100": 90, "safe": True, "passed": True} for i in range(1, 6)]
+      "score_100": 90, "safe": True, "passed": True, "grade_scale": 2} for i in range(1, 6)]
     + [{"student_id": "s_c1", "case_id": "case_oa_drops_01", "completed_at": _ts(1),
-        "score_100": 10, "safe": True, "passed": False},
+        "score_100": 10, "safe": True, "passed": False, "grade_scale": 2},
        {"student_id": "s_c5", "case_id": "case_oa_fall_01", "completed_at": _ts(1),
-        "score_100": None, "safe": None, "passed": None}]
+        "score_100": None, "safe": None, "passed": None, "grade_scale": 2}]
 )
 
 
@@ -303,9 +307,9 @@ def test_cohort_analytics_excludes_staff():
     staff_consent = _CONSENT + [{"student_id": "t_trainer", "email": "  Trainer@X.edu  "}]
     staff_rows = _CASE_ROWS + [
         {"student_id": "t_trainer", "case_id": "case_oa_iop_01", "completed_at": _ts(1),
-         "score_100": 100, "safe": True, "passed": True, "total_score": 40},
+         "score_100": 100, "safe": True, "passed": True, "grade_scale": 2, "total_score": 40},
         {"student_id": "t_trainer", "case_id": "case_ot_oct_01", "completed_at": _ts(1),
-         "score_100": 100, "safe": True, "passed": True, "total_score": 40},
+         "score_100": 100, "safe": True, "passed": True, "grade_scale": 2, "total_score": 40},
     ]
     for discipline in ("oa_psa", "ot", "all"):
         clean = _get(f"?discipline={discipline}&days=90").json()
@@ -340,7 +344,7 @@ def test_cohort_analytics_clamps_and_echoes_the_window():
 def test_cohort_analytics_window_excludes_older_attempts():
     old = _CASE_ROWS + [
         {"student_id": "s_oa", "case_id": "case_oa_iop_01", "completed_at": "2020-01-01T00:00:00Z",
-         "score_100": 10, "safe": True, "passed": False, "total_score": 4},
+         "score_100": 10, "safe": True, "passed": False, "grade_scale": 2, "total_score": 4},
     ]
     windowed = _get("?discipline=oa_psa&days=90", case_rows=old).json()
     assert windowed["totals"]["osce_attempts"] == 3
@@ -416,7 +420,7 @@ def test_cohort_analytics_counts_unclassified_without_hiding_them():
     profiles = _PROFILES + [{"student_id": "s_ghost", "role": ""}]
     rows = _CASE_ROWS + [
         {"student_id": "s_oa", "case_id": "case_deleted_99", "completed_at": _ts(2),
-         "score_100": 40, "safe": True, "passed": False, "total_score": 16},
+         "score_100": 40, "safe": True, "passed": False, "grade_scale": 2, "total_score": 16},
     ]
     body = _get("?discipline=all&days=90", case_rows=rows, profiles=profiles).json()
     assert body["totals"]["unclassified_students"] == 1
@@ -441,7 +445,7 @@ def test_cohort_analytics_osce_student_counters_diverge_on_an_unindexed_case():
     profiles = _PROFILES + [{"student_id": "s_orphan", "role": "OA"}]
     rows = _CASE_ROWS + [
         {"student_id": "s_orphan", "case_id": "case_deleted_99", "completed_at": _ts(2),
-         "score_100": 40, "safe": True, "passed": False, "total_score": 16},
+         "score_100": 40, "safe": True, "passed": False, "grade_scale": 2, "total_score": 16},
     ]
     totals = _get("?discipline=oa_psa&days=90",
                   case_rows=rows, profiles=profiles).json()["totals"]
