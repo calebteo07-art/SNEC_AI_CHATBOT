@@ -19,6 +19,7 @@ Two rules run through everything here:
 """
 from __future__ import annotations
 
+from tools.supervisor.osce_analysis import is_current_scale
 from tools.supervisor.topic_crosswalk import flashcard_group
 
 # The three stored tier names (project-locked; never renamed). An unrecognised
@@ -152,7 +153,8 @@ def osce_by_group(
         g = acc.setdefault(meta["set_key"], {
             "attempts": 0,
             "students": set(),
-            "best": {},            # (student_id, case_id) -> best attainment row
+            "best": {},            # (student_id, case_id) -> best CURRENT-SCALE row
+            "legacy_excluded": 0,  # attempts marked on the retired x50 instrument
             "safety_fails": 0,
             "safety_gradable_n": 0,
             "missed": {},          # full step text -> {"count", "students"}
@@ -181,10 +183,17 @@ def osce_by_group(
             entry["count"] += 1
             entry["students"].add(sid)
 
-        key = (sid, case_id)
-        current = g["best"].get(key)
-        if current is None or _score_rank(r) > _score_rank(current):
-            g["best"][key] = r
+        # ATTAINMENT ONLY, and the era filter runs HERE — before the high-water pick, not
+        # after it. Filtering afterwards lets a retired-scale row win the (student, case)
+        # slot on a score it earned on a different instrument and then be dropped, taking
+        # the current-era attempt with it: the one comparable reading in the set, deleted.
+        if is_current_scale(r):
+            key = (sid, case_id)
+            current = g["best"].get(key)
+            if current is None or _score_rank(r) > _score_rank(current):
+                g["best"][key] = r
+        else:
+            g["legacy_excluded"] += 1
 
     out: dict[str, dict] = {}
     for set_key, g in acc.items():
@@ -195,6 +204,10 @@ def osce_by_group(
         out[set_key] = {
             "attempts": g["attempts"],
             "students": len(g["students"]),
+            # Attempts that happened but are on no attainment figure. Stated on the wire
+            # for the same reason the hero states it: a silently shorter denominator reads
+            # as "nobody was graded", which is the same lie in the other direction.
+            "legacy_excluded": g["legacy_excluded"],
             # Rounded on the way out so the wire carries 66.7, not 66.66666666666667.
             "avg_score": round(sum(scores) / len(scores), 1) if scores else None,
             "scored_n": len(scores),
@@ -439,7 +452,8 @@ def osce_by_student(rows: list[dict]) -> dict[str, dict]:
         if not sid:
             continue
         g = acc.setdefault(sid, {
-            "attempts": 0, "best": {}, "safety_fails": 0, "safety_gradable_n": 0,
+            "attempts": 0, "best": {}, "legacy_excluded": 0,
+            "safety_fails": 0, "safety_gradable_n": 0,
         })
         g["attempts"] += 1
 
@@ -454,10 +468,16 @@ def osce_by_student(rows: list[dict]) -> dict[str, dict]:
         # here for a blank case_id to miss against — the `or ""` above would MERGE
         # every blank-case_id row into one dedupe slot instead of dropping it. Left
         # unguarded: no error handling for an impossible case.
-        key = (sid, case_id)
-        current = g["best"].get(key)
-        if current is None or _score_rank(r) > _score_rank(current):
-            g["best"][key] = r
+        # Same era rule, and for a sharper reason than the group version: this feed is
+        # risk_model's `osce_failure` signal, so blending eras scores a student against an
+        # instrument they were never marked on — and then bands them on it.
+        if is_current_scale(r):
+            key = (sid, case_id)
+            current = g["best"].get(key)
+            if current is None or _score_rank(r) > _score_rank(current):
+                g["best"][key] = r
+        else:
+            g["legacy_excluded"] += 1
 
     out: dict[str, dict] = {}
     for sid, g in acc.items():
@@ -467,6 +487,7 @@ def osce_by_student(rows: list[dict]) -> dict[str, dict]:
         gradable = g["safety_gradable_n"]
         out[sid] = {
             "attempts": g["attempts"],
+            "legacy_excluded": g["legacy_excluded"],
             "avg_score": round(sum(scores) / len(scores), 1) if scores else None,
             "scored_n": len(scores),
             "pass_rate": round(sum(graded) / len(graded), 3) if graded else None,

@@ -766,11 +766,18 @@ async def get_all_case_scores() -> tuple[list[dict], bool]:
 
     `missed_critical` is in the projection because it is the ONLY source for
     osce_by_group's `missed_top` — without it that panel is permanently empty. It is a
-    short list of step labels, not the `coaching` blob."""
+    short list of step labels, not the `coaching` blob.
+
+    `grade_scale` (migration 017) rides along for the same reason it does on
+    get_case_scores_since: score_100 is NOT comparable across the 2026-08-04 rescale.
+    Omitting it here was not a filtering oversight, it was an unwritable filter — every
+    consumer of these rows (`cohort_analytics.osce_by_group` / `osce_by_student`, so the
+    "Weakest topics" ranking and risk_model's OSCE signal) pooled both instruments
+    because the column to separate them never arrived."""
     return await _fetch_all(
         "case_progress",
         "student_id, case_id, completed_at, score_100, safe, passed, total_score, "
-        "missed_critical",
+        "missed_critical, grade_scale",
         order_by="id",
     )
 

@@ -1,11 +1,18 @@
 """Per-student aggregation for the at-risk and mastery models (spec §6.1, §6.2, D9)."""
 
 from tools.supervisor.cohort_analytics import flashcard_by_student, osce_by_group, osce_by_student
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT
 
 
 def _row(sid, case_id, **over):
+    # Defaults to the CURRENT grade scale (migration 017). osce_by_student holds
+    # attainment to one instrument, so an unstamped row is a retired-x50 attempt and
+    # carries no score — which would make every retake/denominator test below pass
+    # vacuously on an empty set. Pass grade_scale=None to build a genuine legacy row;
+    # tests/supervisor/test_cohort_analytics_grade_scale.py owns that behaviour.
     row = {"student_id": sid, "case_id": case_id, "score_100": None,
-           "passed": False, "safe": None, "missed_critical": []}
+           "passed": False, "safe": None, "missed_critical": [],
+           "grade_scale": GRADE_SCALE_CURRENT}
     row.update(over)
     return row
 

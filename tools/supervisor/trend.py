@@ -30,7 +30,7 @@ from datetime import date, datetime, time, timedelta, timezone
 
 from tools.shared.clock import SGT
 from tools.supervisor.cohort_analytics import MIN_ATTEMPTS, MIN_STUDENTS
-from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT, trajectory
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT, is_current_scale, trajectory
 
 # A daily point below this many days, a weekly rollup above it. 90 daily points in a
 # 320px-wide chart is 3.5px each — the line becomes noise and the axis labels collide.
@@ -103,7 +103,9 @@ def _current_scale(row: dict) -> bool:
     attempt — and contributes to no score. `safe` is untouched by the rescale (it comes
     from missed_critical, migration 011), so the safety series keeps every row.
     """
-    return row.get("grade_scale") == GRADE_SCALE_CURRENT
+    # Delegates: cohort_analytics needs the same predicate and a third hand-copy of one
+    # `==` is how two panels on one screen end up disagreeing about which era a row is in.
+    return is_current_scale(row)
 
 
 def build_points(rows: list[dict], *, days: int, today: date, period: str) -> list[dict]:

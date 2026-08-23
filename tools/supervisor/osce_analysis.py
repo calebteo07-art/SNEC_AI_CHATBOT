@@ -13,6 +13,22 @@ from tools.supervisor.topic_map import norm_key
 
 # migration 017's stamp: 2 = the 40/30/30 buckets, NULL = the retired x50 era.
 GRADE_SCALE_CURRENT = 2
+
+
+def is_current_scale(row: dict) -> bool:
+    """Was this attempt marked on the CURRENT instrument (the 2026-08-04 rescale)?
+
+    The one definition, because three modules answer this question and they must answer
+    it identically: `mark_loss` below, `trend.build_window`, and `cohort_analytics`'
+    attainment. `cohort_analytics` was the outlier — its feed (`db.get_all_case_scores`)
+    did not even select the column, so every topic group's avg_score and pass_rate pooled
+    both instruments while the hero six inches above them excluded exactly those rows.
+
+    Anything that is not the current stamp is legacy, NULL included: `score_100` is not
+    comparable across the rescale (db.py's get_case_scores_since says so), so an unknown
+    stamp must fail toward "not comparable" rather than quietly join the mean.
+    """
+    return row.get("grade_scale") == GRADE_SCALE_CURRENT
 BUCKET_MAX = {"checklist": 40, "consult": 30, "judgement": 30}
 _BUCKET_COLUMN = {"checklist": "checklist_coverage", "consult": "consult_technique",
                   "judgement": "judgement_safety"}
@@ -38,7 +54,7 @@ def mark_loss(case_rows: list[dict]) -> MarkLoss:
     attempts = 0
     excluded = 0
     for row in case_rows:
-        if row.get("grade_scale") != GRADE_SCALE_CURRENT:
+        if not is_current_scale(row):
             excluded += 1
             continue
         values = {b: row.get(col) for b, col in _BUCKET_COLUMN.items()}

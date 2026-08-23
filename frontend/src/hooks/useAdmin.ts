@@ -38,6 +38,10 @@ export interface RiskReason { factor: string; detail: string; weight: number; }
 /** One flagged student, as tools/supervisor/at_risk.py:159-169 projects it. */
 export interface AtRiskRow {
   student_id: string;
+  // Decorated at the endpoint from student_consent, and OPTIONAL on purpose: the name
+  // read degrades to {} rather than failing the panel, so a row can legitimately arrive
+  // without one. riskRowView falls back to the id — never to blank.
+  full_name?: string;
   // P2b: scored model. risk_score is null only for bands the endpoint does not return.
   risk_score: number | null;
   band: "high" | "medium" | "low" | "no_data";
@@ -224,6 +228,10 @@ export interface TopicGroupRow {
   osce: { attempts: number; students: number; avg_score: number | null; scored_n: number;
           pass_rate: number | null; graded_n: number; safety_fail_rate: number | null;
           safety_gradable_n: number; missed_top: { step: string; count: number; students: number }[];
+          // Attempts on the retired x50 instrument (migration 017). They are IN `attempts`
+          // and in every safety figure — the rescale did not touch missed_critical — and
+          // in no score or pass rate, because score_100 is not comparable across it.
+          legacy_excluded: number;
           by_difficulty: { beginner: number; intermediate: number; advanced: number } };
   // null — not 0.0 — when the flashcard table has nothing for this group. flashcard_attempts
   // only started filling on the P2 task-0.1 ship, so "thin or empty" is the normal case for

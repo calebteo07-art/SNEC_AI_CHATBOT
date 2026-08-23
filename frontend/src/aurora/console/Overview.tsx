@@ -101,8 +101,20 @@ export function Overview() {
       </HeroMetric>
 
       {/* A quiet line, not a panel. Absent entirely on a quota/AI failure — the hook
-          resolves to "" rather than throwing, so there is nothing to report. */}
-      {insight.data && <p className="cs-note" data-testid="cs-insight">“{insight.data}”</p>}
+          resolves to "" rather than throwing, so there is nothing to report.
+
+          ATTRIBUTED, not quoted. This rendered as a bare “…” under the hero, which reads
+          as a supervisor's own assessment of the cohort — and it once read "a systemic
+          failure in foundational optics and clinical triage", naming two topics that do
+          not exist in this product. The brief is grounded now (insight_context.py), but
+          a generated sentence sitting unlabelled beside measured figures borrows their
+          authority, and the reader has no way to tell which is which. */}
+      {insight.data && (
+        <p className="cs-note" data-testid="cs-insight">
+          <strong style={{ color: "var(--cs-ink-3)", fontWeight: 680 }}>AI summary · </strong>
+          {insight.data}
+        </p>
+      )}
 
       <div className="cs-strip">
         {/* Staff-free now, matching "students in scope" on the hero — this used to count
@@ -180,7 +192,18 @@ export function Overview() {
                         : r.band === "medium" ? "var(--cs-amber)" : "var(--cs-ink-3)",
                     }}
                   >{r.band}</span>
-                  <code className="cs-num">{r.idLabel}</code>
+                  {/* WHO to go and talk to. This was `idLabel` alone, so every row read
+                      "6393d988-0b6…" and the panel could not name a single one of the
+                      students it was flagging. The id stays only when it is not already
+                      the label — printing it twice on an unnamed row is noise. */}
+                  <span data-testid="risk-name" style={{ fontWeight: 660, flex: "none" }}>
+                    {r.nameLabel}
+                  </span>
+                  {r.nameLabel !== r.idLabel && (
+                    <code className="cs-num" style={{ color: "var(--cs-ink-3)", fontSize: 9.5 }}>
+                      {r.idLabel}
+                    </code>
+                  )}
                   {/* The reasons ARE the feature — a coloured band with no explanation is
                       the old binary flag wearing a pill. */}
                   {r.reasons.map((x) => (

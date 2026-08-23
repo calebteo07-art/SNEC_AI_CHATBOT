@@ -21,6 +21,32 @@ from tools.shared.audit_log import log
 PDPA_VERSION = "1.0"
 
 
+async def resolve_names() -> dict[str, str]:
+    """`{student_id: student_name}` for the whole cohort, or `{}` if the read fails.
+
+    For the surfaces that hold at-risk / analytics rows keyed by id and need to say WHO.
+    student_consent.student_name is the identity of record (the same column
+    /api/auth/me reads), so this agrees with the roster and the student's own greeting
+    rather than inventing a third answer.
+
+    DEGRADES, never raises. Both callers — the /at-risk endpoint and the weekly digest —
+    are reporting that a student needs attention; losing the name must cost the name, not
+    the warning. Callers fall back to the id, which stays traceable.
+
+    Shared rather than hand-copied because a drifting second copy is how two surfaces
+    describing the same students start disagreeing about their names.
+    """
+    try:
+        consent = await db.get_all_consent()
+    except Exception:
+        return {}
+    return {
+        str(c.get("student_id")): (c.get("student_name") or "").strip()
+        for c in consent
+        if c.get("student_id") is not None
+    }
+
+
 async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     """Look up a student by email; create a new consent row if not found.
     Returns (student_id, student_name).

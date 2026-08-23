@@ -236,7 +236,10 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(J({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
   // Producer-real rows (see the same fixture in aurora_assert.mjs for the derivation).
   await ctx.route("**/api/supervisor/at-risk", (r) => r.fulfill(J({ students: [
-    { student_id: "S009ABCDEF", risk_score: 66, band: "high",
+    // full_name is decorated at the endpoint from student_consent and is OPTIONAL: the
+    // read degrades rather than failing the panel. One row carries it and one does not,
+    // so the harness drives BOTH branches — named, and falling back to the id.
+    { student_id: "S009ABCDEF", full_name: "Priya Nair", risk_score: 66, band: "high",
       reasons: [
         { factor: "inactivity", weight: 22.0, detail: "No activity for 20 days" },
         { factor: "osce_failure", weight: 19.4, detail: "Failed 9 of 12 graded OSCE attempts" },
@@ -319,20 +322,20 @@ export async function mockApis(ctx, user) {
     topics: [
       { topic_group: "tonometry_iop", label: "Intraocular Pressure", pool: "CLINICAL",
         osce: { attempts: 14, students: 9, avg_score: 62.4, scored_n: 12, pass_rate: 0.58, graded_n: 12,
-                safety_fail_rate: 0.25, safety_gradable_n: 12,
+                safety_fail_rate: 0.25, safety_gradable_n: 12, legacy_excluded: 2,
                 missed_top: [{ step: "Checked intraocular pressure before dilation", count: 5, students: 4 }],
                 by_difficulty: { beginner: 6, intermediate: 5, advanced: 3 } },
         flashcard: { accuracy: 71.0, n: 180, students: 9 },
         weakness_score: 0.68, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
       { topic_group: "triage_referral", label: "Triage & Referral", pool: "CLINICAL",
         osce: { attempts: 4, students: 3, avg_score: 58.0, scored_n: 4, pass_rate: 0.5, graded_n: 4,
-                safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+                safety_fail_rate: null, safety_gradable_n: 0, legacy_excluded: 0, missed_top: [],
                 by_difficulty: { beginner: 2, intermediate: 2, advanced: 0 } },
         flashcard: { accuracy: 55.0, n: 18, students: 3 },
         weakness_score: 0.62, low_confidence: true, signals_present: ["osce_score", "flashcard"] },
       { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
         osce: { attempts: 9, students: 6, avg_score: 74.1, scored_n: 8, pass_rate: 0.75, graded_n: 8,
-                safety_fail_rate: 0.0, safety_gradable_n: 8,
+                safety_fail_rate: 0.0, safety_gradable_n: 8, legacy_excluded: 1,
                 missed_top: [{ step: "Confirmed patient identity and operative eye", count: 2, students: 2 }],
                 by_difficulty: { beginner: 4, intermediate: 3, advanced: 2 } },
         flashcard: { accuracy: 72.0, n: 25, students: 3 },
@@ -341,7 +344,7 @@ export async function mockApis(ctx, user) {
       // no flashcard rows -> flashcard null (never {accuracy: 0}).
       { topic_group: "visual_fields", label: "Visual Field Testing", pool: "OT",
         osce: { attempts: 3, students: 2, avg_score: 49.0, scored_n: 3, pass_rate: 0.33, graded_n: 3,
-                safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+                safety_fail_rate: null, safety_gradable_n: 0, legacy_excluded: 0, missed_top: [],
                 by_difficulty: { beginner: 1, intermediate: 2, advanced: 0 } },
         flashcard: null,
         weakness_score: 0.71, low_confidence: true, signals_present: ["osce_score"] },

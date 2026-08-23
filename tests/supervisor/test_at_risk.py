@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from tools.supervisor import at_risk as mod
+from tools.supervisor.osce_analysis import GRADE_SCALE_CURRENT
 
 
 @pytest.fixture(autouse=True)
@@ -28,8 +29,12 @@ def _profile(sid, weak_topics, last_active, streak=5, role="OA"):
 
 
 def _case(sid, case_id, **over):
+    # CURRENT grade scale by default (migration 017). osce_by_student — which builds the
+    # `osce_failure` and `safety` signals scored below — now holds attainment to one
+    # instrument, so an unstamped row carries no score and the OSCE half of the rubric
+    # would silently renormalise away, banding students on engagement alone.
     row = {"student_id": sid, "case_id": case_id, "score_100": None, "passed": False,
-           "safe": None, "missed_critical": []}
+           "safe": None, "missed_critical": [], "grade_scale": GRADE_SCALE_CURRENT}
     row.update(over)
     return row
 
