@@ -9,4 +9,4 @@ pytest-asyncio>=0.23.0
 pip-audit>=2.7.0
 
 # Lockfile generation for reproducible builds (see scripts/lock-deps.sh)
-pip-tools>=7.4.0
+pip-tools>=7.6.1
