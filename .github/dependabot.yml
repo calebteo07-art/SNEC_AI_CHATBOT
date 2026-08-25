@@ -7,8 +7,20 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
+      # Advisory-driven bumps get their own PR, never bundled with feature
+      # updates. The npm side proved why: the Next.js middleware-bypass fix
+      # reached us only as one line of a 14-package version-update group PR,
+      # which then sat unmerged for two months (2026-06-14 -> 2026-08-25)
+      # because nobody wanted to review 14 unrelated bumps at once.
+      # NOTE: this group is inert unless "Dependabot security updates" is
+      # enabled in repo Settings -> Advanced Security. Config alone does not
+      # turn advisory-driven PRs on.
+      python-security:
+        applies-to: security-updates
+        patterns: ["*"]
       # One PR for patch/minor bumps keeps the noise down; majors come solo.
       python-minor-patch:
+        applies-to: version-updates
         update-types: [minor, patch]
 
   # Frontend dependencies
@@ -18,8 +30,25 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
+      # See python-security above — same rationale, same enablement caveat.
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
       npm-minor-patch:
+        applies-to: version-updates
         update-types: [minor, patch]
+    ignore:
+      # @types/node tracks the RUNTIME, not npm latest. CI and the Docker image
+      # run Node 24, so types from the Node 26 line describe APIs we do not
+      # ship. Revisit together with the Node major, not before.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # TypeScript 7 is the native (Go) compiler rewrite, not a routine bump --
+      # it failed this repo's typecheck job on 2026-07-10. It needs its own
+      # migration spike; a weekly PR just re-litigates that. Revisit when the
+      # spike is scheduled.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions themselves
   - package-ecosystem: github-actions
