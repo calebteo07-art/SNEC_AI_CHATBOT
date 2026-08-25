@@ -56,7 +56,14 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
+      # --ignore-scripts: installing without this flag runs preinstall/postinstall from every
+      # transitive package, which is the entry point the self-spreading npm worms of
+      # 2025-26 used to reach CI secrets. Safe to drop here because exactly two packages
+      # in the lockfile declare an install script: sharp, which resolves its native binary
+      # from the 25 prebuilt @img/* optional deps rather than from the script, and
+      # fsevents, which is darwin-only and never installs on this runner. The frontend
+      # package.json itself declares no preinstall/install/postinstall/prepare.
+      - run: npm ci --ignore-scripts
       - name: Typecheck
         run: npm run typecheck
       - name: Logic harnesses (type-stripped unit tests)
@@ -103,6 +110,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Install frontend deps (for signature verification)
+        working-directory: frontend
+        run: npm ci --ignore-scripts
       - name: npm audit (production deps)
         working-directory: frontend
         run: npm audit --omit=dev || true
+      - name: Verify npm registry signatures
+        # `npm audit` only asks a CVE database whether a known advisory matches a version.
+        # It says nothing about whether the bytes we installed are the bytes the publisher
+        # signed, which is the half of the supply-chain question a registry compromise
+        # actually lives in. `audit signatures` answers that half, and needs an installed
+        # tree, which is why the install step above exists in this otherwise install-free job.
+        working-directory: frontend
+        run: npm audit signatures || true
