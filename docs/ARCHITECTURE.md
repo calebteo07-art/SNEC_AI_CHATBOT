@@ -75,6 +75,15 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 
 ## API surface (selected)
 
+Grouped by **authorization level** — that is what this table is for. It is not a
+complete URL catalogue and will drift as routes are added. For the authoritative,
+always-current list, ask the app itself (this also lists FastAPI's own `/docs`
+and `/openapi.json`, and the dev-only SSE probe that never exists in production):
+
+```bash
+python -c "from tools.api.server import app; [print(f'{m:6} {r.path}') for r in app.routes for m in getattr(r,'methods',[]) if m!='HEAD']"
+```
+
 | Method | Path | Auth |
 |--------|------|------|
 | POST | `/api/auth/login` · `/api/auth/logout` · `/api/onboard` | public / cookie |
@@ -85,6 +94,11 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` · `/forfeit` | student, own pool |
 | GET/POST | `/api/checkin/*` · `/api/flashcards/*` · `/api/gamification/sync` | student |
 | GET  | `/api/progress` · `/api/leaderboard` · `/api/study-suggestion` | student |
+| GET/PUT | `/api/avatar` (Eyecon config) | student |
+| GET/POST | `/api/home` · `/api/home/chest/claim` · `/api/home/quest/claim` | student |
+| GET/POST | `/api/league/result` · `/api/league/result/seen` | student |
+| POST | `/api/leaderboard/prefs` (opt out of the board) | student |
+| GET  | `/api/cases/topics` · `/api/status` | student |
 | GET | `/api/admin/*` reads (roster, students, activity, student detail, attempts, token-summary) | **staff** |
 | POST/DELETE | `/api/admin/approved` · `/upload-csv` · `/promote` (add/remove/provision) | **admin** |
 | GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **staff** |
