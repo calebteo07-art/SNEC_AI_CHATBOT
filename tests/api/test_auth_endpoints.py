@@ -199,15 +199,15 @@ def test_login_trainer_from_supervisors_only():
 def test_login_super_admin_without_roster_row_is_admin():
     """The baseline the roster case must match: authorised by env var alone, with no
     approved_students row and no supervisors row to derive a role from."""
-    auth_row = _make_auth_row("boss@snec.com", "pass123")
+    auth_row = _make_auth_row("boss@example.com", "pass123")
 
-    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@snec.com"), \
+    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@example.com"), \
          patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_boss", "Boss")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
-        r = client.post("/api/auth/login", json={"email": "boss@snec.com", "password": "pass123"})
+        r = client.post("/api/auth/login", json={"email": "boss@example.com", "password": "pass123"})
     assert r.status_code == 200
     assert r.json()["role"] == "admin"
 
@@ -220,16 +220,16 @@ def test_login_super_admin_with_roster_row_stays_admin():
     the 'no roster row' branch, and the promotion pass can't rescue them because they
     are authorised by env var and have no supervisors row. /api/onboard already gets
     this precedence right; login was the outlier."""
-    auth_row = _make_auth_row("boss@snec.com", "pass123")
-    approved_row = _make_approved_row("boss@snec.com", role="OA")
+    auth_row = _make_auth_row("boss@example.com", "pass123")
+    approved_row = _make_approved_row("boss@example.com", role="OA")
 
-    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@snec.com"), \
+    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@example.com"), \
          patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_boss", "Test User")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
-        r = client.post("/api/auth/login", json={"email": "boss@snec.com", "password": "pass123"})
+        r = client.post("/api/auth/login", json={"email": "boss@example.com", "password": "pass123"})
     assert r.status_code == 200
     data = r.json()
     assert data["role"] == "admin"
@@ -267,8 +267,8 @@ def test_super_admin_email_constant_is_normalised_from_env():
     super-admin checks silently never matched — the account kept working as a student
     and lost the admin console, with no error anywhere. Same class of silent demotion
     as the roster-row bug above."""
-    mod = _load_shared_with_env(SUPER_ADMIN_EMAIL="  Boss@SNEC.com ")
-    assert mod.SUPER_ADMIN_EMAIL == "boss@snec.com"
+    mod = _load_shared_with_env(SUPER_ADMIN_EMAIL="  Boss@Example.com ")
+    assert mod.SUPER_ADMIN_EMAIL == "boss@example.com"
 
 
 def test_super_admin_email_constant_blank_when_env_unset():

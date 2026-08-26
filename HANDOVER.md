@@ -80,6 +80,7 @@ Ranked by what hurts most. Full detail in
 | 5 | **Single-account dependency.** Most external services hang off one Google account | Must transfer to institutional control | [§11](docs/OPERATIONS.md#11-access-and-accounts) |
 | 6 | **No staging environment.** `main` auto-deploys straight to production, and CI does not gate the deploy | By design; verify green *before* pushing | [§3](docs/OPERATIONS.md#3-deploying) |
 | 7 | **Error tracking installed but off.** Sentry ships in `requirements.txt`; setting `SENTRY_DSN` turns it on in minutes | Quick win | [§8](docs/OPERATIONS.md#8-observability) |
+| 8 | **No medical/AI disclaimer reaches students**, on a platform that teaches clinical procedures and generates clinical content with AI | Needs SNEC's wording, then it is a small change | §2.3 below |
 
 ### 2.1 SNEC institutional content is published in a public repository
 
@@ -106,14 +107,24 @@ options are (a) confirm approval and record it in the repo, (b) make the
 repository private (§1.2), or (c) move the clinical content behind the database
 and out of source control. Doing nothing is the only bad answer.
 
-> **Already fixed during this review:** every case file used to carry a
-> checksum-**valid** Singapore NRIC alongside a DOB, address and mobile number —
-> 152 of 155 validated against the real NRIC algorithm, which made synthetic
-> patients indistinguishable from real records in a public repo. The seeder now
-> generates deliberately invalid check letters and a regression test enforces it.
-> Two rows in `docs/notes/silly-coverage-matrix.md` naming a real student and
-> assessor have been redacted. Note that **git history still contains the old
-> values** — see §2.2.
+> **Already fixed during this review:**
+>
+> - Every case file carried a checksum-**valid** Singapore NRIC alongside a DOB,
+>   address and mobile — 152 of 155 validated against the real algorithm, making
+>   synthetic patients indistinguishable from real records in a public repo. The
+>   seeder now produces deliberately invalid check letters, a regression test
+>   enforces it, and a sweep of all 1,314 tracked files finds none remaining.
+> - Two rows of `docs/notes/silly-coverage-matrix.md` named a real student and
+>   assessor, and a test fixture used a real person's name on SNEC's corporate
+>   domain. Redacted.
+> - `pytest` fired **41 live, billable Gemini calls per run** on any machine with
+>   a key in `.env`. A global guard now blocks the SDK seam and the four leaking
+>   tests stub their AI calls.
+> - The Supabase test guard covered only one of two client factories; the
+>   unguarded one is used by the password-reset path, which **writes**. Both are
+>   now blocked, mutation-proved.
+>
+> Note that **git history still contains the pre-redaction values** — see §2.2.
 
 ### 2.2 Git history keeps what the working tree no longer shows
 
@@ -126,7 +137,46 @@ rewrite (`git filter-repo`) — which breaks every existing clone and fork — o
 making the repository private. Both are decisions for the new owner. Raise it;
 do not quietly assume the redaction was sufficient.
 
-### 2.3 A licence note that becomes live if the repo goes private
+**The same rewrite would also shrink the repo considerably.** The pack is
+**177 MiB**, while the largest file in the working tree is 1.5 MB. The difference
+is deleted content that every clone still pays for, including material that has
+nothing to do with this codebase:
+
+| Blob in history | Size |
+|---|---|
+| `chinita/out/videos/smoke_final.mp4` (an unrelated project) | 29.3 MB |
+| `proposal/SNEC_EyeBot_Proposal.pptx` (three revisions) | 26.7 MB |
+| `marketing/eyebot_iela_2026.mp4` | 9.8 MB |
+| `chinita/out/images/*` | ~7 MB |
+
+Note the proposal deck is institutional material, so it belongs to the §2.1
+conversation as well as this one — deleting a file from the working tree never
+un-published it.
+
+### 2.3 No medical or AI disclaimer reaches students
+
+The platform teaches clinical procedures and generates clinical content with an
+AI model, for students at a healthcare institution. Nothing in the UI tells a
+student that AI-generated guidance is training material rather than clinical
+advice, or that it needs a supervisor's validation before being relied on.
+
+The tutor carries a conditional caveat in its prompt; the virtual patient, the
+OSCE marking, the coaching feedback and the flashcard explanations carry none.
+Adding UI copy that speaks for SNEC clinically is not an engineering decision —
+agree the wording with SNEC, then it is a small change.
+
+### 2.4 `/handoff` publishes AI session dumps to the public repo
+
+`.session-handoff.md` is deliberately git-tracked, and the `/handoff` workflow
+commits and pushes it automatically. It captures whatever the session was working
+on. It has already had to be emptied once, with the real content moved to
+gitignored `.tmp/`, precisely because a session touched institutional paperwork.
+
+If the incoming team uses this workflow, treat every handoff snapshot as
+published. The safer default is to stop tracking the file, or to keep the repo
+private.
+
+### 2.5 A licence note that becomes live if the repo goes private
 
 `pymupdf` (**AGPL-3.0**) is installed into the production image via
 `requirements.txt:30`, but it is imported only by the offline ingestion tooling

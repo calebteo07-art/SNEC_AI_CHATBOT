@@ -130,9 +130,11 @@ resubmit is a real retry. It never returns a degraded or invented score.
 Top-level roles are **`student` · `trainer` · `admin`** — the old `supervisor`
 role is removed (a lingering `supervisors.role == "supervisor"` is normalised to
 `trainer` at login). Enforcement uses two dependencies in `jwt_utils.py`:
-`require_staff` (`{admin, trainer}`) gates the read-only analytics routes
-(`/api/supervisor/*` and the `/api/admin/*` reads); `require_admin` (`{admin}`)
-keeps add/remove/CSV/promote admin-only. Trainers and admins run the **same light
+`require_staff` (`{admin, trainer}`) gates the analytics routes
+(`/api/supervisor/*` and the `/api/admin/*` reads) — mostly reads, but **not
+read-only**: four writes sit behind it (student note, leaderboard toggle,
+send-digest, content-pool role). See [`SECURITY.md`](SECURITY.md#roles--authorization)
+for the list. `require_admin` (`{admin}`) keeps add/remove/CSV/promote admin-only. Trainers and admins run the **same light
 student app** plus a content-pool toggle and the **staff console at `/admin`** — a
 full-bleed light surface in the `(console)` route group that leaves the student
 shell entirely (no Atlas Rail, its own `<main>`, its own sign-out), backed by the

@@ -40,8 +40,8 @@ _FLAGGED = [
 
 _CONSENT = [
     {"student_id": "6393d988-0b6f-4a11-9e2c-1d7a55c30011",
-     "student_name": "Caleb Teo", "email": "caleb.teo@snec.com.sg"},
-    {"student_id": "someone-else", "student_name": "Wei Ling", "email": "wl@snec.com.sg"},
+     "student_name": "Alex Tan", "email": "alex.tan@example.com"},
+    {"student_id": "someone-else", "student_name": "Wei Ling", "email": "wl@example.com"},
 ]
 
 
@@ -63,7 +63,7 @@ def _rows(consent=_CONSENT, flagged=None, sub="stu_atrisk"):
 def test_flagged_rows_carry_the_student_name():
     """THE BUG: the payload had no name at all, so the UI had nothing to render."""
     by_id = {r["student_id"]: r for r in _rows()}
-    assert by_id["6393d988-0b6f-4a11-9e2c-1d7a55c30011"]["full_name"] == "Caleb Teo"
+    assert by_id["6393d988-0b6f-4a11-9e2c-1d7a55c30011"]["full_name"] == "Alex Tan"
 
 
 def test_a_student_with_no_consent_row_still_appears():

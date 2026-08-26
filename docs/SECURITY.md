@@ -30,10 +30,20 @@ Three top-level roles live in the JWT (`current_user["role"]`): **`student`**,
 **`trainer`**, and **`admin`**. Two dependency guards in
 `tools/shared/jwt_utils.py` gate privileged routes:
 
-- **`require_staff`** (`{admin, trainer}`) — read-only cohort/per-student
-  **analytics** (`/api/supervisor/*` and the `/api/admin/*` read endpoints) plus
-  the caller's own content-pool toggle (`PATCH /api/profile/role`, which edits the
-  caller's own profile only).
+- **`require_staff`** (`{admin, trainer}`) — cohort/per-student **analytics**
+  (`/api/supervisor/*` and the `/api/admin/*` read endpoints). Mostly reads, but
+  **not read-only**: four write endpoints sit behind this guard, so a *trainer*
+  can do all of the following without being an admin —
+
+  | Endpoint | What a trainer can change |
+  |---|---|
+  | `PATCH /api/supervisor/student/{id}/note` | write a note on a student's record |
+  | `POST /api/supervisor/leaderboard` | turn the cohort leaderboard on or off |
+  | `POST /api/supervisor/send-digest` | send digest email |
+  | `PATCH /api/profile/role` | change a content-pool role |
+
+  Treat `require_staff` as "analytics **and** these four writes" when reasoning
+  about least privilege. It is not a read-only tier.
 - **`require_admin`** (`{admin}`) — **provisioning** only: add/remove approved
   accounts, CSV import, and promote/demote. This is the single capability a
   trainer does **not** have — a trainer is *admin analytics minus provisioning*.
