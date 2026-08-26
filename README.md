@@ -31,7 +31,7 @@ EyeBot in a browser — nothing to install — and get six things:
 
 | Feature | What it does |
 |---|---|
-| **Socratic tutor** | Answers a question with a better question instead of the answer. Grounded in an approved ophthalmology knowledge base (RAG), so it quotes real material rather than inventing it. Supports image attachments. |
+| **Socratic tutor** | Answers a question with a better question instead of the answer. Grounded in an approved ophthalmology knowledge base, injected whole into the prompt (no query-time retrieval — see Grounding below), so it quotes real material rather than inventing it. Supports image attachments. |
 | **Virtual patients** | 155 OSCE stations. The AI plays the patient; the student takes a history, performs procedures and writes a handover, under a 15-minute timer. Marked **40%** checklist coverage, **30%** consultation technique, **30%** judgement and safety. |
 | **Flashcards** | Multiple-choice decks graded **instantly by fixed rules** — deliberately no AI in the study loop, so scoring is fast and always the same. |
 | **Daily check-in** | One question a day, drawn from the flashcard bank. Feeds a streak. |
@@ -81,8 +81,8 @@ Full endpoint map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 |---|---|
 | Frontend | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion · Node 24 |
 | Backend | FastAPI + uvicorn, async-first · Python 3.12 |
-| AI | Google Gemini via `google-genai`, with RAG. Falls back to `MOCK_MODE` with no key |
-| Data | Supabase (Postgres + pgvector for embeddings); Google Sheets for some rosters |
+| AI | Google Gemini via `google-genai`; the curated KB is injected into the prompt and context-cached. Falls back to `MOCK_MODE` with no key |
+| Data | Supabase (Postgres; pgvector for the offline KB ingestion pipeline); Google Sheets for some rosters |
 | Auth | Custom JWT in an HttpOnly cookie (`eyebot_token`) · bcrypt (cost 12) · OTP password reset |
 | Async | Celery + Redis workers |
 | Deploy | Render, single container, built from the `Dockerfile` |
@@ -213,7 +213,7 @@ part of the app:
 | Router | Owns |
 |---|---|
 | `auth.py` | Login, logout, password reset, first-login change |
-| `chat.py` | The tutor, including SSE streaming and RAG lookups |
+| `chat.py` | The tutor — SSE streaming, KB injection and context caching |
 | `cases.py` | OSCE stations — dialogue, checklist, marking |
 | `student.py` · `home.py` | Profile, progress, points, home screen |
 | `checkin.py` | The daily question and streak |
@@ -236,8 +236,16 @@ pushed out of the prompt and into a script under `tools/`. Markdown SOPs live in
 **`MOCK_MODE`.** No key means no live AI call. This is what keeps tests free and
 deterministic.
 
-**RAG.** The tutor searches an approved knowledge base (chunked and embedded in
-pgvector) and answers from what it finds, instead of from the model's own memory.
+**Grounding — read this before you go looking for a vector search.** The tutor
+does **not** retrieve at query time. `tools/api/routers/chat.py` injects the
+*entire* curated knowledge base (~6.1k tokens) into the system prompt on every
+conversation and relies on Gemini context caching so that static prefix is not
+re-billed each turn. The line in the code is literally `# No RAG:`.
+
+pgvector and the embedding pipeline under `tools/kb/` are real, but they belong
+to **ingestion** — building and curating the knowledge base offline. Nothing
+queries them while a student is chatting. Earlier versions of this README
+described a query-time RAG lookup; that was retired and the docs lagged behind.
 
 **Identity comes from the token, never the request body.** The signed JWT's
 `sub` claim is the user. A request that says "I am student X" is ignored.

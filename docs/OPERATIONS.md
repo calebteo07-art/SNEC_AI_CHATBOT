@@ -163,10 +163,39 @@ Working rules, each earned the hard way and documented in `APPLIED.md`:
   `CREATE POLICY IF NOT EXISTS` (error 42601). Do not emit them.
 - Tick the checkbox in `APPLIED.md` with the date and what it changed.
 
-**Reproducing the schema from scratch** (e.g. on a fresh Supabase project):
-run `001` through `019` in numerical order. There is no consolidated schema
-dump — the migration chain *is* the schema definition. Creating one is a
-worthwhile early task for the incoming team.
+### ⚠️ The schema cannot currently be rebuilt from this repository
+
+Running `001` through `019` on an empty Supabase project **will not work.** The
+migrations are almost entirely `ALTER TABLE` against tables that were created by
+hand in the Supabase dashboard and never captured in SQL.
+
+Between them the migration files create 8 tables:
+
+`audit_events` · `avatar_images` · `flashcards` · `flashcard_attempts` ·
+`flashcard_deck_progress` · `leaderboard_settings` · `league_seal` · `league_week`
+
+The code in `tools/shared/db.py` reads and writes 14. These seven have **no
+`CREATE TABLE` statement anywhere in the repository** — and they are the ones
+that matter most:
+
+`student_profiles` · `student_auth` · `student_consent` · `case_progress` ·
+`chat_sessions` · `approved_students` · `supervisors`
+
+The consequence is concrete: **the production database is currently the only
+copy of its own schema.** You cannot stand up a staging environment, onboard a
+developer against a private database, or rebuild after a loss — and, combined
+with [§5](#5-backups-and-disaster-recovery), a destructive incident would take
+both the data *and* the definition of the data with it.
+
+**Fix this early. It is one command while the live database still exists:**
+
+```bash
+pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" > tools/db/migrations/000_base_schema.sql
+```
+
+Commit that file, note it in `APPLIED.md` as the pre-existing baseline, and from
+then on `000` + `001`…`019` genuinely reproduces the schema. Verify it by
+running the chain against a scratch Supabase project and booting the app.
 
 ---
 

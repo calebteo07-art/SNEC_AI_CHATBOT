@@ -73,12 +73,72 @@ Ranked by what hurts most. Full detail in
 | # | Risk | Status | Detail |
 |---|---|---|---|
 | 1 | **No database backups.** An accidental destructive query is unrecoverable — every student's entire record, permanently | Open. It is a **billing** decision needing Supabase *organisation* Owner access | [§5](docs/OPERATIONS.md#5-backups-and-disaster-recovery) |
+| 1b | **The schema is not in the repo either.** 7 of the 14 tables the code uses have no `CREATE TABLE` anywhere — they were made by hand in the dashboard. The live database is the only copy of its own structure, so you cannot build a staging environment or rebuild after a loss | Open, but **one `pg_dump` fixes it** while the live DB exists. Do this in week 1 | [§4](docs/OPERATIONS.md#4-database-and-migrations) |
 | 2 | **AI credit runs out silently.** Prepaid Gemini balance; when it drains the tutor degrades to placeholder text with nothing turning red | Open. Needs an owner who checks it monthly, or auto-reload on | [§6](docs/OPERATIONS.md#6-cost-quota-and-continuity) |
 | 3 | **No in-app PDPA consent.** A consent record is written on first login without ever asking the student | Deliberate deferral, not a bug. Needs an institutional decision before the next cohort | [§7](docs/OPERATIONS.md#7-data-protection-posture) |
 | 4 | **No retention policy, no erasure feature.** No built-in way to action a deletion request | Open | [§7](docs/OPERATIONS.md#7-data-protection-posture) |
 | 5 | **Single-account dependency.** Most external services hang off one Google account | Must transfer to institutional control | [§11](docs/OPERATIONS.md#11-access-and-accounts) |
 | 6 | **No staging environment.** `main` auto-deploys straight to production, and CI does not gate the deploy | By design; verify green *before* pushing | [§3](docs/OPERATIONS.md#3-deploying) |
 | 7 | **Error tracking installed but off.** Sentry ships in `requirements.txt`; setting `SENTRY_DSN` turns it on in minutes | Quick win | [§8](docs/OPERATIONS.md#8-observability) |
+
+### 2.1 SNEC institutional content is published in a public repository
+
+This one needs SNEC's answer, not an engineering fix, and it should be raised
+before the repository changes hands.
+
+The knowledge-base tooling contains SNEC internal clinical material transcribed
+verbatim, with document-level and page-level citations:
+
+- `tools/kb/seed_authored_checklists.py` transcribes controlled documents —
+  e.g. **CC-D0008** (*Visual Acuity – Distance Vision Testing … LogMAR*) — step
+  by step, carrying ~109 SNEC source citations including page references
+  (`"SNEC Procedure Manual p112, 1.1"`).
+- `tools/kb/run_ingestion.py` lists **83 internal SNEC source document
+  filenames**, several naming individual educators.
+
+This is functional content — the OSCE checklists the platform actually runs on —
+so it cannot simply be deleted without breaking the product. But it is SNEC's
+intellectual property, published openly, with no permission recorded anywhere in
+the repository.
+
+**Ask SNEC explicitly:** is publishing this material approved? The realistic
+options are (a) confirm approval and record it in the repo, (b) make the
+repository private (§1.2), or (c) move the clinical content behind the database
+and out of source control. Doing nothing is the only bad answer.
+
+> **Already fixed during this review:** every case file used to carry a
+> checksum-**valid** Singapore NRIC alongside a DOB, address and mobile number —
+> 152 of 155 validated against the real NRIC algorithm, which made synthetic
+> patients indistinguishable from real records in a public repo. The seeder now
+> generates deliberately invalid check letters and a regression test enforces it.
+> Two rows in `docs/notes/silly-coverage-matrix.md` naming a real student and
+> assessor have been redacted. Note that **git history still contains the old
+> values** — see §2.2.
+
+### 2.2 Git history keeps what the working tree no longer shows
+
+Redacting a file fixes what someone sees when they clone; it does not remove the
+old content from the commit history, which is equally public. That applies to
+the NRICs and names corrected above, and to anything else ever committed.
+
+If SNEC decides the historical exposure matters, the options are a history
+rewrite (`git filter-repo`) — which breaks every existing clone and fork — or
+making the repository private. Both are decisions for the new owner. Raise it;
+do not quietly assume the redaction was sufficient.
+
+### 2.3 A licence note that becomes live if the repo goes private
+
+`pymupdf` (**AGPL-3.0**) is installed into the production image via
+`requirements.txt:30`, but it is imported only by the offline ingestion tooling
+in `tools/kb/` — `extract_pdf.py`, `ingest_document.py`, `ocr.py`. Nothing the
+running API imports pulls it in (`tools/kb/__init__.py` is a comment, and neither
+`search.py` nor `supabase_client.py` touches `fitz`).
+
+While the repository is public the AGPL's source-availability requirement is
+already satisfied. If SP makes it private (§1.2), this needs attention — and the
+clean fix is a one-line move of `pymupdf` from `requirements.txt` to
+`requirements-dev.txt`, which is safe for exactly the reason above and also slims
+the production image.
 
 ---
 
@@ -96,8 +156,10 @@ Ranked by what hurts most. Full detail in
 
 **Week 1 — remove the sharpest edges.**
 
-4. **Take a manual database export.** This single action removes the
-   "one mistake from zero" condition. Do it before anything else technical.
+4. **Take a manual database export — both the data and the schema.** These are
+   two separate exports and you need both. `pg_dump --schema-only` also gives you
+   the `000_base_schema.sql` the repo is missing (risk 1b). This single step
+   removes the "one mistake from zero" condition. Do it before anything else.
 5. Set `SENTRY_DSN` in Render — you get real error visibility for one setting.
 6. Rehearse a rollback: Render → `eyebot` → Events → Rollback. Do it once
    calmly now so you can do it under pressure later.
@@ -109,10 +171,13 @@ Ranked by what hurts most. Full detail in
 
 **Before the next cohort.**
 
-9. Point the **vulnerability-reporting address** at whoever will actually read
-   it. [`docs/SECURITY.md`](docs/SECURITY.md) currently directs security reports
-   to the outgoing shared Google account. The repo is public, so this is a real
-   inbox that strangers may use.
+9. **Re-point every contact address** at whoever will actually read it. Two are
+   baked in today, both aimed at the outgoing shared Google account:
+   - [`docs/SECURITY.md`](docs/SECURITY.md) — where strangers send security
+     reports. The repo is public, so this is a live inbox.
+   - `frontend/src/screens/OnboardingScreen.tsx:286` — the address shown to a
+     **locked-out student**. It is compiled into the frontend bundle, so
+     changing it needs a code change and a deploy, not a dashboard edit.
 10. Settle §1.1 and §1.2 in writing.
 11. Escalate risks 1–4 to whoever owns budget and data protection at SP and SNEC.
     They are institutional open items, not engineering tasks, and they should be
@@ -125,7 +190,7 @@ Ranked by what hurts most. Full detail in
 Kept out deliberately because the repo is public — and therefore easy to lose
 in a handover. Confirm you have received each of these separately:
 
-- [ ] **Knowledge-base source documents** — the source material the tutor's RAG
+- [ ] **Knowledge-base source documents** — the source material the tutor's
       knowledge base was built from. Without them the KB cannot be rebuilt or
       extended.
 - [ ] **`credentials.json` / `token.json`** — the Google OAuth files behind

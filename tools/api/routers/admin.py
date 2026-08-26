@@ -14,6 +14,7 @@ from tools.cases.topic_sets import SET_LABELS
 from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
 from tools.profile.get_profile import get_profile
 from tools.shared import db
+from tools.shared.config import app_base_url
 from tools.gamification.streak import resolve_streak
 from tools.shared.audit_log import log as audit_log
 from tools.shared.auth import generate_password, hash_password
@@ -54,14 +55,20 @@ class PromoteRequest(BaseModel):
 
 def _account_ready_html(full_name: str, email: str, password: str) -> str:
     """New-account credentials email. Shared by the single-approve and CSV-import
-    paths so the two can't drift apart."""
+    paths so the two can't drift apart.
+
+    The sign-in link comes from ``app_base_url()`` (derived from ALLOWED_ORIGINS),
+    never a baked-in host: this is the one message every new student gets, so a
+    stale link locks out a whole cohort the day the deployment moves.
+    """
+    base = app_base_url()
     return f"""<p>Dear {full_name},</p>
 <p>Welcome to EyeBot — we are delighted to have you on board.</p>
 <p>EyeBot is your personal training companion, here to help you learn at your own pace and grow in confidence in your clinical practice. Your account is now ready, and your sign-in details are below.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {password}</p>
 <p><strong>Before you log in:</strong> EyeBot has not been released on SNEC corporate devices yet, so please use your own personal device. It is best experienced on an iPad or laptop.</p>
-<p>Please log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a>, where you will be prompted to choose a password of your own.</p>
+<p>Please log in at <a href="{base}">{base}</a>, where you will be prompted to choose a password of your own.</p>
 <p>We hope you enjoy learning with EyeBot, and we wish you every success in your training.</p>
 <p>Warm regards,<br>The EyeBot Team · SNEC</p>"""
 

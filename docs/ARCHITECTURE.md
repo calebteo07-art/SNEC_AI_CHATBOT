@@ -57,10 +57,11 @@ tools/api/
     cases.py           case list/detail, OSCE station, chat, observe, submit
     chat.py            Socratic tutor (SSE), end-session
     checkin.py         daily check-in question/answer
-    student.py         progress, flashcards, gamification sync, leaderboard
+    student.py         progress, flashcards, gamification sync, leaderboard, league
     admin.py           approved roster, promote, CSV upload, token summary
     supervisor.py      cohort analytics, at-risk, benchmarks, reports, digest
-    media.py           media manifest + async job status
+    avatar.py          Eyecon avatar config (GET/PUT /api/avatar)
+    home.py            home screen, daily quests, daily chest
 tools/shared/
   config.py            assert_production_ready() — fail-closed boot guard
   jwt_utils.py         token create/decode, cookie set/clear, role guards
@@ -70,7 +71,7 @@ tools/shared/
   db.py / identity.py  Supabase access, student identity, consent
   otp_store.py         Supabase-backed OTP (hashed, 15-min TTL)
 tools/workers/         Celery tasks (media generation, digests)
-tools/kb/              RAG ingestion, chunking, embeddings, search
+tools/kb/              KB ingestion, chunking, embeddings (OFFLINE; the tutor does not query these at runtime)
 ```
 
 ## API surface (selected)

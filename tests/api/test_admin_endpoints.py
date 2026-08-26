@@ -5,6 +5,7 @@ Two guard tiers:
   • require_staff  → read-only analytics: admin + trainer allowed, student 403.
   • require_admin  → add/remove/CSV/promote: admin only, trainer + student 403.
 """
+import os
 from contextlib import ExitStack
 
 import pytest
@@ -267,6 +268,21 @@ def test_account_ready_email_tells_students_to_use_a_personal_ipad_or_laptop():
     assert "personal device" in html
     assert "corporate device" in html
     assert "iPad" in html and "laptop" in html
+
+
+def test_account_ready_email_links_to_the_configured_host_not_a_baked_in_one():
+    """The welcome link must follow ALLOWED_ORIGINS, not a hardcoded URL.
+
+    tools/shared/config.py::app_base_url exists precisely so a deployment can
+    move host without a code change. The credentials email is the one message
+    every new student receives, so a stale link there locks out a whole cohort
+    on the day the service moves — exactly what a handover to a new owner makes
+    likely.
+    """
+    with patch.dict(os.environ, {"ALLOWED_ORIGINS": "https://eyebot.example.edu"}):
+        html = _account_ready_html("New User", "new@test.com", "TmpPass1!")
+    assert "https://eyebot.example.edu" in html
+    assert "onrender.com" not in html
 
 
 def test_admin_approve_student_email_carries_device_guidance():

@@ -27,17 +27,39 @@ _STREETS = [
 
 
 def nric_check_letter(prefix: str, digits: str) -> str:
-    """Return the NRIC check letter for an S/T-prefixed 7-digit body."""
+    """Return the *real* NRIC check letter for an S/T-prefixed 7-digit body.
+
+    Kept only so the seeder can deliberately avoid it — see decoy_check_letter.
+    """
     total = sum(int(d) * w for d, w in zip(digits, _NRIC_WEIGHTS))
     if prefix in ("T", "G"):
         total += 4
     return _ST_LETTERS[total % 11]
 
 
+def decoy_check_letter(prefix: str, digits: str) -> str:
+    """Return a check letter guaranteed NOT to validate for these digits.
+
+    cases/ is committed to a PUBLIC repository. A checksum-valid NRIC is
+    indistinguishable from a real person's identifier and can collide with one,
+    which would make 155 published case files read as genuine patient records —
+    a PDPA exposure for SNEC and a liability inherited by whoever maintains this.
+
+    The checksum buys the OSCE nothing. The graded identity step is satisfied by
+    the student ASKING for the NRIC (tools/cases/observe_steps.py); nobody
+    validates the digits. So the value keeps its realistic shape and is made
+    arithmetically impossible: shifting the table index by one always lands on a
+    different letter, because every entry in _ST_LETTERS is distinct.
+    """
+    real = nric_check_letter(prefix, digits)
+    return _ST_LETTERS[(_ST_LETTERS.index(real) + 1) % len(_ST_LETTERS)]
+
+
 def generate_nric(rng: random.Random, birth_year: int) -> str:
+    """A realistically shaped but deliberately INVALID Singapore NRIC."""
     prefix = "S" if birth_year < 2000 else "T"
     digits = "".join(str(rng.randint(0, 9)) for _ in range(7))
-    return f"{prefix}{digits}{nric_check_letter(prefix, digits)}"
+    return f"{prefix}{digits}{decoy_check_letter(prefix, digits)}"
 
 
 def generate_dob(rng: random.Random, age: int, ref_date: date) -> str:

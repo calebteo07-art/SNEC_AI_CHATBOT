@@ -18,14 +18,29 @@ def test_adds_demographics_fields():
     assert set(("nric", "date_of_birth", "address", "contact_number")) <= set(p)
 
 
-def test_nric_format_and_checksum_valid():
+def test_nric_has_realistic_shape():
     c = _case()
     seed_case(c, ref_date=REF)
     nric = c["patient"]["nric"]
     assert len(nric) == 9
     assert nric[0] in ("S", "T")
     assert nric[1:8].isdigit()
-    assert nric[8] == nric_check_letter(nric[0], nric[1:8])
+
+
+def test_nric_checksum_is_deliberately_invalid():
+    """A seeded NRIC must never be a well-formed Singapore NRIC.
+
+    The cases/ directory is committed to a PUBLIC repository. A checksum-valid
+    NRIC is indistinguishable from a real person's identifier and can collide
+    with one, so 155 published case files would read as real patient records.
+    The checksum adds nothing to the OSCE: the graded step is whether the
+    student ASKS for the NRIC (tools/cases/observe_steps.py), never whether the
+    digits validate. So the shape stays realistic and the checksum stays wrong.
+    """
+    c = _case()
+    seed_case(c, ref_date=REF)
+    nric = c["patient"]["nric"]
+    assert nric[8] != nric_check_letter(nric[0], nric[1:8])
 
 
 def test_dob_yields_stated_age():
