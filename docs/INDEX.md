@@ -62,7 +62,7 @@ loop, so scoring is instant and identical every time.
 - [`2026-06-26-flashcards-mcq-v2-design.md`](superpowers/specs/2026-06-26-flashcards-mcq-v2-design.md) — the scoring model
 
 ### Socratic tutor
-Answers a question with a better question, grounded in the RAG knowledge base.
+Answers a question with a better question, grounded in the curated knowledge base injected into its prompt (there is no query-time retrieval).
 
 - [`2026-08-12-tutor-image-attach-design.md`](superpowers/specs/2026-08-12-tutor-image-attach-design.md) ← **most recent**
 - [`2026-07-11-tutor-refresh-manrope-sessions-design.md`](superpowers/specs/2026-07-11-tutor-refresh-manrope-sessions-design.md)

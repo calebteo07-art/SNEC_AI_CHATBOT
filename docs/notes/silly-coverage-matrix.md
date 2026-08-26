@@ -36,8 +36,8 @@ Role rule: FOUNDATIONS topics -> ALL roles; CLINICAL -> OA/PSA; OT -> OT.
 | clinical_procedure | M1 | Nursing Informatics New Hire Onboarding 2026 - Andrew Version | `professional_ethics` |  |
 | clinical_procedure | M1 | oittalk | `aberrometry` |  |
 | clinical_procedure | M2 | oittalk | `aberrometry` |  |
-| clinical_procedure | M2 | OSCE - Bao Yin_Student Copy_1. Charlene_PFAER Fall risk VA IOP | `fall_risk` |  |
-| clinical_procedure | M2 | OSCE - Caleb_Student Copy_2. Charlene_DBE | `history_taking` |  |
+| clinical_procedure | M2 | OSCE - PFAER Fall risk VA IOP | `fall_risk` |  |
+| clinical_procedure | M2 | OSCE - DBE | `history_taking` |  |
 | clinical_procedure | M2 | OSCE - Cirrus OCT | `oct_macula` |  |
 | clinical_procedure | M2 | OSCE - History Taking | `history_taking` |  |
 | clinical_procedure | M2 | OSCE - HVF | `hvf` |  |

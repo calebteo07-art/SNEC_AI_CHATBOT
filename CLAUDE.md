@@ -4,7 +4,7 @@ EyeBot is a **production** AI training platform for **SNEC** (Singapore National
 Eye Centre) allied-health students — Ophthalmic Assistants (OA), Technicians (OT),
 Patient Service Associates (PSA): a Socratic tutor, virtual-patient OSCE stations,
 spaced-repetition flashcards, daily check-ins, gamification, and staff dashboards,
-grounded in a Supabase RAG knowledge base. It's deployed to real institutions.
+grounded in a curated knowledge base injected into the tutor prompt. It's deployed to real institutions.
 **Treat every change as production-bound: secure, reproducible, observable, scale-safe.**
 
 ## How to work
@@ -67,7 +67,7 @@ only JSON/SSE.**
 | Frontend | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion/GSAP, R3F. Node 24. |
 | Backend  | FastAPI + uvicorn, Python **3.12** in prod, async-first. Entry `tools/api/server.py`; routers `tools/api/routers/`; shared singletons + rate-limit keying `tools/api/shared.py`. |
 | AI       | Gemini via `google-genai` (`tools/shared/gemini_client.py`); `MOCK_MODE` when no key. |
-| Data     | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
+| Data     | Supabase (Postgres; pgvector backs offline KB ingestion, NOT query-time retrieval — `chat.py` says `# No RAG`); Google Sheets for some rosters. |
 | Auth     | Custom JWT in an **HttpOnly** cookie `eyebot_token`; bcrypt(cost 12); OTP reset. |
 | Async    | Celery + Redis workers (`tools/workers/`). |
 | Deploy   | Render, auto-deploys `main` + keep-alive cron. `render.yaml` (`runtime: docker`) and the live service both build the **`Dockerfile`** — never delete it. |

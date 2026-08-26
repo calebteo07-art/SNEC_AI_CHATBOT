@@ -266,7 +266,7 @@ await ctx.route("**/api/cases/C005/observe", async (r) => {
 });
 await ctx.route("**/api/cases/C005/chat", (r) => r.fulfill({
   status: 200, contentType: "text/event-stream",
-  body: 'data: {"text":"Tan Ah Kow, "}\n\ndata: {"text":"S1234567D."}\n\ndata: [DONE]\n\n',
+  body: 'data: {"text":"Tan Ah Kow, "}\n\ndata: {"text":"S1234567A."}\n\ndata: [DONE]\n\n',
 }));
 await ctx.route("**/api/cases/C005/action", (r) => r.fulfill(J({ verdict: "good", covered: [], missing: [], model_answer: "" })));
 
