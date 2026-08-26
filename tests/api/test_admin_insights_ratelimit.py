@@ -8,12 +8,28 @@ in a per-user cap so a hammering caller is refused with HTTP 429.
 """
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _stub_insight_ai():
+    """Stub the paid narrative call.
+
+    Both tests below deliberately issue 22 requests to prove a 20/minute cap, and 20 of
+    those get past the limiter into ``_ai_insight_narrative`` → ``ask``. On any machine
+    with a real GEMINI_API_KEY in .env that was **40 live, billable Gemini calls every
+    time the suite ran** — this file burning the exact prod quota it was written to
+    protect. ``ask`` is patched where admin.py binds it (a from-import, so the module
+    attribute is the seam).
+    """
+    with patch("tools.api.routers.admin.ask", return_value="stubbed insight"):
+        yield
 
 
 def _staff_cookie():

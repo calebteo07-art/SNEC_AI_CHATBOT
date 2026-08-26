@@ -78,9 +78,14 @@ def test_action_offloads_station_checklist():
 def test_chat_offloads_context_cache_create():
     """rank 8: a tutor context-cache miss does a blocking caches.create()."""
     seen: dict = {}
+    # stream_ask must be stubbed too: this test only cares that the CACHE call is
+    # offloaded, but the request runs on to the tutor stream afterwards. Left real, it
+    # was the one remaining test that fired a live, billable Gemini call on any machine
+    # with a key in .env — the same omission as the insights rate-limit tests.
     with patch("tools.api.routers.chat.get_profile", new=AsyncMock(return_value={"role": "OA"})), \
          patch("tools.api.routers.chat.filter_input", new=AsyncMock(return_value={"safe": True, "reason": ""})), \
          patch("tools.api.shared._student_context_block", new=AsyncMock(return_value="")), \
+         patch("tools.api.routers.chat.stream_ask", return_value=iter(())), \
          patch("tools.api.routers.chat.get_or_create_context_cache", side_effect=_probe(seen, None)):
         client.post(
             "/api/chat",

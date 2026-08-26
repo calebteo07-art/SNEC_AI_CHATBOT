@@ -151,11 +151,18 @@ uvicorn tools.api.server:app --reload --port 8000
 Terminal two — the site:
 
 ```bash
-cd frontend && npm install && npm run dev
+cd frontend && npm ci && npm run dev
 ```
 
 Open **http://localhost:3000**. The frontend proxies `/api/*` to port 8000, so
 you use one address for everything.
+
+> **Use `npm ci`, never `npm install`** — especially on Windows. `npm install`
+> rewrites `package-lock.json` against your own platform and drops the
+> Linux/wasm optional dependencies CI and the Render Docker build need. Every
+> local gate then passes while `npm ci` fails on Linux. This has broken `main`
+> before. If you must change a dependency, run `npm install` deliberately, then
+> check the lockfile still contains the `linux-x64` entries before committing.
 
 ### 5. Running without a Gemini key
 
@@ -274,11 +281,21 @@ The loop, in order:
 1. **Write the failing test first**, and watch it fail. `tests/` for Python,
    `frontend/tests/` for Node harnesses.
 2. **Write the smallest code that passes it.**
-3. **Run the gates** — pytest, typecheck, build, and the harness if you touched
-   the UI.
+3. **Run the gates**, all of them:
+
+   ```bash
+   python -m pytest -q                                  # backend
+   cd frontend && npm run typecheck && npm run build     # frontend
+   bash scripts/start-harness.sh all                     # browser harnesses
+   ```
+
+   The harnesses are not optional extras — CI discovers and runs *every* one of
+   them, and because the deploy does not wait for CI (see below), a harness you
+   skipped locally fails after the change is already live.
 4. **Commit and push.** Every push runs [CI](.github/workflows/ci.yml): pytest on
-   Python 3.12, frontend typecheck and production build, plus a supply-chain
-   audit (`pip-audit` / `npm audit`). Dependabot proposes weekly bumps.
+   Python 3.12, frontend typecheck, logic harnesses, the production build, every
+   browser harness against real Chromium, plus a supply-chain audit (`pip-audit` /
+   `npm audit` / signature verification). Dependabot proposes weekly bumps.
 5. **Watch it deploy** and look at the live page.
 
 > **`main` auto-deploys to production.** CI and the deploy run independently, so
