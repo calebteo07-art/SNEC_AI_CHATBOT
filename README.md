@@ -7,13 +7,19 @@ National Eye Centre) and running in production with real cohorts.
 
 Live app: **https://snec-ai-chatbot.onrender.com**
 
+> **New to this project and taking it over?** Start with
+> [**`HANDOVER.md`**](HANDOVER.md) — the inherited risks, the open decisions, and
+> a first-week plan. Then come back here.
+
 | Read this if you want to… | Go to |
 |---|---|
 | Understand what the app does | [What it is](#what-it-is) |
 | Understand how it is built | [How it works](#how-it-works) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | Run it on your own machine | [Run it locally](#run-it-locally) |
 | Change something safely | [Making a change](#making-a-change) |
+| **Deploy, configure or fix production** | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
 | Know how logins and roles are protected | [`docs/SECURITY.md`](docs/SECURITY.md) |
+| Find my way around 130+ design documents | [`docs/INDEX.md`](docs/INDEX.md) |
 
 ---
 

@@ -86,16 +86,23 @@ forgeable tokens or wide-open CORS.
 | `ALLOWED_ORIGINS` | exact public origin, e.g. `https://eyebot.yourschool.edu` |
 | `GEMINI_API_KEY` | AI (omit ⇒ `MOCK_MODE`) |
 | `SUPER_ADMIN_EMAIL` | bootstrap admin (see below) |
-| `EMAIL_PROVIDER` + provider key | password-reset / onboarding email (Render blocks SMTP) |
+| `EMAIL_FROM` + `GMAIL_CLIENT_ID` + `GMAIL_CLIENT_SECRET` + `GMAIL_REFRESH_TOKEN` | password-reset / onboarding email. Render blocks SMTP, so email goes out over the **Gmail API**; mint the refresh token with `scripts/gmail_oauth_setup.py`. All four are required together |
 | `REDIS_URL` | rate-limit + Celery state (required for `WEB_CONCURRENCY > 1`) |
 | `SENTRY_DSN` | *optional* — enables error tracking; dormant if unset |
+
+The complete annotated inventory of every variable the code reads — including
+the optional ones absent from this table — is in
+[`OPERATIONS.md` §2](OPERATIONS.md#2-environment-variables--complete-inventory).
 
 ## Super-admin bootstrap
 
 Because hashless accounts can no longer log in on an arbitrary password, the
 first super-admin sets their password via the reset flow:
 
-1. Set `SUPER_ADMIN_EMAIL` and a working `EMAIL_PROVIDER` in the environment.
+1. Set `SUPER_ADMIN_EMAIL`, and configure working email — all four of
+   `EMAIL_FROM`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET` and
+   `GMAIL_REFRESH_TOKEN`. **The bootstrap depends on an email actually
+   arriving**, so verify sending works before you rely on this flow.
 2. On the login page choose **Forgot password** for that email.
 3. Enter the emailed OTP and set a password. The account now has admin access.
 
