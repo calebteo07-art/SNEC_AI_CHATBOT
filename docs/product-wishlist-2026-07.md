@@ -1,8 +1,21 @@
-# ricoe — Future Intended Changes
+# Product wishlist — captured July 2026
 
-> Caleb's own words, captured verbatim. Each point below is written exactly as said —
-> no rephrasing, no additions. Section headers are the only structure.
-> Captured 2026-07-03.
+> **What this is.** A list of intended changes, dictated by Caleb Teo (the
+> original author) and captured verbatim on 2026-07-03 — each point written
+> exactly as said, no rephrasing, no additions. Section headers are the only
+> structure imposed.
+>
+> **Status: mostly delivered, not a live backlog.** This became the "RICOE"
+> design programme; roughly two-thirds shipped in v1, and the rest was
+> re-architected and delivered in v2. Read it as *the intent behind how the app
+> looks today*, not as outstanding work. Anything still undone is called out in
+> [`superpowers/specs/2026-07-05-ricoe-v2-design.md`](superpowers/specs/2026-07-05-ricoe-v2-design.md).
+>
+> **The item IDs matter.** Code comments and `design-locks.md` cite these entries
+> as `ricoe A1`, `ricoe C6` and so on, to record why a piece of code looks the
+> way it does. They are stable reference keys — see
+> [`GLOSSARY.md`](GLOSSARY.md). This file was named `ricoe.md` at the repository
+> root until 2026-08-27.
 
 ---
 

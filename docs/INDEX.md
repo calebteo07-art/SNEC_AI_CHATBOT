@@ -144,10 +144,13 @@ Notes: [`silly-coverage-matrix.md`](notes/silly-coverage-matrix.md) · [`2026-07
 | [`notes/becky.md`](notes/becky.md) | Performance / minimal-grounding notes | Reference |
 | `notes/grandprix-prompts-*.{jsonl,json}` | Generated prompt output | Data, not documentation |
 
-Root-level files that are **project history rather than instructions**:
+Files that are **project history rather than instructions**:
 
-- `ricoe.md` — a captured wishlist of intended future changes from July 2026.
-  Verbatim author notes; several items have since shipped. Treat it as a source
-  of ideas, not a backlog.
-- `.session-handoff.md` — an AI-session continuity snapshot. Of no value to a
-  new team except as a record of where work stopped.
+- [`product-wishlist-2026-07.md`](product-wishlist-2026-07.md) — a captured
+  wishlist of intended changes from July 2026. Verbatim author notes; most items
+  have since shipped. Treat it as the intent behind today's UI, not a backlog.
+  Its entries are cited in code as `ricoe A1`…`C7` — see
+  [`GLOSSARY.md`](GLOSSARY.md). *(Was `ricoe.md` at the repository root until
+  2026-08-27.)*
+- `.session-handoff.md` — an AI-session continuity snapshot, at the repository
+  root. Of no value to a new team except as a record of where work stopped.

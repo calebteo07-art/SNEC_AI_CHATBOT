@@ -1,7 +1,7 @@
 # RICOE v2 — world-class rebuild (design spec)
 
-> Supersedes the flat 28-patch [`docs/ricoe-roadmap.md`](../../ricoe-roadmap.md). Same
-> underlying intent (Caleb's verbatim [`ricoe.md`](../../../ricoe.md)), re-architected for
+> Supersedes the flat 28-patch [`docs/archive/ricoe-roadmap.md`](../../archive/ricoe-roadmap.md). Same
+> underlying intent (Caleb's verbatim [`product-wishlist-2026-07.md`](../../product-wishlist-2026-07.md)), re-architected for
 > quality. Captured 2026-07-05 from a brainstorm with Caleb.
 >
 > Directive: *"reanalyse ricoe deeply and redo the entire thing even phase planning for

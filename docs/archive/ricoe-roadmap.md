@@ -1,6 +1,6 @@
 # ricoe Roadmap — granular phased execution
 
-Source of truth: [`ricoe.md`](../ricoe.md) (Caleb's verbatim intended changes, captured
+Source of truth: [`product-wishlist-2026-07.md`](../product-wishlist-2026-07.md) (Caleb's verbatim intended changes, captured
 2026-07-03; logo-redesign item added 2026-07-04).
 This roadmap decomposes ricoe into **small, independently shippable phases** so nothing
 gets skipped or neglected (user directive 2026-07-04: *"plan and execute ricoe in more and
@@ -24,7 +24,7 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 
 Every phase below is shipped to `main` — code, DB, and paid Nano-Banana art. This flat
 roadmap was **superseded on 2026-07-05** by the world-class re-plan in
-[`docs/superpowers/specs/2026-07-05-ricoe-v2-design.md`](superpowers/specs/2026-07-05-ricoe-v2-design.md)
+[`docs/superpowers/specs/2026-07-05-ricoe-v2-design.md`](../superpowers/specs/2026-07-05-ricoe-v2-design.md)
 (D1–D12 numbering), which is the current source of truth. Statuses here are kept in sync
 for historical traceability; **do not restart any phase from this doc** without checking the
 v2 spec + `docs/design-locks.md` first.
