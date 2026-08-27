@@ -75,8 +75,16 @@ ORDER  BY tablename, indexname;
 
 
 -- -- 4. Stored functions ------------------------------------------------------
--- CRITICAL. semantic_search() is called by tools/kb/search.py:47 and its source
--- exists NOWHERE in this repository. This query is the only way to recover it.
+-- Run this one even if you run nothing else. semantic_search() is called at
+-- tools/kb/search.py:47 and its source exists NOWHERE in this repository, so
+-- this query is the only way to recover it.
+--
+-- To be precise about urgency: it is NOT reachable from the running app. The
+-- only live import from search.py is get_checklist_by_name (tools/api/routers/
+-- cases.py:36), which reads the checklists table; search() itself is imported
+-- only by the offline tools/kb/run_ingestion.py. So losing it breaks no student
+-- journey today — it permanently removes the ability to switch KB retrieval
+-- back on, because nothing left in the repo knows what the function did.
 SELECT p.proname                                    AS function_name,
        pg_get_function_identity_arguments(p.oid)    AS arguments,
        pg_get_functiondef(p.oid)                    AS full_source
