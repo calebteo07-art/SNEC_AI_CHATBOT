@@ -174,12 +174,34 @@ Between them the migration files create 8 tables:
 `audit_events` · `avatar_images` · `flashcards` · `flashcard_attempts` ·
 `flashcard_deck_progress` · `leaderboard_settings` · `league_seal` · `league_week`
 
-The code in `tools/shared/db.py` reads and writes 14. These seven have **no
-`CREATE TABLE` statement anywhere in the repository** — and they are the ones
-that matter most:
+The application uses **20**. These twelve have **no `CREATE TABLE` statement
+anywhere in the repository** — and they include the ones that matter most:
 
 `student_profiles` · `student_auth` · `student_consent` · `case_progress` ·
-`chat_sessions` · `approved_students` · `supervisors`
+`chat_sessions` · `approved_students` · `supervisors` · `password_reset_otps` ·
+`documents` · `chunks` · `images` · `checklists`
+
+The last five are easy to miss because they are reached from
+`tools/shared/otp_store.py` and `tools/kb/supabase_client.py` rather than
+`tools/shared/db.py`. Verify the count yourself with:
+
+```bash
+grep -rhoE '\.table\("[a-z_]+"\)' tools/ | sort -u | wc -l    # 20
+grep -rhoiE 'CREATE TABLE (IF NOT EXISTS )?[a-z_]+' tools/db/migrations/*.sql | wc -l   # 8
+```
+
+**Tables are not the only thing missing.** Four more database objects exist only
+in production:
+
+| Object | Where it is used | Why it matters |
+|---|---|---|
+| `semantic_search(...)` stored function | `tools/kb/search.py:47` | Its source is in **no file in this repo**. A fresh project has no way to recreate it. |
+| The `vector` extension + its index on `chunks.embedding` | KB pipeline | No `CREATE EXTENSION` anywhere; the embedding dimension is only knowable from the live column type. |
+| `UNIQUE (lower(email))` on `student_consent` | `tools/shared/db.py:938` | Without it the first-login race in `identity.py:73` can hand one student two `student_id`s, stranding their XP and streak. |
+| Storage buckets `kb-images`, `selena-avatars` | `tools/kb/supabase_client.py` | Created by hand. No SQL creates a bucket. |
+
+`APPLIED.md` is also incomplete: it begins at `006`, so `001`–`005` are live but
+unledgered.
 
 The consequence is concrete: **the production database is currently the only
 copy of its own schema.** You cannot stand up a staging environment, onboard a
@@ -193,9 +215,26 @@ both the data *and* the definition of the data with it.
 pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" > tools/db/migrations/000_base_schema.sql
 ```
 
-Commit that file, note it in `APPLIED.md` as the pre-existing baseline, and from
-then on `000` + `001`…`019` genuinely reproduces the schema. Verify it by
-running the chain against a scratch Supabase project and booting the app.
+`$SUPABASE_DB_URL` is **not** in the repo or in Render. It is the Postgres
+connection string from Supabase → Project Settings → Database; the
+`SUPABASE_SERVICE_ROLE_KEY` is a PostgREST token and cannot authenticate
+`pg_dump`. Nothing in this codebase reads a Postgres connection string, so
+resetting that password to obtain it cannot break the running service.
+
+Use the session-mode pooler on port **5432**, not transaction mode on 6543 —
+`pg_dump` needs a repeatable-read snapshot. Do **not** pass `--schema=public`
+alone: it drops the `vector` extension and the stored function above.
+
+Commit that file, note it in `APPLIED.md` as the pre-existing baseline, backfill
+the missing `001`–`005` lines, and from then on `000` + `001`…`019` genuinely
+reproduces the schema. Verify it by running the chain against a scratch Supabase
+project and booting the app.
+
+**Without that password**, [`tools/db/export_schema.sql`](../tools/db/export_schema.sql)
+is the stopgap: read-only queries you paste into the Supabase SQL editor that
+print every table, column, constraint, index, policy, extension and function —
+including the source of `semantic_search`. It shows you the schema; only
+`pg_dump` gives you a file that can rebuild it.
 
 ---
 
