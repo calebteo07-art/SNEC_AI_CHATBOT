@@ -4,140 +4,143 @@
 --
 -- WHAT THIS IS FOR
 --   The tables in this database were created by hand in the Supabase dashboard
---   and never saved as SQL (docs/OPERATIONS.md §4). This query asks Postgres to
---   reconstruct the SQL for you. Paste it into the Supabase SQL editor, run it,
---   and the result is one column of ready-to-run statements: extensions, then
---   tables, then keys and rules, then indexes, then security policies, then
---   stored functions — already in dependency order.
+--   and never saved as SQL (docs/OPERATIONS.md §4). These queries ask Postgres
+--   to reconstruct that SQL for you.
 --
---   Copy that column out and you have the schema as SQL.
+-- HOW TO USE  ***  READ THIS, IT MATTERS  ***
+--   Run the queries ONE AT A TIME, in order, A through F.
+--   For each: select just that one query, paste into Supabase -> SQL Editor,
+--   Run, then copy the single result column. Paste the six results together,
+--   in order, into one file. That file is your schema as SQL.
+--
+--   Do NOT paste this whole file in at once. Each query is deliberately
+--   standalone so that if one fails you still get the other five, and so the
+--   error tells you exactly which part broke.
+--
+-- IF SOMETHING ERRORS
+--   Run query 0 first. If query 0 works, the connection is fine and the
+--   problem is in one specific query below — send the error text.
 --
 -- THIS IS THE SECOND-BEST OPTION. The best is one command:
 --
 --     pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" \
 --       > tools/db/migrations/000_base_schema.sql
 --
---   Use pg_dump if you can. It is the tool Postgres ships for exactly this job,
---   it handles cases this query does not (sequence ownership, column-level
---   privileges, comments, partitioning, generated columns), and its output is
---   guaranteed to restore. Get $SUPABASE_DB_URL from Supabase -> Project
---   Settings -> Database. Nothing in this codebase reads a Postgres connection
---   string, so resetting that password cannot break the running service.
+--   pg_dump is the tool Postgres ships for this job, it covers cases these
+--   queries do not (sequence ownership, comments, generated columns, column
+--   privileges), and its output is guaranteed to restore. Get $SUPABASE_DB_URL
+--   from Supabase -> Project Settings -> Database. Nothing in this codebase
+--   reads a Postgres connection string, so resetting that password cannot
+--   break the running service.
 --
---   This query exists for when you do not have that password to hand — in a
---   meeting, on someone else's laptop, or with only dashboard access.
+-- LIMITS
+--   * Verify the output: replay it into a scratch project, then diff against
+--     production with tools/db/export_schema.sql.
+--   * No data. Rows need a separate pg_dump --data-only.
+--   * No Storage buckets (kb-images, selena-avatars). No SQL can create those;
+--     make them in the dashboard.
 --
--- KNOWN LIMITS — read before trusting the output
---   * Verify it. Run the output against a scratch Supabase project, then diff
---     that project against production using tools/db/export_schema.sql.
---   * It does not carry data. Rows need a separate --data-only dump.
---   * It does not create Storage buckets (kb-images, selena-avatars). No SQL
---     can; make those in the dashboard.
---   * Extension objects may need the extension installed into the same schema
---     it currently occupies — check the CREATE EXTENSION lines it emits first.
---
--- SAFE TO RUN ON PRODUCTION. It only reads the system catalogues.
+-- SAFE TO RUN ON PRODUCTION. These only read the system catalogues.
 -- ============================================================================
 
-WITH ddl AS (
 
-    -- 1. Extensions first — pgvector must exist before a vector column does.
-    SELECT 1                          AS sort_key,
-           e.extname::text            AS obj,
-           'CREATE EXTENSION IF NOT EXISTS ' || quote_ident(e.extname)
-             || ' WITH SCHEMA ' || quote_ident(n.nspname) || ';' AS statement
-    FROM   pg_extension e
-    JOIN   pg_namespace n ON n.oid = e.extnamespace
-    WHERE  e.extname <> 'plpgsql'
+-- ── 0. Connection check ─────────────────────────────────────────────────────
+-- Run this first. It should return one row: your Postgres version and 20.
+SELECT version() AS postgres_version,
+       (SELECT count(*)
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public' AND c.relkind = 'r') AS tables_found;
 
-    UNION ALL
 
-    -- 2. The tables themselves: columns, types, defaults, NOT NULL.
-    SELECT 2,
-           c.relname::text,
-           'CREATE TABLE IF NOT EXISTS public.' || quote_ident(c.relname)
-             || ' (' || chr(10) || '  '
-             || string_agg(
-                  quote_ident(a.attname) || ' ' || format_type(a.atttypid, a.atttypmod)
-                  || coalesce(' DEFAULT ' || pg_get_expr(d.adbin, d.adrelid), '')
-                  || CASE WHEN a.attnotnull THEN ' NOT NULL' ELSE '' END,
-                  ',' || chr(10) || '  ' ORDER BY a.attnum)
-             || chr(10) || ');'
-    FROM   pg_class c
-    JOIN   pg_namespace n ON n.oid = c.relnamespace
-    JOIN   pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
-    LEFT   JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
-    WHERE  n.nspname = 'public' AND c.relkind = 'r'
-    GROUP  BY c.relname
+-- ── A. Extensions ───────────────────────────────────────────────────────────
+-- Must come first: pgvector has to exist before a vector column can.
+SELECT 'CREATE EXTENSION IF NOT EXISTS ' || quote_ident(e.extname)
+         || ' WITH SCHEMA ' || quote_ident(n.nspname) || ';' AS statement
+FROM   pg_extension e
+JOIN   pg_namespace n ON n.oid = e.extnamespace
+WHERE  e.extname <> 'plpgsql'
+ORDER  BY e.extname;
 
-    UNION ALL
 
-    -- 3-5. Constraints, in an order that can actually be replayed: primary and
-    -- unique keys first, then CHECKs, then foreign keys last — an FK cannot be
-    -- added until the key it points at exists.
-    SELECT CASE con.contype WHEN 'p' THEN 3
-                            WHEN 'u' THEN 3
-                            WHEN 'c' THEN 4
-                            ELSE 5 END,
-           cl.relname::text,
-           'ALTER TABLE public.' || quote_ident(cl.relname)
-             || ' ADD CONSTRAINT ' || quote_ident(con.conname) || ' '
-             || pg_get_constraintdef(con.oid) || ';'
-    FROM   pg_constraint con
-    JOIN   pg_class cl ON cl.oid = con.conrelid
-    WHERE  con.connamespace = 'public'::regnamespace
+-- ── B. The tables ───────────────────────────────────────────────────────────
+-- Columns, types, defaults and NOT NULL. Keys and rules come in query C.
+SELECT 'CREATE TABLE IF NOT EXISTS public.' || quote_ident(c.relname)
+         || ' (' || chr(10) || '  '
+         || string_agg(
+              quote_ident(a.attname) || ' ' || format_type(a.atttypid, a.atttypmod)
+              || coalesce(' DEFAULT ' || pg_get_expr(d.adbin, d.adrelid), '')
+              || CASE WHEN a.attnotnull THEN ' NOT NULL' ELSE '' END,
+              ',' || chr(10) || '  ' ORDER BY a.attnum)
+         || chr(10) || ');' AS statement
+FROM   pg_class c
+JOIN   pg_namespace n ON n.oid = c.relnamespace
+JOIN   pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+LEFT   JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
+WHERE  n.nspname = 'public' AND c.relkind = 'r'
+GROUP  BY c.relname
+ORDER  BY c.relname;
 
-    UNION ALL
 
-    -- 6. Indexes, skipping the ones Postgres created to back a constraint above
-    -- (adding those twice is an error). pg_indexes.indexdef is already valid SQL.
-    SELECT 6,
-           i.tablename::text,
-           i.indexdef || ';'
-    FROM   pg_indexes i
-    WHERE  i.schemaname = 'public'
-    AND    NOT EXISTS (SELECT 1 FROM pg_constraint con
-                       WHERE con.connamespace = 'public'::regnamespace
-                       AND   con.conname = i.indexname)
+-- ── C. Keys, uniqueness, CHECK rules, foreign keys ──────────────────────────
+-- Ordered so it replays: primary and unique keys first, then CHECKs, then
+-- foreign keys last — an FK cannot be added before the key it points at exists.
+SELECT 'ALTER TABLE public.' || quote_ident(cl.relname)
+         || ' ADD CONSTRAINT ' || quote_ident(con.conname) || ' '
+         || pg_get_constraintdef(con.oid) || ';' AS statement
+FROM   pg_constraint con
+JOIN   pg_class cl     ON cl.oid = con.conrelid
+JOIN   pg_namespace n  ON n.oid = cl.relnamespace
+WHERE  n.nspname = 'public'
+ORDER  BY CASE con.contype WHEN 'p' THEN 1
+                           WHEN 'u' THEN 2
+                           WHEN 'c' THEN 3
+                           ELSE 4 END,
+          cl.relname, con.conname;
 
-    UNION ALL
 
-    -- 7. Turn row-level security back on wherever it is on today.
-    SELECT 7,
-           t.tablename::text,
-           'ALTER TABLE public.' || quote_ident(t.tablename)
-             || ' ENABLE ROW LEVEL SECURITY;'
-    FROM   pg_tables t
-    WHERE  t.schemaname = 'public' AND t.rowsecurity
+-- ── D. Indexes ──────────────────────────────────────────────────────────────
+-- Skips the indexes Postgres created to back a constraint in query C, because
+-- creating those a second time is an error. indexdef is already valid SQL.
+SELECT i.indexdef || ';' AS statement
+FROM   pg_indexes i
+WHERE  i.schemaname = 'public'
+AND    NOT EXISTS (
+         SELECT 1
+         FROM   pg_constraint con
+         JOIN   pg_class cl    ON cl.oid = con.conrelid
+         JOIN   pg_namespace n ON n.oid = cl.relnamespace
+         WHERE  n.nspname = 'public'
+         AND    con.conname = i.indexname)
+ORDER  BY i.tablename, i.indexname;
 
-    UNION ALL
 
-    -- 8. The policies themselves.
-    SELECT 8,
-           p.tablename::text,
-           'CREATE POLICY ' || quote_ident(p.policyname)
-             || ' ON public.' || quote_ident(p.tablename)
-             || ' AS ' || p.permissive
-             || ' FOR ' || p.cmd
-             || ' TO ' || array_to_string(p.roles, ', ')
-             || coalesce(' USING (' || p.qual || ')', '')
-             || coalesce(' WITH CHECK (' || p.with_check || ')', '')
-             || ';'
-    FROM   pg_policies p
-    WHERE  p.schemaname = 'public'
+-- ── E. Row-level security, then the policies ────────────────────────────────
+SELECT 'ALTER TABLE public.' || quote_ident(t.tablename)
+         || ' ENABLE ROW LEVEL SECURITY;' AS statement
+FROM   pg_tables t
+WHERE  t.schemaname = 'public' AND t.rowsecurity
+ORDER  BY t.tablename;
 
-    UNION ALL
+SELECT 'CREATE POLICY ' || quote_ident(p.policyname)
+         || ' ON public.' || quote_ident(p.tablename)
+         || ' AS ' || p.permissive
+         || ' FOR ' || p.cmd
+         || ' TO ' || array_to_string(p.roles, ', ')
+         || coalesce(' USING (' || p.qual || ')', '')
+         || coalesce(' WITH CHECK (' || p.with_check || ')', '')
+         || ';' AS statement
+FROM   pg_policies p
+WHERE  p.schemaname = 'public'
+ORDER  BY p.tablename, p.policyname;
 
-    -- 9. Stored functions, in full. This is the only way to recover
-    -- semantic_search(), whose source exists in no file in this repository.
-    SELECT 9,
-           pr.proname::text,
-           pg_get_functiondef(pr.oid) || ';'
-    FROM   pg_proc pr
-    JOIN   pg_namespace n ON n.oid = pr.pronamespace
-    WHERE  n.nspname = 'public'
-    AND    pr.prokind IN ('f', 'p')
-)
-SELECT statement
-FROM   ddl
-ORDER  BY sort_key, obj;
+
+-- ── F. Stored functions ─────────────────────────────────────────────────────
+-- Run this one even if you run nothing else. semantic_search() is called at
+-- tools/kb/search.py:47 and its source exists in NO file in this repository.
+SELECT pg_get_functiondef(pr.oid) || ';' AS statement
+FROM   pg_proc pr
+JOIN   pg_namespace n ON n.oid = pr.pronamespace
+WHERE  n.nspname = 'public'
+AND    pr.prokind IN ('f', 'p')
+ORDER  BY pr.proname;
