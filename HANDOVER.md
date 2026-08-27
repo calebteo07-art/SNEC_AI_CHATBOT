@@ -17,6 +17,7 @@ This document orients you. It is deliberately short and links to the detail.
 | **Operate it in production** | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
 | Understand the auth and role model | [`docs/SECURITY.md`](docs/SECURITY.md) |
 | Find my way around 130+ design documents | [`docs/INDEX.md`](docs/INDEX.md) |
+| **Work out what a codename means** (Aurora, Eyecon, Lumens, RICOE…) | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |
 
 ---
 

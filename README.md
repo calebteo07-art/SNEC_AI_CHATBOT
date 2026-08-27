@@ -20,6 +20,7 @@ Live app: **https://snec-ai-chatbot.onrender.com**
 | **Deploy, configure or fix production** | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
 | Know how logins and roles are protected | [`docs/SECURITY.md`](docs/SECURITY.md) |
 | Find my way around 130+ design documents | [`docs/INDEX.md`](docs/INDEX.md) |
+| **Work out what a codename means** (Aurora, Eyecon, Lumens, RICOE…) | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |
 
 ---
 
