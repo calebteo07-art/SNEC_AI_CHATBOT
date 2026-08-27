@@ -53,17 +53,19 @@ ORDER  BY c.relname, a.attnum;
 -- The rules the database enforces regardless of what the application does.
 -- Includes the UNIQUE(lower(email)) index on student_consent, which exists in
 -- no migration file and which the first-login identity path depends on.
-SELECT conrelid::regclass::text AS table_name,
-       conname                  AS constraint_name,
-       CASE contype WHEN 'p' THEN 'PRIMARY KEY'
-                    WHEN 'f' THEN 'FOREIGN KEY'
-                    WHEN 'u' THEN 'UNIQUE'
-                    WHEN 'c' THEN 'CHECK'
-                    ELSE contype::text END AS constraint_type,
-       pg_get_constraintdef(oid) AS definition
-FROM   pg_constraint
-WHERE  connamespace = 'public'::regnamespace
-ORDER  BY conrelid::regclass::text, contype, conname;
+SELECT cl.relname               AS table_name,
+       con.conname              AS constraint_name,
+       CASE con.contype WHEN 'p' THEN 'PRIMARY KEY'
+                        WHEN 'f' THEN 'FOREIGN KEY'
+                        WHEN 'u' THEN 'UNIQUE'
+                        WHEN 'c' THEN 'CHECK'
+                        ELSE con.contype::text END AS constraint_type,
+       pg_get_constraintdef(con.oid) AS definition
+FROM   pg_constraint con
+JOIN   pg_class cl     ON cl.oid = con.conrelid
+JOIN   pg_namespace n  ON n.oid = cl.relnamespace
+WHERE  n.nspname = 'public'
+ORDER  BY cl.relname, con.contype, con.conname;
 
 
 -- -- 3. Indexes ---------------------------------------------------------------
