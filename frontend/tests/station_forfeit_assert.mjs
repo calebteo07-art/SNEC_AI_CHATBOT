@@ -69,10 +69,47 @@ async function makeCtx() {
   }, user);
   await ctx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 
-  let count = 0;
-  ctx.on("request", (req) => {
-    if (req.method() === "POST" && req.url().includes("/forfeit")) count += 1;
-  });
+  // Count the charge IN THE PAGE, not from playwright's request stream.
+  //
+  // The charge is a navigator.sendBeacon fired from `pagehide`, i.e. while the document is
+  // being torn down by the very navigation that triggered it. Playwright's own view of that
+  // request is version-dependent, and measured on 2026-08-27 across chromium headless-shell,
+  // new-headless and headed:
+  //
+  //     channel            playwright 1.60.0 / Chrome 148   playwright 1.62.1 / Chrome 151
+  //     ctx.on("request")              1                                0
+  //     ctx.route()                    0 (intercept kills it)           0 (not intercepted)
+  //     ctx.exposeFunction()           1                                0
+  //     localStorage in-page           1                                1
+  //
+  // Only the in-page counter survives both. Under 1.62.1 the beacon still REACHES the server
+  // — a plain node server counted it in all three modes — playwright simply stops reporting
+  // it, so ctx.on("request") turns a working product red. That false red is the whole reason
+  // playwright had been pinned to an exact 1.60.0; counting here is what lifts the pin.
+  //
+  // This asserts "the app called sendBeacon once", which is what the scenarios mean by a
+  // charge. The catch-all route below fulfils /api/** anyway, so no forfeit ever reached a
+  // real endpoint even under 1.60.0 — the network was never the thing being measured.
+  const KEY = "__pw_forfeit_beacons";
+  await ctx.addInitScript((k) => {
+    const orig = navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
+    if (!orig) return;
+    navigator.sendBeacon = (url, data) => {
+      if (String(url).includes("/forfeit")) {
+        try { localStorage.setItem(k, String(Number(localStorage.getItem(k) || 0) + 1)); } catch {}
+      }
+      return orig(url, data);
+    };
+  }, KEY);
+
+  // Reads the live page, so it must be awaited. Survives navigation and reload (same origin),
+  // which scenarios 3 and 3c depend on.
+  const count = async () => {
+    const page = ctx.pages().at(-1);
+    if (!page) return 0;
+    try { return Number(await page.evaluate((k) => localStorage.getItem(k) || 0, KEY)); }
+    catch { return 0; }
+  };
 
   await ctx.route("**/api/**", (r) => r.fulfill(J({})));
   await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
@@ -83,7 +120,7 @@ async function makeCtx() {
     body: 'data: {"text":"Good morning."}\n\ndata: [DONE]\n\n',
   }));
   await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J(SUBMIT_RESULT)));
-  return { ctx, count: () => count };
+  return { ctx, count };
 }
 
 // Enter the station and wait until the leave-guard has armed (station payload loaded ⇒ the
@@ -97,14 +134,13 @@ async function enterStation(ctx) {
   return page;
 }
 
-/* Wait until the context-level counter has seen `n` forfeit POSTs.
+/* Wait until the in-page counter has seen `n` forfeit beacons.
  *
- * NOT page.waitForRequest. The charge is a navigator.sendBeacon fired immediately before
- * router.push, and a page-scoped request wait does not reliably observe a beacon whose
- * document is being torn down by that navigation — while ctx.on("request") above always
- * does. Scenario 7 (⌘K palette) hit exactly that: the beacon fired, count() reached 1 and
- * the app navigated correctly, but waitForRequest timed out anyway. CI was red for 28
- * hours on a product that was working.
+ * NOT page.waitForRequest, and no longer ctx.on("request") either — see makeCtx for why
+ * playwright's request stream is not a dependable channel for a teardown-time beacon.
+ * Scenario 7 (⌘K palette) is the original reason this poller exists: the beacon fired, the
+ * app navigated correctly, and waitForRequest timed out anyway. CI was red for 28 hours on
+ * a product that was working.
  *
  * The deeper bug was that the WAIT and the ASSERTION watched different channels, so they
  * could disagree — and when they did, the harness reported the app broken. Polling the
@@ -119,9 +155,9 @@ async function enterStation(ctx) {
  * creation, so an already-delivered beacon returns on the first poll. */
 const waitForfeit = async (count, n = 1, timeout = 8000) => {
   const deadline = Date.now() + timeout;
-  while (count() < n) {
+  while ((await count()) < n) {
     if (Date.now() > deadline) {
-      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit POST(s), saw ${count()}`);
+      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit beacon(s), saw ${await count()}`);
     }
     await new Promise((r) => setTimeout(r, 50));
   }
@@ -151,7 +187,7 @@ await scenario("← Patients → confirm charges exactly one forfeit", async (ct
   await page.click('[data-testid="station-leave-confirm"]');
   await waitForfeit(count);
   await page.waitForTimeout(400);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on confirmed leave, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit on confirmed leave, saw ${await count()}`);
 });
 
 // 2) Cancelling the leave ("Stay in the station") is free — no forfeit, still on the station.
@@ -161,7 +197,7 @@ await scenario("← Patients → Stay charges zero forfeits", async (ctx, count)
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
   await page.click('[data-testid="station-leave-cancel"]');
   await page.waitForTimeout(500);
-  assert.strictEqual(count(), 0, `expected 0 forfeits on cancel, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `expected 0 forfeits on cancel, saw ${await count()}`);
   assert.ok(await page.locator('[data-testid="station"]').count(), "must still be on the station after cancel");
 });
 
@@ -171,7 +207,7 @@ await scenario("Hard nav away mid-station charges one forfeit (pagehide beacon)"
   await page.goto(base + "/homepage");
   await waitForfeit(count);
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit on hard nav, saw ${await count()}`);
 });
 
 // 3b) A RELOAD must give the station back, not destroy it. Everything lived in React state
@@ -214,8 +250,8 @@ await scenario("Reload then quit charges exactly one forfeit, not two", async (c
   await page.goto(base + "/homepage");           // now actually leave
   await waitForfeit(count);
   await page.waitForTimeout(500);
-  assert.strictEqual(count(), 1,
-    `a reload + a quit is ONE abandoned station, saw ${count()} charges`);
+  assert.strictEqual(await count(), 1,
+    `a reload + a quit is ONE abandoned station, saw ${await count()} charges`);
 });
 
 // 4) Fairness contract: submitting the handover grades the station ⇒ leaving is then free.
@@ -229,7 +265,7 @@ await scenario("Submit handover → leave charges zero forfeits", async (ctx, co
   await page.waitForSelector(".aurora-station-overlay-card .aurora-station-result", { timeout: 10000 });
   await page.goto(base + "/homepage"); // uncontrolled exit AFTER completion ⇒ still free
   await page.waitForTimeout(500);
-  assert.strictEqual(count(), 0, `expected 0 forfeits after completing, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `expected 0 forfeits after completing, saw ${await count()}`);
 });
 
 // 5) THE REPORTED LOOPHOLE: the Atlas Rail sits on top of the station. Clicking a rail
@@ -240,12 +276,12 @@ await scenario("Atlas Rail nav mid-station → confirm charges exactly one forfe
   await page.click(".aurora-rail-handle");                        // pin the rail open
   await page.click('.aurora-navitem[aria-label="Homepage"]');     // try to leave via the sidebar
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
-  assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `no charge until confirmed, saw ${await count()}`);
   await page.click('[data-testid="station-leave-confirm"]');
   await waitForfeit(count);
   await page.waitForFunction(() => !location.pathname.startsWith("/cases/"), { timeout: 5000 });
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming rail leave, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit after confirming rail leave, saw ${await count()}`);
 });
 
 // 6) Cancelling a rail-triggered leave is free and keeps you on the station.
@@ -256,7 +292,7 @@ await scenario("Atlas Rail nav mid-station → Stay charges zero forfeits", asyn
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
   await page.click('[data-testid="station-leave-cancel"]');
   await page.waitForTimeout(500);
-  assert.strictEqual(count(), 0, `expected 0 forfeits on cancel, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `expected 0 forfeits on cancel, saw ${await count()}`);
   assert.ok(await page.locator('[data-testid="station"]').count(), "must still be on the station after cancel");
 });
 
@@ -270,7 +306,7 @@ await scenario("⌘K palette nav mid-station → confirm charges exactly one for
   await page.click('[data-testid="station-leave-confirm"]');
   await waitForfeit(count);
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming palette leave, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit after confirming palette leave, saw ${await count()}`);
 });
 
 await b.close();

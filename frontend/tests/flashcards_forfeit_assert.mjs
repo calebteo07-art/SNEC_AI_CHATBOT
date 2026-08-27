@@ -39,19 +39,52 @@ async function makeCtx() {
   }, SESSION);
   // The shared mocks report the student as customized:true, so the mandatory first-login
   // gate never redirects off /flashcards (no local onboarding flag exists any more).
-  let count = 0;
+  // The forfeit charge is counted IN THE PAGE, not from playwright's request stream, because
+  // it is a navigator.sendBeacon fired from `pagehide` — i.e. while the document is being
+  // torn down by the navigation that triggered it. Measured 2026-08-27 across chromium
+  // headless-shell, new-headless and headed:
+  //
+  //     channel            playwright 1.60.0 / Chrome 148   playwright 1.62.1 / Chrome 151
+  //     ctx.on("request")              1                                0
+  //     ctx.route()                    0 (intercept kills it)           0 (not intercepted)
+  //     ctx.exposeFunction()           1                                0
+  //     localStorage in-page           1                                1
+  //
+  // Under 1.62.1 the beacon still REACHES the server — a plain node server counted it in all
+  // three modes — playwright just stops reporting it, which turned a working product red and
+  // was the sole reason playwright was pinned to an exact 1.60.0. See station_forfeit_assert.
+  const KEY = "__pw_forfeit_beacons";
+  await ctx.addInitScript((k) => {
+    const orig = navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
+    if (!orig) return;
+    navigator.sendBeacon = (url, data) => {
+      if (String(url).includes("/forfeit")) {
+        try { localStorage.setItem(k, String(Number(localStorage.getItem(k) || 0) + 1)); } catch {}
+      }
+      return orig(url, data);
+    };
+  }, KEY);
+  const count = async () => {
+    const page = ctx.pages().at(-1);
+    if (!page) return 0;
+    try { return Number(await page.evaluate((k) => localStorage.getItem(k) || 0, KEY)); }
+    catch { return 0; }
+  };
+
   // Captured here, asserted in the scenario (not inline): a route handler in _mocks.mjs
   // that throws is swallowed by Playwright as an unhandled rejection and the in-page
   // fetch just hangs — it does NOT fail this script. Asserting in the scenario instead
   // puts it on the awaited path, where scenario()'s try/catch actually observes a throw.
+  //
+  // /complete stays on ctx.on("request"): it is an ordinary fetch from a live page, not a
+  // teardown-time beacon, so the reporting gap above does not apply to it.
   let completeBody = null;
   ctx.on("request", (req) => {
-    if (req.method() === "POST" && req.url().includes("/api/flashcards/forfeit")) count += 1;
     if (req.method() === "POST" && req.url().includes("/api/flashcards/complete")) {
       try { completeBody = req.postDataJSON(); } catch { /* non-JSON body — leave null */ }
     }
   });
-  return { ctx, count: () => count, completeBody: () => completeBody };
+  return { ctx, count, completeBody: () => completeBody };
 }
 
 /* The round is LIVE — not merely "a node is visible". waitForSelector's default state can
@@ -106,8 +139,8 @@ async function enterRound(ctx, count) {
         + `this is meaningless. Restart it: scripts/start-harness.sh stop && SKIP_BUILD=1 `
         + `scripts/start-harness.sh serve. DIAG ${JSON.stringify(diag)}`);
     }
-    assert.strictEqual(count(), 0,
-      `a forfeit was charged by a round that never started (saw ${count()}) — DIAG ${JSON.stringify(diag)}`);
+    assert.strictEqual(await count(), 0,
+      `a forfeit was charged by a round that never started (saw ${await count()}) — DIAG ${JSON.stringify(diag)}`);
     console.warn(`    ! app never reached the study round; reloading once. DIAG ${JSON.stringify(diag)}`);
     await page.reload({ waitUntil: "domcontentloaded" });
     try {
@@ -116,7 +149,7 @@ async function enterRound(ctx, count) {
       throw new Error(`${first.message.split("\n")[0]} — twice, so this is not a transient boot. `
         + `DIAG ${JSON.stringify(await diagnose(page))}`);
     }
-    assert.strictEqual(count(), 0, `the reload charged a forfeit (saw ${count()})`);
+    assert.strictEqual(await count(), 0, `the reload charged a forfeit (saw ${await count()})`);
   }
   // The guards (forfeitGuard + leaveGuard) arm in `inStudy` effects. React commits the DOM
   // BEFORE flushing passive effects, so seeing the stage is not proof they ran; a completed
@@ -135,9 +168,9 @@ async function enterRound(ctx, count) {
  * whenever a scenario threw between creating the wait and awaiting it. */
 const waitForfeit = async (count, n = 1, timeout = 8000) => {
   const deadline = Date.now() + timeout;
-  while (count() < n) {
+  while (await count() < n) {
     if (Date.now() > deadline) {
-      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit POST(s), saw ${count()}`);
+      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit POST(s), saw ${await count()}`);
     }
     await new Promise((r) => setTimeout(r, 50));
   }
@@ -175,7 +208,7 @@ await scenario("Pause → Switch deck → confirm charges exactly one forfeit", 
   await page.click("[data-testid=flash-switch-confirm]");
   await waitForfeit(count);
   await page.waitForTimeout(400);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on Switch deck, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit on Switch deck, saw ${await count()}`);
 });
 
 // 2) The existing Quit path still charges — exactly once, no double with the new guards.
@@ -186,7 +219,7 @@ await scenario("Pause → Quit → confirm charges exactly one forfeit", async (
   await page.click("[data-testid=flash-quit-confirm]");
   await waitForfeit(count);
   await page.waitForTimeout(400);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on Quit, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit on Quit, saw ${await count()}`);
 });
 
 // 3) Completing the deck then leaving is NOT a forfeit — the fairness contract. Also pins
@@ -205,7 +238,7 @@ await scenario("Complete the deck → Home charges zero forfeits", async (ctx, c
   // actually change, THEN settle — a flat sleep could assert before the beacon could exist.
   await page.waitForFunction(() => !location.pathname.startsWith("/flashcards"), null, { timeout: 10000 });
   await page.waitForTimeout(400);
-  assert.strictEqual(count(), 0, `expected 0 forfeits after completing, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `expected 0 forfeits after completing, saw ${await count()}`);
   const body = completeBody();
   assert.ok(body && Array.isArray(body.results) && body.results.length > 0,
     `expected POST /api/flashcards/complete to carry a results array, saw ${JSON.stringify(body)}`);
@@ -221,7 +254,7 @@ await scenario("Hard nav away mid-round charges one forfeit (pagehide beacon)", 
   await page.goto(base + "/homepage");                          // full navigation ⇒ pagehide on /flashcards
   await waitForfeit(count);
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit on hard nav, saw ${await count()}`);
 });
 
 // 5) THE LOOPHOLE (in-app nav): the ⌘K palette sits on top of the immersive deck, so a
@@ -234,12 +267,12 @@ await scenario("⌘K → Homepage mid-round → confirm charges exactly one forf
   await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
   await page.click("button.aurora-palette-item:has-text('Homepage')");
   await page.waitForSelector("[data-testid=flash-leave-overlay]", { timeout: 5000 });
-  assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `no charge until confirmed, saw ${await count()}`);
   await page.click("[data-testid=flash-leave-confirm]");
   await waitForfeit(count);
   await page.waitForFunction(() => !location.pathname.startsWith("/flashcards"), null, { timeout: 5000 });
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming, saw ${count()}`);
+  assert.strictEqual(await count(), 1, `expected 1 forfeit after confirming, saw ${await count()}`);
 });
 
 // 6) Cancelling that leave is free and keeps the student in the round — no silent charge.
@@ -251,7 +284,7 @@ await scenario("⌘K → Homepage mid-round → Keep playing charges zero forfei
   await page.waitForSelector("[data-testid=flash-leave-overlay]", { timeout: 5000 });
   await page.click("[data-testid=flash-leave-cancel]");
   await page.waitForTimeout(500);
-  assert.strictEqual(count(), 0, `expected 0 forfeits on cancel, saw ${count()}`);
+  assert.strictEqual(await count(), 0, `expected 0 forfeits on cancel, saw ${await count()}`);
   assert.ok(await page.locator("[data-testid=study-stage]").count(), "must still be studying after cancel");
 });
 

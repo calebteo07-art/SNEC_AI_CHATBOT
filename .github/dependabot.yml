@@ -49,17 +49,6 @@ updates:
       # spike is scheduled.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
-      # TEMPORARY, and the only entry here meant to be removed soon. playwright
-      # is pinned to an EXACT 1.60.0 in frontend/package.json and that pin is
-      # load-bearing: 1.62.1 moves the test browser from Chrome 148 to 151,
-      # which breaks three forfeit scenarios in station_forfeit_assert and
-      # flashcards_forfeit_assert, all on the pagehide -> sendBeacon path.
-      # Proved NOT to be the Next bump -- with next pinned unchanged at 16.2.1
-      # and only playwright moved, the same three fail. Without this ignore the
-      # weekly group PR re-proposes 1.62.1 (it already did, as #23) and merging
-      # it silently re-breaks a Lumens-charging invariant. Lift this and the
-      # exact pin together, once the Chrome 151 beacon question is settled.
-      - dependency-name: "playwright"
 
   # GitHub Actions themselves
   - package-ecosystem: github-actions
