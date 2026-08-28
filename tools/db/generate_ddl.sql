@@ -37,8 +37,10 @@
 --   * Verify the output: replay it into a scratch project, then diff against
 --     production with tools/db/export_schema.sql.
 --   * No data. Rows need a separate pg_dump --data-only.
---   * No Storage buckets (kb-images, selena-avatars). No SQL can create those;
---     make them in the dashboard.
+--   * No Storage buckets (kb-images, selena-avatars) — these queries never read the
+--     storage schema. The bucket ROWS are ordinary table rows, and
+--     tools/db/migrations/000_base_schema.sql creates both with an INSERT INTO
+--     storage.buckets. What no SQL carries is the stored OBJECTS themselves.
 --
 -- SAFE TO RUN ON PRODUCTION. These only read the system catalogues.
 -- ============================================================================

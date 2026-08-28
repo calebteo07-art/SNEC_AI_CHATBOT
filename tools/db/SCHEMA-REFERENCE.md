@@ -12,24 +12,35 @@ than editing it by hand.
 
 | File | What it gives you |
 |---|---|
+| `REBUILD.md` | **Start here** — how to recreate this database from SQL, and what that SQL cannot give you |
+| `migrations/000_base_schema.sql` | The 12 tables, the extension, the function and the buckets that no migration created — reconstructed from this document |
 | `export_schema.sql` | Read-only queries that show the live schema in full — constraints, indexes, policies, functions |
 | `generate_ddl.sql` | Makes Postgres emit the `CREATE TABLE` statements as copyable SQL |
 | `migrations/` | The 19 hand-applied migrations, and `APPLIED.md` recording which ran |
 
-## !! THIS CANNOT REBUILD THE DATABASE !!
+## What this document alone cannot do
 
-PostgREST describes columns and types. It does NOT describe:
+PostgREST describes columns, types, NOT NULL, defaults, primary keys and foreign
+keys — enough that `migrations/000_base_schema.sql` could be reconstructed from it.
+It does NOT describe:
 
 - indexes (including the vector index on chunks.embedding)
 - CHECK constraints, or which UNIQUE indexes exist
   (notably UNIQUE(lower(email)) on student_consent)
 - row-level-security policies
-- stored functions — semantic_search() is invisible here
-- extensions, or the pgvector embedding dimension
+- the `ON DELETE` rule on any foreign key
+- stored functions — semantic_search()'s body is invisible here
+- which extensions are installed
 - storage buckets
 
-Only `pg_dump --schema-only` produces a file that can recreate this
-database. This document is a reference, not a backup.
+It does, however, expose the pgvector **dimension**: `chunks.embedding` reports as
+`public.vector(1536)` below. That was previously listed here as unknowable, which
+was simply wrong — read the column type.
+
+Only `pg_dump --schema-only` produces a file that recreates this database exactly.
+This document is a reference, not a backup; `000_base_schema.sql` is a
+reconstruction built from it, and `REBUILD.md` lists precisely which parts of that
+reconstruction are read from production and which are inferred.
 
 Tables described: **20**
 

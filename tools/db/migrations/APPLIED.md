@@ -17,6 +17,22 @@ Those sub-scores were never stored, so they cannot be recovered. Shedding is now
 incremental (newest migration layer first), so an unapplied migration can only ever cost
 its own columns again.
 
+- [–] 000_base_schema.sql — **never run against production, and must not be.** Production
+  already contains every object in it: the 12 tables, the `vector` extension, the
+  `semantic_search` function, the `UNIQUE (lower(email))` index and the two storage
+  buckets were all created by hand in the Supabase dashboard during 2026 and never
+  captured in SQL. This file was written on 2026-08-28 by reading the live schema back
+  out through PostgREST, so that a NEW database can be built from source. Its purpose is
+  rebuild and staging, not migration. Every statement is `IF NOT EXISTS` / `ON CONFLICT
+  DO NOTHING`, so running it against production would be a no-op — but it would also
+  prove nothing, because a no-op cannot tell you whether the reconstruction is faithful.
+  Only `pg_dump --schema-only` can settle that; see `tools/db/REBUILD.md`.
+- [?] 001–005 — **live but unledgered.** These ran before this file existed, so there is
+  no record of when. Their objects are present in production (`flashcards`,
+  `leaderboard_settings`, the indexes, the CHECK constraints and the
+  streak/XP columns all appear in `tools/db/SCHEMA-REFERENCE.md`), which is the evidence
+  that they were applied — not a ledger entry. Do not treat the absence of a date here
+  as an unapplied migration.
 - [x] 006_avatar.sql — applied 2026-07-06
 - [x] 007_avatar_images.sql — applied 2026-07-06 (Selena 3D-portrait cache; public bucket `selena-avatars` also created)
 - [x] 008_leaderboard_visibility.sql — applied 2026-07-07 (D7 leaderboard live: `leaderboard_hidden` + `display_name`)
