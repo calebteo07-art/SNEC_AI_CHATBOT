@@ -18,8 +18,9 @@ tools/db/migrations/019_case_progress_checklist_detail.sql
 Twenty files, numeric order, no gaps. Paste each into the Supabase SQL Editor and
 run it, or `psql -f` each in turn. Every file is idempotent, so a re-run is safe.
 
-That produces the **schema**. It does not produce the **data** — see
-[What this does not give you](#what-this-does-not-give-you).
+That produces the **schema**, on Supabase. It does not produce the **data** — see
+[What this does not give you](#what-this-does-not-give-you) — and if you are
+targeting anything other than Supabase, read the next section first.
 
 If you would rather run one file than twenty, concatenate them in order. This is
 deliberately *not* committed as a file: a generated copy sitting next to its
@@ -32,6 +33,30 @@ cat tools/db/migrations/0*.sql > /tmp/eyebot_schema.sql
 `cat` with that glob sorts numerically because the names are zero-padded — `000`
 through `019`, in order. Check the top of the result says `Migration 000` before
 running it.
+
+---
+
+## Target is not Supabase (AWS RDS, Cloud SQL, a laptop)?
+
+Then run [`non_supabase_compat.sql`](non_supabase_compat.sql) **first**, before
+`000`, and read the two warnings at the top of it.
+
+Four statements in the set reach into schemas only a Supabase project has:
+`storage.buckets` in `000`, and `auth.uid()` inside the `CREATE POLICY` in `001`,
+`010` and `015`. The `auth.uid()` ones are not cosmetic — Postgres analyses a
+policy's `USING` expression when the policy is *created*, so those three files
+abort outright rather than behaving differently. The compat file stubs both.
+
+**But making the SQL run is not the same as porting the app**, and this is the part
+worth knowing before anyone spends a day on it: nothing in this codebase opens a
+Postgres connection. There is no `psycopg`, no `asyncpg`, no SQLAlchemy — every
+query goes over HTTP to PostgREST through `supabase-py`
+(`tools/shared/db.py:17`). Supabase here is Postgres **plus** PostgREST plus GoTrue
+plus Storage. A perfectly-shaped database on RDS is one the application cannot talk
+to. You would need to run PostgREST/GoTrue/Storage in front of it (all open source,
+and probably no app code changes beyond `SUPABASE_URL`), or replace the data layer
+in `tools/shared/db.py`, `tools/shared/otp_store.py` and
+`tools/kb/supabase_client.py` outright.
 
 ---
 
