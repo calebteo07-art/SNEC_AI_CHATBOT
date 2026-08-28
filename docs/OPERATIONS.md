@@ -163,11 +163,25 @@ Working rules, each earned the hard way and documented in `APPLIED.md`:
   `CREATE POLICY IF NOT EXISTS` (error 42601). Do not emit them.
 - Tick the checkbox in `APPLIED.md` with the date and what it changed.
 
-### ⚠️ The schema cannot currently be rebuilt from this repository
+### ⚠️ The schema is rebuildable only from a reconstruction, not from a dump
+
+**Read [`tools/db/REBUILD.md`](../tools/db/REBUILD.md) before doing anything in
+this section.** It is the procedure; this is the background.
 
 Running `001` through `019` on an empty Supabase project **will not work.** The
 migrations are almost entirely `ALTER TABLE` against tables that were created by
 hand in the Supabase dashboard and never captured in SQL.
+
+[`tools/db/migrations/000_base_schema.sql`](../tools/db/migrations/000_base_schema.sql)
+now closes that hole, so `000` + `001`…`019` does produce a working database. But
+it is a **reconstruction**, rebuilt from a read-only PostgREST snapshot of
+production — not a dump. Columns, types, nullability, defaults, primary keys and
+foreign-key targets are read from the live database and are trustworthy. Four
+things are inferred and could be wrong: each foreign key's `ON DELETE` rule, the
+body of `semantic_search()`, the index on `chunks.embedding`, and whether RLS is
+enabled on those twelve tables. The file marks every one of them in place.
+**No part of it has ever been executed** — there is no Postgres on the machine it
+was written on, so it is parse-verified only. `pg_dump` below remains the real fix.
 
 Between them the migration files create 8 tables:
 
@@ -186,30 +200,41 @@ The last five are easy to miss because they are reached from
 `tools/shared/db.py`. Verify the count yourself with:
 
 ```bash
-grep -rhoE '\.table\("[a-z_]+"\)' tools/ | sort -u | wc -l    # 20
-grep -rhoiE 'CREATE TABLE (IF NOT EXISTS )?[a-z_]+' tools/db/migrations/*.sql | wc -l   # 8
+grep -rhoE '\.table\("[a-z_]+"\)' tools/ | sort -u | wc -l
 ```
 
-**Tables are not the only thing missing.** Four more database objects exist only
-in production:
+```bash
+grep -rhoiE '^CREATE TABLE (IF NOT EXISTS )?[a-z_]+' tools/db/migrations/000_base_schema.sql | wc -l
+```
 
-| Object | Where it is used | Why it matters |
+The first returns **20** — the tables the application touches. The second returns
+**12** — the ones `000_base_schema.sql` had to supply because no migration created
+them. Anchor the pattern with `^`, or it also matches the words "CREATE TABLE"
+inside the comment blocks and over-counts.
+
+**Tables were not the only thing missing.** Four more database objects existed only
+in production. `000_base_schema.sql` now supplies all four, at the confidence noted
+in the last column:
+
+| Object | Where it is used | Confidence in the reconstruction |
 |---|---|---|
-| `semantic_search(...)` stored function | `tools/kb/search.py:47` | Its source is in **no file in this repo**. A fresh project has no way to recreate it. |
-| The `vector` extension + its index on `chunks.embedding` | KB pipeline | No `CREATE EXTENSION` anywhere; the embedding dimension is only knowable from the live column type. |
-| `UNIQUE (lower(email))` on `student_consent` | `tools/shared/db.py:938` | Without it the first-login race in `identity.py:73` can hand one student two `student_id`s, stranding their XP and streak. |
-| Storage buckets `kb-images`, `selena-avatars` | `tools/kb/supabase_client.py` | Created by hand. No SQL creates a bucket. |
+| `semantic_search(...)` stored function | `tools/kb/search.py:47` | **Lowest.** The real body is in no file. The name and its three argument names are exact — PostgREST matches RPC arguments by name — but the body is inferred from the call site. Replace it with query F of `generate_ddl.sql`. |
+| The `vector` extension + its index on `chunks.embedding` | KB pipeline | Extension certain; **dimension certain at 1536**, read from the live column type (`public.vector(1536)`). The index type is a guess — an index exists, but PostgREST does not describe indexes. |
+| `UNIQUE (lower(email))` on `student_consent` | `tools/shared/db.py:935` | Certain it is **needed** — without it the first-login race in `identity.py:73` can hand one student two `student_id`s, stranding their XP and streak. Not certain it **exists**: the only evidence is that code comment, since PostgREST does not report functional unique indexes. Confirm with query 3 of `export_schema.sql`. |
+| Storage buckets `kb-images`, `selena-avatars` | `tools/kb/supabase_client.py:118-139` | Certain, including that both are public — both are read with `get_public_url()`. |
 
 `APPLIED.md` is also incomplete: it begins at `006`, so `001`–`005` are live but
 unledgered.
 
-The consequence is concrete: **the production database is currently the only
-copy of its own schema.** You cannot stand up a staging environment, onboard a
-developer against a private database, or rebuild after a loss — and, combined
-with [§5](#5-backups-and-disaster-recovery), a destructive incident would take
-both the data *and* the definition of the data with it.
+The consequence used to be concrete: the production database was the only copy of
+its own schema, so combined with [§5](#5-backups-and-disaster-recovery) a
+destructive incident would have taken both the data *and* the definition of the
+data with it. The reconstruction reduces that to a recoverable position. It does
+not close it — an unexecuted reconstruction is a claim about the schema, and the
+live database is still the only thing that can settle it.
 
-**Fix this early. It is one command while the live database still exists:**
+**Close it properly. It is one command while the live database still exists, and it
+overwrites the reconstruction with fact:**
 
 ```bash
 pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" > tools/db/migrations/000_base_schema.sql
@@ -225,16 +250,19 @@ Use the session-mode pooler on port **5432**, not transaction mode on 6543 —
 `pg_dump` needs a repeatable-read snapshot. Do **not** pass `--schema=public`
 alone: it drops the `vector` extension and the stored function above.
 
-Commit that file, note it in `APPLIED.md` as the pre-existing baseline, backfill
-the missing `001`–`005` lines, and from then on `000` + `001`…`019` genuinely
-reproduces the schema. Verify it by running the chain against a scratch Supabase
-project and booting the app.
+Commit that file over the reconstruction, note it in `APPLIED.md` as the
+pre-existing baseline, backfill the missing `001`–`005` lines, and from then on
+`000` + `001`…`019` reproduces the schema as fact rather than as inference. Verify
+it by running the chain against a scratch Supabase project and booting the app —
+that is also the only way anyone will find out whether the reconstruction was right.
 
 **Without that password**, [`tools/db/export_schema.sql`](../tools/db/export_schema.sql)
-is the stopgap: read-only queries you paste into the Supabase SQL editor that
-print every table, column, constraint, index, policy, extension and function —
-including the source of `semantic_search`. It shows you the schema; only
-`pg_dump` gives you a file that can rebuild it.
+and [`generate_ddl.sql`](../tools/db/generate_ddl.sql) are the stopgap: read-only
+queries you paste into the Supabase SQL editor that print every table, column,
+constraint, index, policy, extension and function — including the source of
+`semantic_search`. Run **query 0** first; if it returns 20 tables the connection is
+good and any later error is a bug in the query, not in your setup. They show you
+the schema; only `pg_dump` gives you a file that provably rebuilds it.
 
 ---
 

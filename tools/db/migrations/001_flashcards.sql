@@ -30,6 +30,13 @@ CREATE INDEX IF NOT EXISTS idx_flashcards_student_topic
 -- this policy protects against direct DB / anon-key access.
 ALTER TABLE flashcards ENABLE ROW LEVEL SECURITY;
 
+-- PG-safe idempotency: DROP-then-CREATE (Postgres has no guarded policy-creation
+-- syntax, PG 42601). Added 2026-08-28 — this was the ONE unguarded CREATE POLICY
+-- left in the migration set, so re-pasting this file aborted the whole script with
+-- 42710, and a rebuild whose 000 came from `pg_dump --schema-only` (which already
+-- carries the policy) failed here on the FIRST run. Matches 010 and 015.
+-- A no-op against production, which already has this exact policy.
+DROP POLICY IF EXISTS flashcards_own_student ON flashcards;
 CREATE POLICY flashcards_own_student ON flashcards
   FOR ALL
   USING (student_id::text = auth.uid()::text);
