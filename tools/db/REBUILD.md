@@ -80,12 +80,12 @@ other **twelve had no `CREATE TABLE` anywhere**:
 | `documents` | `chunks` |
 | `images` | `checklists` |
 
-Four non-table objects were missing too: the `semantic_search()` function, the
-`vector` extension, the `UNIQUE (lower(email))` index on `student_consent`, and the
-two Storage buckets.
+Other objects were missing too: the `vector` extension, two functions
+(`semantic_search()` and `checklist_search()`), eight hand-made indexes — among
+them the unique index on `student_consent(email)` — and the two Storage buckets.
 
-`000_base_schema.sql` supplies all sixteen. Re-derive the counts yourself rather
-than trusting this paragraph:
+`000_base_schema.sql` supplies all of them. Re-derive the table counts yourself
+rather than trusting this paragraph:
 
 ```bash
 grep -rhoE '\.table\("[a-z_]+"\)' tools/ | sort -u | wc -l
@@ -108,51 +108,108 @@ count comes out at 21.
 
 ---
 
-## How much of file 000 is verified, and how much is a guess
+## How much of file 000 is verified
 
-This matters more than anything else on this page. `000_base_schema.sql` is a
-**reconstruction**, not a database dump.
+`000_base_schema.sql` began on 2026-08-28 as a **reconstruction** from the PostgREST
+snapshot in [`SCHEMA-REFERENCE.md`](SCHEMA-REFERENCE.md). On **2026-10-02** it was
+checked against a real schema-only `pg_dump` of production (Postgres 17.6, taken with
+the Supabase CLI's `pg_dump` pipeline) and corrected.
 
-### Read from the live production database (trustworthy)
+The dump is **not** in this repository and should not be: the repository is public.
+It is kept offline, with the backup it was taken alongside.
 
-Every column name and order, every type — including `vector(1536)` — every
-`NOT NULL`, every non-jsonb `DEFAULT`, every primary key including the composite
-ones, and every foreign key's target. These came from the PostgREST OpenAPI
-description at `GET /rest/v1/` on 2026-08-27, captured in
-[`SCHEMA-REFERENCE.md`](SCHEMA-REFERENCE.md). Read-only; no table rows were fetched.
+### How it was checked
 
-### Reconstructed, and possibly wrong
+Both sides were parsed with `pglast` 8.4 (the real PostgreSQL parser, libpg_query)
+into one normalised model and diffed: columns in order, with type, nullability and
+default; every constraint by name, including each foreign key's `ON DELETE`; every
+index with its method, operator class and `WITH` options; RLS state; policies; and
+each function's signature and re-parsed body. Run against the old `000` it found 73
+differences. After the fixes below, `000` + `001`–`019` diffs to **zero**: 20 tables,
+38 constraints, 21 indexes, RLS on all 20 tables, 3 policies, 2 functions. A planted
+type change and a planted column swap were both caught, so the zero is not a
+comparer that cannot see.
 
-| Unknown | What 000 does | Why |
+### What the dump settled
+
+| Was unknown | What 000 used to do | What production has, and 000 now does |
 |---|---|---|
-| `ON DELETE` rule on each FK | omits it (Postgres default `NO ACTION`) | If production is `CASCADE`, this errors instead of silently deleting rows. Wrong in the safe direction. |
-| `semantic_search()` body | rebuilt from its call site | The name and its three argument names are exact — PostgREST matches RPC arguments by name — and the result carries `title` and `text` because `format_context` reads them. The rest is inferred. |
-| Index on `chunks.embedding` | `hnsw (embedding vector_cosine_ops)` | An index exists; its type and parameters are not visible through PostgREST. |
-| RLS on the 12 tables | leaves it **off**, loudly | Guessing wrong in either direction is bad. See the note at the foot of 000. |
-| `UNIQUE (lower(email))` on `student_consent` | creates it | Certain it is *needed*; not certain it *exists* in production. The only evidence is a code comment at `tools/shared/db.py:935`, because PostgREST does not report unique constraints of any kind. If production has duplicate emails, this statement will fail on a data restore — and that failure is information, not a bug. |
-| `UNIQUE` on `documents(filename)` and `checklists(document_id)` | creates both | Recovered from the code, not the snapshot. `tools/kb/supabase_client.py:52` and `:108` upsert with `ON CONFLICT` on those columns, and Postgres rejects that at *plan* time with `42P10` unless a unique index exists — so production must have both, or its own ingestion would never have run. **Omitting these was a real bug in the first draft of this file:** without them a rebuilt database cannot ingest a single document, which is precisely the recovery path item 1 below depends on. |
-| Other `UNIQUE` constraints | none | Only the three above are recoverable from the code. If production carries others, nothing here would reveal them. |
-| `SMALLINT` vs `INTEGER` | uses `INTEGER` | PostgREST reports both as `int32`. Harmless. |
+| `ON DELETE` rule on each FK | omitted (`NO ACTION`) | **`ON DELETE CASCADE`** on all three `document_id` FKs (`chunks`, `images`, `checklists`). The `student_profiles` FKs in 001/010/015 were already right. |
+| `semantic_search()` body | rebuilt from its call site | The real body. The guess had the wrong result columns: production returns `chunk_id` (not `id`), adds `chunk_index` and has no `page_end`. The argument names were right, and the only caller reads just `title` and `text`, which both versions return. |
+| Index on `chunks.embedding` | `chunks_embedding_idx`, hnsw cosine, default build parameters | `chunks_embedding_hnsw`, hnsw cosine, `WITH (m = 16, ef_construction = 128)` — pgvector's default `ef_construction` is 64. |
+| RLS on the 12 tables | left **off** | **On, on all 20 public tables.** The only policies are the three own-rows ones on the flashcard tables (001, 010, 015). `000` now enables RLS on its 12, so anon and authenticated get nothing; the backend uses the service-role key, which bypasses RLS. |
+| Unique index on `student_consent` | `UNIQUE (lower(email))` | `student_consent_email_idx` on **plain `email`**. Not a live bug — see [Is the plain-`email` index a bug?](#is-the-plain-email-index-a-bug) |
+| `UNIQUE` on `documents(filename)`, `checklists(document_id)` | separate `CREATE UNIQUE INDEX` statements | Confirmed — both are table constraints (`documents_filename_key`, `checklists_document_id_key`), which is what an inline `UNIQUE` produces. Without them a rebuilt database cannot ingest a document (`42P10` at plan time). |
+| Other `UNIQUE` constraints | none | Confirmed: there are none. |
+| jsonb `DEFAULT`s | none | `student_profiles.weak_topics` and `missed_findings` default to `'[]'`, `retention_scores` to `'{}'`. `checklists.steps` has no default. |
+| CHECK constraints beyond 003/009/015 | none | Confirmed: there are none. |
+| `SMALLINT` vs `INTEGER` | `INTEGER` throughout | Confirmed: every integer column in `000` is `integer` in production. |
+
+### What the dump found that nobody suspected
+
+| Old `000` | Production, and `000` now |
+|---|---|
+| No `DEFAULT` on 11 `NOT NULL` text columns | `DEFAULT ''` on `student_profiles.role` / `supervisor_note`, `student_consent.student_name` / `pdpa_version`, `approved_students.full_name` / `role` / `added_by`, `chat_sessions.topic` / `summary` / `model` and `supervisors.supervisor_id`. PostgREST shows an empty-string default as a blank, exactly like no default: `audit_events.target` is `DEFAULT ''` by migration 014 and reads blank in `SCHEMA-REFERENCE.md`. |
+| `case_progress.id` `GENERATED BY DEFAULT AS IDENTITY` | `GENERATED ALWAYS`. A data restore still works: `COPY` writes identity values as given. |
+| — | `checklist_search(procedure text) RETURNS SETOF checklists`, made by hand. Nothing in the repository calls it. |
+| — | Five hand-made indexes no migration created: `approved_students_student_id_idx` (an exact duplicate of 002's `idx_approved_student_id`), `case_progress_student_id_idx` (made redundant by two composites that lead with `student_id`), `case_progress_student_id_case_id_idx`, `chat_sessions_student_id_idx` and `images_document_id_idx`. All are reproduced. Dropping the redundant two would be a production change. |
+| `idx_checklists_procedure` | Does not exist. Removed. |
+| `idx_chunks_document` | Exists as `chunks_document_id_idx`. Renamed. |
+| — | RLS on `leaderboard_settings`, `avatar_images`, `league_week` and `league_seal`, which 004, 007 and 016 never enabled. Each of those files now does; on production that line is a no-op. |
+
+### Still not verified
+
+| What | Why |
+|---|---|
+| The two Storage buckets | The Supabase CLI dump leaves out the `storage` schema. The row counts taken alongside it show two rows in `storage.buckets`, which agrees with `000`; the ids and the `public` flag still come from the code. |
+| Execution | See below. |
+| `GRANT`s, and the `pg_stat_statements`, `supabase_vault` and `uuid-ossp` extensions | Not reproduced. Supabase sets these up on every project; production's grants come from its `ALTER DEFAULT PRIVILEGES … IN SCHEMA public` entries. On a non-Supabase target the roles do not exist anyway. |
+
+### Is the plain-`email` index a bug?
+
+**Not today.** Every path that writes `student_consent.email` lower-cases it first:
+login (`tools/api/routers/auth.py:80`), `/api/onboard` (`auth.py:297`), and the admin
+single add (`admin.py:89`) and bulk add (`admin.py:1220`). All four reach the table
+through `tools/shared/identity.py`, and nothing else writes that column.
+`get_consent_by_email` matches with `.eq()` on the same lower-cased string. So two
+first-logins that differ only in case are both lower-cased before they reach the
+index, and it blocks the second just as `UNIQUE (lower(email))` would.
+
+The gap is latent: case-insensitivity is enforced by the code, not by the database.
+A future writer that skips `.lower()`, or a row stored in mixed case before the
+lower-casing existed, would get past it. The lower-cased login lookup would also miss
+such a legacy row, so that person would be given a second `student_id`. One read-only
+query in the SQL editor tells you whether any exist:
+
+```sql
+SELECT count(*) FROM student_consent WHERE email <> lower(email);
+```
+
+If it returns 0, replacing the index with `UNIQUE (lower(email))` is safe and closes
+the gap. That is a production migration, so it has not been made here.
 
 **Verification actually performed:** all 20 files parse clean under `pglast` 8.4,
-which wraps the real PostgreSQL parser (libpg_query) — `000` is 20 statements:
-2 extensions, 12 tables, 4 indexes, 1 function, 1 insert.
+and their parsed shape diffs clean against the dump, as described above. `000` is 37
+statements: 2 extensions, 12 tables, 8 indexes, 2 functions, 1 insert and 12
+`ENABLE ROW LEVEL SECURITY`s.
 
-**Verification NOT performed: none of this SQL has been executed anywhere.** There
-is no Postgres and no Docker on the machine it was written on. A parse pass proves
-the syntax is valid PostgreSQL; it proves nothing about whether the statements
-succeed. That distinction is not academic here — a catalogue query in
-`generate_ddl.sql` parsed clean and still failed with `42P01` the first time it met
-a real database, because name resolution happens at runtime.
+**Verification NOT performed: none of this SQL has been executed anywhere.** The
+machine it was written on has PostgreSQL's client tools but no server and no
+pgvector. A parse and a shape diff prove the SQL is valid and describes production;
+they do not prove every statement succeeds. That distinction is not academic here —
+a catalogue query in `generate_ddl.sql` parsed clean and still failed with `42P01`
+the first time it met a real database, because name resolution happens at runtime.
 
-**Expect to fix something on the first run.** Send back the error and it gets fixed.
+**The first run may still hit an error**, though far less likely than before the
+dump. Send back the error and it gets fixed.
 
 ---
 
-## The better path: dump the real thing
+## Re-checking against a fresh dump
 
-The reconstruction exists because the password was not to hand. Once it is, replace
-guesswork with fact — this takes about two minutes.
+Done once, on 2026-10-02 (above). Repeat it after anyone changes the schema by hand
+in the dashboard — that is how `000` went wrong in the first place. It takes about
+two minutes.
 
 1. Supabase → **Project Settings → Database → Connection string → URI**. Reveal
    and copy the password. (No credential for this exists in the repo or in Render:
@@ -164,10 +221,10 @@ guesswork with fact — this takes about two minutes.
    `sqlalchemy` import, and no connection string anywhere. So if the password is
    lost, reset it freely.
 
-3. Dump:
+3. Dump to a file **outside this repository** — the repository is public:
 
 ```bash
-pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" > tools/db/migrations/000_base_schema.sql
+pg_dump --schema-only --no-owner --no-privileges "$SUPABASE_DB_URL" > ~/eyebot-schema.sql
 ```
 
 Two traps that will cost you an afternoon:
@@ -177,8 +234,11 @@ Two traps that will cost you an afternoon:
 - Do **not** pass `--schema=public` on its own. It drops the `vector` extension and
   the Storage schema, and you get a dump that will not restore.
 
-A real dump also settles every "reconstructed" row in the table above, including
-the RLS policies and the true `semantic_search()` body.
+4. Diff it against `000` + `001`–`019`, object by object, as described under
+   [How it was checked](#how-it-was-checked), and fix `000` (or the migration that
+   owns the object) until the diff is empty. Do not paste the dump over `000`: it
+   also re-creates every object `001`–`019` own, and it carries Supabase-internal
+   statements.
 
 ---
 
@@ -254,6 +314,10 @@ and — worse — a rebuild whose `000` came from a real `pg_dump` (which alread
 the policy) failed on `001`'s *first* run. It now carries the same
 `DROP POLICY IF EXISTS` guard as `010` and `015`. If you are holding an older copy of
 this repository, check that line before trusting the paragraph above.
+
+`004`, `007` and `016` were edited the same way on 2026-10-02. Production has RLS on
+the four tables they create, but those files never enabled it, so each gained one
+`ENABLE ROW LEVEL SECURITY`. On production that line is a no-op.
 
 The one thing to get right is **order**. `APPLIED.md` records what has been run
 against production and why the order was load-bearing more than once — migration

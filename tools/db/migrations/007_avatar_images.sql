@@ -15,3 +15,8 @@ CREATE TABLE IF NOT EXISTS avatar_images (
   status      TEXT NOT NULL DEFAULT 'pending',
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- RLS on with no policy: anon/authenticated get nothing; the backend's service-role key
+-- bypasses it. Added 2026-10-02 so a rebuild matches production, which already had RLS
+-- on this table (schema-only pg_dump, 2026-10-02) — a no-op there.
+ALTER TABLE avatar_images ENABLE ROW LEVEL SECURITY;

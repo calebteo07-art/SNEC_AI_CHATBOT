@@ -74,7 +74,7 @@ Ranked by what hurts most. Full detail in
 | # | Risk | Status | Detail |
 |---|---|---|---|
 | 1 | **No database backups.** An accidental destructive query is unrecoverable — every student's entire record, permanently | Open. It is a **billing** decision needing Supabase *organisation* Owner access | [§5](docs/OPERATIONS.md#5-backups-and-disaster-recovery) |
-| 1b | **The schema is in the repo only as a reconstruction.** 12 of the 20 tables the code uses had no `CREATE TABLE` anywhere, nor did the `semantic_search` function, the `vector` extension or the storage buckets — all made by hand in the dashboard. `tools/db/migrations/000_base_schema.sql` now supplies them, rebuilt from a read-only snapshot of production, so `000` + `001`…`019` stands up a database. **It has never been executed anywhere** — parse-verified only — and four things in it are inferred rather than read: each FK's `ON DELETE` rule, the `semantic_search` body, the `chunks.embedding` index, and whether RLS is on | Reduced, not closed. **One `pg_dump` replaces inference with fact** while the live DB exists. Do this in week 1 | [`tools/db/REBUILD.md`](tools/db/REBUILD.md), [§4](docs/OPERATIONS.md#4-database-and-migrations) |
+| 1b | **The schema is in the repo only as a reconstruction.** 12 of the 20 tables the code uses had no `CREATE TABLE` anywhere, nor did the `semantic_search` function, the `vector` extension or the storage buckets — all made by hand in the dashboard. `tools/db/migrations/000_base_schema.sql` now supplies them, so `000` + `001`…`019` stands up a database. First rebuilt from a read-only snapshot, it was diffed against a real schema-only `pg_dump` on 2026-10-02 and corrected until the diff was empty. **It has never been executed anywhere** — parse- and diff-verified only | Reduced, not closed. **Run the chain once against a scratch Supabase project and boot the app on it.** Re-diff against a fresh dump after any hand edit in the dashboard | [`tools/db/REBUILD.md`](tools/db/REBUILD.md), [§4](docs/OPERATIONS.md#4-database-and-migrations) |
 | 2 | **AI credit runs out silently.** Prepaid Gemini balance; when it drains the tutor degrades to placeholder text with nothing turning red | Open. Needs an owner who checks it monthly, or auto-reload on | [§6](docs/OPERATIONS.md#6-cost-quota-and-continuity) |
 | 3 | **No in-app PDPA consent.** A consent record is written on first login without ever asking the student | Deliberate deferral, not a bug. Needs an institutional decision before the next cohort | [§7](docs/OPERATIONS.md#7-data-protection-posture) |
 | 4 | **No retention policy, no erasure feature.** No built-in way to action a deletion request | Open | [§7](docs/OPERATIONS.md#7-data-protection-posture) |
@@ -208,9 +208,9 @@ the production image.
 **Week 1 — remove the sharpest edges.**
 
 4. **Take a manual database export — both the data and the schema.** These are
-   two separate exports and you need both. `pg_dump --schema-only` also replaces
-   the reconstructed `000_base_schema.sql` with the real one (risk 1b), which is
-   the only way to find out whether the reconstruction was right. This single step
+   two separate exports and you need both. Diff the schema export against
+   `000_base_schema.sql` + `001`…`019` (risk 1b) to catch any hand edit made in the
+   dashboard since 2026-10-02, and keep both exports out of this public repo. This single step
    removes the "one mistake from zero" condition. Do it before anything else.
    [`tools/db/REBUILD.md`](tools/db/REBUILD.md) has the exact commands and the two
    traps (session-mode pooler on 5432; never `--schema=public` alone).

@@ -70,8 +70,8 @@ async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     try:
         await db.upsert_consent(student_id, student_name=name, email=email)
     except Exception:
-        # A concurrent first-login won the race (or, once UNIQUE(lower(email)) exists, the DB
-        # rejected this second row): re-read by email and defer to the stored identity. Minting
+        # A concurrent first-login won the race (the unique index on email rejected this
+        # second row): re-read by email and defer to the stored identity. Minting
         # a second uuid here is exactly the bug we are closing — it strands the person's
         # avatar_config/streak/XP under a duplicate id and re-fires the onboarding gate. A
         # genuine write failure (nothing to re-read) still surfaces.

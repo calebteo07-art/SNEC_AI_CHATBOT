@@ -19,14 +19,16 @@ its own columns again.
 
 - [–] 000_base_schema.sql — **never run against production, and must not be.** Production
   already contains every object in it: the 12 tables, the `vector` extension, the
-  `semantic_search` function, the `UNIQUE (lower(email))` index and the two storage
-  buckets were all created by hand in the Supabase dashboard during 2026 and never
-  captured in SQL. This file was written on 2026-08-28 by reading the live schema back
-  out through PostgREST, so that a NEW database can be built from source. Its purpose is
-  rebuild and staging, not migration. Every statement is `IF NOT EXISTS` / `ON CONFLICT
-  DO NOTHING`, so running it against production would be a no-op — but it would also
-  prove nothing, because a no-op cannot tell you whether the reconstruction is faithful.
-  Only `pg_dump --schema-only` can settle that; see `tools/db/REBUILD.md`.
+  `semantic_search` and `checklist_search` functions, the hand-made indexes (among them
+  the unique index on `student_consent(email)`) and the two storage buckets were all
+  created by hand in the Supabase dashboard during 2026 and never captured in SQL. This
+  file was written on 2026-08-28 by reading the live schema back out through PostgREST,
+  so that a NEW database can be built from source, and on 2026-10-02 it was corrected
+  against a schema-only `pg_dump` of production (see `tools/db/REBUILD.md`). Its purpose
+  is rebuild and staging, not migration.
+- [–] 004, 007, 016 — edited 2026-10-02, **not re-run**: each gained an `ENABLE ROW LEVEL
+  SECURITY` for the tables it creates, so a rebuild matches production. The 2026-10-02
+  dump shows production already had RLS on all four tables, so there is nothing to apply.
 - [?] 001–005 — **live but unledgered.** These ran before this file existed, so there is
   no record of when. Their objects are present in production (`flashcards`,
   `leaderboard_settings`, the indexes, the CHECK constraints and the

@@ -932,10 +932,12 @@ async def get_consent_by_email(email: str) -> dict | None:
     """Return the student_consent row for email, or None.
 
     Ordered by the unique student_id so that when duplicate rows exist for one email
-    (legacy data, or a first-login race before the UNIQUE(lower(email)) index) the pick is
+    (legacy data, or a first-login race before the unique index existed) the pick is
     DETERMINISTIC. Without an ORDER BY, .limit(1) returns an arbitrary row and the same
     person's student_id can flip between logins — stranding their avatar_config/streak and
-    re-firing the mandatory Eyecon Studio. (The dedupe migration makes this the only row.)"""
+    re-firing the mandatory Eyecon Studio. Production's unique index is on plain `email`,
+    not lower(email), so it only rules out case-variant duplicates because every writer
+    lower-cases first (tools/db/REBUILD.md, "Is the plain-email index a bug?")."""
     client = await _get_client()
     result = (
         await client.table("student_consent")

@@ -16,3 +16,8 @@ CREATE TABLE IF NOT EXISTS leaderboard_settings (
   enabled     BOOLEAN NOT NULL DEFAULT false,
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- RLS on with no policy: anon/authenticated get nothing; the backend's service-role key
+-- bypasses it. Added 2026-10-02 so a rebuild matches production, which already had RLS
+-- on this table (schema-only pg_dump, 2026-10-02) — a no-op there.
+ALTER TABLE leaderboard_settings ENABLE ROW LEVEL SECURITY;

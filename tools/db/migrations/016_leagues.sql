@@ -39,3 +39,9 @@ CREATE TABLE IF NOT EXISTS league_seal (
   key       TEXT PRIMARY KEY,
   sealed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- RLS on with no policy: anon/authenticated get nothing; the backend's service-role key
+-- bypasses it. Added 2026-10-02 so a rebuild matches production, which already had RLS
+-- on both tables (schema-only pg_dump, 2026-10-02) — a no-op there.
+ALTER TABLE league_week ENABLE ROW LEVEL SECURITY;
+ALTER TABLE league_seal ENABLE ROW LEVEL SECURITY;
