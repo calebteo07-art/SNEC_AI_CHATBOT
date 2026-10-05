@@ -161,9 +161,16 @@ export async function mockApis(ctx, user) {
     boost: { multiplier: 1, until: null },
     league: { rank: 5, pool_size: 10, promote_count: 3, division_name: "Volt", xp_to_promotion: 430 },
   })));
-  await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
-  await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));
-  await ctx.route("**/api/checkin/answer", (r) => r.fulfill(J({ correct: true, feedback: "The epithelium regenerates rapidly within 24-48 hours.", streak: 7 })));
+  // The check-in is multiple choice: the page maps `options` and posts `question_id` back.
+  await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ checkin_done_today: false, streak: 6, weak_topic: "Glaucoma staging" })));
+  await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({
+    question_id: "OA-0", question: "Which corneal layer regenerates after abrasion?", topic: "Cornea",
+    options: ["Epithelium", "Bowman's layer", "Stroma", "Endothelium"],
+  })));
+  await ctx.route("**/api/checkin/answer", (r) => r.fulfill(J({
+    correct: true, correct_answer: "Epithelium",
+    feedback: "The epithelium regenerates rapidly within 24-48 hours.", streak: 7,
+  })));
   await ctx.route("**/api/cases", (r) => r.fulfill(J(cases)));
   await ctx.route("**/api/cases/C001", (r) => r.fulfill(J(cases.cases[0])));
   await ctx.route("**/api/cases/C001/checklist", (r) => r.fulfill(J({ checklist: { steps: ["History of presenting complaint", "Visual acuity", "IOP measurement"] } })));
