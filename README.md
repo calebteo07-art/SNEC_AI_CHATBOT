@@ -3,7 +3,7 @@
 **An AI training platform for eye-care students, in production at the Singapore
 National Eye Centre (SNEC).** Built by Caleb Teo.
 
-[![CI](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml/badge.svg)](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml)
+[![CI](https://github.com/calebteo07-art/SNEC_EYEBOT/actions/workflows/ci.yml/badge.svg)](https://github.com/calebteo07-art/SNEC_EYEBOT/actions/workflows/ci.yml)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)

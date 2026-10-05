@@ -20,8 +20,8 @@ A step-by-step tutorial. About ten minutes.
 ### 1. Get the code
 
 ```bash
-git clone https://github.com/calebteo07-art/SNEC_AI_CHATBOT.git
-cd SNEC_AI_CHATBOT
+git clone https://github.com/calebteo07-art/SNEC_EYEBOT.git
+cd SNEC_EYEBOT
 ```
 
 ### 2. Install the backend

@@ -48,7 +48,7 @@ That keeps the default position explicit, but it does not settle who owns the wo
 ### 1.2 Public or private, and where the repository lives
 
 The repository is currently **public** and owned by a **personal GitHub
-account** (`calebteo07-art/SNEC_AI_CHATBOT`). Only the owner of a
+account** (`calebteo07-art/SNEC_EYEBOT`). Only the owner of a
 personal-account repository can change its settings, so this must move.
 
 **Decide:** transfer the repository to an SP-owned organisation (Settings →
