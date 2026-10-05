@@ -1,6 +1,6 @@
 """Topic-set taxonomy for cases — 10 selectable sets per role.
 
-Each role's case library is organised into 10 topic-sets (the user picks a set
+Each role's case library is organised into 10 topic-sets (the student picks a set
 to study, target 5 cases each). Sets are grounded in the SNEC KB / role's field:
 - OT  -> ophthalmic investigations / imaging.
 - OA and PSA study almost the same course, so they share a parallel clinical
