@@ -30,20 +30,20 @@ Two findings, and neither is "it is too bright":
    acid lime, `#FFD24A` gold rimming hot magenta, `#F5FF6B` yellow rimming emerald. The
    harshest local pairs on the board are *inside* the band and the plinths, not between them.
 
-Underneath both: the **150°–300° closure** (user's call, 2026-08-06, gated in `league_assert`)
+Underneath both: the **150°–300° closure** (my call, 2026-08-06, gated in `league_assert`)
 squeezed five max-chroma hues onto half the wheel. Lime beside magenta beside vermilion is a
 fairground by construction, not by tuning.
 
 ## 2. Direction chosen
 
-Put to the user as two forks; both answered:
+Framed as two forks; my answers:
 
 - **Where colour lives → "quiet field, loud objects."** The page goes near-neutral; the band,
   podium, promotion zone and your row keep full punch. 90% calm is what makes the 10% land.
 - **The blue ban → reopen it.** 150°–300° is no longer closed to tier hues.
 
 Not chosen, and therefore out of scope: flattening the ladder's role tints. They are the loud
-objects the user asked to keep, and `league_assert:1265` actively forbids it ("the ladder is
+objects I wanted to keep, and `league_assert:1265` actively forbids it ("the ladder is
 the flattest thing on a page that is meant to be loud").
 
 ## 3. The five moves

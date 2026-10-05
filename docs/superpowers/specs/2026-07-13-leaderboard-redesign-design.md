@@ -8,7 +8,7 @@ Date: 2026-07-13 · Frontend-only · Zero backend/DB change · Supersedes the 20
 The current board reads "messy": five disconnected, individually-styled floating panels
 stacked vertically — header card · podium · rivalry-spotlight card · tier-band section
 headers · rows · settings card. Each has its own background and rhythm, so the page has
-no through-line. The user asked to strip it and rebuild it **seamless, sleek, gamified,
+no through-line. I decided to strip it and rebuild it **seamless, sleek, gamified,
 addicting, colorful, vibrant, happy**, inspired by a glossy candy-crush mobile leaderboard,
 but executed cohesively with EyeBot's warm Aurora family (not a literal cartoon). Direction
 approved via an interactive mockup; user note: **"make the entire page more vibrant and
@@ -32,7 +32,7 @@ same warm canvas and row rhythm so the page reads as a single object ("seamless"
    keeps the Bronze→Diamond tier meaning as a subtle per-row accent (ring color + faint row
    tint) instead of the heavy separate tier-band headers. Each row:
    `[rank] [tier-ringed Selena] [name + role chip] [right badge cluster]`.
-   - **Right badge cluster (per the user's explicit ask): BOTH badges, always fitting** — a
+   - **Right badge cluster (my explicit ask): BOTH badges, always fitting** — a
      gold **Lumens** badge (coin + count-up number) and a 🔥 **streak** badge (`Nd`), stacked
      vertically so they never collide, even at 390px. `Lv` demotes to a small inline chip.
    - `data-testid="lb-row"` preserved; the viewer's row keeps `data-you` + a violet glow +

@@ -20,7 +20,7 @@ assert harness.
 | Depth / style | **Curated point-and-explain** | One punchy stop per screen; behind-a-click instruments are *narrated in copy*, never auto-driven. Keeps it fast and un-strandable. |
 | Persistence | **`localStorage["eyebot_tour_seen"] = "true"`** | User pick. Exact key the assert harness already pre-seeds → zero harness edits. Per-device is acceptable. |
 | Trigger point | **After the Eyecon Studio gate**, on first `/dashboard` landing | User pick. |
-| Tooltip look | **Style A — "Guided by Eyecon"** (mascot narrator) | User pick in visual companion. Narrator avatar = the user's **live Eyecon** they just built. |
+| Tooltip look | **Style A — "Guided by Eyecon"** (mascot narrator) | My pick from the mockups. Narrator avatar = the user's **live Eyecon** they just built. |
 | Build vs library | **Custom-build**, reviving the prior `GuidedTour` technique | No new dependency (CI supply-chain audit stays clean); perfect brand fidelity via existing tokens. |
 
 ## 3. Prior art we reuse (verified)

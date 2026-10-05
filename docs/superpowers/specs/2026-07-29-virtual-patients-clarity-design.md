@@ -8,7 +8,7 @@
 
 Two independent signals landed on the same feature in the same week.
 
-**Students** (via the user): the Virtual Patients page is confusing — they don't know how the
+**Students** (feedback I collected): the Virtual Patients page is confusing — they don't know how the
 system works, and they were manually ticking the checklist rather than doing the work.
 
 **Branda** (`eyebot_Branda feedback.docx`, Virtual Patients section): seven items, each of

@@ -1327,7 +1327,7 @@ Expected: prints `Veo models on this key: [ … ]`. Pick the best available id (
 Run: `python tools/media/generate_tutor_mascot.py --generate --model <confirmed-id>`
 Expected: submits, polls, `saved …/.tmp/tutor-mascot/tutor-mascot.mp4 … + poster`. If it fails/filters, re-read the error; retry once with a different candidate model only with continued go-ahead.
 
-- [ ] **Step 3: Review the clip with the user**
+- [ ] **Step 3: Review the clip**
 
 Open `.tmp/tutor-mascot/tutor-mascot.mp4`. Confirm: it's recognizably Iris, the dance is cute/funny/ridiculous/fast, it stays centered (survives the square crop), the ivory background blends, and the loop is seamless (first≈last). If the crop is tight or motion drifts, adjust `ASPECT` to `"9:16"` in `tutor_mascot.py` (or tune the PROMPT) and regenerate — **with go-ahead** (another paid call). Get explicit OK to install.
 

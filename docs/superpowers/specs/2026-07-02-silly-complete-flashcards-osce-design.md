@@ -13,7 +13,7 @@ procedures. The prior session wired the taxonomy (shared FOUNDATIONS pool + role
 procedural pools) but filled the new topics with clearly-marked **placeholder**
 cards, gated behind a deferred paid Gemini run.
 
-The user has now redirected:
+I've since redirected:
 
 - **No Gemini.** The agent (Claude) hand-authors every card, grounded in *silly*.
   Free, higher quality than the app's `flash-lite`, and the agent verifies each
@@ -26,7 +26,7 @@ The user has now redirected:
 - **Variety:** every deck — new *and* existing — carries a mix of
   **theory / practical / situational** questions. `situational` is a new `kind`.
 - **OSCE:** fill the remaining OT procedural gaps (4 stations); knowledge domains
-  stay exercised within existing scenarios (user chose "OT gaps only").
+  stay exercised within existing scenarios (I chose "OT gaps only").
 - **Cataract:** split lens/cataract into its own Foundations topic.
 
 Governing rule (unchanged): **OA ≡ PSA** (shared CLINICAL pool); **OT** distinct.

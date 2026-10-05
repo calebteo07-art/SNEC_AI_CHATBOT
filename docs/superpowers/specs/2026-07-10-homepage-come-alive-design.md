@@ -156,7 +156,7 @@ co-goal (bigger *and* clearer):
     immediately, video plays muted/loop/inline when in view, reduced-motion or
     save-data ⇒ poster/static `iris.png` only, `onError` ⇒ static mascot.
   - **Gating:** a capability probe first (confirm Veo access + model + est. cost),
-    reported to the user; generate to `.tmp` for review; install only on explicit
+    reported first; generate to `.tmp` for review; install only on explicit
     go-ahead. The homepage is fully complete on CSS **without** the video — the
     loop is pure enhancement.
 
@@ -168,8 +168,7 @@ co-goal (bigger *and* clearer):
 - **Custom Selena surfaces (LOCKED 2026-07-08)** — amend: the **greeting card now
   hosts the default living mascot for every student** (CSS-alive, optional Veo
   loop), *not* the custom render. Custom render remains on Studio + leaderboard;
-  all other brand surfaces stay default (unchanged). Rationale: user directive
-  2026-07-10.
+  all other brand surfaces stay default (unchanged). Rationale: my call, 2026-07-10.
 
 ## Acceptance criteria
 

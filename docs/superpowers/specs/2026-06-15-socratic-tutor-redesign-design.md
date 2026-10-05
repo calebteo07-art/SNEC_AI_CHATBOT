@@ -54,7 +54,7 @@ rigor, RAG grounding, and guardrails intact. Concretely, fix the six complaints:
   `linear-gradient(135deg,#3C90FF,#00BDD2,#88DE42)`, **bold white text**, white
   `let's think it through 💭` label. (This is EyeBot's gem-spectrum blue→cyan→green.)
   System reads cleanly: **gradient = expressive/thinking, grey = the plain answer.**
-- **Header has NO "Active now" line** (user dropped it). Header = back chevron ·
+- **Header has NO "Active now" line** (I dropped it). Header = back chevron ·
   gradient-ring avatar · `eyebot` name only · phone + video glyphs.
 - **Voice = close friend** — warm, casual, encouraging, lower-case-friendly, uses the
   student's first name *when available*; genuinely concise (a few sentences, not a

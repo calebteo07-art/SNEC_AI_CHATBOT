@@ -3,7 +3,7 @@
 Source of truth: [`product-wishlist-2026-07.md`](../product-wishlist-2026-07.md) (Caleb's verbatim intended changes, captured
 2026-07-03; logo-redesign item added 2026-07-04).
 This roadmap decomposes ricoe into **small, independently shippable phases** so nothing
-gets skipped or neglected (user directive 2026-07-04: *"plan and execute ricoe in more and
+gets skipped or neglected (my call, 2026-07-04: *"plan and execute ricoe in more and
 smaller phases, not too huge and packed phases"* and *"replan and execute ricoe in the most
 effective and efficient way … make sure nothing gets skipped or neglected … do not compromise
 on any quality"*).
@@ -123,7 +123,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
   new brief first: #12 (flashcards dark→light) and #28 (mono Spark-Eye logo → Selena raster).
 - **Paid image gen** (💳): scaffold with clearly-marked placeholders first (green,
   keyless), run the live paid Nano-Banana generation only on Caleb's explicit go-ahead
-  (user rule 2026-07-02). SNEC staff = SingHealth blue scrubs + orange trim.
+  (my rule, 2026-07-02). SNEC staff = SingHealth blue scrubs + orange trim.
 - ricoe: *"don't use the most expensive/premium Nano-Banana for every generation; reserve
   premium for important/clinical."* → default to the cheaper model for cosmetic pfps.
 - ~~**Blocked** (⛔): Phase 3 needs Caleb's inspiration screenshot.~~ Resolved — tutor

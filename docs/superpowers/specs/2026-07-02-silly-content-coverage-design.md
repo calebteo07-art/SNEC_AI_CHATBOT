@@ -12,7 +12,7 @@ Flashcards and OSCE content is incomplete and mis-assigned relative to *silly*:
 
 - **Flashcard topics are procedure-only.** Whole knowledge domains in silly have
   **zero** flashcard coverage: anatomy & physiology (A&P I/II/III), microbiology,
-  **pharmacology** (2 docs incl. the "OT OA Course 2026" — the user's trigger
+  **pharmacology** (2 docs incl. the "OT OA Course 2026" — my trigger
   example: OT account had no pharmacology), diseases & disorders (25 docs),
   ethics/professional, infection control, DR grading (SORC). The current topic
   set never surfaces them for any role.
@@ -91,7 +91,7 @@ implementation.
   chunk before commit; medically wrong-but-pretty cards rejected
   (`feedback_generated_imagery_medical` ethos applies to text too).
 - **Cost:** live Gemini calls + prod quota. Per `CLAUDE.md`, the paid run is
-  confirmed with the user immediately before executing; tests run in MOCK_MODE.
+  confirmed immediately before executing; tests run in MOCK_MODE.
 - **UI/fan:** Foundations topics render in the existing `CardFanCarousel` via its
   built-in hue-placeholder fallback (no blank cards), ordered after "Mixed",
   visually grouped as "Foundations" vs the role's procedural topics. Per-topic
@@ -116,13 +116,13 @@ implementation.
   Each silly knowledge chapter is explicitly mapped in the coverage matrix to the
   case(s) that exercise it — so it is **mapped, never silently missed**. Any
   chapter with no meaningful practical station is listed as
-  "flashcards+tutor-only" with a one-line rationale for the user to override.
+  "flashcards+tutor-only" with a one-line rationale I can override.
 
 ## 6. Proving completeness — the coverage matrix & test
 
 - **`docs/notes/silly-coverage-matrix.md`** — the human-readable master matrix:
   every silly document → its chapters/sub-topics → flashcard topic_key(s) →
-  OSCE case(s)/rationale → role(s). Built from the DB, reviewed by the user.
+  OSCE case(s)/rationale → role(s). Built from the DB, reviewed by me.
 - **`tests/content/test_coverage.py`** — machine guard asserting: (a) every
   FOUNDATIONS + pool topic has ≥ a minimum number of cards in all three tiers;
   (b) every role-tagged checklist/SOP procedure maps to a flashcard topic **and**

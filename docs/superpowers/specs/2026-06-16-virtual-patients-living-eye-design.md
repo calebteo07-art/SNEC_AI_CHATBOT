@@ -8,8 +8,8 @@
 
 The Virtual Patients selection page is cluttered: a header, a horizontal
 topic-chip rail, a separate fundus porthole, and a dense right-hand patient
-list compete for attention. The hero anatomy graphic is a hand-built SVG; the
-user wants a **beautiful, clinically-correct generated graphic** that combines a
+list compete for attention. The hero anatomy graphic is a hand-built SVG; I
+want a **beautiful, clinically-correct generated graphic** that combines a
 **sagittal cross-section** with an **ophthalmoscopic fundus view**, carrying
 **clickable anatomy labels that route to the correct cases**. Goal: students
 *love* it and *enjoy learning*.

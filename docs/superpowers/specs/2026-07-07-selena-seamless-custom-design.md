@@ -23,7 +23,7 @@ headshots, and the homepage greeting card, where it animates with a living
 CSS motion set. The client-side sticker compositor is deleted; nothing
 hand-composited can render anywhere.
 
-## 2. Decisions locked with the user (2026-07-07)
+## 2. Decisions locked (2026-07-07)
 
 | # | Decision |
 |---|----------|
@@ -256,6 +256,6 @@ self-heal once each.
 ## 11. Out of scope
 
 - Per-config pose frames (rejected — 2× cost); the greeting animates one render.
-- Uniform depictions (excluded until the user supplies real per-role uniforms).
+- Uniform depictions (excluded until I supply real per-role uniforms).
 - The D10/D11 curated sprite library (superseded; stale references cleaned up).
 - Patient faces, brand poses, and all non-Selena imagery.

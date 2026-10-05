@@ -6,14 +6,14 @@ Status: approved (design), ready for implementation plan
 
 ## Problem
 
-The user wants to use EyeBot (https://snec-ai-chatbot.onrender.com) on both a
+I want EyeBot usable (https://snec-ai-chatbot.onrender.com) on both a
 **phone** and a **laptop**, and have the right layout shown automatically. They
 framed it as "two versions."
 
 The honest technical reality: the correct way to deliver this is **one
 responsive app** (CSS chooses the layout by screen width), not two separate
 codebases. Two true codebases would mean ~2× ongoing maintenance and rely on
-unreliable user-agent sniffing. The user agreed to the one-responsive-app
+unreliable user-agent sniffing. I went with the one-responsive-app
 approach.
 
 Crucially, the app is **already ~80% responsive**. The mobile foundation exists:
@@ -31,13 +31,13 @@ responsive-polish pass**: audit every surface at phone width, find what actually
 breaks, and fix each so the phone experience feels purpose-built rather than a
 squished laptop.
 
-## Direction (locked with the user)
+## Direction (locked)
 
 - **One responsive codebase. No device detection, no separate routes, no
   duplicated components.** Layout is selected purely by CSS media queries on
   screen width — the reliable approach across phones, tablets, desktop-mode
   browsers, etc.
-- **Two layout tiers** (matches the user's "phone + laptop"):
+- **Two layout tiers** (matches my "phone + laptop" brief):
   - **Phone** (≤ ~700px): single column, bottom nav, stacked panels, ≥44px tap
     targets, full-width controls.
   - **Laptop/desktop** (> ~700px): the current layout, unchanged.

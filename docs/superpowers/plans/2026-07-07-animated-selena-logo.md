@@ -948,7 +948,7 @@ git commit -m "docs(design-locks): animated Selena hero logo lock (logo→raster
 
 ### Task 7: Paid generation → review → install (MANUAL, go-ahead-gated)
 
-**This task fires real paid Gemini image generations. Do NOT run `--generate`/`--install` without the user's explicit go-ahead in the moment** (per CLAUDE.md + `feedback_gemini_placeholders_first`). Everything before this task is green keyless with placeholders.
+**This task fires real paid Gemini image generations. Do NOT run `--generate`/`--install` without my explicit go-ahead in the moment** (per CLAUDE.md + `feedback_gemini_placeholders_first`). Everything before this task is green keyless with placeholders.
 
 **Files:**
 - Modify: `frontend/public/brand/poses/{wave,cheer,groove}.webp` (placeholder → real)
@@ -960,7 +960,7 @@ Expected: prints the 3 pose prompts and the count. Confirm the prompts match the
 
 - [ ] **Step 2: Get explicit go-ahead**
 
-Ask the user to confirm firing the 3 paid flash generations. Do not proceed without a clear "yes".
+Confirm before firing the 3 paid flash generations. Do not proceed without a clear "yes".
 
 - [ ] **Step 3: Generate (PAID)**
 

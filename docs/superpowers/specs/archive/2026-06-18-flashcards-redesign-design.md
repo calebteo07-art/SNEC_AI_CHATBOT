@@ -9,13 +9,13 @@
 
 ## 1. Motivation
 
-The user asked to redesign the entire flashcard frontend from scratch. All four
+I decided to redesign the entire flashcard frontend from scratch. All four
 prompts for "why" were selected: the concept feels wrong, it's too dark/abstract,
 the studying UX is weak, and they want something fresh and better. The previous
 versions wrapped the feature in a poetic dark metaphor (a glass prism dispersing
 light). We are dropping that entirely.
 
-## 2. Decisions (locked with the user)
+## 2. Decisions (locked)
 
 | Dimension | Decision |
 |---|---|

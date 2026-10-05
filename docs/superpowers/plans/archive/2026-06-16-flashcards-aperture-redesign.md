@@ -351,7 +351,7 @@ stepper centerpiece and the "Open" dilation launch -- NEVER on the study card.
 The image carries NO text/labels. STANDING RULE: anatomically correct AND
 beautiful -- reject any candidate that is not both.
 
-PAID API -- run deliberately, only with the user's go-ahead. Generates N
+PAID API -- run deliberately, only with my go-ahead. Generates N
 candidates so the most clinically correct + beautiful one can be chosen, then
 copy the winner to frontend/public/media/accents/aperture-iris-00.png.
 

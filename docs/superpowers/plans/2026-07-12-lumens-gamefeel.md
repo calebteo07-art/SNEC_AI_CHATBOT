@@ -2034,7 +2034,7 @@ git push origin main
 
 ## Deferred (explicit non-goals for this plan)
 
-- **Paid nano-banana art run** — generate real Lumens medallions + reward banners via `tools/rewards/generate_lumen_badges.py --generate/--install` and `generate_reward_banners.py` **only on the user's explicit go-ahead**; placeholders ship green until then.
+- **Paid nano-banana art run** — generate real Lumens medallions + reward banners via `tools/rewards/generate_lumen_badges.py --generate/--install` and `generate_reward_banners.py` **only on my explicit go-ahead**; placeholders ship green until then.
 - **Cumulative-count achievements** (cards_50/100/500, curious_50, stations_10) — deferred; would need per-student counters. Moment-based unlocks cover the "every feature" ask for now.
 - **`xp` DB column rename** — kept as the internal name.
 - **Flashcards localStorage/backend XP double-write** — pre-existing; display source of truth stays `/api/progress`.

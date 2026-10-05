@@ -14,7 +14,7 @@ require steps in a defined order (e.g. identify patient → explain → anaesthe
 drop → tonometry → document). We want completing the checklist **in the correct
 sequence to be compulsory**.
 
-## Decisions (locked with the user)
+## Decisions (locked)
 
 1. **Enforcement strength: strict — block everything.** No step (history questions
    included) can be ticked until every earlier step is done. This is the most

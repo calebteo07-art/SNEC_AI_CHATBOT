@@ -11,7 +11,7 @@ what didn't happen (2026-08-04)". The four criteria in that lock are carried for
 
 ## 1. The problem
 
-The user's report: *"osce report and student report for trainers/admin … both so messy and not
+My own review: *"osce report and student report for trainers/admin … both so messy and not
 aesthetic … they are just listing the obvious … I don't want reports to tell me what I already
 know."*
 
@@ -297,7 +297,7 @@ Two guards at the write path:
   in `log_session`).
 
 **Privacy note.** This stores a student's own words where staff can read them. It is a new
-capture on a consented production system, flagged to the user and accepted. Legacy rows are
+capture on a consented production system, a trade-off I accepted. Legacy rows are
 unaffected and fall through to §4.6 step 2.
 
 ### 6.3 Case topic on the case index

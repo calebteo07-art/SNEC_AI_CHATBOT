@@ -12,7 +12,7 @@ earned — level chip, XP bar, streak numeral, month calendar, badge vault. It i
 entirely past-tense. Nothing on it says *what you could win in the next five
 minutes*, and nothing makes leaving feel expensive.
 
-Four gaps, all confirmed by the user:
+Four gaps, all confirmed:
 
 1. **PULL** — no quest, no urgency. The daily-goal ring was deleted outright by
    the 2026-07-29 lock amendment (criterion d), so Home no longer shows a target
@@ -24,7 +24,7 @@ Four gaps, all confirmed by the user:
 
 ## Scope: two phases
 
-Backend fully working first, then the frontend (standing user rule).
+Backend fully working first, then the frontend (my standing rule).
 
 - **Phase 1 — "The Loop"** (this spec): quests, daily chest, boosts, and one
   Home payload. Backend-only. Additive, invisible, safe to ship alone.

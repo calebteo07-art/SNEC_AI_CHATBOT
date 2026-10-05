@@ -163,7 +163,7 @@ encoded the wrong invariant.
      and covers overlays the portal cannot.
   2. A portal would make the gate permanently immune, so the assert could never again
      catch a re-introduced trap *through the gate* — it would mask its own best
-     detector on the one surface the user actually complained about. It is also
+     detector on the one surface I'd flagged. It is also
      precisely the one-element symptomatic patch commit `8df25a1` applied, which is
      why the root cause survived to break this gate.
 

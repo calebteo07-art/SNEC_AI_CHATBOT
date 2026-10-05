@@ -400,7 +400,7 @@ viewport-sized box, no movement under scroll, and return-on-rotate-back."
 > to `<body>`. Dropped — see spec §2. Short version: Task 1's
 > `fixed_overlay_assert.mjs` guards the containing-block invariant at the *root*,
 > app-wide, across five overlays; a portal would protect only this one element **and
-> blind that assert on the one surface the user complained about**. It is also the same
+> blind that assert on the one surface I'd flagged**. It is also the same
 > one-element symptomatic patch as commit `8df25a1`, which is exactly why the root
 > cause survived to break this gate. With Task 1 in, `rotate_gate_assert.mjs` is
 > already 7/7 green — including the scroll-immunity and rotate-back assertions the
@@ -483,7 +483,7 @@ cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt/frontend/tests && node rot
 > only as a simplification — deleting a `dynamic({ssr:false})` wrapper that defers a
 > ~30-line component with no browser APIs and no heavy deps buys nothing and is
 > strictly less code. Keep it on those grounds or drop it; do not claim it addresses
-> the user's "flashes for a split second" report. **Task 1 fixed that.**
+> my "flashes for a split second" report. **Task 1 fixed that.**
 >
 > **Keep assertion 6 anyway.** It passes today, so it is an invariant guard rather than
 > a regression test — that distinction is worth being honest about, but the invariant
@@ -593,7 +593,7 @@ Task 1 made the gate genuinely viewport-fixed. Two things left:
 NOT portalling the gate to <body>, which the spec originally called for. Task 1's
 fixed_overlay_assert guards the containing-block invariant at the root across five
 overlays; a portal would protect only this element while blinding that assert on the
-one surface the user complained about. It is also the same one-element symptomatic
+one surface I'd flagged. It is also the same one-element symptomatic
 patch as 8df25a1 -- which is why the root cause survived to break this gate.
 EOF
 git commit -F .tmp/msg.txt
@@ -1256,7 +1256,7 @@ await b.close();
 
 **Files:** `frontend/src/aurora/screens/Tutor.tsx:32-38,276-280`, `frontend/src/aurora/aurora.css:1511-1512,1529,1560,1570-1573,1653-1679`
 
-**Why:** the user's explicit ask (remove the shortcut questions on mobile), plus the
+**Why:** my explicit ask (remove the shortcut questions on mobile), plus the
 audit's blockers: `.aurora-msg-bubble` and `.aurora-msg-think-text` are **23.5px** on a
 phone; `.aurora-chat-foot` has no `env(safe-area-inset-bottom)` and `:1621-1624` sets
 `.aurora-shell-immersive .aurora-main-scroll { padding-bottom: 0 }` at ≤860px, so the
@@ -1444,7 +1444,7 @@ testing → tests-first in every task.
 **Beyond the spec** (found by the audit, folded in): the 861px landscape-phone tier
 (Task 4), mobile sign-out + co-brand (Task 5), and the OSCE landscape contradiction
 (Task 6). These are genuine blockers the spec did not know about; Task 6 in particular
-means the gate the user asked us to fix was guarding a layout that never arrived.
+means the gate I set out to fix was guarding a layout that never arrived.
 
 **Naming consistency:** `VIEWPORTS`/`DESKTOP` from `_viewports.mjs` used in Tasks 1, 4,
 7, 9, 10, 11, 12. `--bar-h` defined and consumed in Task 4 only. `seededContext(browser,

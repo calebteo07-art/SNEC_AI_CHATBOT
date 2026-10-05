@@ -483,7 +483,7 @@ git push origin main
 
 - [ ] **Step 1: Show the estimate, get go-ahead**
 
-Run `python tools/brand/generate_feature_art.py --estimate`; paste the 3 prompts + the flash per-image cost note to the user; wait for an explicit "go".
+Run `python tools/brand/generate_feature_art.py --estimate`; paste the 3 prompts + the flash per-image cost note for review; wait for an explicit "go".
 
 - [ ] **Step 2: Generate to .tmp**
 
@@ -710,7 +710,7 @@ git push origin main
 
 - [ ] **Step 1: Probe + report**
 
-Run `python tools/media/generate_greeting_loop.py --probe` to list the Veo models actually available on the key. Report the available model(s) + the Veo per-second pricing + the `--estimate` prompt to the user; wait for explicit "go" and a chosen model.
+Run `python tools/media/generate_greeting_loop.py --probe` to list the Veo models actually available on the key. Report the available model(s) + the Veo per-second pricing + the `--estimate` prompt for review; wait for explicit "go" and a chosen model.
 
 - [ ] **Step 2: Generate + review**
 

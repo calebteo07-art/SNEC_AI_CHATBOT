@@ -177,7 +177,7 @@ CSS drives all motion. No fetch, no state machine, no AI at runtime.
 
 1. Ship the placeholder poses + all component/CSS/integration/tests → **green keyless**
    (`pytest` + typecheck + build + harness), committed and pushed.
-2. Only on the user's **explicit go-ahead** fire the **3 paid flash calls**
+2. Only on my **explicit go-ahead** fire the **3 paid flash calls**
    (`generate_poses.py --generate`), review the keyed frames at full size, then `--install`.
 3. Record the outcome (and any chip fallback) in the design-lock.
 

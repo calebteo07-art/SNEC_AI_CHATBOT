@@ -6,7 +6,7 @@
 
 ## Problem
 
-The current flashcards feature has three pain points the user wants fixed:
+The current flashcards feature has three pain points I want fixed:
 
 1. **Shallow bank, repeats too soon.** Each `(topic, difficulty)` set holds only ~5
    open-ended cards. Students see repeats quickly.
@@ -16,7 +16,7 @@ The current flashcards feature has three pain points the user wants fixed:
 3. **Free-text recall is hard to grade fast and fairly.** Open answers need an LLM
    to score, which is exactly what makes it slow and costs prod quota.
 
-The user also wants: both **practical and theory** questions, **3 difficulty tiers**
+I also want: both **practical and theory** questions, **3 difficulty tiers**
 (easy/medium/hard), **per-question model-answer reveal** (not a per-question score),
 **deck-level scoring only** at the end with weak-topic advice and encouragement, and
 **simple, encouraging language**.
@@ -51,7 +51,7 @@ The user also wants: both **practical and theory** questions, **3 difficulty tie
   defeating the speed goal.)
 - No DB schema migration (see Data Persistence).
 
-## Decisions (locked with the user)
+## Decisions (locked)
 
 | Decision | Choice |
 |----------|--------|

@@ -1,6 +1,6 @@
 # Flashcards — "Light Arcade" re-theme (2026-08-11)
 
-**Status**: design approved (user, 2026-08-11) · **SHIPPED 2026-08-11**
+**Status**: design approved (2026-08-11) · **SHIPPED 2026-08-11**
 
 **Outcome**: all acceptance criteria met and gated. The contrast sweep also surfaced
 pre-existing AA failures in the *dark* theme that had never been measured — worst was
@@ -14,13 +14,13 @@ user-directed): *"Selection, intro, study and results all share ONE dark graphit
 ground (`#1b2636→#0a0d12`) … so pick → play is one seamless scene (no bright-sky→dark
 jump)."*
 
-The user has asked for a **light** colour scheme across the whole flashcards world.
+I wanted a **light** colour scheme across the whole flashcards world.
 That reverses the 2026-07-12 decision, so this is a **conscious lock break**, recorded
 here and in the lock ledger — not a silent rebuild. (Flashcards was rebuilt from
 scratch 4+ times in 18 days before that ledger existed; this document is what keeps
 this change a *re-theme*.)
 
-**Scope, as chosen by the user**: direction = **Light Arcade** (keep the game feel,
+**Scope, as I chose it**: direction = **Light Arcade** (keep the game feel,
 not the app's neutral AURORA light system); surfaces = **all four** (selection →
 intro → study → results).
 
@@ -119,7 +119,7 @@ The ~103 topic images are bright stock photos designed to pop on dark. On light 
 are held off the ground by the existing fully-opaque 4px hue frame plus the new ink
 outline. **No image regeneration** — no Gemini spend.
 
-## Decisions taken (flagged to the user, approved)
+## Decisions taken
 
 - The ground is a **warm** near-white, harmonising with `--mat-ink`'s warm violet —
   not a cold grey-white.

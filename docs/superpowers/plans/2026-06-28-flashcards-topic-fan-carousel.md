@@ -1013,7 +1013,7 @@ git add -A && git commit -m "chore(flashcards): verification fixes" || echo "not
 **Files:**
 - Create: `frontend/public/media/flashcards/topics/*.png`
 
-> Do NOT run this without the user's explicit go-ahead. It spends real Gemini
+> Do NOT run this without my explicit go-ahead. It spends real Gemini
 > image quota. The feature already works without these images (placeholder
 > fallback), so this is a separate, deliberate step.
 

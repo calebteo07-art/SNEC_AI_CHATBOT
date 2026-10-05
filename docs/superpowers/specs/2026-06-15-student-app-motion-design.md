@@ -2,7 +2,7 @@
 
 > Approved 2026-06-15. Add bold, awwwards-grade animation + transitions across the
 > whole **student** AURORA app (admin/supervisor console is out of scope here).
-> Decisions locked with the user: **tone = bold & expressive**; **rollout = global
+> Decisions locked: **tone = bold & expressive**; **rollout = global
 > motion engine + bespoke signature set-pieces on every screen**.
 
 ## Goal

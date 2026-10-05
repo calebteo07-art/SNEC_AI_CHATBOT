@@ -1321,7 +1321,7 @@ Expected: no matches (old prose debrief + boost removed).
 
 - [ ] **Step 4: Finish the branch**
 
-Use the `superpowers:finishing-a-development-branch` skill to merge `becky-speed` work to `main` (Render auto-deploys), or open a PR per the user's preference.
+Use the `superpowers:finishing-a-development-branch` skill to merge `becky-speed` work to `main` (Render auto-deploys), or open a PR whichever I prefer.
 
 ---
 

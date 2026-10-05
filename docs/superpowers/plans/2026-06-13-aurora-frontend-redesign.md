@@ -24,7 +24,7 @@
   `npm run dev` (frontend, :3000). Playwright sweeps mock the API, so the backend is optional for
   visual checks but required for SSE/login smoke tests.
 - **Standing rules:** commit + push after every phase; never overwrite files in `workflows/`
-  without explicit user permission; **Nano Banana generation is PAID — confirm with the user
+  without my explicit permission; **Nano Banana generation is PAID — confirm
   before running any generation command** (Phase 8).
 - **Reduced motion** must be honoured by every animated element from the moment it is created.
 
@@ -807,7 +807,7 @@ git push
 
 ## PHASE 8 — Realistic imagery pass (Nano Banana Pro — PAID, USER-GATED)
 
-> **STOP:** Do not run any generation command until the user confirms credit spend. Generation uses
+> **STOP:** Do not run any generation command until I've confirmed the credit spend. Generation uses
 > the existing `GEMINI_API_KEY` and model `gemini-3-pro-image` (verify the id via ListModels first —
 > ids drift; see `workflows/media_generation.md`). Do NOT edit files in `workflows/` without permission.
 
@@ -820,7 +820,7 @@ git push
 
 ### Task 8.2: Generate + wire (after user confirmation)
 
-- [ ] **Step 1: CONFIRM with the user** the number of generations and that credits may be spent.
+- [ ] **Step 1: CONFIRM** the number of generations and that credits may be spent.
 - [ ] **Step 2:** Run `python -m tools.media.generate_accents --kinds raster` (and any per-context
   flags) — Nano Banana Pro. Re-run with `--model gemini-3.1-pro-preview` only if the default 503s.
 - [ ] **Step 3:** Rebuild the manifest (`tools/media/build_manifest.py`); confirm new entries +

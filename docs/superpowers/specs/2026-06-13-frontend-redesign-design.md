@@ -1,7 +1,7 @@
 # EyeBot Frontend Redesign — Design Spec (codename **AURORA**)
 
 > Status: **approved design, ready for implementation planning**
-> Date: 2026-06-13 · Author: brainstormed with the user (calebteo07-art)
+> Date: 2026-06-13 · Author: Caleb Teo
 > Supersedes: the PHOTOPIC v2 art direction described in `.awwwards_state.md`
 > Live handoff/black-box: `.session-handoff.md` (cross-account resume anchor)
 
@@ -11,7 +11,7 @@
 
 EyeBot is an AI tutor for ophthalmology residents/students at the Singapore National Eye
 Centre. The current frontend (PHOTOPIC v2 — a light "paper & ink" Next.js app) is being
-**stripped and rebuilt from zero**. The user dislikes the current aesthetic, its motion/FX
+**stripped and rebuilt from zero**. I dislike the current aesthetic, its motion/FX
 overload, its layout/information design, and its visual details — **everything except the
 login screen**, which is kept.
 
@@ -59,7 +59,7 @@ AI-generated eye imagery**. Codename **AURORA**.
   geometric sans). Resolve at build time; do not block design on it.
 
 ### 3.3 Gradient law — "immersive colour, calm motion"
-The user chose **maximal/immersive** gradient AND dislikes FX overload. These reconcile by
+I chose **maximal/immersive** gradient AND dislike FX overload. These reconcile by
 separating colour from motion: **colour goes big as atmosphere; motion stays small and slow.**
 - Gradient appears as: a **tinted canvas** with soft drifting **mesh blobs**; **gradient hero
   panels**; **tonally-washed cards** (blue/purple/rose); the wordmark, primary CTAs, active nav,
@@ -131,10 +131,10 @@ Every screen inherits: the Atlas Rail, the AURORA tokens, the animated-gradient 
 mono Spark Eye, mono readouts, and realistic imagery in dark wells.
 
 ### 5.1 Login (KEPT — gentle reconciliation)
-Keep the screen the user likes. Minimal reconciliation only: swap the old green eye icon for
+Keep the screen I like. Minimal reconciliation only: swap the old green eye icon for
 the **mono Spark Eye logo**; keep the kept iris/entry moment. Optionally retune accents toward
 the Gemini gradient so the hand-off into the app is seamless — but **no structural change**, and
-any change is confirmed with the user before touching it.
+any change is confirmed before touching it.
 
 ### 5.2 Dashboard (home)
 The command centre. Layout: Atlas Rail · main area with a **gradient hero panel** greeting
@@ -205,7 +205,7 @@ roll-ups. Shares the admin table/card system, role-gated under OVERSIGHT.
   **Nano Banana Pro** — the "best Nano Banana model", model id **`gemini-3-pro-image`** (already
   the `NB_MODEL` default in `tools/media/generate_accents.py`). **Verify the exact id with a
   ListModels call before each run — Gemini image model ids drift** (per `workflows/media_generation.md`).
-- **API key:** uses the existing **`GEMINI_API_KEY` in `.env`** (already added by the user). No
+- **API key:** uses the existing **`GEMINI_API_KEY` in `.env`** (already added). No
   new key required. Never hardcode, log, or commit the key.
 - **Asset classes needed:** hero/dashboard iris; per-region Atlas Map eye(s); fundus/retina
   plates; anatomical cutaways/cross-sections; case-specific plates; loading-state imagery.
@@ -214,8 +214,7 @@ roll-ups. Shares the admin table/card system, role-gated under OVERSIGHT.
   generation **never blocks a user**; every asset is sanitized; served via the manifest with
   posters/fallbacks. Refresh queues the Celery `media` queue from Admin. (Higgsfield is only for
   the separate video loops, which consume platform credits.)
-- **PAID + user-gated:** Gemini Nano Banana Pro generation costs credits — **always confirm with
-  the user before running any generation**, and run it at implementation time, not now.
+- **PAID + user-gated:** Gemini Nano Banana Pro generation costs credits — **always confirm before running any generation**, and run it at implementation time, not now.
 - Recipes/economics live in `workflows/media_generation.md` (do not overwrite without permission).
 
 ## 7. Technical approach (CONFIRMED: keep stack, rebuild UI, strip old FX)

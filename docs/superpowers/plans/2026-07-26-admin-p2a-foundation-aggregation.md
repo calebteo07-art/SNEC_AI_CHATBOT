@@ -16,7 +16,7 @@
 
 ## Critical context for the implementer
 
-**Work in the `origin/main` worktree.** The user's local `main` checkout is behind and the repo is edited by concurrent sessions; `main` is sometimes force-pushed. Verify before starting, and again before pushing:
+**Work in the `origin/main` worktree.** My local `main` checkout is behind and the repo is edited by concurrent sessions; `main` is sometimes force-pushed. Verify before starting, and again before pushing:
 
 ```bash
 git fetch origin && git rev-parse --short HEAD && git rev-parse --short origin/main

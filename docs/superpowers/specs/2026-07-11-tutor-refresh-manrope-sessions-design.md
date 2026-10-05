@@ -19,7 +19,7 @@ Six changes to the tutor feature — a sleeker, seamless surface:
 6. The landing mascot becomes a **brand-new dancing Iris** Veo loop — cute, funny,
    ridiculous, fast — replacing the reused static `iris.png`.
 
-## Decisions (locked with the user, 2026-07-11)
+## Decisions (locked 2026-07-11)
 
 - **Session storage = browser only (localStorage)**, keyed to the logged-in student.
   No backend endpoint, no Supabase table, no migration. Trade-off accepted:

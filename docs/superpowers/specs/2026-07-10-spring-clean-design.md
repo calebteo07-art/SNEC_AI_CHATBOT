@@ -2,7 +2,7 @@
 
 **Status:** in progress
 **Source:** 44-agent read-only audit (9 dimensions, adversarial verification of risky deletions).
-**Approved scope (user, 2026-07-10):** Full safe sweep now · Retire the manifest-media vertical · Refactor-and-remove the fx motion cluster.
+**Approved scope (2026-07-10):** Full safe sweep now · Retire the manifest-media vertical · Refactor-and-remove the fx motion cluster.
 
 Production repo, ships straight to `main` → auto-deploys to Render. Every phase ends with the
 relevant verify gate green (`pytest -q`, `frontend typecheck + build`, aurora harness) before commit.

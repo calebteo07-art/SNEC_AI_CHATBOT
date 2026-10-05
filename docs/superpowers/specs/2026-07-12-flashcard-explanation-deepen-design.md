@@ -8,8 +8,8 @@
 ## Problem
 
 Flashcard reveal shows a "model answer" (the card's `explanation` field). Many are
-a single terse sentence that restates the fact without the *why*. The user finds
-some too brief and wants deeper explanations — **1–3 sentences**, still grounded in
+a single terse sentence that restates the fact without the *why*. I find
+some too brief and want deeper explanations — **1–3 sentences**, still grounded in
 the correct answer.
 
 The bank runs short across the board: 2,300 cards, median explanation **16 words**,
@@ -29,7 +29,7 @@ p90 21 words, **91% single-sentence**. "Brief" therefore needs an explicit cutof
 
 - No schema, API, or UI change. `explanation` stays a `str`; the reveal card already
   uses `min-height` and grows to fit.
-- Not rewriting explanations that are already reasonably detailed (user chose "only
+- Not rewriting explanations that are already reasonably detailed (I chose "only
   the brief ones", not "all 2,300").
 - Not touching `tools/flashcards/generate_cards.py` (the live-AI DR-grading path; its
   explanation is a mock fixture, not part of the served static bank).

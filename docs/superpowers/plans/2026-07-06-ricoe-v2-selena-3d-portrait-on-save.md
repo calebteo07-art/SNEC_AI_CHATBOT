@@ -1,6 +1,6 @@
 # RICOE v2 · Foundation 2 · part 3 — Selena 3D portrait, generated per-config & cached (Implementation Plan)
 
-> **Decided 2026-07-06 (user):** productize real 3D Selena as **per-config generate-on-save, cached**.
+> **Decided 2026-07-06:** productize real 3D Selena as **per-config generate-on-save, cached**.
 > The instant SVG `<Selena>` stays as the free live-edit preview; on Save, the student's config becomes a
 > real 3D Iris PNG (Nano Banana `gemini-3.1-flash-image`, anchored to `iris.png`), cached and reused.
 

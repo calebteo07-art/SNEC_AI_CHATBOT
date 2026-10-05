@@ -40,7 +40,7 @@ grading flow, SM-2, XP math, the harness contract.
 - **Balance:** **color replaces clutter** — calm, one focal point per screen.
 - **Definite structural cuts:** the setup header text, and trim the setup topic
   grid to fewer choices upfront.
-- **Kept (per user):** the coach line, the triple progress readout, and in-card
+- **Kept (my call):** the coach line, the triple progress readout, and in-card
   microcopy stay — but are visually quieted so they frame the card, not compete.
 - **Dropped from earlier pitch:** the faint glyph watermark behind the question
   (it would compete with the question text).
@@ -138,7 +138,7 @@ All changes are CSS + light JSX wiring. **No mechanics change.** Every existing
 - Card gains a soft topic-tinted **accent edge + glow** in its shadow stack;
   surface stays light with generous whitespace.
 - Submit button uses `--flash-topic-c` (topic-hued) instead of flat blue.
-- In-card copy unchanged (per user) — just more breathing room.
+- In-card copy unchanged (my call) — just more breathing room.
 - Flip: add a subtle lift+scale during rotation and a gentle glow-pulse on landing.
 - Confetti: richer but **restrained** — more pieces, varied shapes, hues seeded
   from score + topic; **high-score (≥85) trigger unchanged**.

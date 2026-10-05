@@ -14,7 +14,7 @@ solid white on dark surfaces ("depending on scenario"). Paired with the "EyeBot"
 as live mono text.
 
 This is a **logo-mark** change only. It is NOT a change to the Iris/Selena **mascot**
-character or the SNEC institutional logo (both confirmed out of scope by the user).
+character or the SNEC institutional logo (both confirmed out of scope).
 
 ## Non-goals (explicitly stays as-is)
 

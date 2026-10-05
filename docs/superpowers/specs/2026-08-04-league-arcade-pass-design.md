@@ -1,9 +1,9 @@
 # The League — sixth pass, "ARCADE"
 
-Date: 2026-08-04 · Surface: `/leaderboard` · Status: approved by the user, ready to plan
+Date: 2026-08-04 · Surface: `/leaderboard` · Status: approved, ready to plan
 
 A **refine within the existing League lock** (`docs/design-locks.md`, "STRUCK" 2026-08-04 and
-its three same-day retunes), not a rebuild. The user's words: *"the cards and elements are not
+its three same-day retunes), not a rebuild. My brief: *"the cards and elements are not
 spaced out nicely (positioning is pivotal), and i want to have a more variety of pop of colors
 in this entire page, design currently is decent, and make sure only podium will be able to
 promote tiers, and make the lumens multiplier more obvious, instead of just in the question
@@ -116,7 +116,7 @@ So 1→0, 2→1, 3→2, 4+→**3**.
 - **Blast radius is small and worth stating**: the old rule was `min(n-1, max(3, min(7, ceil(n*0.25))))`,
   which already returns 3 for every pool of 4–12. Only divisions of 13+ change (4–7 → 3).
 - **The tradeoff, stated once**: at 30 students this is 10% mobility against Duolingo's 23%.
-  Slower climb, much heavier podium. Raised with the user and confirmed.
+  Slower climb, much heavier podium. A deliberate trade-off.
 - Frontend: with `promote_count = 3` and a 3-place podium, `promotionLineIndex(3, rest, 3)`
   returns 0, so `PromotionZone` is already withheld and `PromotionLine` draws at the top of the
   ladder. **Both components and `promotionLineIndex` are unchanged** — the cut still marks the
@@ -148,7 +148,7 @@ Today: a small `×1.1` chip in the band head, and the full road only inside the 
   retuned, because a wrong multiplier still renders.
 - Phone: the road degrades to today's unlabelled pips (the head already carries five children
   in a phone-width column and anything added there must be paid for there); the module stays
-  large — it is the thing the user asked to be able to see.
+  large — it is the thing I wanted to be able to see.
 
 ## Testing
 

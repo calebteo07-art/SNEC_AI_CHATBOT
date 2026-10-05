@@ -29,7 +29,7 @@ The board shows the **whole cohort**; the promotion **race stays per-league**.
 User directive, 2026-08-07: *"i want all students to be able to see everyone, even in
 different leagues just place the league label beside the name or something."*
 
-Two follow-up decisions, both confirmed with the user:
+Two follow-up decisions, both confirmed:
 
 1. **The league race survives.** Divisions, multipliers, `close_week`, `run_rollover` and
    the Monday ceremony are untouched. Only the *view* becomes cohort-wide.

@@ -162,5 +162,5 @@ generated art; new `/api/progress` stat fields; recolouring the rest of the app.
 
 - Exact `/api/progress` handler + whether `sessions[]` carries enough to derive the
   this-week stat honestly (else swap that tile for a backed metric).
-- Final greeting-line bank (user may add lines/tune the cheek level).
+- Final greeting-line bank (I may add lines/tune the cheek level).
 - Whether Bricolage Grotesque is acceptable as a second display font vs. reusing DM Sans.

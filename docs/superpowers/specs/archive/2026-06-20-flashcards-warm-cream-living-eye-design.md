@@ -8,11 +8,11 @@ Status: approved (design), ready for implementation plan
 
 The current light flashcards read as "plain / boring." The slit-lamp hero is a
 small bordered porthole that sits awkwardly in the layout, the surface is flat,
-and the colour + motion feel subdued. The user likes the decluttered **2-step
+and the colour + motion feel subdued. I like the decluttered **2-step
 Session → Topic** selection flow and wants it kept — this is a **purely visual**
 redesign, not an IA or mechanics change.
 
-## Direction (locked with the user)
+## Direction (locked)
 
 - **Surface:** a soft **warm-cream gradient** — light but *not* white, *not* dark.
   `#fbf8f2` (centre) → `#efe7d6` (edge). Distinct from the cool AURORA app; this
@@ -68,7 +68,7 @@ redesign, not an IA or mechanics change.
 - Remove the circular **border + ring box-shadow**; the eye now blends.
 - Apply a **radial alpha mask** (`mask-image: radial-gradient(circle, #000 ~58%,
   transparent ~88%)`) so the image edges fade into the cream (mirrors the
-  Pillow preview that the user approved). The generated image already fades to
+  Pillow preview I approved). The generated image already fades to
   cream, so the mask only softens the final seam.
 - Keep the **persistent-morph**: large centred on step 1
   (`clamp(240px, 36vh, 360px)`), shrinks to a top badge on step 2

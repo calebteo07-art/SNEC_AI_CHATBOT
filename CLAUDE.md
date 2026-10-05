@@ -140,6 +140,12 @@ checkout's local
 setup (a new required env var/secret, a DB migration, a fail-closed guard) — still
 ship, but say so plainly and coordinate the setup so `main` never boots broken.
 
+**Voice (the repo is public and is Caleb's portfolio).** Commit messages, comments and
+docs are written as Caleb, in the first person: "my call, 2026-08-06", never "(user,
+2026-08-06)", "user directive" or "the user wants". "The user" may only mean an app user.
+A commit message describes the change, never the session that made it — no "session",
+"handoff", "per the user", or notes about rewording or voice.
+
 ## Guardrails (each encodes a real past failure → use the slash command)
 
 - **Shell discipline.** PowerShell cmdlets go in the PowerShell tool; the Bash tool is

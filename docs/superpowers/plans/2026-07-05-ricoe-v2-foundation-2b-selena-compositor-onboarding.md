@@ -7,8 +7,8 @@
 **Locked context (do not relitigate — RICOE decisions):**
 - **D9 — Selena *is* Iris**: the one-eyed soft-3D homepage mascot (`frontend/public/brand/iris.png`, `GreetingHero.tsx` `.hm-iris`). One big customizable iris, no hair, tiny arms, floor shadow. Every custom Selena is an Iris variant.
 - **D10 — render = curated 3D sprite library composited at runtime** (revises the old "flat vector"). Free/instant/deterministic for students; the 3D look comes from pre-generated sprites, NOT per-user live AI raster.
-- **D11 — scaffold-first**: placeholders now; paid generation only on the user's explicit go-ahead.
-- **Onboarding ref = Bitmoji builder** (user's image — inspiration, DO NOT COPY): big live preview on top, one category per page, scrollable option grid + colour-swatch column, category nav, Save; gamified (surprise-me, unlockables). Unconventional options are intentional fun (galaxy iris, star eyes, star/freckle blush, horns/crown/flame toppers, heart glasses, cape, galaxy/confetti bg).
+- **D11 — scaffold-first**: placeholders now; paid generation only on my explicit go-ahead.
+- **Onboarding ref = Bitmoji builder** (my reference image — inspiration, DO NOT COPY): big live preview on top, one category per page, scrollable option grid + colour-swatch column, category nav, Save; gamified (surprise-me, unlockables). Unconventional options are intentional fun (galaxy iris, star eyes, star/freckle blush, horns/crown/flame toppers, heart glasses, cape, galaxy/confetti bg).
 
 **Backend already shipped (`ca22daf`):** `tools/avatar/parts.py` — `AVATAR_AXES` (11 axes: bodyColor, irisColor, eyeShape, lashes, mouth, blush, glasses, topper, accessory, outfit, background), `DEFAULT_AVATAR`, `CONFIG_VERSION=2`, `validate_config`. `GET /api/avatar` → `{config, axes}`; `PUT /api/avatar` validates + persists. Migration `006_avatar.sql` (`avatar_config` JSONB) **still pending Supabase apply** for PUT to persist in prod.
 
@@ -75,7 +75,7 @@
 
 ## Deferred to part 3 (DO NOT do here — needs explicit go-ahead, paid)
 
-`tools/avatar/generate_sprites.py` — batch-generate the real 3D sprite library via Nano Banana / Gemini image, replacing placeholders id-by-id. Requirements to design there: **Iris resemblance** baked into every prompt; **consistent camera/framing/lighting/anchor + transparent background** so independently-generated parts composite cleanly (the hard part of D10); batched with a cost estimate; medically/brand-accurate where relevant; verify a small batch before spending on the full set. Ships only on the user's explicit greenlight (D11).
+`tools/avatar/generate_sprites.py` — batch-generate the real 3D sprite library via Nano Banana / Gemini image, replacing placeholders id-by-id. Requirements to design there: **Iris resemblance** baked into every prompt; **consistent camera/framing/lighting/anchor + transparent background** so independently-generated parts composite cleanly (the hard part of D10); batched with a cost estimate; medically/brand-accurate where relevant; verify a small batch before spending on the full set. Ships only on my explicit greenlight (D11).
 
 ## Self-review
 

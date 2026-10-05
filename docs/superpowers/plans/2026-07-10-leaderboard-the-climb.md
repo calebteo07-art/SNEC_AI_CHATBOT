@@ -1304,7 +1304,7 @@ git push origin main
 - [ ] **Step 1: Show prompts + count; get go-ahead**
 
 Run: `python tools/leaderboard/generate_crests.py --estimate`
-Present the 6 prompts and expected count/cost to the user. Proceed only on an explicit "go".
+Review the 6 prompts and expected count/cost. Proceed only on an explicit "go".
 
 - [ ] **Step 2: Generate (PAID) — requires a live `GEMINI_API_KEY`**
 

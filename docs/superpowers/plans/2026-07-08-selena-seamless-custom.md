@@ -322,7 +322,7 @@ git push origin main
 
 ### Task 3: `<Selena>` v3 (raster-only) — delete the compositor, migrate every consumer
 
-The user-rejected sticker compositor dies here. `<Selena>` becomes: transparent portrait when available, else the literal `iris.png`, over an optional CSS backdrop.
+The sticker compositor I rejected dies here. `<Selena>` becomes: transparent portrait when available, else the literal `iris.png`, over an optional CSS backdrop.
 
 **Files:**
 - Create: `frontend/src/aurora/avatar/backdrops.ts`
@@ -1511,9 +1511,9 @@ git push origin main
 
 ### Task 10: PAID pass A — the 103-tile art batch (EXPLICIT USER GO-AHEAD REQUIRED)
 
-Do not start this task without the user saying go. Uses `.env` `GEMINI_API_KEY`; flash model; ~103 renders ≈ $1–2.50.
+Do not start this task until I say go. Uses `.env` `GEMINI_API_KEY`; flash model; ~103 renders ≈ $1–2.50.
 
-- [ ] **Step 1:** `python tools/avatar/generate_tiles.py --estimate` — show the user the count + a few prompts; get the explicit go.
+- [ ] **Step 1:** `python tools/avatar/generate_tiles.py --estimate` — check the count + a few prompts before going ahead.
 - [ ] **Step 2:** `python tools/avatar/generate_tiles.py --generate` (or axis-by-axis with `--only topper` etc. to review in slices).
 - [ ] **Step 3:** Human review of `.tmp/selena-tiles/**` — reject off-model art, re-run failures with `--only`.
 - [ ] **Step 4:** `python tools/avatar/generate_tiles.py --install`, then `python -m pytest tests/avatar/test_tiles.py -q` (mandate still green) and `bash scripts/start-harness.sh aurora`.
@@ -1521,9 +1521,9 @@ Do not start this task without the user saying go. Uses `.env` `GEMINI_API_KEY`;
 
 ### Task 11: PAID pass B — end-to-end look smoke (EXPLICIT USER GO-AHEAD REQUIRED)
 
-- [ ] **Step 1:** With the user's go, save 2–3 real looks (one maximalist: e.g. `trafficCone` + `dealWithIt` + `dinoOnesie` + `lava` iris) via the live app or authed curl `PUT /api/avatar` + `POST /api/avatar/portrait`.
+- [ ] **Step 1:** Once I've said go, save 2–3 real looks (one maximalist: e.g. `trafficCone` + `dealWithIt` + `dinoOnesie` + `lava` iris) via the live app or authed curl `PUT /api/avatar` + `POST /api/avatar/portrait`.
 - [ ] **Step 2:** Verify each stored object is RGBA webp with transparent corners (download from the bucket URL, check with PIL), the greeting card animates the cutout, and the leaderboard face shows it.
-- [ ] **Step 3:** Report results + costs to the user; fix + re-render any look that failed keying.
+- [ ] **Step 3:** Review results + costs; fix + re-render any look that failed keying.
 
 ---
 

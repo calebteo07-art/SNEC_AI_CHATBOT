@@ -450,7 +450,7 @@ git commit -m "feat(flashcards): placeholder Foundations card bank (pending KB g
 
 ## Task 5b (DEFERRED — GATED paid run): replace placeholders with real cards
 
-Do NOT run until the user gives an explicit go-ahead in the conversation.
+Do NOT run until I give an explicit go-ahead.
 
 - [ ] **Step 1: Confirm the paid run.** State the estimated call count (11 Foundations + OT gap-fill topics × 3 tiers) and wait for "yes".
 - [ ] **Step 2: Generate** each topic: `python tools/flashcards/generate_cards.py <topic_key> "<Label>"`.

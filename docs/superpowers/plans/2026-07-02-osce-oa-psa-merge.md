@@ -231,4 +231,4 @@ git push origin main
 
 ## Notes
 - No Gemini, no case-file deletion, no case retagging. Fully reversible via git.
-- If the user later wants a trimmed set instead of the union, that's a separate reviewed content pass (decide which of each near-duplicate pair to keep).
+- If I later want a trimmed set instead of the union, that's a separate reviewed content pass (decide which of each near-duplicate pair to keep).

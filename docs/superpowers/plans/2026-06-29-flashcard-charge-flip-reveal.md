@@ -14,7 +14,7 @@
 
 ## Conventions for this plan
 
-- **Branch / ship:** Work directly on `main` per user policy (all dev auto-ships to `main`). `main` auto-deploys to Render, so **commit locally per task but do NOT push until the full feature is green** (`aurora_assert` + `typecheck` + `build` + `pytest`). Never push a half-built flip.
+- **Branch / ship:** Work directly on `main` per my policy (all dev auto-ships to `main`). `main` auto-deploys to Render, so **commit locally per task but do NOT push until the full feature is green** (`aurora_assert` + `typecheck` + `build` + `pytest`). Never push a half-built flip.
 - **Per-task gate:** after each task run `cd frontend && npm run typecheck` — the tree must always compile. The end-to-end harness only goes green once the whole flow exists (Task 10); that is expected.
 - **Reduced-motion contract:** every animated piece checks `html[data-motion="reduce"]` **or** `window.matchMedia("(prefers-reduced-motion: reduce)").matches` and takes an instant/short path. The harness emulates `reducedMotion: 'reduce'` so it hits that path.
 

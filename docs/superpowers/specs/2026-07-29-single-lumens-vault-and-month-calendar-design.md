@@ -1,7 +1,7 @@
 # One vault, 20 vision badges + a month calendar on the streak card
 
 **Date:** 2026-07-29
-**Status:** approved (user, this session)
+**Status:** approved
 **Touches:** Home / Dashboard (locked — see `docs/design-locks.md`)
 
 ## Problem
@@ -16,7 +16,7 @@ the Lumens side carries a flatter gold-coin set.
 Separately, the streak card spends its header on a daily-goal **percentage ring** and shows
 only the current **7-day** week, which is too small a window to read a habit.
 
-## Decisions (user, this session)
+## Decisions
 
 1. **One vault.** The streak vault is removed. The Lumens vault is the only collection.
 2. **20 badges**, up from 6, themed on **vision/acuity** — the aesthetic of the retired

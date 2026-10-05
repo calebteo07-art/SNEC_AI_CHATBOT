@@ -82,12 +82,12 @@ All motion is CSS keyframes/transitions on `transform`/`opacity`/`filter` only (
 
 ## 7. Imagery — Nano Banana / Gemini
 
-**Standing constraint (user rule): generated assets must be medically correct AND beautiful.** This is an ophthalmology education tool — anatomical accuracy is non-negotiable, beauty is required on top.
+**Standing constraint (my rule): generated assets must be medically correct AND beautiful.** This is an ophthalmology education tool — anatomical accuracy is non-negotiable, beauty is required on top.
 
 - **Asset:** one photoreal iris/aperture plate — centered, clean dark circular pupil, accurate **limbus**, **iris stroma** striations, **collarette**, natural radial fibre pattern; square; dark or transparent background; Gemini-gradient tint permitted only at the limbus glow (decorative ring), never distorting anatomy. Optionally a second "fully-dilated pupil" state to cross-blend during the launch; **default to one plate + CSS mask** for the opening. **Used only in the selection stepper and the launch dilation — never on the study/question card.**
 - **Prompting rule:** every prompt explicitly requires clinically accurate iris anatomy and forbids fantastical/incorrect structures, extra pupils, sci-fi irises, or text. Reject any candidate that is not both anatomically correct and beautiful; regenerate.
 - **Pipeline:** new/extended generator under `tools/media/` following the existing `tools/media/generate_eye_atlas.py` pattern — `.env` `GEMINI_API_KEY` + `google.genai`, model `gemini-3-pro-image`. Output raster(s) to `frontend/public/media/` and register in `frontend/public/media/manifest.json`; expose via `frontend/src/aurora/media.ts` (e.g. a `PLATE.aperture` entry).
-- **Paid-call rule:** image generation is a paid call — **confirm with the user before running the generator** (per CLAUDE.md). Until the asset exists, the UI falls back gracefully to a pure-CSS iris (radial gradients + conic striations) so the feature is never blocked on the asset.
+- **Paid-call rule:** image generation is a paid call — **confirm before running the generator** (per CLAUDE.md). Until the asset exists, the UI falls back gracefully to a pure-CSS iris (radial gradients + conic striations) so the feature is never blocked on the asset.
 
 ## 8. Architecture
 
