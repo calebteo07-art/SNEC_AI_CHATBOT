@@ -1,53 +1,160 @@
 # EyeBot
 
-**An AI training platform for eye-care students.** Built for **SNEC** (Singapore
-National Eye Centre) and running in production with real cohorts.
+**An AI training platform for eye-care students, in production at the Singapore
+National Eye Centre (SNEC).**
 
 [![CI](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml/badge.svg)](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres-3FCF8E?logo=supabase&logoColor=white)
 
-Live app: **https://snec-ai-chatbot.onrender.com**
+EyeBot trains Ophthalmic Assistants, Ophthalmic Technicians and Patient Service
+Associates. Students practise against an AI patient in timed OSCE exam stations,
+learn from a tutor that answers with questions instead of answers, and drill
+flashcards that are scored instantly. Staff watch cohort progress from a console
+in the same app.
 
-> **New to this project and taking it over?** Start with
-> [**`HANDOVER.md`**](HANDOVER.md) — the inherited risks, the open decisions, and
-> a first-week plan. Then come back here.
+I designed, built, deployed and operate it end to end: product, backend, frontend,
+data, security, CI and production.
 
-| Read this if you want to… | Go to |
-|---|---|
-| Understand what the app does | [What it is](#what-it-is) |
-| Understand how it is built | [How it works](#how-it-works) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Run it on your own machine | [Run it locally](#run-it-locally) |
-| Change something safely | [Making a change](#making-a-change) |
-| **Deploy, configure or fix production** | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
-| Know how logins and roles are protected | [`docs/SECURITY.md`](docs/SECURITY.md) |
-| Find my way around 130+ design documents | [`docs/INDEX.md`](docs/INDEX.md) |
-| **Work out what a codename means** (Aurora, Eyecon, Lumens, RICOE…) | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |
+**Live:** https://snec-ai-chatbot.onrender.com &nbsp;·&nbsp; accounts are issued
+by SNEC, so the app itself sits behind a login.
+
+<p align="center">
+  <img src="docs/media/readme/osce-station.webp" alt="OSCE station: the student talks to an AI patient on the left, the checklist ticks itself as steps are completed, and an examiner panel grades a hands-on procedure against a model answer" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/media/readme/virtual-patients.webp" alt="Virtual patients: an interactive anatomical eye map beside a list of patients grouped into foundational, developing and advanced tiers"><br><sub><b>Virtual patients.</b> Pick a structure of the eye, meet its patients.</sub></td>
+    <td width="50%"><img src="docs/media/readme/osce-debrief.webp" alt="OSCE debrief: a score of 78 out of 100 split into checklist coverage 30/40, consultation 22/30 and judgement 26/30, with a safety check and coaching points"><br><sub><b>Debrief.</b> A 40/30/30 grade, a safety check, and one thing to fix next time.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/media/readme/home.webp" alt="Student home: level and points bar, daily quests, a daily chest, league position and a streak calendar"><br><sub><b>Home.</b> Quests, streaks and a weekly league keep students coming back.</sub></td>
+    <td width="50%"><img src="docs/media/readme/flashcards.webp" alt="Flashcards: a carousel of topic decks with deck-progress badges"><br><sub><b>Flashcards.</b> Ten questions, instant rule-based scoring.</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/media/readme/staff-console.webp" alt="Staff console: cohort mastery trend, student counts, OSCE pass rate, safety fails, a needs-attention list and weakest topics"><br><sub><b>Staff console.</b> Cohort mastery, who needs attention and why, and the weakest topics, filterable by discipline.</sub></td>
+  </tr>
+</table>
+
+<sub>Screenshots are from the local test harness on mocked data. No real student appears.</sub>
 
 ---
 
-## What it is
+## At a glance
 
-Students train for three allied-health roles: **Ophthalmic Assistant (OA)**,
-**Ophthalmic Technician (OT)** and **Patient Service Associate (PSA)**. They open
-EyeBot in a browser — nothing to install — and get six things:
+| | |
+|---|---|
+| **In production** | Deployed at SNEC with real student cohorts and staff |
+| **Scope** | 68 API endpoints across 9 routers · 20 SQL migrations · 155 OSCE cases |
+| **Codebase** | ~27k lines of Python · ~21k lines of TypeScript/React · ~11k lines of CSS |
+| **Tests** | 2,581 backend tests · 70+ Node harnesses, 24 of them in a real browser |
+| **CI** | Every push: pytest, typecheck, production build, every browser harness, supply-chain audit |
+| **History** | 1,850+ commits, May–October 2026 |
+
+## What it does
 
 | Feature | What it does |
 |---|---|
-| **Socratic tutor** | Answers a question with a better question instead of the answer. Grounded in an approved ophthalmology knowledge base, injected whole into the prompt (no query-time retrieval — see Grounding below), so it quotes real material rather than inventing it. Supports image attachments. |
-| **Virtual patients** | 155 OSCE stations. The AI plays the patient; the student takes a history, performs procedures and writes a handover, under a 15-minute timer. Marked **40%** checklist coverage, **30%** consultation technique, **30%** judgement and safety. |
-| **Flashcards** | Multiple-choice decks graded **instantly by fixed rules** — deliberately no AI in the study loop, so scoring is fast and always the same. |
-| **Daily check-in** | One question a day, drawn from the flashcard bank. Feeds a streak. |
-| **Gamification** | Lumens (points), levels, avatars, and a weekly league with five divisions. Resets every Monday. |
-| **Staff console** | Cohort analytics, per-student reports and OSCE dossiers, account management, audit log. |
-
-Staff sign in to the same app and get `/admin` on top. Three roles exist:
-`student`, `trainer` and `admin` — only admins can create or remove accounts.
+| **Virtual patients** | 155 OSCE stations across three roles. The AI plays the patient; the student takes a history, performs procedures and writes a handover, under a 15-minute timer. Marked **40%** checklist coverage, **30%** consultation technique, **30%** judgement and safety. |
+| **Socratic tutor** | Answers a question with a better question. Grounded in a curated ophthalmology knowledge base, so it quotes approved material rather than inventing it. Streams over SSE and accepts image attachments. |
+| **Flashcards** | Multiple-choice decks on a five-level ladder, graded **instantly by fixed rules**. There is no AI in the study loop, so scoring is fast, free and always the same. |
+| **Daily check-in** | One question a day from the flashcard bank, feeding a streak with weekend rest days. |
+| **Gamification** | Points, levels, a customisable avatar and a weekly league with five divisions that resets every Monday. |
+| **Staff console** | Cohort analytics, quality-over-time trends, per-student reports and OSCE dossiers, account management and an audit log. Three roles: `student`, `trainer`, `admin`. |
 
 ---
 
-## How it works
+## Engineering highlights
 
-One container runs **two processes**. The browser only ever talks to Next.js;
-Next.js forwards API traffic to FastAPI over localhost.
+The decisions I'd point a reviewer at, and why each one was made.
+
+**One origin, one container.** The browser only ever talks to Next.js, which
+proxies `/api/*` to FastAPI over localhost. Because everything is same-origin, the
+login cookie can be `HttpOnly` (no JavaScript can read it), tutor SSE streams pass
+through untouched, and there is no CORS surface. Next.js owns page security headers
+(CSP); FastAPI only ever returns JSON or SSE.
+
+**Grounding without RAG, on purpose.** The curated knowledge base is about 6k
+tokens, so the tutor injects the *whole* thing into the system prompt and relies on
+Gemini context caching so it isn't re-billed each turn
+([`chat.py`](tools/api/routers/chat.py)). Vector search would add a retrieval
+step that can miss, for a corpus that fits in context anyway. pgvector is still
+used, but only offline, to curate and audit the knowledge base.
+
+**AI where it reasons, code where it executes.** Five chained AI steps that are
+each 90% accurate are 59% accurate together. So anything deterministic is pulled
+out of the prompt into tested Python: flashcard scoring has no model in it, and
+OSCE marking combines a deterministic checklist score with AI-judged technique.
+
+**Fail closed.** In production the server refuses to boot on a weak
+`JWT_SECRET`, missing Supabase keys or a wildcard CORS origin
+([`config.py`](tools/shared/config.py)). Identity always comes from the signed
+token's `sub`, never the request body. bcrypt (cost 12) runs off the event loop,
+and rate limits key on the real caller (JWT subject, else `X-Forwarded-For`) rather
+than on the proxy's address, which would make one student throttle everyone
+([`shared.py`](tools/api/shared.py)).
+
+**Built for one small worker.** Production runs a single async worker, so one
+blocking call stalls every student. Every blocking dependency (Gemini, bcrypt,
+the sync Supabase client) goes through `asyncio.to_thread` with a timeout. Shared
+counters live in Redis and one-time codes in Postgres, so it scales horizontally
+the moment the plan allows.
+
+**Tests that check what users see, not just what functions return.** The browser
+harnesses drive the real production build in Chromium and make measurements a
+unit test can't: overflow at phone widths, landscape gates and WCAG contrast. One
+of them composites the actual video frame under the actual CSS scrim to find the
+worst-case contrast behind the headline
+([`_home_shot.mjs`](frontend/tests/_home_shot.mjs)). The harness list is
+*discovered*, and a pytest guard fails if a new harness isn't gated, because a
+hand-kept list once silently left 14 of 20 harnesses out of CI
+([`test_browser_harness_registration.py`](tests/test_browser_harness_registration.py)).
+
+**Tests can't touch production.** A global pytest fixture fails any test that
+tries to reach the real database, after one did. With no Gemini key the app
+boots into `MOCK_MODE`, so the full suite and CI run free and deterministic.
+
+**Supply chain.** CI runs `pip-audit`, `npm audit` and npm registry signature
+verification. Dependabot proposes weekly bumps. Installs are strictly
+`npm ci`, after a lockfile regenerated on Windows once dropped the Linux binaries
+the Docker build needs.
+
+**Every incident becomes a guardrail.** Production rules are written down with the
+outage that caused each one ([`CLAUDE.md`](CLAUDE.md),
+[`docs/DEVELOPING.md`](docs/DEVELOPING.md)). Settled UI decisions are recorded in
+[design locks](docs/design-locks.md), and about 130 dated design specs record *why*
+each subsystem looks the way it does ([`docs/INDEX.md`](docs/INDEX.md)).
+
+---
+
+## How I build: AI-assisted, with guardrails
+
+I build EyeBot with [Claude Code](https://claude.com/claude-code) as a pair
+programmer, which is why most commits carry a `Co-Authored-By: Claude` line. I own
+the product, the architecture and the review, and I answer for production. The
+part I've invested most in is making AI-assisted work **safe to ship** to a live
+clinical training system:
+
+- **A standing brief.** [`CLAUDE.md`](CLAUDE.md) holds the stack, the production
+  invariants and the traps that have already broken production once.
+- **Hooks that enforce it.** [`.claude/hooks/`](.claude/hooks) block
+  wrong-shell commands, give every session its own git worktree from a clean
+  `origin/main` so parallel sessions can't ship each other's half-done work, and
+  snapshot state before context runs out.
+- **Test-first, then gates.** A failing test comes first. Nothing reaches
+  `main` until pytest, typecheck, the production build and the browser harnesses
+  are green, because `main` deploys straight to production.
+- **Deterministic tools over long prompts**, per the "AI reasons, code executes"
+  rule above.
+
+---
+
+## Architecture
 
 ```
     Browser
@@ -67,270 +174,55 @@ Next.js forwards API traffic to FastAPI over localhost.
   + pgvector                  + Celery
 ```
 
-**Why the proxy?** Everything is same-origin. The login cookie is `HttpOnly`, so
-JavaScript can never read it, and server-sent event (SSE) streams from the tutor
-survive without any CORS setup.
-
-**Who owns what:** Next.js owns page security headers (CSP). FastAPI returns only
-JSON and SSE — never HTML.
-
-Full endpoint map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-### The stack
-
 | Layer | What is used |
 |---|---|
 | Frontend | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion · Node 24 |
 | Backend | FastAPI + uvicorn, async-first · Python 3.12 |
-| AI | Google Gemini via `google-genai`; the curated KB is injected into the prompt and context-cached. Falls back to `MOCK_MODE` with no key |
-| Data | Supabase (Postgres; pgvector for the offline KB ingestion pipeline); Google Sheets for some rosters |
-| Auth | Custom JWT in an HttpOnly cookie (`eyebot_token`) · bcrypt (cost 12) · OTP password reset |
+| AI | Google Gemini via `google-genai`, with context caching; `MOCK_MODE` when no key is set |
+| Data | Supabase Postgres (pgvector for offline knowledge-base curation); Google Sheets for some rosters |
+| Auth | Custom JWT in an `HttpOnly` cookie · bcrypt (cost 12) · OTP password reset over the Gmail API |
 | Async | Celery + Redis workers |
-| Deploy | Render, single container, built from the `Dockerfile` |
+| Deploy | Render, a single Docker container, auto-deployed from `main` |
+
+Full endpoint map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · security model:
+[`docs/SECURITY.md`](docs/SECURITY.md).
 
 ---
 
-## Run it locally
+## Run it
 
-A step-by-step tutorial. About ten minutes.
-
-### 0. What you need first
-
-- **Python 3.12** (the version production runs — other versions may differ)
-- **Node 24**
-- **Git**
-- A **Supabase** project — needed for any real data
-- A **Gemini API key** — *optional*, see step 5
-
-### 1. Get the code
-
-```bash
-git clone https://github.com/calebteo07-art/SNEC_AI_CHATBOT.git
-cd SNEC_AI_CHATBOT
-```
-
-### 2. Install the backend
+No Gemini key is needed: without one the app runs in `MOCK_MODE`.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+cp .env.template .env                                # fill in Supabase + JWT_SECRET
+uvicorn tools.api.server:app --reload --port 8000    # terminal 1
+cd frontend && npm ci && npm run dev                 # terminal 2 → http://localhost:3000
 ```
-
-### 3. Write your config
-
-Copy the template and fill it in. Every key is commented in the file.
 
 ```bash
-cp .env.template .env
+python -m pytest -q                                  # backend tests
+bash scripts/start-harness.sh all                    # browser harnesses
 ```
 
-The four that matter for a local run:
+The full walkthrough, the repository map and the change-and-deploy loop are in
+[**`docs/DEVELOPING.md`**](docs/DEVELOPING.md).
 
-| Key | What to put |
+## Documentation
+
+| If you want to… | Read |
 |---|---|
-| `SUPABASE_URL` | Your project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your project service key |
-| `JWT_SECRET` | Any long random string — generate one below |
-| `GEMINI_API_KEY` | Your key, **or leave it blank** (see step 5) |
-
-Generate a secret:
-
-```bash
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-
-**Never commit `.env`.** It is gitignored, and so are `credentials.json` and
-`token.json`.
-
-### 4. Start the two processes
-
-Terminal one — the API:
-
-```bash
-uvicorn tools.api.server:app --reload --port 8000
-```
-
-Terminal two — the site:
-
-```bash
-cd frontend && npm ci && npm run dev
-```
-
-Open **http://localhost:3000**. The frontend proxies `/api/*` to port 8000, so
-you use one address for everything.
-
-> **Use `npm ci`, never `npm install`** — especially on Windows. `npm install`
-> rewrites `package-lock.json` against your own platform and drops the
-> Linux/wasm optional dependencies CI and the Render Docker build need. Every
-> local gate then passes while `npm ci` fails on Linux. This has broken `main`
-> before. If you must change a dependency, run `npm install` deliberately, then
-> check the lockfile still contains the `linux-x64` entries before committing.
-
-### 5. Running without a Gemini key
-
-Leave `GEMINI_API_KEY` blank and the app boots into **`MOCK_MODE`**: every AI
-call returns a canned response instead of hitting Google. Nothing crashes,
-nothing is billed, and the whole test suite runs. It is the default for tests
-and CI.
-
-What that means in practice:
-
-| | Works in `MOCK_MODE`? |
-|---|---|
-| Pages, login, navigation, flashcards, points | Yes — flashcard grading has no AI in it at all |
-| Tutor replies, patient dialogue, OSCE marking | Placeholder text only |
-| Anything touching student data | Needs a real Supabase project |
-
-The boot guard (`tools/shared/config.py`) only refuses to start on missing
-secrets when `ENVIRONMENT=production`, so local development stays easy.
-
-### 6. Run the tests
-
-```bash
-python -m pytest -q                                  # backend
-cd frontend && npm run typecheck && npm run build     # frontend
-```
-
-There is also a browser harness that boots the app and asserts against the real
-rendered page:
-
-```bash
-bash scripts/start-harness.sh all        # SKIP_BUILD=1 to reuse the last build
-```
-
-Use the harness script rather than `next start` — the standalone output is flaky
-when started directly.
+| Take over the project | [`HANDOVER.md`](HANDOVER.md): risks, open decisions, a first-week plan |
+| Run, change or deploy it | [`docs/DEVELOPING.md`](docs/DEVELOPING.md) |
+| Operate production | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
+| Understand the system | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.md`](docs/SECURITY.md) |
+| Find a design decision | [`docs/INDEX.md`](docs/INDEX.md) · [`docs/GLOSSARY.md`](docs/GLOSSARY.md) (Aurora, Eyecon, Lumens…) |
 
 ---
 
-## Where everything lives
+## License
 
-```
-frontend/     Next.js app — everything a user sees (src/, public/, tests/)
-tools/        Python: the FastAPI app (tools/api/) plus every supporting tool
-cases/        155 virtual-patient case files (JSON)
-tests/        pytest suite
-workflows/    Markdown SOPs — step-by-step procedures for repeatable jobs
-docs/         Architecture, security, specs and design locks
-scripts/      Production start, harness, dependency locking
-.tmp/         Scratch. Gitignored — private notes go here, never in the repo
-```
-
-The backend is split by feature. Each router in `tools/api/routers/` owns one
-part of the app:
-
-| Router | Owns |
-|---|---|
-| `auth.py` | Login, logout, password reset, first-login change |
-| `chat.py` | The tutor — SSE streaming, KB injection and context caching |
-| `cases.py` | OSCE stations — dialogue, checklist, marking |
-| `student.py` · `home.py` | Profile, progress, points, home screen |
-| `checkin.py` | The daily question and streak |
-| `avatar.py` | Avatar picker |
-| `supervisor.py` | Trainer analytics and reports |
-| `admin.py` | Account management and audit — admins only |
-
-Shared singletons, the rate limiter and its keying live in
-`tools/api/shared.py`.
-
----
-
-## Ideas you will meet in the code
-
-**WAT — Workflows, Agents, Tools.** AI reasons; tested code executes. Five
-chained 90%-accurate AI steps compound to about 59%, so anything deterministic is
-pushed out of the prompt and into a script under `tools/`. Markdown SOPs live in
-`workflows/`.
-
-**`MOCK_MODE`.** No key means no live AI call. This is what keeps tests free and
-deterministic.
-
-**Grounding — read this before you go looking for a vector search.** The tutor
-does **not** retrieve at query time. `tools/api/routers/chat.py` injects the
-*entire* curated knowledge base (~6.1k tokens) into the system prompt on every
-conversation and relies on Gemini context caching so that static prefix is not
-re-billed each turn. The line in the code is literally `# No RAG:`.
-
-pgvector and the embedding pipeline under `tools/kb/` are real, but they belong
-to **ingestion** — building and curating the knowledge base offline. Nothing
-queries them while a student is chatting. Earlier versions of this README
-described a query-time RAG lookup; that was retired and the docs lagged behind.
-
-**Identity comes from the token, never the request body.** The signed JWT's
-`sub` claim is the user. A request that says "I am student X" is ignored.
-
-**Four production invariants** — these are not style preferences, each one is a
-real outage that already happened:
-
-1. **Never block the event loop.** Gemini, bcrypt, SMTP and the sync Supabase
-   client all get `asyncio.to_thread` plus a timeout. One blocking call stalls the
-   entire worker.
-2. **No shared in-process state.** Workers scale horizontally, so counters live
-   in Redis and OTPs live in Supabase.
-3. **Fail closed.** In production the app refuses to boot on a weak `JWT_SECRET`,
-   missing Supabase keys or a wildcard `ALLOWED_ORIGINS`. A loud refusal beats
-   quietly serving students from a broken config.
-4. **Rate-limit keys identify the real caller** — the JWT subject, else
-   `X-Forwarded-For`. Never the proxy's own address, or one user would throttle
-   everybody.
-
----
-
-## Making a change
-
-The loop, in order:
-
-1. **Write the failing test first**, and watch it fail. `tests/` for Python,
-   `frontend/tests/` for Node harnesses.
-2. **Write the smallest code that passes it.**
-3. **Run the gates**, all of them:
-
-   ```bash
-   python -m pytest -q                                  # backend
-   cd frontend && npm run typecheck && npm run build     # frontend
-   bash scripts/start-harness.sh all                     # browser harnesses
-   ```
-
-   The harnesses are not optional extras — CI discovers and runs *every* one of
-   them, and because the deploy does not wait for CI (see below), a harness you
-   skipped locally fails after the change is already live.
-4. **Commit and push.** Every push runs [CI](.github/workflows/ci.yml): pytest on
-   Python 3.12, frontend typecheck, logic harnesses, the production build, every
-   browser harness against real Chromium, plus a supply-chain audit (`pip-audit` /
-   `npm audit` / signature verification). Dependabot proposes weekly bumps.
-5. **Watch it deploy** and look at the live page.
-
-> **`main` auto-deploys to production.** CI and the deploy run independently, so
-> a red CI run does **not** stop the release. Verify green *before* you push.
-
-Database changes are numbered SQL files in `tools/db/migrations/`, applied by
-hand and recorded in `APPLIED.md`. Nothing runs them automatically.
-
-Working with an AI coding assistant? [`CLAUDE.md`](CLAUDE.md) is the standing
-briefing — the stack, the invariants, and the traps that have already broken
-production once.
-
----
-
-## Deploying
-
-Render builds the **`Dockerfile`** and runs `scripts/start-prod.sh`, which starts
-FastAPI on `127.0.0.1:8000` and the Next.js standalone server on `$PORT`. A cron
-job pings `/health` every ten minutes so the instance does not idle out.
-[`render.yaml`](render.yaml) declares the same Docker build, so the file and the
-live service agree. **Never delete the `Dockerfile`** — that took production down
-once.
-
-Required production secrets, and the super-admin bootstrap, are listed in
-[`docs/SECURITY.md`](docs/SECURITY.md). Secrets belong in the Render dashboard
-and a local `.env` — nowhere else.
-
-To carry more concurrent students: upgrade the Render plan, provision Redis and
-set `REDIS_URL`, **then** raise `WEB_CONCURRENCY`. Raising it without Redis
-splits shared state across workers and causes intermittent, hard-to-trace faults.
-
----
-
-## Status
-
-Production. Deployed to a real institution, with real student records — treat
-every change as production-bound: secure, reproducible, observable, scale-safe.
+Copyright © 2026 calebteo07-art. All rights reserved. The source is published so it
+can be read and evaluated; it is not licensed for reuse. Clinical content (cases,
+knowledge base, flashcards) was prepared for SNEC training and is not licensed for
+reuse either. See [`LICENSE`](LICENSE).

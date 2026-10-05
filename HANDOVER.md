@@ -12,7 +12,8 @@ This document orients you. It is deliberately short and links to the detail.
 
 | I need to… | Go to |
 |---|---|
-| Understand what the app does and run it locally | [`README.md`](README.md) |
+| Understand what the app does | [`README.md`](README.md) |
+| Run it locally, change it safely, deploy it | [`docs/DEVELOPING.md`](docs/DEVELOPING.md) |
 | Understand how it is built | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | **Operate it in production** | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
 | Understand the auth and role model | [`docs/SECURITY.md`](docs/SECURITY.md) |
@@ -197,7 +198,7 @@ the production image.
 
 **Day 1 — get in and prove it.**
 
-1. Read [`README.md`](README.md), then [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+1. Read [`README.md`](README.md), [`docs/DEVELOPING.md`](docs/DEVELOPING.md), then [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
 2. Get the code running locally. It runs with **no AI key and no production
    credentials** — leave `GEMINI_API_KEY` blank and it boots into `MOCK_MODE`.
 3. Sign in to every external account yourself and confirm access

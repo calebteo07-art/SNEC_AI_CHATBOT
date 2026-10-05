@@ -5,13 +5,14 @@ This is the map.
 
 ## How to read this repository's documents
 
-**Only four documents describe the system as it is today.** Everything else is a
+**Only five documents describe the system as it is today.** Everything else is a
 *decision record* — a snapshot of the thinking at one moment, deliberately never
 updated afterwards.
 
 | Always current | What it is |
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | How the system is built; the endpoint map |
+| [`DEVELOPING.md`](DEVELOPING.md) | How to run it locally, make a change and deploy it |
 | [`OPERATIONS.md`](OPERATIONS.md) | How to deploy, configure, watch and recover production |
 | [`SECURITY.md`](SECURITY.md) | Auth model, roles, the super-admin bootstrap |
 | [`design-locks.md`](design-locks.md) | Settled UI decisions that must not be silently rebuilt |
