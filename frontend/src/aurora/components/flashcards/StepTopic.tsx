@@ -45,7 +45,7 @@ export function StepTopic({ sets, onStart }: Props) {
     { id: "__mixed", label: "Mixed", sub: "every topic", hue: MIXED_HUE,
       imgUrl: topicImage("__mixed"), startable: true },
     // How far up its own 5-deck ladder the student has climbed rides on the card's
-    // corner STICKER (user, 2026-07-29) — it used to be the caption line, and before
+    // corner STICKER (my call, 2026-07-29) — it used to be the caption line, and before
     // that a "Foundations"/"Skills" pool label that told them nothing actionable. The
     // sub is left empty so the count is stated in exactly one place.
     ...sets.map((s, i) => ({

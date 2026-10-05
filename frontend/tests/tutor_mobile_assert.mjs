@@ -2,7 +2,7 @@
 /* Tutor on a phone.
  *
  * 1. The 5 SUGGESTIONS chips (Tutor.tsx:32-38) wrap to 3-4 rows above the composer on a
- *    390px screen and crowd out the thread. The user asked for them gone on mobile
+ *    390px screen and crowd out the thread. I wanted them gone on mobile
  *    ("i want to remove the shortcut questions in tutor for mobile", 2026-07-17).
  *    DESKTOP KEEPS THEM — that half of the assertion is what makes this a refit rather
  *    than a deletion, and it is why the fix is CSS (`.aurora-chat-followups{display:none}`

@@ -51,7 +51,7 @@ def _humanize(id: str) -> str:
     return s
 
 
-# Every phrasing is deliberately over-the-top + eye-catching (user, 2026-07-06): the render
+# Every phrasing is deliberately over-the-top + eye-catching (my call, 2026-07-06): the render
 # should feel like a premium collectible, not a flat sticker. Marquee options go maximalist.
 _BODY = {
     "porcelain": "a glossy porcelain", "light": "a soft glowing light-skinned", "warm": "a warm sun-kissed",

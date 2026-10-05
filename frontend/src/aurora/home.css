@@ -973,7 +973,7 @@ html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
   .hm-pool-seg button { padding:6px 11px; font-size:12.5px; }
   .hm-pool-tip { width:min(240px,72vw); }
 
-  /* phone: NO mascot on the greeting card at all (user directive 2026-07-20, "remove the
+  /* phone: NO mascot on the greeting card at all (my call, 2026-07-20, "remove the
      waving eyecon on phone"), so the card is copy on the bare plane. The mascot height
      floor comes off with her — it would come straight out of the 844px fold budget the
      status bar, three quest rows and the chest already have to fit inside. `column` is the

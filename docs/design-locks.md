@@ -167,7 +167,7 @@ flip, spinner slows); WCAG-legible.
   `clamp(46,9.2vw,88)`, 900, in `--fc-coin-ink` with a hard mat drop-lip (2026-08-11: the glow it
   used to harmonize with the bloom by cannot make type legible on a light ground; an edge can) — so it
   **dominates**; the **sub** (`.flash-step-sub`) is **enlarged** to `clamp(16,3.2vw,23)` but keeps its
-  original **neutral gray `#b9c2ce`** (user reverted the sub colour back 2026-07-12), so the gold title
+  original **neutral gray `#b9c2ce`** (I reverted the sub colour back 2026-07-12), so the gold title
   overpowers by colour + scale. **Criteria changed**: *card-face material* (glass → flat), *card size*
   (larger), *lede type/colour* (title white→gold, both lines enlarged; sub stays gray). Every other
   Selection invariant is preserved (coverflow depth/windowing, stage-resolved pick, no numbers/dots,
@@ -361,7 +361,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   The greeting mascot is **always the default living Selena** (see the Custom-Selena
   amendment) — never a student's custom render. Acceptance: WCAG-AA legible, 390px-safe,
   all added motion freezes under `prefers-reduced-motion` / `data-motion=reduce`.
-- **Greeting-card simplification (refine 2026-07-10, user directive)**: the greeting card
+- **Greeting-card simplification (refine 2026-07-10)**: the greeting card
   is now **chrome-light** — the eyebrow (role · time-of-day), the `hm-cta-row` (the "Pick
   up where you left off", "Surprise me", and "Edit Selena" buttons), the greeting reshuffle
   seed, and the "a new hello every visit" note are all **removed**. What remains — the big
@@ -376,17 +376,17 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   eyebrow, no CTA buttons, no reshuffle note; type is visibly larger yet WCAG-AA legible and
   390px-safe; no word overlaps the mascot illegibly; Selena sits toward the right; Edit-Selena
   is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
-- **Leaderboard tease (refine 2026-07-14, user directive)**: the simplification acceptance
+- **Leaderboard tease (refine 2026-07-14)**: the simplification acceptance
   ("only headline + sub + XP bar") is amended to also allow **one leaderboard tease** — a
   pill (`.hm-lb`, gold medal + "See where you stand" + arrow) linking to `/leaderboard`, placed
   **under the XP bar in the capped left column** so it never overlaps the right-side mascot.
-  Amended same day (user: *"too subtle, make it in your face"*) from a quiet translucent chip to
+  Amended same day (my note: *"too subtle, make it in your face"*) from a quiet translucent chip to
   a **BOLD candy CTA** — saturated violet→magenta→burnt-orange gradient, gloss + travelling shine
   sweep + an attention pulse, white text. Still **one** control (not a revived CTA-button *row*).
   **Acceptance**: single pill, left-column only, no mascot overlap at 900/560/390px, all motion
   (pulse/shine/hover-lift) freezes under reduced motion, white text stays WCAG-AA on every
   gradient stop.
-- **"Toybox vibrancy" refine (2026-07-11, user directive: "colors more bold and vibrant
+- **"Toybox vibrancy" refine (2026-07-11, my brief: "colors more bold and vibrant
   like all the games in RODTANG, don't hold back")**: a **colour + material + juice** pass on
   every card, applying RODTANG's cozy-premium grammar — *saturate the actors, calm the stage;
   glossy vinyl-toy material; high-key light; springy squash-and-stretch juice*. Concretely, all
@@ -415,7 +415,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   **all added motion** (XP shine, heat-glow, jewel pop, today-pulse, springs) **freezes** under
   `prefers-reduced-motion` / `data-motion=reduce`; the aurora harness stays green (structure,
   testids, badge states, mascot reduced-motion freeze all intact); **no generated asset replaced.**
-- **Split-hero feature cards + coloured stat/badge cards (2026-07-13, user directive: "cards too
+- **Split-hero feature cards + coloured stat/badge cards (2026-07-13, my brief: "cards too
   small / dull / too layered — not seamless; regenerate all 3 with nano banana; the boring-white
   stat cards should be beautifully coloured; the two badge cards same size + bigger badges")**:
   - **FeatureCarousel is now SPLIT-HERO** (`FeatureCarousel.tsx` + `.hm-fcard*` in `home.css`): each
@@ -442,7 +442,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `overflow-x:hidden` clips the oversized coverflow; measured 0px), coverflow **mechanics
     unchanged** (drift / tap-to-nearest / arrows / keyboard), reduced-motion freezes + all home
     testids intact, aurora harness green on a prod build.
-- **HOVER-PAUSE (criterion added 2026-07-24, user directive: "hover pause in both spinning parts, but
+- **HOVER-PAUSE (criterion added 2026-07-24, my brief: "hover pause in both spinning parts, but
   only hover over a small region to pause")**: the never-stopping drift (`BASE`, incl. the faster phone
   tier) **holds while the cursor rests on the FRONT CARD** — a box the card's **laid-out** size
   centred on `.hm-ring3d`, via the shared `inFrontCardZone` (`aurora/lib/hoverPause.ts`), the same rule
@@ -453,7 +453,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   cards are `pointer-events:none`, so a hover target would swallow the tap-to-nearest clicks this
   carousel was rebuilt to fix) and **mouse only**, so touch and the reduced-motion freeze are untouched.
   Guarded by `hoverPause_logic.mjs` + `hover_pause_assert.mjs`, both in CI.
-- **Badge cards → dark "game vaults" (2026-07-13, user directive: "make the lumens and streak
+- **Badge cards → dark "game vaults" (2026-07-13, my brief: "make the lumens and streak
   badge cards a dark, addicting game gradient — still matching the homepage, both different;
   the streak orange more vibrant; rename Badge collection → Daily streak vault")**: the two
   `.hm-lower` shelves are no longer light tints. **SUPERSEDES** the "streak = violet tint / Lumens
@@ -469,7 +469,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `prefers-reduced-motion` / `data-motion=reduce`. CSS-only; medallions/badge-states/testids
     untouched; 390-safe. Shipped isolated on `origin/main` (the local tree was a stale
     re-derivation of already-pushed home work).
-- **Daily-streak CARD -> bold orange+yellow, all-white text (2026-07-13, user directive: "streak
+- **Daily-streak CARD -> bold orange+yellow, all-white text (2026-07-13, my brief: "streak
   card base orange & yellow gradient, white-outline flame, no dark text — only white/light")**:
   the `.hm-streak` card (the StreakTile hero, NOT the `.hm-panel--streakbadge` vault above) drops
   the **warm amber/peach wash** criterion for a **bold deep-orange gradient** (`#F1600C->#CE440A`)
@@ -483,7 +483,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   hue and text colour (mixed dark -> white only). **Acceptance preserved**: white large text >=3:1 on
   the deep-orange fill; 390-safe; structure/testids (`streak-tile`) unchanged; reduced-motion still
   freezes flame/ember/heat/dot animations; aurora harness green on a prod build.
-- **Phone: greeting mascot removed + faster coverflow (2026-07-20, user directive: "for phone
+- **Phone: greeting mascot removed + faster coverflow (2026-07-20, my brief: "for phone
   view of the app only, make the spinning cards spin faster, and remove the waving eyecon in the
   greeting card")**: on phones — **both** `(pointer:coarse)` tiers (portrait `max-width:640px`,
   landscape `max-height:480px`) — the greeting card now carries **no living mascot**:
@@ -495,7 +495,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   drift speed. **Desktop/tablet (fine pointer) untouched**; the Veo asset is **preserved** (still
   played on desktop); the aurora harness runs at 1440px fine-pointer, so `.hm-iriswrap` /
   `eyecon-logo` stay visible and the greeting assertions are unaffected.
-- **ONE vault + month calendar (2026-07-29, user directive: "remove streak badges and vault in
+- **ONE vault + month calendar (2026-07-29, my brief: "remove streak badges and vault in
   the app, only lumens vault and badges but lumens badge names change to something like current
   streak badge names (eye-centric and fun) … i want total 20 badges … also remove percentage ring
   in streak card in homepage and show the entire month calendar in the card")**: spec
@@ -518,7 +518,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `scroll-snap-type:x`, at **every** viewport; on mount it scrolls the **"next"** badge into
     view (instant under reduced motion) so a student lands on their target, not on rung 1. The
     page itself must still measure **0px horizontal overflow** — the frame scrolls inside its box.
-    - **Refined same day (user directive: "show only 5 badges in 1 frame and allow user to click
+    - **Refined same day (my brief: "show only 5 badges in 1 frame and allow user to click
       left and right buttons to see next/previous badges")**: the criterion changed is
       *free-scrolling shelf → **paged frame***. **Exactly five** medallions are on show at a time
       (`.hm-badge` flex-basis `calc((100% - 4*var(--bgap)) / 5)`), and `‹ ›` buttons
@@ -546,7 +546,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     all motion (rarity glows, next-pulse, flame, ember, vault breathe, shelf auto-scroll) freezes
     under `prefers-reduced-motion` / `data-motion=reduce`; `streak-tile` + `lumen-ladder` testids
     and the collected/next/locked badge states unchanged; aurora harness green on a prod build.
-- **GAME HUD (2026-08-05, user directive: "the current homepage is decent, but does not feel
+- **GAME HUD (2026-08-05, my brief: "the current homepage is decent, but does not feel
   like a addictive game i want it to be")**: spec
   `docs/superpowers/specs/2026-08-05-home-hud-phase2-design.md`, plan
   `docs/superpowers/plans/2026-08-05-home-hud-phase2.md`. Phase 1 (backend loop: daily
@@ -629,7 +629,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     clamped pager; the month calendar's day-name-derived leading offset; `streak-tile` /
     `lumen-ladder` / `greeting-leaderboard` testids; the whole browser harness suite green.
 
-  ### Amendment 2026-08-06 — COLOUR (user directive: "the smaller cards within the big card
+  ### Amendment 2026-08-06 — COLOUR (my brief: "the smaller cards within the big card
   are all same color and are boring, i want a variety of vibrant colors", "the homepage
   background change to something more game like and contrast better with the top card")
 
@@ -692,7 +692,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     is a number. Every bound in the acceptance list above still passes unchanged, including
     the 390×844 fold budget — the height lock does not reach the phone.
 
-  ### Amendment 2026-08-06 (second pass) — THE CONSOLE (user directive: "chest, volt, quest
+  ### Amendment 2026-08-06 (second pass) — THE CONSOLE (my brief: "chest, volt, quest
   all in 1 column and have more game-like loud addicting colors. levels strip color choice
   not matching well with rest of page. can you make the streak card merge into the top
   card?") — **THIS IS THE LIVE LOCK for the deck's layout and colour.**
@@ -775,7 +775,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `_home_shot.mjs` reports `MASCOT whole=true cutTop=0 cutBottom=0` and 0 page overflow at
     1512/1280/390/844; the 390×844 fold budget still holds (chest bottom 713).
 
-  ### Amendment 2026-08-06 (third pass) — THE STREAK IS ITS OWN CARD (user directive:
+  ### Amendment 2026-08-06 (third pass) — THE STREAK IS ITS OWN CARD (my brief:
   "separate the streak card from the rest of the top card")
 
   One criterion moves; nothing else in the second pass changes.
@@ -802,7 +802,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
   - **Acceptance**: `.hm-streak` is not a descendant of `.hm-deck`; computed radius = 24px;
     0 page overflow and `MASCOT whole=true` still hold at 1512/1280/390/844.
 
-  ### Amendment 2026-08-06 (fourth pass) — THE CONSOLE ROW (user directive: "decrease width
+  ### Amendment 2026-08-06 (fourth pass) — THE CONSOLE ROW (my brief: "decrease width
   of top card and streak card … streak card and top card in the same row (significantly
   smaller streak card) and significantly smaller waving eyecon card without cropping or
   distorting anything")
@@ -940,7 +940,7 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     fold budget unchanged; `.hm-iris` animation `none` under reduce.
 
   ### Amendment 2026-08-06 (sixth pass) — THE SCREEN JOINS THE PAGE, AND THE MASCOT FILLS IT
-  (user directive: "i want a different color of background that still matches with the entire
+  (my brief: "i want a different color of background that still matches with the entire
   page and fill up the awkward empty space")
 
   ⚠ **SUPERSEDED for the card's FILL and its MASCOT by the seventh pass below** — the card is a
@@ -1022,12 +1022,12 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     `background-color`; the phone fold budget unchanged.
 
   ### Amendment 2026-08-06 (seventh pass) — THE CARD IS A FILM, AND THERE ARE FOUR OF HER
-  (user directive: "instead of the current eyecon in the greeting card, can you regenerate a
+  (my brief: "instead of the current eyecon in the greeting card, can you regenerate a
   group of friends of eyecons moving using my api key, the eyecons must look like the actual
   current eyecons, but the group of friends can be in different outfits, the background of the
   greeting card change to something else, now the color too boring, the whole card to be
   generated on veo, just leave enough space for laying the words that are always
-  different/shuffled" · scene chosen by the user: "a picnic in a grassy and sunny place
+  different/shuffled" · scene I chose: "a picnic in a grassy and sunny place
   beautiful but enough space for the words to appear", crew: 4 friends, mixed casual)
 
   **THIS IS THE LIVE STATE OF THE GREETING CARD.** One criterion moves and it takes three
@@ -1152,7 +1152,7 @@ student's customised avatar (ricoe A3).
   metadata cards. When a student has none, the recent block shows **nothing** (the hardcoded
   STARTERS fallback was removed). The greeting **name** animates as a **fast motion gradient**
   (frozen under reduced motion). No seeded in-chat AI greeting — the thread's **first bubble
-  is the user's** message. Greeting + chatbox enlarged; recent cards shrunk. *Pending
+  is the student's** message. Greeting + chatbox enlarged; recent cards shrunk. *Pending
   Workstream B*: the landing mascot becomes a brand-new **dancing-Iris Veo loop** (`iris.png`
   stays the poster/fallback), superseding the waving-Selena treatment in the Branding lock.
 - **Image attachments (2026-08-12)**: this refines the **composer input-modality criterion
@@ -1526,7 +1526,7 @@ greeting-card entry was **removed 2026-07-10** — see the Home greeting-card si
 
 ### AMENDMENT 2026-07-13 — Eyecon rename + MANDATORY first-login + instant preview + surface restriction
 Supersedes the criteria above (skip flow, `eyebot_selena_onboarded`, Profile Studio link,
-"Edit Selena" leaderboard entry) and the *Custom Selena surfaces* lock. Authored with the user.
+"Edit Selena" leaderboard entry) and the *Custom Selena surfaces* lock.
 - **Rename**: the customizable avatar is **Eyecon** (not Selena) across the student-facing product —
   component/file names (`<Eyecon>`, `EyeconStudio`, `EyeconLogo`, `EyeconBadge`,
   `EyeconGreetingLoop`, `EyeconMenu`), CSS classes (`.eyecon-*`, `.hm-eyecon*`), test-ids
@@ -1558,7 +1558,7 @@ Supersedes the criteria above (skip flow, `eyebot_selena_onboarded`, Profile Stu
 
 ### AMENDMENT 2026-07-14 — Eyecon Studio is a fixed PRESET LIBRARY (no layered customization)
 Supersedes the *builder* interaction above (per-axis steps, colour swatches, layered compositing,
-"one of N combos"). Authored with the user ("create a long, expanded library of preset Eyecons…
+"one of N combos"). From my brief ("create a long, expanded library of preset Eyecons…
 they click the one they want and that is their Eyecon, fixed, no customisation… use what you
 already generated in past sessions, do not regenerate").
 - **Library, not builder**: `/studio` is now a single scrollable gallery of **every pre-rendered
@@ -1583,7 +1583,7 @@ already generated in past sessions, do not regenerate").
   on the home button + leaderboard. Regression-tested in `frontend/tests/eyecon_assert.mjs` (C).
 
 ### REFINE 2026-07-14 — "Eyecon Studio" arcade restyle + edit-anytime + merged roster + save→home
-Authored with the user. Refines the presentation and the re-editing rule of the preset library above;
+Refines the presentation and the re-editing rule of the preset library above;
 the storage model, fail-closed validation, and mandatory first-run welcome gate are **unchanged**.
 - **Criterion changed — "Library" → "Studio" wordmark**: the header/copy is renamed **Eyecon Studio**
   (no longer "Eyecon Library"), set as a beautifully-designed **Bricolage** wordmark (hot sunset
@@ -1608,7 +1608,7 @@ the storage model, fail-closed validation, and mandatory first-run welcome gate 
   "Edit Eyecon" → `/studio`; save routes to `/homepage`; the first-run welcome gate + no-skip still
   hold; WCAG-legible, 390px-safe. Regression-tested in `frontend/tests/eyecon_assert.mjs` (A/B/C/D/F).
 
-### REFINE 2026-07-28 — roster cull + one rename (user directive)
+### REFINE 2026-07-28 — roster cull + one rename (my call)
 Refines **only the contents of the roster**; the Studio's presentation, storage model
 (`avatar_config.portrait`), fail-closed validation, and first-run welcome gate are **unchanged**.
 - **Criterion changed — "~103 tiles across outfit · topper · glasses · mouth · eyeShape · lashes ·
@@ -1638,7 +1638,7 @@ transparent AI render, and the **Selena Studio** became a **loadout** builder (t
 only the saved render or the default mascot; picks dock as **tiles** in a **tray**; Save fuses a
 new render). The original raster-composite direction is retained below for history only.
 **Direction**: the instant `<Selena>` preview is composited **on top of the real homepage
-raster** (`/brand/iris.png`), not drawn as flat vector — the user's non-negotiable
+raster** (`/brand/iris.png`), not drawn as flat vector — my non-negotiable
 ("identical to the selena in the homepage", 2026-07-07, after rejecting two vector looks).
 The raster is the SVG base layer; customizations apply as scoped recolors + sticker overlays:
 bodyColor = hue/sat/gamma filter with the eyeball repainted from the original (sclera and
@@ -1666,7 +1666,7 @@ Spec: docs/superpowers/specs/2026-07-07-selena-seamless-custom-design.md.
 - **Amended 2026-07-10 (come-alive spec)**: the **greeting card now hosts the
   DEFAULT living mascot for every student** (CSS-alive `<SelenaLogo>`; an optional
   baked **Veo** loop swaps in when installed via `<SelenaGreetingLoop>`), **not**
-  the custom render (user directive 2026-07-10, "greeting Selena default from now
+  the custom render (my call, 2026-07-10, "greeting Selena default from now
   on"). `GreetingHero` no longer takes `portraitUrl`. The custom render is
   unaffected on Studio + the leaderboard; all other brand surfaces unchanged.
 
@@ -1744,7 +1744,7 @@ sleeves); user confirms before any paid generation; approved prompts get recorde
 the feature's brief here.
 
 ## The League — LOCKED 2026-08-02 (supersedes "vibrant & seamless" 2026-07-13)
-User: the board "does not look good at all compared to world class and award winning games…
+My verdict: the board "does not look good at all compared to world class and award winning games…
 feels just like a stale and boring placeholder game feature". The audit found the failure is
 **structural, not cosmetic**: nothing was at stake below rank 3 (27 of 30 students read a list
 they could not act on), there was no time axis, the podium raised #1 by twelve pixels, and the
@@ -1759,7 +1759,7 @@ Backend: migration 016 + `tools/gamification/league.py`.
 
 ### REFINED 2026-08-03 — all three rules changed, by name
 
-User: the board is **"too dark and flat with no layers"**, the podium is **"too simple… I want
+My verdict: the board is **"too dark and flat with no layers"**, the podium is **"too simple… I want
 it flamboyant"**, and **"the league tiers are unclear and do not make sense to users"**. Each
 complaint traced to a rule the 08-02 pass set deliberately, so each rule is superseded rather
 than quietly ignored. The originals are kept below so the trade being made stays visible.
@@ -1827,8 +1827,8 @@ whitespace in the wrong axis:
 
 ### REBUILT 2026-08-03 (third pass) — the STAGE, not the degree
 
-User, after both passes above: **"leaderboard design is still horrendous"**. Direction was put
-back to the user rather than guessed a third time, and the answer was **go light, match Aurora**.
+My verdict after both passes above: **"leaderboard design is still horrendous"**. Rather than guess a
+third time, I settled the direction: **go light, match Aurora**.
 
 **Read the evidence, not the adjective.** Two passes had both answered a dark board by *adding*
 — first elevation, then gold. The first report said "too **dark** and flat"; that was read as
@@ -1936,7 +1936,7 @@ Spec `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md`, plans
 
 ### REBUILT 2026-08-03 (fourth pass) — the GENRE, not the palette
 
-User, on the light board above: **"the leaderboard page frontend is still horendous, very
+My verdict on the light board above: **"the leaderboard page frontend is still horendous, very
 obvious ai slop, and did not seem like a game leaderboard."**
 
 **Measured before touching anything** — the second half of that sentence was literally true:
@@ -2014,9 +2014,9 @@ podium's DOM-order / 1.7× / 2× / seam checks are replaced by the geometry ones
 
 ### REBUILT 2026-08-04 (fifth pass) — "STRUCK": the OBJECTS, not the layout · **THIS IS THE LIVE LOCK**
 
-User: *"i want the leaderboard page to have a podium, and everything in the page upgraded to a
-world class game standard (not like the current ai slop)"*. Direction was put to the user rather
-than guessed a fifth time, and the answer was **bright arcade** — Clash Royale / Brawl Stars /
+My brief: *"i want the leaderboard page to have a podium, and everything in the page upgraded to a
+world class game standard (not like the current ai slop)"*. Rather than guess a fifth
+time, I settled the direction: **bright arcade** — Clash Royale / Brawl Stars /
 Duolingo — over dark esports, broadcast sports, and trophy-road. **Light stays** (asked and
 answered in the third pass, and it is measured).
 
@@ -2130,7 +2130,7 @@ still flagged, still not deleted.
 
 #### RETUNED 2026-08-04 — plinth mass and the desktop cap (a refinement *within* this lock)
 
-User, on the shipped board: *"the plinths look too small, make them bigger, too much white space
+My verdict on the shipped board: *"the plinths look too small, make them bigger, too much white space
 in the page"*. Direction, material and layout are unchanged; **one acceptance criterion changed
 and one was added**, both stated before the code moved:
 
@@ -2141,7 +2141,7 @@ and one was added**, both stated before the code moved:
 **Why the previous numbers were wrong.** The gate checked that the three blocks *step down* —
 and they did, at every tier — but three blocks can step down perfectly and all three still be
 trays. The bound that was missing is the block against the **figure standing on it** (portrait +
-name + score). Every version the user rejected sat at **0.5–0.63×**; a 76px block under a 124px
+name + score). Every version I rejected sat at **0.5–0.63×**; a 76px block under a 124px
 figure reads as a shadow under a head no matter how it is finished. They now measure
 **0.89× at 390×844, 0.81× at 360×800, 0.67× on a landscape phone** (nav-constrained, and the
 honest trade there is a shorter stage rather than a lip clipped by the floating nav) and
@@ -2160,7 +2160,7 @@ when the layout went back to one column. All three existed to serve a left colum
 
 #### STACKED AGAIN 2026-08-04 — desktop is ONE CENTRED COLUMN (a second refinement, same day)
 
-User: *"i want the layout to be like the old one"*, chosen from a stated fork against the
+My brief: *"i want the layout to be like the old one"*, chosen from a stated fork against the
 alternatives. "The old one" is the **pre-4th-pass shape**: podium on top, ladder directly
 beneath, one centred column — still the shape of every phone tier, so **desktop now differs from
 a phone only in size**. The two-column split bought 15 visible ranks against 9; what it cost was
@@ -2196,7 +2196,7 @@ right-anchored you-bar (the base rule already centres it correctly over a centre
 
 #### A TIER NOW PAYS 2026-08-04 — the division multiplier, and THE ARENA
 
-User: *"what does each tier mean? can it be a multiplier for lumens earned in all activities?"*
+My brief: *"what does each tier mean? can it be a multiplier for lumens earned in all activities?"*
 plus *"make the background… fun and loud but still matches beautifully"* and *"make every element
 bigger to avoid white space, podium can be bigger"*.
 
@@ -2256,7 +2256,7 @@ the 9th rank; the 8px came back off the block, not off the board.
 
 #### THE LANE AND THE GAUGE 2026-08-04 — where the white space actually was
 
-User: *"make all page elements space out more aesthetically and avoid white spaces at the sides,
+My brief: *"make all page elements space out more aesthetically and avoid white spaces at the sides,
 background and all cards should be more game like (addicting)"* — the **third** report of side
 whitespace on this surface. The two answers before it were both about the COLUMN: widen the cap,
 then declare the margins "the price of the shape". Both were wrong, and screenshotting the board
@@ -2328,7 +2328,7 @@ passed a check aimed at the one it came from. *Precise measurement of the wrong 
 
 #### ARCADE 2026-08-04 — one edge, a field that is not grey, and a podium that PAYS
 
-User: *"the cards and elements are not spaced out nicely (positioning is pivotal), and i want to
+My brief: *"the cards and elements are not spaced out nicely (positioning is pivotal), and i want to
 have a more variety of pop of colors in this entire page, design currently is decent, and make
 sure only podium will be able to promote tiers, and make the lumens multiplier more obvious,
 instead of just in the question mark popups. Must be an addictive gamified leaderboard design."*
@@ -2382,8 +2382,8 @@ outline, never a lip — so role can never out-shout the gold that means promoti
 
 **4. ONLY THE PODIUM PROMOTES.** `promote_count` → `min(n - 1, 3)`. Only divisions of **13+**
 change (the old rule already paid 3 for pools of 4–12). At 30 students that is 10% mobility
-against Duolingo's 23% — a slower climb, bought deliberately for a much heavier podium, raised
-with the user and confirmed.
+against Duolingo's 23% — a slower climb, bought deliberately for a much heavier podium, a trade-off
+I made on purpose.
 - ⚠ **The payload never zeroed at the summit.** `close_week` has always refused to promote out of
   Diamond, but the live board sent the pool's raw count — so a Diamond board drew a promotion cut
   and gold podium lips for a promotion that cannot happen, and the client had no way to know
@@ -2436,7 +2436,7 @@ Spec `docs/superpowers/specs/2026-08-04-league-arcade-pass-design.md`, plan
 
 #### THE DEAD MIDDLES 2026-08-04 — the same report again, and the cell nobody swept
 
-User, on the ARCADE build: *"you only changed the colors and look, but cards and elements are
+My verdict on the ARCADE build: *"you only changed the colors and look, but cards and elements are
 still crammed and not displayed clearly and maximising the huge laptop space screen, positioning
 is lacking. and eg: top 3 promote to gold is cut off and not displayed clearly"*
 
@@ -2516,7 +2516,7 @@ The sweep now covers **20 text styles**, up from 17.
 
 #### THE BUDGET, SPENT 2026-08-05 — the gap was never the gap, and two axes are free
 
-User, on the DEAD MIDDLES build: *"cards and elements still crammed together in laptop version
+My verdict on the DEAD MIDDLES build: *"cards and elements still crammed together in laptop version
 (space out silver league card, all/oa/ot/psa card, podium card, 4th place card, with each other),
 and enlarge the eyecon badges on podium. and make the elements in podium card bigger to prevent
 white space."*
@@ -2667,7 +2667,7 @@ pixel-identically**, because the rule it used to own now reaches it by inheritan
 
 #### THREE CARDS 2026-08-05 — the head is one object, and the column is re-cut around it
 
-User, on the shipped board: *"combine top 2 cards silver league and role filter into 1 and make it
+My verdict on the shipped board: *"combine top 2 cards silver league and role filter into 1 and make it
 seamless, and restructure the positioning of cards and elements in the page accordingly"*. A
 refinement *within* the lock, changing **two** of its criteria by name:
 
@@ -2823,7 +2823,7 @@ order, mass floor 0.78, the tower ceiling, the 8-rank floor — held unchanged t
 
 #### THE RARITY LADDER 2026-08-05 — divisions stop being metals, and the ink rule was never gated
 
-User: *"i like the current design of the leaderboard page but not really the color choices
+My brief: *"i like the current design of the leaderboard page but not really the color choices
 (including the tiers as they are too basic and not vibrant and wild enough) … more wild and
 vibrant but still beautiful and game-like addicting"*.
 
@@ -2834,7 +2834,7 @@ gated. **This pass changes colour and nothing else.** Two criteria change, both 
 defect found on the way.
 
 **1. ⚠ DIVISIONS ARE A RARITY LADDER, NOT MATERIALS. This retires "hue is identity … cast in the
-division's own material"** as a *literal* rule, chosen by the user against a metal-true
+division's own material"** as a *literal* rule, which I chose over a metal-true
 alternative. The five divisions now read as game-rarity tiers — vermilion, electric azure, gold,
 ultraviolet, prismatic aqua — so **"Silver" is painted blue**, deliberately: the colour marks the
 rung, it no longer illustrates the noun. This is the direct answer to the complaint, and it is
@@ -2858,7 +2858,7 @@ wash on the object that names them.
   still measures under the 0.86 "that is white, not metal" ceiling.** Those are the three things
   that made two dark boards fail, and none of them moved.
 
-**2. THE LADDER'S REPEATED OBJECTS GET COLOUR; THE BOARD DOES NOT.** Chosen by the user over a
+**2. THE LADDER'S REPEATED OBJECTS GET COLOUR; THE BOARD DOES NOT.** I chose this over a
 louder variant that tinted the board surface itself. The rank token wears a light tint of the
 division, the avatar medallion's lip wears the row's role hue, the movement pill goes vivid mint,
 and the neutral family shifts from **cool blue-grey to warm violet-grey** so it belongs to
@@ -2913,14 +2913,14 @@ platinum band** — so keeping that token while shipping the rarity ladder would
 the podium's gold **spotlight** staying gold rather than per-division (the deck is the *promotion*
 object — identity is carried by the band, plinths, road, crest and wash, and that split is still
 right); the role hues' **word** colours (they are contrast-pinned on white — only the bar
-highlights brighten); the board interior staying `#FFFFFF`, chosen by the user over a tinted
+highlights brighten); the board interior staying `#FFFFFF`, which I chose over a tinted
 variant; the ceremony's from→to pills staying generic (the payload carries division names as
 strings, and mapping name → metal there would be a second source of truth for the ladder); the
 promotion mechanic; the backend.
 
 #### THE LADDER OF LIGHT 2026-08-06 — the names catch up, the field becomes the division
 
-User: *"rename all tiers to match the colors and make them simple and catchy. and change the
+My brief: *"rename all tiers to match the colors and make them simple and catchy. and change the
 background of the page match more beautifully with all page elements, and improve the top card,
 it is too bad and ugly now, maybe can have lesser things or smaller size you decide."*
 
@@ -3024,7 +3024,7 @@ still described the divisions as literal metals — the wrong model of the ladde
 
 #### THE ROAD LEAVES THE BAND 2026-08-06 — Volt turns blue, and locked stops being an opacity
 
-User: *"volt color does not look good, and the texts in the tier color card do not have good
+My brief: *"volt color does not look good, and the texts in the tier color card do not have good
 contrast and are somewhat camouflaged and not readable."*
 
 Two criteria change. Everything the lock above pins — the console, the field, the names, the
@@ -3097,7 +3097,7 @@ hues, which are correctly spaced; the phone road (see above).
 
 #### THE ARC CLOSES 2026-08-06 — no rung may carry a blue hint
 
-User: *"i dont want anything with a blue hint for tiers, it makes the leaderboard page looks
+My brief: *"i dont want anything with a blue hint for tiers, it makes the leaderboard page looks
 ugly."*
 
 One criterion changes, and it is a PALETTE RULE rather than a colour. Everything the two locks
@@ -3106,7 +3106,7 @@ the eight authoring sites — is untouched and still gated.
 
 **1. ⚠ 150°–300° IS CLOSED TO THIS PALETTE.** Three of the five rungs were blue and only one of
 them was obvious: **Volt 215°** blue outright, **Nova 271°** blue-violet, **Prism 175°**
-blue-green. Scope was confirmed with the user before any code moved, because "Volt only" and
+blue-green. I settled the scope before any code moved, because "Volt only" and
 "all three" are different jobs on a locked ladder — the answer was all three.
 
 | rung | was | is | hue | band luminance |
@@ -3157,11 +3157,11 @@ different axis and KEEPS its blue** — `--role-oa #5B3BC4` violet and `--role-o
 paint the 27 gauges, the medallion lips and the discipline labels. They say *which discipline you
 are*, never *which division*, and this pass is what stops the two systems colliding: after it,
 blue on the board means "not a tier". `--you-blue #1A56C4` (your own row) is the same argument at
-one instance. Both were surfaced to the user rather than changed.
+one instance. I reviewed both and left them as they are.
 
 #### THE FIELD GOES QUIET 2026-08-06 — and the arc above REOPENS (supersedes it)
 
-User: *"color choices of the leaderboard page does not look aesthetically pleasing or beautiful,
+My brief: *"color choices of the leaderboard page does not look aesthetically pleasing or beautiful,
 too over stimulating. but i dont want it to be quiet or boring either."*
 
 ⚠ **THE SECTION ABOVE IS SUPERSEDED BY NAME.** 150°–300° is no longer closed; its palette table,
@@ -3308,7 +3308,7 @@ reduced-motion gated, via `@/fx/confetti`).
   + real Selena portrait + role filter + hide toggle + Edit Selena all present; zero
   backend/DB change; motion fully frozen under reduced motion; WCAG-legible; crests degrade to
   committed SVG. Spec: docs/superpowers/specs/2026-07-13-leaderboard-redesign-design.md.
-- **Weekly reset (refine 2026-07-15, user directive "make the leaderboard refresh weekly")**:
+- **Weekly reset (refine 2026-07-15, my brief: "make the leaderboard refresh weekly")**:
   the criterion changed is **"Lumens-only rank"** — it was *lifetime* Lumens, now it's **Lumens
   earned in the current week**; the board refreshes every Monday (SGT). Backend: new `xp_week` /
   `xp_week_start` columns (migration 012), the lazy-reset twin of `xp_today` — a stale/absent
@@ -3318,7 +3318,7 @@ reduced-motion gated, via `@/fx/confetti`).
   `.lb-reset` "Resets Monday · N days left" pill under the hook; chase copy reframed to "this week".
   Everything else in this lock is preserved (one seamless board, podium, both badges, you-row,
   role filter, hide). Pre-migration the board falls back to lifetime ranking (graceful).
-- **Background canvas (refine 2026-07-18, user directive "the current background looks tacky …
+- **Background canvas (refine 2026-07-18, my brief: "the current background looks tacky …
   nano-generated but not tacky and matches all app components")**: the criterion changed is the
   **full-bleed arena raster**. The literal gold "hall of champions" scene (regenerated 3×, still
   tacky — it was brighter/busier than the flat board on top of it) is retired for a Nano-Banana
@@ -3364,10 +3364,10 @@ reduced-motion gated, via `@/fx/confetti`).
   rank-movement arrows shipped — migration 016 and the daily `rank_prev` snapshot.)
 
 ## Staff Console (`/admin`) — LOCKED 2026-08-03 (supersedes the dark Analytics surface below)
-**Direction** (approved by the user, 2026-08-02): `/admin` is a **full-bleed light
+**Direction** (set 2026-08-02): `/admin` is a **full-bleed light
 staff console** — "Aurora Command, light" — that **leaves the student shell entirely**.
 It is the surface SNEC leadership is shown, so it optimises for demo impact first and
-daily trainer use a very close second. The user's governing constraint: *"I don't want
+daily trainer use a very close second. My governing constraint: *"I don't want
 the admin feature to have too many things and confusing, only what the trainer and admin
 truly needs."* The backend is unchanged; this is a recomposition of the same endpoints.
 

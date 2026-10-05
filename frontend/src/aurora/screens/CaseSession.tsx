@@ -159,7 +159,7 @@ export function CaseSession() {
   // opened in the action panel. Past SKIP_AFTER with no tick ⇒ offer the way out.
   const [attempts, setAttempts] = useState(0);
   const [skipping, setSkipping] = useState(false);
-  // The pre-flight briefing runs on EVERY station open (user, 2026-07-29) — no storage key,
+  // The pre-flight briefing runs on EVERY station open (my call, 2026-07-29) — no storage key,
   // no "seen" flag. `?` re-opens it mid-case, which is the only other way in.
   const [showBriefing, setShowBriefing] = useState(false);
   // The encounter starts when the student does, not when React mounted. Rebase once, on the

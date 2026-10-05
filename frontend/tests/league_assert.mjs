@@ -6,7 +6,7 @@
    The history matters, because it is why this file is shaped the way it is. The PRE-pass-4
    harness measured the podium to the pixel — DOM order 1-2-3 painting 2-1-3, a 1.7x champion
    portrait, a 2x plinth, flush plinth seams — and every one of those checks passed on a board
-   the user rejected as "very obvious ai slop". They were precise measurements of the wrong
+   I rejected as "very obvious ai slop". They were precise measurements of the wrong
    thing, taken on a page where the ladder was below the fold. Pass 4 deleted the podium and
    replaced them with the property they had failed to protect. The podium is now back by
    explicit request, and the discipline is: the STAGE may return, the BLINDNESS may not. No
@@ -929,7 +929,7 @@ const WIDE = { tag: "wide", width: 1920, height: 1080, touch: false };
    into a breakpoint cell nothing swept: the ≥860px height step missed it, the old ≥1500px
    width step missed it, and it landed on the smallest board the desktop range can produce —
    860px on its own 1489px field, 57.8%, straight through the ribbon floor above. Both of the
-   two defects the user reported lived in that cell. */
+   two defects I reported lived in that cell. */
 const SHORT_WIDE = { tag: "short-wide", width: 1489, height: 838, touch: false };
 
 /* A 5:4 MONITOR, and the only entry that is here for a CODE PATH rather than for a device.
@@ -1001,7 +1001,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
       bad(`${at}: plinth heights are ${h1}/${h2}/${h3}px for 1st/2nd/3rd — the champion's block must be the tallest`);
     } else ok(`${at}: the plinths step down ${h1} > ${h2} ≥ ${h3}px`);
 
-    /* PLINTH MASS, both bounds. The stepping check above passed on a board the user read as
+    /* PLINTH MASS, both bounds. The stepping check above passed on a board I read as
        "the plinths look too small" (2026-08-04), because three blocks can step down perfectly
        and all three still be trays. The bound that matters is the block against the FIGURE
        STANDING ON IT, and it is two-sided:
@@ -1134,7 +1134,7 @@ for (const vp of [...VIEWPORTS, LAPTOP, DESKTOP, SHORT_WIDE, FIVE_FOUR, WIDE]) {
     } else ok(`${at}: a rung's dead middle is ${m.rowFill.gap}px of ${m.rowFill.w}px (${(share * 100).toFixed(0)}%, budget 34%)`);
   }
   /* THE FLANKS MAY NOT TOUCH THE STAGE. See the note on `flanks` in measure(): this is the
-     bug the user photographed, and it was invisible to every check on the page because the
+     bug I photographed, and it was invisible to every check on the page because the
      overflow sweep looks at the VIEWPORT's edges and a pill hidden under an opaque plinth is
      inside them. 0px of overlap, no tolerance — a flank that reaches the stage at all has
      already lost characters off the end of a sentence. */

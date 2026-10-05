@@ -36,7 +36,7 @@ PILOT_DIR = PROJECT_ROOT / ".tmp" / "selena-pilot"
 # richest art but is slow (~60–120s) and 504s often under load; flash is fast + reliable
 # and the practical choice for a batch. Select with --model.
 # Default to flash everywhere (fastest + reliable). Reserve pro only for clinical/medical
-# imagery that needs professional accuracy (user rule 2026-07-06). pro also 504s under load.
+# imagery that needs professional accuracy (my rule, 2026-07-06). pro also 504s under load.
 MODELS = {"pro": "gemini-3-pro-image", "flash": "gemini-3.1-flash-image"}
 MODEL_IMAGE = MODELS["flash"]
 

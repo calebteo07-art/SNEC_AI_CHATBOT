@@ -2,7 +2,7 @@
    Run: node --experimental-strip-types frontend/tests/station_help_logic.mjs
 
    Students said the whole feature was confusing (2026-07-29), so `?` and the briefing read
-   from ONE model and can never describe the system differently. Then the user said the `?`
+   from ONE model and can never describe the system differently. Then I decided the `?`
    modal was "too long winded and no one is gonna read all that" — so the LENGTH CEILINGS
    below are the feature, not decoration: they are what stops the card growing back into a
    document. Guards three contracts:
@@ -86,7 +86,7 @@ assert.strictEqual(shouldAutoAdvance({ ...RUNNING, focused: false }), false, "a 
 assert.strictEqual(shouldAutoAdvance({ reduceMotion: true, hovered: true, manual: true, focused: false }), false);
 
 // Long enough to read the beat AND look at the pane it points at, short enough that a
-// veteran isn't held hostage. Raised from 2s-4s (user, 2026-07-30: the beats "flash by
+// veteran isn't held hostage. Raised from 2s-4s (my call, 2026-07-30: the beats "flash by
 // before i can read finish") — a title + one line is ~19 words, and the eye also has to
 // travel to the spotlight and back, so the floor is 4.5s, not 2s.
 assert.ok(BEAT_MS >= 4500 && BEAT_MS <= 7000, `BEAT_MS ${BEAT_MS} should sit between 4.5s and 7s`);

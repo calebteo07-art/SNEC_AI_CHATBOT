@@ -1,4 +1,4 @@
-/* hover_pause_assert — behavioural gate for the coverflow hover-pause (user, 2026-07-24:
+/* hover_pause_assert — behavioural gate for the coverflow hover-pause (my call, 2026-07-24:
    "hover pause in both spinning parts, but only hover over a small region to pause").
 
    Both drifting coverflows — the home FeatureCarousel and the flashcards CardFanCarousel —

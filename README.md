@@ -1,7 +1,7 @@
 # EyeBot
 
 **An AI training platform for eye-care students, in production at the Singapore
-National Eye Centre (SNEC).**
+National Eye Centre (SNEC).** Built by Caleb Teo.
 
 [![CI](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml/badge.svg)](https://github.com/calebteo07-art/SNEC_AI_CHATBOT/actions/workflows/ci.yml)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
@@ -11,17 +11,17 @@ National Eye Centre (SNEC).**
 ![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres-3FCF8E?logo=supabase&logoColor=white)
 
-EyeBot trains Ophthalmic Assistants, Ophthalmic Technicians and Patient Service
-Associates. Students practise against an AI patient in timed OSCE exam stations,
-learn from a tutor that answers with questions instead of answers, and drill
-flashcards that are scored instantly. Staff watch cohort progress from a console
-in the same app.
+I built EyeBot for the students SNEC trains as Ophthalmic Assistants, Ophthalmic
+Technicians and Patient Service Associates. They practise on an AI patient in timed
+OSCE exam stations, learn from a tutor that answers their questions with better
+questions, and drill flashcards that score instantly. Their trainers follow the
+whole cohort from a staff console in the same app.
 
-I designed, built, deployed and operate it end to end: product, backend, frontend,
+I designed, built, deployed and run it end to end: the product, backend, frontend,
 data, security, CI and production.
 
-**Live:** https://snec-ai-chatbot.onrender.com &nbsp;·&nbsp; accounts are issued
-by SNEC, so the app itself sits behind a login.
+**Live:** https://snec-ai-chatbot.onrender.com &nbsp;·&nbsp; SNEC issues the
+accounts, so the app itself sits behind a login.
 
 <p align="center">
   <img src="docs/media/readme/osce-station.webp" alt="OSCE station: the student talks to an AI patient on the left, the checklist ticks itself as steps are completed, and an examiner panel grades a hands-on procedure against a model answer" width="100%">
@@ -41,7 +41,7 @@ by SNEC, so the app itself sits behind a login.
   </tr>
 </table>
 
-<sub>Screenshots are from the local test harness on mocked data. No real student appears.</sub>
+<sub>Screenshots are from my local test harness on mocked data. No real student appears.</sub>
 
 ---
 
@@ -49,7 +49,7 @@ by SNEC, so the app itself sits behind a login.
 
 | | |
 |---|---|
-| **In production** | Deployed at SNEC with real student cohorts and staff |
+| **In production** | Running at SNEC with real student cohorts and staff |
 | **Scope** | 68 API endpoints across 9 routers · 20 SQL migrations · 155 OSCE cases |
 | **Codebase** | ~27k lines of Python · ~21k lines of TypeScript/React · ~11k lines of CSS |
 | **Tests** | 2,581 backend tests · 70+ Node harnesses, 24 of them in a real browser |
@@ -69,88 +69,86 @@ by SNEC, so the app itself sits behind a login.
 
 ---
 
-## Engineering highlights
+## Decisions I'm proud of
 
-The decisions I'd point a reviewer at, and why each one was made.
+**One origin, one container.** I put Next.js in front and had it proxy `/api/*` to
+FastAPI over localhost, so the browser only ever talks to one origin. That one
+choice paid for itself three times: the login cookie can be `HttpOnly` (no
+JavaScript can read it), the tutor's SSE streams pass straight through, and there
+is no CORS surface to get wrong. Next.js owns the page security headers (CSP);
+FastAPI only ever returns JSON or SSE.
 
-**One origin, one container.** The browser only ever talks to Next.js, which
-proxies `/api/*` to FastAPI over localhost. Because everything is same-origin, the
-login cookie can be `HttpOnly` (no JavaScript can read it), tutor SSE streams pass
-through untouched, and there is no CORS surface. Next.js owns page security headers
-(CSP); FastAPI only ever returns JSON or SSE.
-
-**Grounding without RAG, on purpose.** The curated knowledge base is about 6k
-tokens, so the tutor injects the *whole* thing into the system prompt and relies on
-Gemini context caching so it isn't re-billed each turn
-([`chat.py`](tools/api/routers/chat.py)). Vector search would add a retrieval
-step that can miss, for a corpus that fits in context anyway. pgvector is still
-used, but only offline, to curate and audit the knowledge base.
+**No RAG, on purpose.** The curated knowledge base is about 6k tokens. Rather than
+build a retrieval step that can miss, I inject the whole thing into the tutor's
+system prompt and use Gemini context caching so it isn't re-billed every turn
+([`chat.py`](tools/api/routers/chat.py)). I still use pgvector, but offline, to
+curate and audit the knowledge base, not to answer students.
 
 **AI where it reasons, code where it executes.** Five chained AI steps that are
-each 90% accurate are 59% accurate together. So anything deterministic is pulled
-out of the prompt into tested Python: flashcard scoring has no model in it, and
-OSCE marking combines a deterministic checklist score with AI-judged technique.
+each 90% accurate are only 59% accurate together. So I pulled everything
+deterministic out of the prompts and into tested Python. Flashcard scoring has no
+model in it at all, and OSCE marking combines a deterministic checklist score with
+AI-judged technique.
 
 **Fail closed.** In production the server refuses to boot on a weak
 `JWT_SECRET`, missing Supabase keys or a wildcard CORS origin
-([`config.py`](tools/shared/config.py)). Identity always comes from the signed
+([`config.py`](tools/shared/config.py)). I'd rather it refuse loudly than quietly
+serve students from a broken config. Identity always comes from the signed
 token's `sub`, never the request body. bcrypt (cost 12) runs off the event loop,
-and rate limits key on the real caller (JWT subject, else `X-Forwarded-For`) rather
-than on the proxy's address, which would make one student throttle everyone
-([`shared.py`](tools/api/shared.py)).
+and rate limits key on the real caller (JWT subject, else `X-Forwarded-For`)
+rather than on the proxy's address, which would let one student throttle
+everyone ([`shared.py`](tools/api/shared.py)).
 
-**Built for one small worker.** Production runs a single async worker, so one
-blocking call stalls every student. Every blocking dependency (Gemini, bcrypt,
-the sync Supabase client) goes through `asyncio.to_thread` with a timeout. Shared
-counters live in Redis and one-time codes in Postgres, so it scales horizontally
-the moment the plan allows.
+**Built for one small worker.** Production runs on a single async worker, so a
+single blocking call would stall every student at once. I route every blocking
+dependency (Gemini, bcrypt, the sync Supabase client) through `asyncio.to_thread`
+with a timeout. Shared counters live in Redis and one-time codes in Postgres, so
+it can scale out horizontally the day the plan allows.
 
-**Tests that check what users see, not just what functions return.** The browser
-harnesses drive the real production build in Chromium and make measurements a
-unit test can't: overflow at phone widths, landscape gates and WCAG contrast. One
-of them composites the actual video frame under the actual CSS scrim to find the
-worst-case contrast behind the headline
-([`_home_shot.mjs`](frontend/tests/_home_shot.mjs)). The harness list is
-*discovered*, and a pytest guard fails if a new harness isn't gated, because a
-hand-kept list once silently left 14 of 20 harnesses out of CI
+**Tests that check what students see.** My browser harnesses drive the real
+production build in Chromium and measure things a unit test can't: overflow at
+phone widths, landscape gates, WCAG contrast. One of them composites the actual
+video frame under the actual CSS scrim to find the worst-case contrast behind the
+headline ([`_home_shot.mjs`](frontend/tests/_home_shot.mjs)). I learned the hard
+way that a hand-kept list of harnesses rots: mine once left 14 of 20 out of CI
+without anyone noticing. Now the list is discovered, and a pytest guard fails if
+a new harness isn't gated
 ([`test_browser_harness_registration.py`](tests/test_browser_harness_registration.py)).
 
-**Tests can't touch production.** A global pytest fixture fails any test that
-tries to reach the real database, after one did. With no Gemini key the app
-boots into `MOCK_MODE`, so the full suite and CI run free and deterministic.
+**Tests can't touch production.** After one test reached the real database, I
+added a global pytest fixture that fails any test that tries. With no Gemini key
+the app boots into `MOCK_MODE`, so the whole suite and CI run free and
+deterministic.
 
 **Supply chain.** CI runs `pip-audit`, `npm audit` and npm registry signature
-verification. Dependabot proposes weekly bumps. Installs are strictly
-`npm ci`, after a lockfile regenerated on Windows once dropped the Linux binaries
+verification, and Dependabot proposes weekly bumps. Installs are strictly
+`npm ci`, ever since a lockfile I regenerated on Windows dropped the Linux binaries
 the Docker build needs.
 
-**Every incident becomes a guardrail.** Production rules are written down with the
-outage that caused each one ([`CLAUDE.md`](CLAUDE.md),
-[`docs/DEVELOPING.md`](docs/DEVELOPING.md)). Settled UI decisions are recorded in
-[design locks](docs/design-locks.md), and about 130 dated design specs record *why*
-each subsystem looks the way it does ([`docs/INDEX.md`](docs/INDEX.md)).
+**Every incident becomes a guardrail.** I write each production rule down next to
+the outage that taught it ([`docs/DEVELOPING.md`](docs/DEVELOPING.md)). Settled UI
+decisions go into [design locks](docs/design-locks.md) so I don't rebuild them by
+accident, and about 130 dated design specs record *why* each part looks the way
+it does ([`docs/INDEX.md`](docs/INDEX.md)).
 
 ---
 
-## How I build: AI-assisted, with guardrails
+## How I work
 
-I build EyeBot with [Claude Code](https://claude.com/claude-code) as a pair
-programmer, which is why most commits carry a `Co-Authored-By: Claude` line. I own
-the product, the architecture and the review, and I answer for production. The
-part I've invested most in is making AI-assisted work **safe to ship** to a live
-clinical training system:
+`main` deploys straight to production for a live clinical training system, with no
+staging environment. So I built the process around never shipping red:
 
-- **A standing brief.** [`CLAUDE.md`](CLAUDE.md) holds the stack, the production
-  invariants and the traps that have already broken production once.
-- **Hooks that enforce it.** [`.claude/hooks/`](.claude/hooks) block
-  wrong-shell commands, give every session its own git worktree from a clean
-  `origin/main` so parallel sessions can't ship each other's half-done work, and
-  snapshot state before context runs out.
-- **Test-first, then gates.** A failing test comes first. Nothing reaches
-  `main` until pytest, typecheck, the production build and the browser harnesses
-  are green, because `main` deploys straight to production.
-- **Deterministic tools over long prompts**, per the "AI reasons, code executes"
-  rule above.
+- **Test first.** I write the failing test, watch it fail, then write the smallest
+  code that passes it.
+- **Gates before every push.** pytest, typecheck, the production build and the
+  browser harnesses all have to be green locally, because CI and the deploy run
+  side by side and a red CI run won't stop a release.
+- **An isolated git worktree per working session**, branched from a clean
+  `origin/main`, so half-finished work in one session can never ship with another.
+  Pre-command hooks in [`.claude/hooks/`](.claude/hooks) enforce this and block
+  shell commands written for the wrong shell.
+- **Written invariants.** The production rules live in the repo, each with the
+  incident behind it, so they outlive my memory of why they exist.
 
 ---
 
@@ -174,7 +172,7 @@ clinical training system:
   + pgvector                  + Celery
 ```
 
-| Layer | What is used |
+| Layer | What I used |
 |---|---|
 | Frontend | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion · Node 24 |
 | Backend | FastAPI + uvicorn, async-first · Python 3.12 |
@@ -191,7 +189,7 @@ Full endpoint map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · security mo
 
 ## Run it
 
-No Gemini key is needed: without one the app runs in `MOCK_MODE`.
+You don't need a Gemini key: without one the app runs in `MOCK_MODE`.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
@@ -205,8 +203,8 @@ python -m pytest -q                                  # backend tests
 bash scripts/start-harness.sh all                    # browser harnesses
 ```
 
-The full walkthrough, the repository map and the change-and-deploy loop are in
-[**`docs/DEVELOPING.md`**](docs/DEVELOPING.md).
+The full walkthrough, a map of the repository and the change-and-deploy loop are
+in [**`docs/DEVELOPING.md`**](docs/DEVELOPING.md).
 
 ## Documentation
 
@@ -222,7 +220,7 @@ The full walkthrough, the repository map and the change-and-deploy loop are in
 
 ## License
 
-Copyright © 2026 calebteo07-art. All rights reserved. The source is published so it
-can be read and evaluated; it is not licensed for reuse. Clinical content (cases,
-knowledge base, flashcards) was prepared for SNEC training and is not licensed for
-reuse either. See [`LICENSE`](LICENSE).
+Copyright © 2026 Caleb Teo. All rights reserved. I've published the source so it
+can be read and evaluated; it is not licensed for reuse. The clinical content
+(cases, knowledge base, flashcards) was prepared for training at SNEC and is not
+licensed for reuse either. See [`LICENSE`](LICENSE).

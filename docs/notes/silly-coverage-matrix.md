@@ -127,7 +127,7 @@ skipped. Full OA/PSA → shared-CLINICAL merge is the separate OSCE plan.
 | auto_refraction / aberrometry / lens_meter | `case_ot_*_auto_refraction*`, `case_ot_051_aberrometry_wavefront`, `case_ot_052_lens_meter_focimetry` |
 | retinal_imaging / dr_grading | `case_ot_053_retinal_imaging_fundus_photography`, `case_ot_054_dr_grading_sorc` |
 | dayward_theatre / orthoptics | `case_ot_*_dayward*`, orthoptics scenarios |
-| anatomy_physiology / microbiology_infection / pharmacology / professional_ethics / disorder regions | knowledge exercised within the above scenarios; primarily flashcards/tutor. Standalone stations only if the user wants them. |
+| anatomy_physiology / microbiology_infection / pharmacology / professional_ethics / disorder regions | knowledge exercised within the above scenarios; primarily flashcards/tutor. Standalone stations only if I decide they are needed. |
 
 ## Decisions / review notes
 - **Lens & cataract disorders** ("Disorders of the Lens") have no dedicated

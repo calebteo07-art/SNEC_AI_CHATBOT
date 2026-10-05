@@ -148,7 +148,7 @@ Notes: [`silly-coverage-matrix.md`](notes/silly-coverage-matrix.md) · [`2026-07
 Files that are **project history rather than instructions**:
 
 - [`product-wishlist-2026-07.md`](product-wishlist-2026-07.md) — a captured
-  wishlist of intended changes from July 2026. Verbatim author notes; most items
+  wishlist of intended changes from July 2026, in my own words; most items
   have since shipped. Treat it as the intent behind today's UI, not a backlog.
   Its entries are cited in code as `ricoe A1`…`C7` — see
   [`GLOSSARY.md`](GLOSSARY.md). *(Was `ricoe.md` at the repository root until

@@ -29,7 +29,7 @@ def test_catalog_matches_committed_files():
 
 
 def test_retired_looks_are_gone():
-    """The 2026-07-28 roster cull (user directive). Retired picks must not creep back in via a
+    """The 2026-07-28 roster cull (my call). Retired picks must not creep back in via a
     regenerated catalog — a stale saved ref falls back to the default mascot, which is fine,
     but re-listing a look we deleted the art for would render a broken tile."""
     assert "glasses" not in PORTRAIT_TILES              # the whole spectacles category

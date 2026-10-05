@@ -1,7 +1,7 @@
 /* hoverPause — the hot zone that freezes a drifting coverflow under the cursor.
    Shared by the home FeatureCarousel and the flashcards CardFanCarousel: hovering the
    FRONT CARD pauses the idle drift so you can read (and click) it; the side cards, the
-   arrows and the rest of the stage keep it flowing (user, 2026-07-24: pause on hover,
+   arrows and the rest of the stage keep it flowing (my call, 2026-07-24: pause on hover,
    but only over a small region).
 
    It has to be geometry, not CSS :hover — in both carousels the cards are

@@ -1,6 +1,6 @@
 "use client";
 /* StationBriefing — the station's cold open. Replaces the old first-run StationCoach
-   (user, 2026-07-29: the walkthrough "must be on every session"), so it has NO storage key
+   (my call, 2026-07-29: the walkthrough "must be on every session"), so it has NO storage key
    at all: it plays every time a station opens, forever. That is the whole behavioural change,
    and station_assert pins it by opening a second station and expecting it back.
 

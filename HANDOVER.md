@@ -1,6 +1,7 @@
 # Handover — EyeBot
 
-**For the incoming engineering team at SP 5G AIoT Centre.**
+**For the incoming engineering team at SP 5G AIoT Centre.** From Caleb Teo, who
+built EyeBot and has run it in production until now.
 
 You are taking over a **live production system with real users**. EyeBot is an
 AI training platform used by allied-health students at **SNEC** (Singapore
@@ -29,26 +30,20 @@ authority, and they should be settled early rather than inherited quietly.
 
 ### 1.1 Ownership and licence — resolve this first
 
-**This repository has no `LICENSE` file, and it is public.**
-
-Under default copyright that means: publishing the source grants **no rights to
-anyone** — not to SP, not to SNEC, not to the public. Anybody can read it;
-nobody has an explicit right to use, modify or redistribute it. In practice
-SP taking over development is unlikely to be challenged, but it is an
-unresolved position that should not be left dangling once the work moves between
-institutions.
+**The repository is public and carries an all-rights-reserved [`LICENSE`](LICENSE)**
+in my name. It lets anyone read the code and grants nobody the right to reuse it.
+That keeps the default position explicit, but it does not settle who owns the work.
 
 **What must be decided, in writing:**
 
-1. **Who owns the copyright.** The author was working with SNEC as the client;
-   the work now moves to SP. The answer depends on the internship / employment /
-   engagement terms, and it is a legal question, not an engineering one.
+1. **Who owns the copyright.** I built this while working with SNEC as the client,
+   and the work now moves to SP. The answer depends on the internship / employment /
+   engagement terms, and it is a legal question, not an engineering one. If it
+   lands anywhere other than with me, the `LICENSE` must be updated to match.
 2. **What licence applies**, once (1) is answered — proprietary/all-rights-reserved,
    an institutional internal licence, or an open-source licence.
-3. **Whether the repository stays public.** It is public today. See §1.2.
-
-Until (1) and (2) are settled, do not add a `LICENSE` file — an incorrect one is
-worse than none, because it purports to grant rights the committer may not hold.
+3. **Whether the repository stays public.** It is public today, with SNEC's
+   agreement. See §1.2.
 
 ### 1.2 Public or private, and where the repository lives
 
@@ -104,10 +99,11 @@ so it cannot simply be deleted without breaking the product. But it is SNEC's
 intellectual property, published openly, with no permission recorded anywhere in
 the repository.
 
-**Ask SNEC explicitly:** is publishing this material approved? The realistic
-options are (a) confirm approval and record it in the repo, (b) make the
-repository private (§1.2), or (c) move the clinical content behind the database
-and out of source control. Doing nothing is the only bad answer.
+**Status (October 2026):** SNEC agreed to the repository staying public. Keep
+that agreement on file in writing, and re-confirm it covers this material
+specifically when the repository changes hands. If it does not, the options are
+to make the repository private (§1.2) or to move the clinical content behind the
+database and out of source control.
 
 > **Already fixed during this review:**
 >
@@ -221,7 +217,7 @@ the production image.
 7. Make one trivial change end to end — branch, test, push, watch CI, watch the
    deploy, check the live page. Prove the loop works for *you*.
 8. Rotate the credentials you inherited (`GEMINI_API_KEY` especially) and remove
-   the outgoing author's access once you have been running it for a week or two.
+   my access once you have been running it for a week or two.
    That is the last proof the handover actually worked.
 
 **Before the next cohort.**
@@ -277,8 +273,7 @@ Two conventions that are load-bearing rather than stylistic:
   documents the incidents behind several columns.
 
 [`CLAUDE.md`](CLAUDE.md) is the standing briefing for AI coding assistants
-working on this repo. Parts of it describe the previous author's personal
-workflow; treat the **production invariants** and **guardrails** sections as the
+working on this repo. Parts of it describe my personal workflow; treat the **production invariants** and **guardrails** sections as the
 durable content and adapt the rest to how your team works.
 
 ---

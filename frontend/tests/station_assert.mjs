@@ -350,7 +350,7 @@ await p.waitForTimeout(200);
 if (await p.locator('[data-testid="station-briefing"]').count()) die("Skip must dismiss the briefing");
 ok("Skip dismisses the briefing in one click");
 
-// 0b. EVERY session (user, 2026-07-29). The briefing used to set eyebot_station_coach_seen
+// 0b. EVERY session (my call, 2026-07-29). The briefing used to set eyebot_station_coach_seen
 //     and never return. A reload keeps localStorage, so if any "seen" gate creeps back this
 //     is what catches it — the whole point of the change lives in this assertion.
 await p.reload({ waitUntil: "domcontentloaded" });
@@ -584,7 +584,7 @@ await p.locator('[data-testid="help-station"]').click();
 await p.waitForSelector('[data-testid="help-modal"]', { timeout: 4000 });
 const helpText = await p.locator('[data-testid="help-modal"]').innerText();
 if (!/tick/i.test(helpText)) die("station help must explain that the checklist ticks itself");
-// User, 2026-07-29: "too long winded and no one is gonna read all that". It was ~330 words
+// My note, 2026-07-29: "too long winded and no one is gonna read all that". It was ~330 words
 // across seven sections. The ceiling is the fix — prose is what grows back.
 const helpWords = helpText.trim().split(/\s+/).length;
 if (helpWords > 90) die(`"?" help is ${helpWords} words — it is a document again, not a glance`);

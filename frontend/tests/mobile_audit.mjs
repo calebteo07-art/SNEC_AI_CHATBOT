@@ -10,7 +10,7 @@
  * Usage: node --unhandled-rejections=warn tests/mobile_audit.mjs [baseUrl] [--shots]
  *
  * ── Why this file was rewritten from scratch (2026-07-17) ────────────────────────
- * The previous version could not have caught the bugs the user reported, because:
+ * The previous version could not have caught the bugs I reported, because:
  *
  *  - It built phone contexts WITHOUT `hasTouch`, so `pointer: coarse` never matched
  *    and it audited DESKTOP styling at a phone width. Every phone tier in this app is

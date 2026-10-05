@@ -1,6 +1,6 @@
 # Distance VA — CC-D0008 adopted app-wide (SHIPPED, one DB step outstanding)
 
-**Status:** CC-D0008 is the authority app-wide (user decision, 2026-08-03). Content
+**Status:** CC-D0008 is the authority app-wide (my decision, 2026-08-03). Content
 swept and shipped. Two clarifications still with SNEC, neither blocking.
 **Verified** against the `.docx` of all three sources, not against the ingested Supabase rows.
 

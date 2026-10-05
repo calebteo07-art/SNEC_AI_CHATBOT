@@ -66,7 +66,7 @@ DEFAULT_AVATAR: dict[str, object] = {
 # categories here may be prop-only (lashes / mouth) with no layer art. Kept in lockstep with
 # the committed files by tests/avatar/test_portrait_tiles.py (fails on drift).
 #
-# Culled 2026-07-28 (user directive): the whole `glasses` category, mouth/laugh, mouth/ooh, and
+# Culled 2026-07-28 (my call): the whole `glasses` category, mouth/laugh, mouth/ooh, and
 # lashes/cyber|glam|natural are retired and their art deleted. `accessory/sparkles` is renamed
 # `fairyDust` — humanized it read "Sparkles" right next to eyeShape "Sparkle", two looks a
 # student couldn't tell apart in the roster.

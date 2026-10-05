@@ -1,4 +1,4 @@
-/* Pure unit test for the coverflow hover-pause hot zone (user directive 2026-07-24:
+/* Pure unit test for the coverflow hover-pause hot zone (my call, 2026-07-24:
    "hover pause in both spinning parts, but only hover over a small region to pause").
    hoverPause.ts is dependency-free geometry — no React, no DOM. Run under Node type
    stripping:

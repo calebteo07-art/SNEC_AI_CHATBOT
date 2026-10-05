@@ -6,7 +6,7 @@
    pre-flight briefing both read from here, so the system can never be described two
    different ways.
 
-   BREVITY RULE (user, 2026-07-29: "too long winded and no one is gonna read all that"):
+   BREVITY RULE (my call, 2026-07-29: "too long winded and no one is gonna read all that"):
    the `?` card is FOUR one-line facts per surface — a five-second read, not a document.
    It used to be seven ~45-word sections and students skipped it wholesale. The real
    teaching now lives in the briefing, which plays on every station open; `?` is the
@@ -85,7 +85,7 @@ export const BRIEFING_BEATS: BriefingBeat[] = [
 /** How long a beat holds before the briefing advances itself. Long enough to read the beat
     AND look at the pane it spotlights, short enough that a student on their tenth station
     isn't held hostage. 2600 was the latter but not the former — the beats "flash by before
-    i can read finish" (user, 2026-07-30). A beat is a title plus one line (~19 words) and
+    i can read finish" (my call, 2026-07-30). A beat is a title plus one line (~19 words) and
     the eye still has to travel to the spotlight and back, so it holds for ~5s; a veteran
     passes on it with Next → / Escape rather than waiting it out. */
 export const BEAT_MS = 5200;

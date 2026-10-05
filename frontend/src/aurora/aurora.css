@@ -2748,7 +2748,7 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 .flash-step-body { display: flex; flex-direction: column; gap: 10px; }
 .flash-step-lede { position: relative; text-align: center; }
 /* The top line is still the arcade coin-gold and still overpowers by colour + scale
-   (user, 2026-07-12) — but it dominates by being STRUCK now, not by glowing. Bright
+   (my call, 2026-07-12) — but it dominates by being STRUCK now, not by glowing. Bright
    #ffd21e is 1.4:1 on cream, so the fill drops to the deep amber --fc-coin-ink (6.0:1)
    and the arcade weight comes back as a hard mat drop-lip. A glow cannot make type
    legible on a light ground; an edge can. */
@@ -2834,10 +2834,10 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
    and the big blurred drop-shadow were how a card separated from graphite; over cream
    they read as smudge. A mat outline plus a hard lip does the same job with an edge.
    The thick fully-opaque hue frame is UNCHANGED in role — it is the topic's identity
-   (user, 2026-07-12) — only darkened enough to hold against a light ground. */
+   (my call, 2026-07-12) — only darkened enough to hold against a light ground. */
 .fan-card-media { position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
   background: hsl(var(--fan-hue, 210) 42% 24%);
-  /* FLAT, simple interior (user, 2026-07-12): no inner gloss or vignette — just the image
+  /* FLAT, simple interior (my call, 2026-07-12): no inner gloss or vignette — just the image
      inside a thick, vivid, fully-opaque hue frame with a struck edge. */
   border: 4px solid hsl(var(--fan-hue, 210) 78% 46%);
   box-shadow:
@@ -2858,7 +2858,7 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
   letter-spacing: .14em; text-transform: uppercase; color: #ffd9a6; margin-top: 3px; }
 .fan-card.is-locked { filter: grayscale(.55) brightness(.82); }
 
-/* ── the 5-deck ladder STICKER (user, 2026-07-29) ───────────────────────────────────
+/* ── the 5-deck ladder STICKER (my call, 2026-07-29) ───────────────────────────────────
    The topic's progress as a die-cut disc peeled onto the card's TOP-RIGHT corner. Three
    things make it read as a sticker rather than a HUD chip: it OVERHANGS the corner, it
    wears a near-white die-cut edge + drop shadow, and it sits at a jaunty tilt.
@@ -2916,7 +2916,7 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
   .fan-sticker-cap { font-size: 5.5px; }
 }
 
-/* Arrows FLANK the coverflow (user, 2026-07-12): absolutely pinned to the section's left/right
+/* Arrows FLANK the coverflow (my call, 2026-07-12): absolutely pinned to the section's left/right
    edge and vertically centred on the stage, floating just outside the centre card — not a row
    underneath. z-index sits above the isolated stage so they never hide behind a banked card. */
 /* Neutral glass → neutral PLATE. The lock calls these "neutral glass arrows"; on cream
@@ -2985,13 +2985,13 @@ html[data-motion="reduce"] .fan-card { transition: none; }
   background: linear-gradient(120deg, var(--fc-green-ink), var(--fc-blue-ink), var(--fc-coin-ink), #b8407e, var(--fc-green-ink)); background-size: 300% 100%;
   filter: saturate(1.3); opacity: 1; }
 .flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
-/* Back face owns its own padding. Centered reveal (user, 2026-07-12): everything stacks
+/* Back face owns its own padding. Centered reveal (my call, 2026-07-12): everything stacks
    down the middle and the Next button sinks to the bottom of the card. */
 .flash-back { padding: 42px 30px 30px; align-items: center; text-align: center; }
 .flash-back .flash-payoff { width: 100%; }
 .flash-back .flash-payoff-row { justify-content: center; }
 .flash-back .flash-payoff-points { margin-left: 0; }
-/* Move the Explanation LOWER + declutter the top (user, 2026-07-12): the payoff + streak
+/* Move the Explanation LOWER + declutter the top (my call, 2026-07-12): the payoff + streak
    callout stay grouped at the top with air; `margin-top:auto` here (paired with the auto on
    Next/self-mark) floats the Explanation block down into the lower-middle of the card. */
 .flash-back .flash-compare-label { align-self: center; margin-top: auto; }
@@ -3019,7 +3019,7 @@ html[data-motion="reduce"] .fan-card { transition: none; }
   display: inline-flex; align-items: center; gap: 5px; }
 .flash-stat-score { color: var(--fc-coin-ink); }
 
-/* ── Streak FIRE (user, 2026-07-12; layout+colour-ramp iter same day) — the HUD streak is a
+/* ── Streak FIRE (my call, 2026-07-12; layout+colour-ramp iter same day) — the HUD streak is a
    number 0–10 with a living flame to its LEFT (number on the right). The flame itself CHANGES
    COLOUR and grows wilder as the run climbs: cold (hidden) → lit (warm orange) → blaze (gold) →
    inferno (red→white) → max (blue-white plasma). Per-tier knobs: --flame-* gradient stops,
@@ -3183,7 +3183,7 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 /* Option buttons — light NEUTRAL by default (never red); ✓ bright green / ✗ deep red on lock. */
 /* The list GROWS to fill the space between the question header and the power meter, and
    the options share that height equally (flex:1 per row) — big arcade answer tiles that
-   leave no dead white space inside the card (user, 2026-07-12). */
+   leave no dead white space inside the card (my call, 2026-07-12). */
 .flash-options { display: flex; flex-direction: column; flex: 1; gap: 12px; list-style: none; padding: 18px 26px 8px; margin: 0; }
 .flash-options > li { display: flex; flex: 1 1 0; min-height: 60px; }
 /* The tile sits ON the plate, so it takes the warmer ground tint to separate from it —

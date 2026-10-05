@@ -61,7 +61,7 @@ export function FeatureCarousel() {
       DZ = cw * (176 / 466);
     };
     const RY = 46, SC = 0.14, HALF = n / 2, FADE = HALF - 0.5;
-    // Phones spin livelier than the calm desktop flow (user directive 2026-07-20). Gate on
+    // Phones spin livelier than the calm desktop flow (my call, 2026-07-20). Gate on
     // the app's phone tiers exactly — coarse pointer + phone-sized viewport, either
     // orientation — so tablets/desktop keep 0.005. Read once on mount, like motionOff below.
     const phone =

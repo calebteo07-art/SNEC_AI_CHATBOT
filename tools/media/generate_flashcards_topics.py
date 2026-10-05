@@ -14,7 +14,7 @@ served as .png via browser sniffing) so the topic fan loads fast -- no manual
 re-optimize step to forget. To re-shrink files already on disk, run
 `python tools/media/optimize_topic_images.py`.
 
-Model tiering (user rule: default flash; reserve pro for clinical/medical detail):
+Model tiering (my rule: default flash; reserve pro for clinical/medical detail):
 fine anatomical/pathology macros, fundus and diagnostic plates/scans run on pro
 (PRO_TOPICS); clinic scenes / people / instrument-in-context run on flash. Set
 NB_MODEL to force one model for the whole run (handy for re-running failures).

@@ -1,6 +1,6 @@
 /* Home layout invariants at every device in the matrix (plan Task 7, spec §5.1).
 
-   Home is the surface the user singled out: "the homepage especially does not look good
+   Home is the surface I singled out: "the homepage especially does not look good
    on mobile portrait and landscape mode." The measured causes, all in home.css, were that
    its ONLY two queries were `max-width: 900px` and `max-width: 560px` — so a landscape
    phone (844-932 WIDE but 390-430 TALL) sailed past both and got the desktop ramp:
