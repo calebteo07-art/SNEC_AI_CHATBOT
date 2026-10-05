@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-07-17-first-login-order-design.md`
 
-**Baseline:** this worktree is detached at `origin/main` @ `13e83d4`. The main checkout at `C:\Users\caleb\OneDrive\Desktop\SNEC_AI_CHATBOT` is 87 commits behind and is **not** prod — do not read or edit it.
+**Baseline:** this worktree is detached at `origin/main` @ `042a5ed`. The main checkout at `C:\Users\caleb\OneDrive\Desktop\SNEC_AI_CHATBOT` is 87 commits behind and is **not** prod — do not read or edit it.
 
 ---
 

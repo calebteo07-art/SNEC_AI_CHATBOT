@@ -1,6 +1,6 @@
 """The Sub-scores column must never present two scoring eras on one scale.
 
-Commit c227719 changed the OSCE grade from two AI schemes ×50 — where consult + judgement
+Commit bd1aaa6 changed the OSCE grade from two AI schemes ×50 — where consult + judgement
 summed to the /100 on their own — to three buckets 40/30/30. `case_progress` stores
 `consult_technique` and `judgement_safety` as bare INTEGERs, so rows written before that
 hold /50 values and rows written after hold /30 values, with nothing to tell them apart.
@@ -52,7 +52,7 @@ def test_detail_carries_scale_marker_and_checklist_for_current_era():
 
 
 def test_detail_omits_marker_on_legacy_fifty_scale_rows():
-    """A pre-c227719 row has neither column. Omit both keys rather than inventing a scale —
+    """A pre-bd1aaa6 row has neither column. Omit both keys rather than inventing a scale —
     the frontend reads their absence as the ×50 era and labels the denominators /50."""
     row = _detail_with_cases([{
         "student_id": "s1", "case_id": "c_old", "total_score": 31, "passed": True,

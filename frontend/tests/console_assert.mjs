@@ -26,7 +26,7 @@ const browser = await chromium.launch();
 /* A "to be visible" timeout on .cs-shell is a failed app BOOT, not a slow animation.
    Report it as a FAIL line rather than letting it throw: an uncaught stack trace is
    unreadable inside the `all` sweep and buries which harness actually broke. Same
-   lesson as 36bfa29 (station_assert). */
+   lesson as cbda404 (station_assert). */
 async function boot(page, path, label) {
   await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
   try {

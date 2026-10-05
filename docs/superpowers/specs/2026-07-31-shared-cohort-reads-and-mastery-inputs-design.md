@@ -3,7 +3,7 @@
 **Date:** 2026-07-31
 **Status:** Approved design → ready for implementation plan
 **Basis:** full read of the three whole-table consumers in a worktree off `main`
-(`8b70865`). Follows P2b's student-detail mastery block, shipped `1e2e57f` / `8b70865`.
+(`def82df`). Follows P2b's student-detail mastery block, shipped `eef6d3b` / `def82df`.
 
 ## 1. Goal
 

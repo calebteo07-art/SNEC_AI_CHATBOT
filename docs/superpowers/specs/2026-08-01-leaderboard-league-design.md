@@ -280,7 +280,7 @@ trail before a student notices their rank stopped meaning anything.
 
 ### Amendment B — "sees their own board" was not buildable as written (2026-08-01)
 
-**Supersedes** the struck clause in §6.4. Phase 2 (`eb72a9a`) restored the control itself; this
+**Supersedes** the struck clause in §6.4. Phase 2 (`d277bec`) restored the control itself; this
 covers the half of §6.4 that the restoration could not honour.
 
 **What was wrong.** §6.4 promised a hidden student "sees their own board", and `BoardSettings`

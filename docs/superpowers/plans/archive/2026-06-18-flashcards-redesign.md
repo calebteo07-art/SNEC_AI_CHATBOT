@@ -1073,7 +1073,7 @@ git push
 
 ## Self-Review notes (for the implementer)
 
-- **Stable identity:** `FlashShell` is module-scope (Task 4) — the recall textarea must not remount on parent re-render, exactly as the old `ApertureShell` was hoisted (`1ba8034`).
+- **Stable identity:** `FlashShell` is module-scope (Task 4) — the recall textarea must not remount on parent re-render, exactly as the old `ApertureShell` was hoisted (`fdbd4f5`).
 - **Test hooks that MUST exist:** `data-testid="flash-setup"`, `flash-exit`, `flash-start`, `study-stage`, `flash-submit`, `flash-score`; classes `.flash-recall`, `.flash-compare-label` (text "Model answer"). These appear in Tasks 5–8 and are asserted in Task 1.
 - **No GSAP:** all motion is CSS (Task 10) + `useCountUp` (Tasks 6). Do not import GSAP effect wrappers.
 - **Mechanics untouched:** Task 9 changes only imports/JSX. `submitAnswer`, `advance`, `finishSession`, `explainThis`, weak-card retry, `MIN_FOCUS_MS`, and all XP/SM-2 plumbing stay byte-for-byte.

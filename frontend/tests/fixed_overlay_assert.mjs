@@ -2,7 +2,7 @@
    .aurora-page-enter (RouteReveal) had `animation-fill-mode: both` over keyframes
    containing a transform; a filling transform stays a containing block for fixed
    descendants forever, so every overlay silently pinned to the page box instead of
-   the viewport (rotate gate, station report, Studio popup -> commit 8df25a1).
+   the viewport (rotate gate, station report, Studio popup -> commit 6a1813a).
 
    What counts as the bug: a FINISHED animation whose retained final keyframe leaves a
    transform behind. Two things are deliberately NOT the bug, and the check separates

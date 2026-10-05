@@ -24,7 +24,7 @@
    and a filling transform (even the identity matrix that `transform: none` computes
    to) keeps this element a containing block for every position:fixed descendant —
    which silently pins overlays to the page box instead of the viewport (rotate gate,
-   station report, Studio popup / commit 8df25a1). `backwards` still applies the 0%
+   station report, Studio popup / commit 6a1813a). `backwards` still applies the 0%
    keyframe before the run (preserving the entrance and any animation-delay), and the
    settled state is identical because 100% IS the natural style. Never revert to `both`;
    frontend/tests/fixed_overlay_assert.mjs guards this. */

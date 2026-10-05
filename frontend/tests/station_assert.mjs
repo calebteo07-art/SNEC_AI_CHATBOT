@@ -720,7 +720,7 @@ ok("topic revealed in the debrief");
 // 7a. One-time session save: the button downloads the record, then is spent (disabled, and
 //     visibly says so). The spent LABEL is asserted as "it changed", not as exact copy —
 //     pinning the literal word "saved" rotted the moment the CTA became "⬇ Download session
-//     insights" / "✓ Insights downloaded" (54831c7) while the behaviour stayed correct. The
+//     insights" / "✓ Insights downloaded" (7fbaf08) while the behaviour stayed correct. The
 //     download itself is now asserted: the old `.catch(() => null)` + bare `await` swallowed
 //     a timeout, so a save that silently stopped downloading would still have passed.
 const saveBtn = p.locator('[data-testid="save-session"]');

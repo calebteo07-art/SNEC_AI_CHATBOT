@@ -103,7 +103,7 @@ for a split second then disappears", and it is why rotating back does not restor
 
 ### Prior art — this is a known, mis-fixed bug
 
-Commit `8df25a1` (2026-07-15) diagnosed this exact mechanism correctly:
+Commit `6a1813a` (2026-07-15) diagnosed this exact mechanism correctly:
 
 > "A filling transform animation establishes a containing block for fixed descendants
 > even after it settles to transform:none (verified: offsetParent = the wrapper, fixed
@@ -164,7 +164,7 @@ encoded the wrong invariant.
   2. A portal would make the gate permanently immune, so the assert could never again
      catch a re-introduced trap *through the gate* — it would mask its own best
      detector on the one surface I'd flagged. It is also
-     precisely the one-element symptomatic patch commit `8df25a1` applied, which is
+     precisely the one-element symptomatic patch commit `6a1813a` applied, which is
      why the root cause survived to break this gate.
 
   Verified inert to drop: with Task 1 in, `rotate_gate_assert.mjs` is **7/7 green**

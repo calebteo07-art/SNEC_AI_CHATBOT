@@ -106,7 +106,7 @@ async function studentCtx(customized) {
   await p.waitForTimeout(300);
   const heroCape = await p.locator('.studio-hero .eyecon-layer[src="/avatar/tiles/outfit/cape.webp"]').count();
   // NB: the Save button is `.studio-nav.is-primary` — the `.studio-save` class went away with
-  // the top action bar (48ea87f) and only lingers in studio.css, so the old selector here
+  // the top action bar (d7f360e) and only lingers in studio.css, so the old selector here
   // matched nothing and this check could never pass.
   const saveArmed = await p.locator(".studio-nav.is-primary:not([disabled])").count();
   if (heroCape >= 1 && saveArmed >= 1) {

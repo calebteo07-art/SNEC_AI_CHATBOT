@@ -2642,7 +2642,7 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 
 /* Background layers (FlashShell → BrownianField `.flash-bg` + EngravingField
    `.flash-engravings`). These MUST be absolutely positioned out of flow. A 2026-07-11
-   CSS rewrite (5abe567) dropped these rules but kept the components, so the containers
+   CSS rewrite (184e317) dropped these rules but kept the components, so the containers
    rendered in normal flow; their unstyled, unsized glyph/spot SVGs ballooned the box to
    ~20000px tall and shoved `.flash-content` far below the viewport — the "blank card
    after a topic pick" (the intro/card paints fine, just off-screen). Keep them at z0,

@@ -1863,7 +1863,7 @@ Cohort aggregation has to scan two whole tables, and neither has a reader fit fo
 The existing readers stay byte-for-byte untouched: `get_all_case_progress` is shared with `/api/admin/activity` (`tools/api/routers/admin.py:195`), whose P1 feed reads `score_100`/`safe`/`missed_critical` out of that `select("*")`; and `get_case_progress_since` (`tools/shared/db.py:507-516`, used at `admin.py:260`) documents its two-column projection as the reason the activity trend never pulls the full table.
 
 **Files:**
-- Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 516** — i.e. above the `# ── approved_students ──` banner at **line 528**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's PROSE was written before Task 2 inserted `_fetch_all` and is ~87 lines low. Anchors verified at commit `b81e68e`: `get_all_case_progress` **:489**, `get_case_progress_since` **:516**, banner **:528**, `get_active_profiles` **:256**, `get_all_supervisors` **:724**. **Re-grep rather than trusting any line number here** — this file has now shifted twice mid-plan.
+- Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 516** — i.e. above the `# ── approved_students ──` banner at **line 528**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's PROSE was written before Task 2 inserted `_fetch_all` and is ~87 lines low. Anchors verified at commit `bd0a79c`: `get_all_case_progress` **:489**, `get_case_progress_since` **:516**, banner **:528**, `get_active_profiles` **:256**, `get_all_supervisors` **:724**. **Re-grep rather than trusting any line number here** — this file has now shifted twice mid-plan.
 - Test: `tests/shared/test_db_analytics_reads.py` (**Create**)
 - Test: `tests/shared/test_active_student_profiles.py` (**Create** — see the amendment below)
 
@@ -5583,7 +5583,7 @@ grep -rn "useActivity\|FeedItem\|missed_critical\|safetyRate\|mostMissed\|avgOsc
 grep -rn "weakest_topics" tools/ frontend/src/ frontend/tests/ tests/
 ```
 
-Verified consumer list at `origin/main` (`cb8908c`). **If the grep surfaces a consumer not on this list, handle it in this task.**
+Verified consumer list at `origin/main` (`a3c2ded`). **If the grep surfaces a consumer not on this list, handle it in this task.**
 
 `useActivity` / the 80-item feed:
 

@@ -1892,7 +1892,7 @@ regression, not a restyle:
 - **NO visibility panel — removed on request 2026-08-02.** The "Your visibility" card (hide-me
   switch + display-name field, `BoardSettings.tsx`) is gone from the board, and with it the
   only client for `POST /api/leaderboard/prefs`. `useSetLeaderboardPrefs` was deleted rather
-  than left exported-and-unimported, because *that* shape is what hid the 214ab7f regression
+  than left exported-and-unimported, because *that* shape is what hid the d711e74 regression
   for weeks — a dead hook makes a missing feature look present.
   **What this costs, stated plainly:** the board is now everyone-by-default with **no in-app
   opt-out** on a named, supervisor-visible cohort. A student already flagged

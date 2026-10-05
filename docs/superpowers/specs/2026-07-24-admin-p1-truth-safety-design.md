@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-24
 **Status:** Approved design → ready for implementation plan
-**Audit basis:** full read of the admin surface at `origin/main` (`1be3a55`), in an isolated worktree
+**Audit basis:** full read of the admin surface at `origin/main` (`119e69d`), in an isolated worktree
 
 ## 1. Goal
 

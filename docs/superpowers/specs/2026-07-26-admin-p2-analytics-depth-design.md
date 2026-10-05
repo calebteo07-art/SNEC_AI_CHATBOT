@@ -2,9 +2,9 @@
 
 **Date:** 2026-07-26 · **Revised** 2026-07-26 after a code-verification + adversarial-review pass
 **Status:** Approved design → ready for implementation plan
-**Audit basis:** full read of the admin analytics surface at `origin/main` (`c5ea4da`), in an
+**Audit basis:** full read of the admin analytics surface at `origin/main` (`905b55d`), in an
 isolated worktree, plus a 10-agent verification pass (6 code verifiers, 3 adversarial lenses)
-and a read-only production row probe. Follows P1 (Truth & Safety), shipped `bcd6e0e`.
+and a read-only production row probe. Follows P1 (Truth & Safety), shipped `e06aa1b`.
 
 ## 1. Goal
 
@@ -78,7 +78,7 @@ events.
 above.
 
 - The backend writer filters `for r in body.results if r.topic_tag`
-  (`tools/api/routers/student.py:468`), shipped in `def4f0e`.
+  (`tools/api/routers/student.py:468`), shipped in `b9aaaf8`.
 - The frontend never sends it: `CompleteCardResult` declares only
   `card_id, correct, repetitions, easiness, interval_days`
   (`frontend/src/hooks/useFlashcards.ts:26-29`), and the push site sends exactly those
@@ -381,8 +381,8 @@ route *after* the catch-all (last match wins) and select on `.aurora-panel-error
 `[role="alert"]`. A new pure-logic `.mjs` harness is **auto-discovered** — drop it in
 `frontend/tests/` and `npm run test:logic` picks it up; do NOT hand-add it to
 `.github/workflows/ci.yml`. (Corrected 2026-08-01: this line said the opposite, which was
-true when the spec was written. `804acbe` replaced the hand-maintained list after it had
-drifted to 16 of 29 — thirteen harnesses existed, passed, and gated nothing — and `632c22e`
+true when the spec was written. `869cd8b` replaced the hand-maintained list after it had
+drifted to 16 of 29 — thirteen harnesses existed, passed, and gated nothing — and `95dcdf4`
 did the same for the browser half via `gated_harnesses()` in `scripts/start-harness.sh`.
 Exclusions are now opt-OUT, and `NOT_GATED` is `visual_sweep.mjs` alone.)
 

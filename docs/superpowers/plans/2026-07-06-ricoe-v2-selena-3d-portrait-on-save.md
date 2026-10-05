@@ -4,7 +4,7 @@
 > The instant SVG `<Selena>` stays as the free live-edit preview; on Save, the student's config becomes a
 > real 3D Iris PNG (Nano Banana `gemini-3.1-flash-image`, anchored to `iris.png`), cached and reused.
 
-**Pilot proof (commit `1d1dc13`):** `tools/avatar/generate_sprites.py` — resemblance ✅, transparent alpha ✅,
+**Pilot proof (commit `730e550`):** `tools/avatar/generate_sprites.py` — resemblance ✅, transparent alpha ✅,
 full-config-in-one-shot ✅. Model bakes FULL looks (not composable parts), so we generate one image per
 distinct look, not 90 parts.
 

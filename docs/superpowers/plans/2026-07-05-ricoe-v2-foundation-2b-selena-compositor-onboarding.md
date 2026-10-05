@@ -10,7 +10,7 @@
 - **D11 — scaffold-first**: placeholders now; paid generation only on my explicit go-ahead.
 - **Onboarding ref = Bitmoji builder** (my reference image — inspiration, DO NOT COPY): big live preview on top, one category per page, scrollable option grid + colour-swatch column, category nav, Save; gamified (surprise-me, unlockables). Unconventional options are intentional fun (galaxy iris, star eyes, star/freckle blush, horns/crown/flame toppers, heart glasses, cape, galaxy/confetti bg).
 
-**Backend already shipped (`ca22daf`):** `tools/avatar/parts.py` — `AVATAR_AXES` (11 axes: bodyColor, irisColor, eyeShape, lashes, mouth, blush, glasses, topper, accessory, outfit, background), `DEFAULT_AVATAR`, `CONFIG_VERSION=2`, `validate_config`. `GET /api/avatar` → `{config, axes}`; `PUT /api/avatar` validates + persists. Migration `006_avatar.sql` (`avatar_config` JSONB) **still pending Supabase apply** for PUT to persist in prod.
+**Backend already shipped (`361d494`):** `tools/avatar/parts.py` — `AVATAR_AXES` (11 axes: bodyColor, irisColor, eyeShape, lashes, mouth, blush, glasses, topper, accessory, outfit, background), `DEFAULT_AVATAR`, `CONFIG_VERSION=2`, `validate_config`. `GET /api/avatar` → `{config, axes}`; `PUT /api/avatar` validates + persists. Migration `006_avatar.sql` (`avatar_config` JSONB) **still pending Supabase apply** for PUT to persist in prod.
 
 **Tech stack:** Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, CSS-only motion (`motion.css` + `Reveal`/`RouteReveal`; MotionProvider is NOT mounted — no GSAP). Frontend tests = Node harnesses in `frontend/tests/`. Python side stays pytest.
 

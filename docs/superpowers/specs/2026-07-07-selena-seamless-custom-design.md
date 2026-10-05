@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-07 (rewritten 2026-07-08) · **Status:** approved
 **Supersedes:** the raster-composite `<Selena>` sticker renderer
-(`frontend/src/aurora/avatar/renderSelena.ts`, `6e9ba61`) and the D12
+(`frontend/src/aurora/avatar/renderSelena.ts`, `bbd0f73`) and the D12
 opaque-portrait revision. Amends the Selena Studio and Custom-Selena entries in
 `docs/design-locks.md` (§10).
 

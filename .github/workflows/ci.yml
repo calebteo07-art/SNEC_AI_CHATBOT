@@ -16,7 +16,7 @@ on:
 #   - cancel-in-progress: false  stops a RUNNING job being killed by the next push.
 #   - a per-SHA group           stops a QUEUED run being evicted by the next push. GitHub
 #     keeps only one pending run per group regardless of cancel-in-progress, and that alone
-#     cancelled 0d06c52's own run 46s after it shipped — the first attempt at this fix.
+#     cancelled 5092718's own run 46s after it shipped — the first attempt at this fix.
 # Per-SHA means concurrent main runs, which costs minutes; that is the price of the gate.
 concurrency:
   group: ci-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'ref' }}

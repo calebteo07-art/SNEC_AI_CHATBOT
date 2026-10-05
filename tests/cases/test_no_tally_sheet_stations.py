@@ -15,7 +15,7 @@ A tally sheet is identified by "Skills Observation" in the procedure name.
 `checklist_type` is NOT a usable discriminator: Ishihara Colour Vision Testing, Amsler
 Grid Testing and I-Care Competency are REAL procedures that are also tagged 'logbook'.
 
-26 cases were affected. 11 were fixed in 780854b by authoring the five ophthalmic
+26 cases were affected. 11 were fixed in 45839a5 by authoring the five ophthalmic
 investigation checklists from the SNEC Procedure Manual. This file exists so that fix
 cannot silently rot, and so the remaining 15 stay visible rather than becoming folklore.
 
@@ -81,7 +81,7 @@ REAL_LOGBOOK_TAGGED_PROCEDURES = [
     "I-Care Competency",
 ]
 
-# The 11 fixed in 780854b, pinned by name so a silent re-point fails here.
+# The 11 fixed in 45839a5, pinned by name so a silent re-point fails here.
 FIXED_BY_AUTHORED_CHECKLIST = {
     "case_ot_022_pam_dense_cataract": "Macula Potential (Acuity Test) Investigation",
     "case_ot_028_pam_good_potential_dense_cataract": "Macula Potential (Acuity Test) Investigation",

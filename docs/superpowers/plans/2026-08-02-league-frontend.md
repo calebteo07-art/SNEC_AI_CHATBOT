@@ -1,7 +1,7 @@
 # Plan — The League, Phase 2: the Beam frontend
 
 Spec: `docs/superpowers/specs/2026-08-01-leaderboard-league-design.md` §6.
-Phase 1 (backend) shipped `731a22f`; **migration 016 was applied 2026-08-01** (`23e336b`), so
+Phase 1 (backend) shipped `ae12b29`; **migration 016 was applied 2026-08-01** (`16a7795`), so
 divisions, arrows, the rollover and the result endpoint are all live. The first Monday close is
 **2026-08-03 SGT** — this phase must land before it, or students race a mechanic they cannot see.
 

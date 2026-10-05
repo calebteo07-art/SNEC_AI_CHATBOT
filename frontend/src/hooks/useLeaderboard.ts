@@ -77,7 +77,7 @@ export function useLeaderboard(role?: string | null) {
 
 /* NOTE: there is no `useSetLeaderboardPrefs` any more. The visibility panel was removed from
    /leaderboard on 2026-08-02 by request, which left this mutation exported and imported by
-   nothing — exactly the shape that hid the last opt-out regression (214ab7f) for weeks. The
+   nothing — exactly the shape that hid the last opt-out regression (d711e74) for weeks. The
    endpoint POST /api/leaderboard/prefs is untouched and still works; restoring the write path
    means restoring a UI for it, not just re-adding a hook. */
 

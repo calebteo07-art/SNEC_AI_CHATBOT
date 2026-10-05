@@ -3,7 +3,7 @@
 **Date:** 2026-06-18
 **Status:** Approved design, pending implementation plan
 **Scope:** Frontend only. Full rebuild of the flashcards presentation layer.
-**Supersedes:** "PRISM" (`fe0f448`) and all prior named concepts (Aperture, FUNDUS).
+**Supersedes:** "PRISM" (`721d0a4`) and all prior named concepts (Aperture, FUNDUS).
 
 ---
 

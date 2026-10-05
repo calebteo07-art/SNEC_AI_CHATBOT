@@ -17,7 +17,7 @@ and the hidden-row filter are deliberately left working — a student flagged
 exists to unset it, and restoring the control should not mean rewriting the server. Keep
 these tests green; they are the contract, not the feature.
 
-Note these were never the tests that could catch the original 214ab7f regression: the API
+Note these were never the tests that could catch the original d711e74 regression: the API
 was never broken, only unreachable, so (1), (2) and (4) passed the moment they were
 written. Only a browser harness can prove reachability, and with the panel gone there is
 nothing left to prove — `league_assert.mjs` now asserts its absence instead.

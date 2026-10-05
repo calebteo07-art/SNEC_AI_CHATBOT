@@ -1020,7 +1020,7 @@ console.log("PASS: Home greeting — always the BRAND crew loop, even when custo
 // verify here. The GET mock honours ?role= so the filter stays a real behavioral verify.
 // `xp` is now the WEEKLY score (ranking key); `xp_total` is lifetime XP (tier ring).
 // `avatar_config` must carry REAL customization to exercise the config-driven Eyecon: since
-// 15c853b a config whose look axes are all default renders the iris.png mascot, and
+// b3f57e4 a config whose look axes are all default renders the iris.png mascot, and
 // `background` is only the backdrop — not a look axis — so the old `{ background: … }`-only
 // rows silently became never-customized accounts and stopped producing any /avatar/ layer.
 // Aisha takes the LIBRARY path (config.portrait → one baked tile), Wei Jie the COMPOSITOR

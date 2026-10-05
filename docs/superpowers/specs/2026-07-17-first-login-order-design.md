@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-17
 **Status:** approved (design)
-**Baseline:** `origin/main` @ `13e83d4` (local `main` is 87 behind / 60 ahead and is NOT prod)
+**Baseline:** `origin/main` @ `042a5ed` (local `main` is 87 behind / 60 ahead and is NOT prod)
 
 ## Problem
 

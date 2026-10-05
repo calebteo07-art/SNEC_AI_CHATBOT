@@ -10,7 +10,7 @@
 
 **Design spec:** `docs/superpowers/specs/2026-07-26-admin-p2-analytics-depth-design.md` §6 (and §3 D7, D9, D10, D12, D13)
 
-**Scope:** Plan B of three. Plan A (foundation + cohort aggregation) shipped 2026-07-29 at `c87a071`. Plan C (performance time-series, spec §7) follows and depends only on Plan A's case index and discipline map, so it may be reordered ahead of this one.
+**Scope:** Plan B of three. Plan A (foundation + cohort aggregation) shipped 2026-07-29 at `f3abb4d`. Plan C (performance time-series, spec §7) follows and depends only on Plan A's case index and discipline map, so it may be reordered ahead of this one.
 
 ---
 
@@ -22,11 +22,11 @@
 git fetch origin && git rev-parse --short HEAD && git rev-parse --short origin/main
 ```
 
-### Spec corrections — verified against HEAD `814fca3` on 2026-07-30
+### Spec corrections — verified against HEAD `23656b0` on 2026-07-30
 
-The spec was written at `c5ea4da`, ~25 commits ago. Six of its §6 claims were re-checked in code. **Four held, three drifted.** These corrections are authoritative; do not implement the stale spec text.
+The spec was written at `905b55d`, ~25 commits ago. Six of its §6 claims were re-checked in code. **Four held, three drifted.** These corrections are authoritative; do not implement the stale spec text.
 
-| Spec §6 claim | Verified state at `814fca3` | What to do |
+| Spec §6 claim | Verified state at `23656b0` | What to do |
 |---|---|---|
 | Binary rule, `except → []` swallow, `date.today()`, `date` kept as a module symbol | ✅ **Confirmed verbatim** — `at_risk.py:45`, `:26-28`, `:30`, `:6` | Implement as specced |
 | `cohort_summary.at_risk_count` is an independent hardcoded copy of the binary rule | ✅ **Confirmed** — `cohort_summary.py:62` | Implement as specced |

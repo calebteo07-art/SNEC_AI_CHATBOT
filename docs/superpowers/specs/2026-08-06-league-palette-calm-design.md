@@ -9,7 +9,7 @@ This is the sixth colour pass on this page and the first one whose complaint is 
 
 ## 1. Diagnosis
 
-Counted off `origin/main@381ecc6`, one screen carries **seven hue families at once**:
+Counted off `origin/main@fc5214d`, one screen carries **seven hue families at once**:
 
 | Surface | Carries |
 |---|---|

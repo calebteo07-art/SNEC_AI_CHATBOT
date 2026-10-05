@@ -29,11 +29,11 @@ roadmap was **superseded on 2026-07-05** by the world-class re-plan in
 for historical traceability; **do not restart any phase from this doc** without checking the
 v2 spec + `docs/design-locks.md` first.
 
-Delivery highlights (verified against git log): §8 OSCE patient faces (`a568260`),
-D7 leaderboard backend+FE (`0025e05` / `6e8fc31`, migration 008 applied `7648d30`),
-Selena Studio avatar customization (`576fb52`), milestone badge ladder (`289d04d`),
-Selena app-wide surfacing / branding (`c111eb4`), and the animated Selena hero logo brief
-(`18fb168`→`8934a4c`, incl. real paid poses). Last green: 589 pytest + 50-PASS aurora harness.
+Delivery highlights (verified against git log): §8 OSCE patient faces (`1fd2522`),
+D7 leaderboard backend+FE (`e7a03ed` / `ba61f2a`, migration 008 applied `addb1e9`),
+Selena Studio avatar customization (`3d239fc`), milestone badge ladder (`f0037aa`),
+Selena app-wide surfacing / branding (`80a17de`), and the animated Selena hero logo brief
+(`c346ec9`→`60753e2`, incl. real paid poses). Last green: 589 pytest + 50-PASS aurora harness.
 
 ---
 
@@ -76,7 +76,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 8 | EyeBot logo + SNEC logo on every page | E2 | ✅ (rails already had both; added `CoBrand` lockup to rail-less pages — tutor header SNEC, check-in header, flashcards dark-variant; verified by screenshot + aurora SNEC assertion) |
-| 28 | Redesign EyeBot logo → a *different* Selena variation (angle/headshot), not the greeting-card pose | E3 | ✅ 💳 🔒 (delivered as the **animated Selena hero logo** brief — spec `7394d0b`/plan `f9e5218`, `<SelenaLogo>` living mark on Home/`<BrandSplash>`/`<CoBrand>` with cross-fading paid flash poses; mono Spark-Eye kept for rails/favicon/Login. New "Branding" lock in design-locks.md; real poses installed + green-despill `8934a4c`, 589 pytest + 50-PASS aurora green) |
+| 28 | Redesign EyeBot logo → a *different* Selena variation (angle/headshot), not the greeting-card pose | E3 | ✅ 💳 🔒 (delivered as the **animated Selena hero logo** brief — spec `873d5a4`/plan `4d689fe`, `<SelenaLogo>` living mark on Home/`<BrandSplash>`/`<CoBrand>` with cross-fading paid flash poses; mono Spark-Eye kept for rails/favicon/Login. New "Branding" lock in design-locks.md; real poses installed + green-despill `60753e2`, 589 pytest + 50-PASS aurora green) |
 
 ## Flashcards
 | # | Phase | ricoe | Status |
@@ -99,20 +99,20 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | 19 | Eye-part buttons bigger + more apparent | C3 | ✅ 🔒 (pins were a "normally-invisible overlay" — labels `opacity:0` until hover. Now labels are visible by DEFAULT (0.92) with their patient-count badge on show, dot 14→19px + stronger ring, label 10.6→12px, offsets 20→24px, brighter hover/active. `.aurora-pin` CSS only; region-pin filter + 390px no-overflow still green) |
 | 20 | Remove topic filter — eye diagram is the only filter | C4 | ✅ 🔒 (removed the topic popover + `topics`/`selectedTopic`/`topicOpen` state, the `/api/cases/topics` fetch, outside-click effect and the `topic_set` query param — `/api/cases` always fetches all; empty-state simplified. Eye diagram is the sole filter. aurora 28/28, 0 fail — region pin still narrows the list) |
 | 21 | Conversation pfp = static talking head; action pfp = static hand | C9 | ✅ 🔒 (both panes carried a plain `.aurora-pane-dot` gradient circle; now each holds a simple STATIC line-art SVG inside its coloured circle — a person/talking-head on the patient (conversation) pane, a hand on the EyeBot (action) pane. Non-animated, kept simple. `.aurora-pane-dot` centers + sizes the svg. typecheck / build / station_assert 19/19 with a new pfp-present guard) |
-| 22 | Patient face pfps (Chua Ah Hoon + all) via Nano Banana (default = non-premium) | C10 | ✅ 💳 (RICOE v2 §8 — 26-archetype warm semi-realistic OSCE patient faces keyed on ethnicity×gender×age-band, `tools/patients/`, flash `reference=False` non-premium, graceful SVG fallback; installed `a568260`, migration 008 applied `7648d30`) |
+| 22 | Patient face pfps (Chua Ah Hoon + all) via Nano Banana (default = non-premium) | C10 | ✅ 💳 (RICOE v2 §8 — 26-archetype warm semi-realistic OSCE patient faces keyed on ethnicity×gender×age-band, `tools/patients/`, flash `reference=False` non-premium, graceful SVG fallback; installed `1fd2522`, migration 008 applied `addb1e9`) |
 
 ## Selena identity system
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 23 | Per-student avatar customization (skin/hair/clothes/accessories), base = Selena; first-run onboarding + later edit | D1 | ✅ 💳 (**Selena Studio** `576fb52` — gamified one-customization-per-page builder at `/studio` + Profile entry; base = default Selena/Iris; first-run welcome onboarding `08edbaa`; backend registry + `GET/PUT /api/avatar` + migration 006 applied; per-config generate-on-save 3D portrait pipeline `0e943b6`→`91b2e95`) |
-| 24 | Custom streak-milestone icons (5/10/60-day…), upgraded per tier | D2 | ✅ (**MilestoneLadder** badge collection `289d04d`/`1ad75a4` — `STREAK_BADGES` tiers + `<SelenaBadge>` collected→next→locked states, eye-themed per-tier Selena badges on Home; thresholds mirror the streak engine) |
-| 25 | Surface Selena across app features (motion/life where appropriate) | E1 | ✅ 💳 (branding/Selena surfacing `c111eb4` — full `<CoBrand>` lockup with living CSS-breathe + Gemini-halo mascot on every rail-less page; animated `<SelenaLogo>` hero mark; freezes static under reduced motion) |
+| 23 | Per-student avatar customization (skin/hair/clothes/accessories), base = Selena; first-run onboarding + later edit | D1 | ✅ 💳 (**Selena Studio** `3d239fc` — gamified one-customization-per-page builder at `/studio` + Profile entry; base = default Selena/Iris; first-run welcome onboarding `7cb012d`; backend registry + `GET/PUT /api/avatar` + migration 006 applied; per-config generate-on-save 3D portrait pipeline `584c684`→`a4490b3`) |
+| 24 | Custom streak-milestone icons (5/10/60-day…), upgraded per tier | D2 | ✅ (**MilestoneLadder** badge collection `f0037aa`/`511eff7` — `STREAK_BADGES` tiers + `<SelenaBadge>` collected→next→locked states, eye-themed per-tier Selena badges on Home; thresholds mirror the streak engine) |
+| 25 | Surface Selena across app features (motion/life where appropriate) | E1 | ✅ 💳 (branding/Selena surfacing `80a17de` — full `<CoBrand>` lockup with living CSS-breathe + Gemini-halo mascot on every rail-less page; animated `<SelenaLogo>` hero mark; freezes static under reduced motion) |
 
 ## Leaderboard (new page)
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 26 | Backend: leaderboard endpoint (rank by XP only; all users; filter by role) | F | ✅ (`0025e05` — pure `tools/gamification/leaderboard.py`, reworked `GET /api/leaderboard` + `POST /api/leaderboard/prefs`; everyone-by-default with opt-out hide toggle, XP-only rank, role filter; PERSIST_SCHEMA_VERSION 2→3) |
-| 27 | Leaderboard page UI: Selena headshot + name + role + XP + small streak badge | F | ✅ 💳 (`6e8fc31` — `/leaderboard` page + Atlas Rail entry, `<Selena>` headshots + display name + role + XP; migration 008 applied `7648d30`) |
+| 26 | Backend: leaderboard endpoint (rank by XP only; all users; filter by role) | F | ✅ (`e7a03ed` — pure `tools/gamification/leaderboard.py`, reworked `GET /api/leaderboard` + `POST /api/leaderboard/prefs`; everyone-by-default with opt-out hide toggle, XP-only rank, role filter; PERSIST_SCHEMA_VERSION 2→3) |
+| 27 | Leaderboard page UI: Selena headshot + name + role + XP + small streak badge | F | ✅ 💳 (`ba61f2a` — `/leaderboard` page + Atlas Rail entry, `<Selena>` headshots + display name + role + XP; migration 008 applied `addb1e9`) |
 
 ---
 

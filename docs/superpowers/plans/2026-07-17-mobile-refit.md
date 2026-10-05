@@ -57,7 +57,7 @@ it before measuring, since measuring is read-only.
 
 `aurora_assert.mjs:351` (`.locator('[data-testid="flash-exit"]').click()`) fails with
 `locator.click: Timeout 30000ms exceeded` on **unmodified `origin/main`** (verified at
-`42bcf0a` by building a clean detached worktree and running the identical file — the test
+`6738574` by building a clean detached worktree and running the identical file — the test
 is byte-identical to origin/main on this branch). It is **not** a regression from this
 work. CI never runs the visual harnesses, so it has been red silently. Tracked separately;
 do not let it block this branch, and do not "fix" it with `{ force: true }` — `force`
@@ -119,7 +119,7 @@ tests the one landscape width where this bug hides.
 - Rewrite: `frontend/tests/rotate_gate_assert.mjs`
 - Modify: `frontend/src/aurora/motion.css:23,33,50-53`
 
-**Why:** `animation-fill-mode: both` retains the final keyframe forever. `aurora-rise-over`'s 100% is `transform: none`, but a *filling animated* transform computes to `matrix(1,0,0,1,0,0)` — identity, which is **not `none`** — so `.aurora-page-enter` permanently establishes a containing block for every `position: fixed` descendant. `RouteReveal` wraps every route in it. Measured: `.rotate-gate` is 390×1723 in an 844px viewport and scrolls away with content. Commit `8df25a1` diagnosed this exact mechanism and patched one overlay symptomatically; this fixes the source.
+**Why:** `animation-fill-mode: both` retains the final keyframe forever. `aurora-rise-over`'s 100% is `transform: none`, but a *filling animated* transform computes to `matrix(1,0,0,1,0,0)` — identity, which is **not `none`** — so `.aurora-page-enter` permanently establishes a containing block for every `position: fixed` descendant. `RouteReveal` wraps every route in it. Measured: `.rotate-gate` is 390×1723 in an 844px viewport and scrolls away with content. Commit `6a1813a` diagnosed this exact mechanism and patched one overlay symptomatically; this fixes the source.
 
 - [ ] **Step 1: Create the shared device matrix**
 
@@ -249,7 +249,7 @@ broken, silently breaks every future overlay:
    .aurora-page-enter (RouteReveal) had `animation-fill-mode: both` over keyframes
    containing a transform; a filling transform stays a containing block for fixed
    descendants forever, so every overlay silently pinned to the page box instead of
-   the viewport (rotate gate, station report, Studio popup -> commit 8df25a1). */
+   the viewport (rotate gate, station report, Studio popup -> commit 6a1813a). */
 import { chromium } from "playwright";
 import { student, seededContext } from "./_mocks.mjs";
 
@@ -310,7 +310,7 @@ Line 23:
    and a filling transform (even the identity matrix that `transform: none` computes
    to) keeps this element a containing block for every position:fixed descendant —
    which silently pins overlays to the page box instead of the viewport (rotate gate,
-   station report, Studio popup / commit 8df25a1). `backwards` still applies the 0%
+   station report, Studio popup / commit 6a1813a). `backwards` still applies the 0%
    keyframe before the run (preserving the entrance and any animation-delay), and the
    settled state is identical because 100% IS the natural style. Never revert to `both`;
    frontend/tests/fixed_overlay_assert.mjs guards this. */
@@ -381,7 +381,7 @@ animation-fill-mode:both retains the final keyframe forever, and a filling trans
 containing block for every position:fixed descendant. RouteReveal wraps every route,
 so every overlay in the app was pinned to the page box, not the viewport: the OSCE
 rotate gate measured 390x1723 in an 844px viewport and scrolled away with content
-(the reported 'flashes then disappears'). Commit 8df25a1 hit this and portaled one
+(the reported 'flashes then disappears'). Commit 6a1813a hit this and portaled one
 overlay out; this fixes the source.
 
 backwards keeps the entrance (0% still applies before the run, delays still stagger)
@@ -401,7 +401,7 @@ viewport-sized box, no movement under scroll, and return-on-rotate-back."
 > `fixed_overlay_assert.mjs` guards the containing-block invariant at the *root*,
 > app-wide, across five overlays; a portal would protect only this one element **and
 > blind that assert on the one surface I'd flagged**. It is also the same
-> one-element symptomatic patch as commit `8df25a1`, which is exactly why the root
+> one-element symptomatic patch as commit `6a1813a`, which is exactly why the root
 > cause survived to break this gate. With Task 1 in, `rotate_gate_assert.mjs` is
 > already 7/7 green — including the scroll-immunity and rotate-back assertions the
 > portal was supposed to protect. The freed budget goes to a real bug found while
@@ -594,7 +594,7 @@ NOT portalling the gate to <body>, which the spec originally called for. Task 1'
 fixed_overlay_assert guards the containing-block invariant at the root across five
 overlays; a portal would protect only this element while blinding that assert on the
 one surface I'd flagged. It is also the same one-element symptomatic
-patch as 8df25a1 -- which is why the root cause survived to break this gate.
+patch as 6a1813a -- which is why the root cause survived to break this gate.
 EOF
 git commit -F .tmp/msg.txt
 ```
@@ -1419,7 +1419,7 @@ a specified criterion, with the tier system and the acceptance criteria from spe
 the next session refines it instead of rebuilding it. Note the two **pre-existing lock
 violations** this work resolves (mobile co-brand absence) and the one it makes explicit
 (the Global-language lock's "72px → 248px hover rail" wording is already stale after
-commit 5e6019f and does not apply to touch).
+commit a941f2e and does not apply to touch).
 
 - [ ] **Step 6: Ship**
 
