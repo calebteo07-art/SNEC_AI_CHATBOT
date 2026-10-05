@@ -14,7 +14,7 @@ the plain streak/badge/progress cards lifted; and the greeting-card Selena made
 **always the default mascot** and truly animated (CSS now, a **Veo** looping
 video as a gated follow-on).
 
-User directive (2026-07-10, verbatim intent): "enlarge and make alive the fire
+My brief (2026-07-10, verbatim): "enlarge and make alive the fire
 icon in the streak card, enlarge all words in all homepage cards, customise and
 make mesmerizing the feature cards with default Selena via Nano-Banana flash, fix
 the plainness of streak/badge/progress (nano/veo or not, my judgment), and the

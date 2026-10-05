@@ -26,7 +26,7 @@ Provisioning and are out of scope here.)
 
 The board shows the **whole cohort**; the promotion **race stays per-league**.
 
-User directive, 2026-08-07: *"i want all students to be able to see everyone, even in
+My brief, 2026-08-07: *"i want all students to be able to see everyone, even in
 different leagues just place the league label beside the name or something."*
 
 Two follow-up decisions, both confirmed:

@@ -48,7 +48,7 @@ A **Duolingo-style weekly league**, promotion-only, on a black stage with a
 | Division names | Reuse **Bronze · Silver · Gold · Platinum · Diamond** + existing colours | No new nomenclature or art; students already see these colours. |
 | Pool | One pool per division, **all disciplines together** | A cohort this size split three ways makes leagues too thin to be a race. |
 | Role filter | Stays, but as a **view filter only** | It must never change who you are actually racing, or ranks stop meaning anything. |
-| Stakes | **Promotion only — no demotion, ever** | User decision. The cohort is named and supervisor-visible; public relegation is a real morale risk. |
+| Stakes | **Promotion only — no demotion, ever** | My decision. The cohort is named and supervisor-visible; public relegation is a real morale risk. |
 | Rollover | **Lazy + idempotent on read**, no cron, no Celery | Matches the existing `xp_week` lazy-reset pattern. There is no Celery beat schedule, and the one existing queue has a known silent-drop bug. |
 | Ceremony show-once | **Server-side flag**, not localStorage | CLAUDE.md's show-once invariant; must survive a device switch. |
 

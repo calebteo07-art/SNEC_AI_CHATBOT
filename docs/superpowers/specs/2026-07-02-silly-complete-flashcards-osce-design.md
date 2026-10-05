@@ -42,7 +42,7 @@ Two content tracks, not three.
 | D4 | Add `situational` as a third `kind` | Metadata only (not rendered) → low-risk; enables the required mix + a mix-enforcing test |
 | D5 | New Foundations topic `disorders_lens_cataract` | Cataract is a major SNEC area (Disorders of the Lens + perioperative cataract) |
 | D6 | OSCE: author 4 OT gap stations only | Matches "remaining"; OSCE is practical by nature; knowledge domains covered by flashcards + woven into existing scenarios |
-| D7 | Topic-card images: solid-color hue fallback | User directive; no image-gen cost |
+| D7 | Topic-card images: solid-color hue fallback | My call; no image-gen cost |
 | D8 | Phased delivery, shipped per complete topic | Incremental value; every push is green real content |
 
 ## 3. Taxonomy (final = 45 topics)
