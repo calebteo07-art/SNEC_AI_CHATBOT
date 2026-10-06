@@ -210,7 +210,7 @@ in [**`docs/DEVELOPING.md`**](docs/DEVELOPING.md).
 
 | If you want to… | Read |
 |---|---|
-| Take over the project | [`HANDOVER.md`](HANDOVER.md): risks, open decisions, a first-week plan |
+| Build on the project | [`HANDOVER.md`](HANDOVER.md): the original and SP's copy, risks, open decisions, a first-week plan |
 | Run, change or deploy it | [`docs/DEVELOPING.md`](docs/DEVELOPING.md) |
 | Operate production | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) |
 | Understand the system | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.md`](docs/SECURITY.md) |
